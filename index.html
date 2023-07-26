@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<script src="https://d3js.org/d3.v7.min.js"></script>
+<body>
+<button id="startButton">Start</button>
+<script>
+// Create an SVG container to hold the visualization.
+let svg = d3.select("body").append("svg")
+    .attr("width", 800)
+    .attr("height", 800);
+
+// Create the circle.
+let circle = svg.append("circle")
+    .attr("cx", 400)
+    .attr("cy", 400)
+    .attr("r", 50)
+    .style("fill", "blue");
+
+let audioContext;
+let analyser;
+
+document.getElementById('startButton').addEventListener('click', function() {
+    // Set up the audio context and analyser.
+    audioContext = new (window.AudioContext || window.webkitAudioContext)();
+    analyser = audioContext.createAnalyser();
+    
+    // Connect the microphone stream to the analyzer and the analyzer to the destination.
+    navigator.mediaDevices.getUserMedia({ audio: true, video: false })
+        .then(function(stream) {
+            // Create a gain node to prevent audio feedback.
+            var gainNode = audioContext.createGain();
+            gainNode.gain.value = 0;  // Mute the audio.
+
+            let source = audioContext.createMediaStreamSource(stream);
+            source.connect(analyser);
+            analyser.connect(gainNode);
+            gainNode.connect(audioContext.destination);
+
+            // Start rendering the visualization.
+            animate();
+        })
+        .catch(function(err) {
+            console.log('The following error occured: ' + err);
+        });
+});
+
+function animate() {
+    requestAnimationFrame(animate);
+
+    // Get the average volume of the sound.
+    let data = new Uint8Array(analyser.frequencyBinCount);
+    analyser.getByteFrequencyData(data);
+    let average = getAverageVolume(data);
+
+    // Update the radius of the circle based on the average volume.
+    circle.attr("r", average);
+}
+
+function getAverageVolume(array) {
+    let values = 0;
+    let average;
+    let length = array.length;
+
+    // Get all the frequency amplitudes.
+    for (let i = 0; i < length; i++) {
+        values += array[i];
+    }
+
+    average = values / length;
+    return average;
+}
+</script>
+</body>
+</html>
