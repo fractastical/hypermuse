@@ -3,10 +3,7 @@
 <body>
 <button id="startButton">Start</button>
 <script>
-let scene, camera, renderer, audioContext, analyser;
-let spheres = [];
-let previousVolume = 0;
-let xPos = 0;
+let scene, camera, renderer, sphere, audioContext, analyser;
 
 function setupThreeJS() {
     // Set up Three.js scene, camera, and renderer.
@@ -16,7 +13,13 @@ function setupThreeJS() {
     renderer.setSize(window.innerWidth, window.innerHeight);
     document.body.appendChild(renderer.domElement);
 
-    // Position the camera.
+    // Create a sphere.
+    let geometry = new THREE.SphereGeometry(1, 32, 32);
+    let material = new THREE.MeshBasicMaterial({color: 0x0000ff});
+    sphere = new THREE.Mesh(geometry, material);
+    scene.add(sphere);
+
+    // Position the camera and the sphere.
     camera.position.z = 5;
 }
 
@@ -53,18 +56,8 @@ function animate() {
     analyser.getByteFrequencyData(data);
     let average = getAverageVolume(data);
 
-    // If the volume has increased significantly, create a new sphere.
-    if (average > previousVolume + 20) {
-        let geometry = new THREE.SphereGeometry(1, 32, 32);
-        let material = new THREE.MeshBasicMaterial({color: 0x0000ff});
-        let sphere = new THREE.Mesh(geometry, material);
-        sphere.position.x = xPos;
-        xPos += 2;  // Move the position to the right for the next sphere.
-        spheres.push(sphere);
-        scene.add(sphere);
-    }
-
-    previousVolume = average;
+    // Update the size of the sphere based on the average volume.
+    sphere.scale.x = sphere.scale.y = sphere.scale.z = average / 50;
 
     // Render the scene.
     renderer.render(scene, camera);
