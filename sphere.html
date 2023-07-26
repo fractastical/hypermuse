@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<script src="https://threejs.org/build/three.js"></script>
+<body>
+<button id="startButton">Start</button>
+<script>
+let scene, camera, renderer, audioContext, analyser;
+let spheres = [];
+let previousVolume = 0;
+let xPos = 0;
+
+function setupThreeJS() {
+    // Set up Three.js scene, camera, and renderer.
+    scene = new THREE.Scene();
+    camera = new THREE.PerspectiveCamera(75, window.innerWidth/window.innerHeight, 0.1, 1000);
+    renderer = new THREE.WebGLRenderer();
+    renderer.setSize(window.innerWidth, window.innerHeight);
+    document.body.appendChild(renderer.domElement);
+
+    // Position the camera.
+    camera.position.z = 5;
+}
+
+function setupAudio() {
+    // Set up the audio context and analyser.
+    audioContext = new (window.AudioContext || window.webkitAudioContext)();
+    analyser = audioContext.createAnalyser();
+
+    // Connect the microphone stream to the analyzer and the analyzer to the destination.
+    navigator.mediaDevices.getUserMedia({ audio: true, video: false })
+        .then(function(stream) {
+            // Create a gain node to prevent audio feedback.
+            let gainNode = audioContext.createGain();
+            gainNode.gain.value = 0;  // Mute the audio.
+
+            let source = audioContext.createMediaStreamSource(stream);
+            source.connect(analyser);
+            analyser.connect(gainNode);
+            gainNode.connect(audioContext.destination);
+
+            // Start rendering the visualization.
+            animate();
+        })
+        .catch(function(err) {
+            console.log('The following error occured: ' + err);
+        });
+}
+
+function animate() {
+    requestAnimationFrame(animate);
+
+    // Get the average volume of the sound.
+    let data = new Uint8Array(analyser.frequencyBinCount);
+    analyser.getByteFrequencyData(data);
+    let average = getAverageVolume(data);
+
+    // If the volume has increased significantly, create a new sphere.
+    if (average > previousVolume + 20) {
+        let geometry = new THREE.SphereGeometry(1, 32, 32);
+        let material = new THREE.MeshBasicMaterial({color: 0x0000ff});
+        let sphere = new THREE.Mesh(geometry, material);
+        sphere.position.x = xPos;
+        xPos += 2;  // Move the position to the right for the next sphere.
+        spheres.push(sphere);
+        scene.add(sphere);
+    }
+
+    previousVolume = average;
+
+    // Render the scene.
+    renderer.render(scene, camera);
+}
+
+function getAverageVolume(array) {
+    let values = 0;
+    let average;
+    let length = array.length;
+
+    // Get all the frequency amplitudes.
+    for (let i = 0; i < length; i++) {
+        values += array[i];
+    }
+
+    average = values / length;
+    return average;
+}
+
+document.getElementById('startButton').addEventListener('click', function() {
+    setupThreeJS();
+    setupAudio();
+});
+</script>
+</body>
+</html>
