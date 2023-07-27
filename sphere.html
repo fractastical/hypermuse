@@ -65,6 +65,9 @@ function animate() {
         sphere.position.x = xPos;
         xPos += 2;  // Move the position to the right for the next sphere.
         scene.add(sphere);
+
+        // Move the camera along with the sphere generation.
+        camera.position.x = xPos;
     }
 
     // Render the scene.
