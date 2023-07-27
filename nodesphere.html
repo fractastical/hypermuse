@@ -105,8 +105,15 @@
             return average;
         }
 
+        let hueOffsetSpeed = 0.5; // controls the speed of hue change. Adjust as per your need.
+
         function animate() {
             requestAnimationFrame(animate);
+
+            hueOffset += hueOffsetSpeed;
+            if(hueOffset > 360) {
+                hueOffset -= 360;
+            }
 
             // Analyze the audio data
             let data = new Uint8Array(analyser.frequencyBinCount);
@@ -178,8 +185,8 @@
                 }
             }
 
-            scene.rotation.x += 0.01;
-            scene.rotation.y += 0.01;
+            scene.rotation.x += 0.005;
+            scene.rotation.y += 0.005;
 
             // Render the scene
             renderer.render(scene, camera);
