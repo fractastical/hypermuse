@@ -23,6 +23,7 @@ function setupAudio() {
     // Set up the audio context and analyser.
     audioContext = new (window.AudioContext || window.webkitAudioContext)();
     analyser = audioContext.createAnalyser();
+    analyser.fftSize = 2048;
 
     // Connect the microphone stream to the analyzer and the analyzer to the destination.
     navigator.mediaDevices.getUserMedia({ audio: true, video: false })
@@ -135,7 +136,7 @@ function animate() {
     prevUpperAverage = upperAverage;
 
     // Move the camera along with the sphere generation.
-    camera.position.x = xPos;
+    camera.position.x = xPos - 20;
 
     // Render the scene.
     renderer.render(scene, camera);
