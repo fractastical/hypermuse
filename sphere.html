@@ -44,47 +44,106 @@ function setupAudio() {
         });
 }
 
-let prevAverage = 0;
+let prevLowerAverage = 0;
+let prevUpperAverage = 0;
 
 function animate() {
     requestAnimationFrame(animate);
 
-    // Get the average volume of the sound.
+    // Get the frequency data.
     let data = new Uint8Array(analyser.frequencyBinCount);
     analyser.getByteFrequencyData(data);
-    let average = getAverageVolume(data);
+
+    // Split the frequency data into lower and upper halves.
+    let half = data.length / 2;
+    let lowerData = data.slice(0, half);
+    let upperData = data.slice(half);
+
+    // Calculate the average volume in the lower and upper bands.
+    let lowerAverage = getAverageVolume(lowerData);
+    let upperAverage = getAverageVolume(upperData);
 
     // Calculate the change in volume.
-    let delta = Math.abs(prevAverage - average);
+    let lowerDelta = Math.abs(prevLowerAverage - lowerAverage);
+    let upperDelta = Math.abs(prevUpperAverage - upperAverage);
 
-    // If the volume change exceeds a certain threshold, create a new sphere.
-    if (delta > 5) {
-        // Limit the maximum average volume used for the geometry and color calculations.
-        let limitedAverage = Math.min(average, 100);
-
-        // Get the color based on the volume. This is a simplistic mapping, but you could use a more sophisticated approach based on Goethe's color theory.
-        let color = new THREE.Color('hsl(' + limitedAverage + ', 100%, 50%)');
-        console.log(average);
-
-        let geometry = new THREE.SphereGeometry(limitedAverage / 100, limitedAverage, limitedAverage);
-        let material = new THREE.MeshBasicMaterial({color: color});
+    // If the volume change in the lower band exceeds a certain threshold, create a small red sphere.
+    if (lowerDelta > 5) {
+        let geometry = new THREE.SphereGeometry(0.5, 32, 32);
+        let material = new THREE.MeshBasicMaterial({color: 'red'});
         let sphere = new THREE.Mesh(geometry, material);
-        sphere.castShadow = true;  // Enable shadows for this sphere.
+        sphere.castShadow = true;
 
         sphere.position.x = xPos;
-        xPos += 1;  // Move the position to the right for the next sphere.
+        xPos += 2;
         scene.add(sphere);
 
-        // Move the camera along with the sphere generation.
         camera.position.x = xPos;
     }
 
-    // Store the current average volume for the next frame.
-    prevAverage = average;
+    // If the volume change in the upper band exceeds a certain threshold, create a large blue sphere.
+    if (upperDelta > 5) {
+        let geometry = new THREE.SphereGeometry(1, 32, 32);
+        let material = new THREE.MeshBasicMaterial({color: 'blue'});
+        let sphere = new THREE.Mesh(geometry, material);
+        sphere.castShadow = true;
+
+        sphere.position.x = xPos;
+        xPos += 2;
+        scene.add(sphere);
+
+        camera.position.x = xPos;
+    }
+
+    // Store the current average volumes for the next frame.
+    prevLowerAverage = lowerAverage;
+    prevUpperAverage = upperAverage;
 
     // Render the scene.
     renderer.render(scene, camera);
 }
+
+// let prevAverage = 0;
+
+// function animate() {
+//     requestAnimationFrame(animate);
+
+//     // Get the average volume of the sound.
+//     let data = new Uint8Array(analyser.frequencyBinCount);
+//     analyser.getByteFrequencyData(data);
+//     let average = getAverageVolume(data);
+
+//     // Calculate the change in volume.
+//     let delta = Math.abs(prevAverage - average);
+
+//     // If the volume change exceeds a certain threshold, create a new sphere.
+//     if (delta > 5) {
+//         // Limit the maximum average volume used for the geometry and color calculations.
+//         let limitedAverage = Math.min(average, 100);
+
+//         // Get the color based on the volume. This is a simplistic mapping, but you could use a more sophisticated approach based on Goethe's color theory.
+//         let color = new THREE.Color('hsl(' + limitedAverage + ', 100%, 50%)');
+//         console.log(average);
+
+//         let geometry = new THREE.SphereGeometry(limitedAverage / 100, limitedAverage, limitedAverage);
+//         let material = new THREE.MeshBasicMaterial({color: color});
+//         let sphere = new THREE.Mesh(geometry, material);
+//         sphere.castShadow = true;  // Enable shadows for this sphere.
+
+//         sphere.position.x = xPos;
+//         xPos += 1;  // Move the position to the right for the next sphere.
+//         scene.add(sphere);
+
+//         // Move the camera along with the sphere generation.
+//         camera.position.x = xPos;
+//     }
+
+//     // Store the current average volume for the next frame.
+//     prevAverage = average;
+
+//     // Render the scene.
+//     renderer.render(scene, camera);
+// }
 
 
 function getAverageVolume(array) {
