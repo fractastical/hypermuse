@@ -88,7 +88,10 @@
                 let volume = getAverageVolume(band);
                 
                 if (volume > volumeThreshold) {
-                    let color = new THREE.Color('hsl(' + volume + ', 100%, 50%)');
+                    let hue = volume + 120;  // Adds 240 to the hue, resulting in a color that is a mix of blue and other colors.
+                    if (hue > 360) hue -= 360;  // Ensures that hue is in the range of 0 to 360.
+                    let color = new THREE.Color('hsl(' + hue + ', 100%, 50%)');
+
                     points[i].material.color = color;  // Change point color
 
                     // let bandVertices = vertices.filter(vertex => vertex.band === i);
