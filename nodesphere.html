@@ -10,7 +10,10 @@
 </head>
 <body>
     <button id="startButton">Start</button>
-
+    Hue:<input id="hue" type="text" value="120"  />
+    <script>
+        let hueoffset = 120;
+</script>
     <div id="container"></div>
     <script>
         // Create the scene, camera, renderer, etc...
@@ -88,7 +91,7 @@
                 let volume = getAverageVolume(band);
                 
                 if (volume > volumeThreshold) {
-                    let hue = volume + 120;  // Adds 240 to the hue, resulting in a color that is a mix of blue and other colors.
+                    let hue = volume + hueoffset;  // Adds 240 to the hue, resulting in a color that is a mix of blue and other colors.
                     if (hue > 360) hue -= 360;  // Ensures that hue is in the range of 0 to 360.
                     let color = new THREE.Color('hsl(' + hue + ', 100%, 50%)');
 
@@ -137,6 +140,19 @@
             setupAudio();
             animate();
         });
+
+        document.getElementById('hue').addEventListener('change', function() {
+            console.log("hugchange");
+            try {
+                hueoffset = parseInt(document.getElementById('hue').value); 
+                console.log(hueoffset);
+            } catch (error) {
+                hueoffset = 120;
+            }
+            
+            animate();
+        });
+
 
         function setupAudio() {
             // Set up the audio context and analyser.
