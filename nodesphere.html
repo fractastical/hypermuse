@@ -81,8 +81,9 @@
             analyser.getByteFrequencyData(data);
 
             let bandSize = Math.floor(data.length / numBands);
+            // for (let i = 0; i < numBands; i++) {
 
-            for (let i = 0; i < numBands; i++) {
+            for (let i = 0; i < 33; i++) {
                 let band = data.slice(i * bandSize, (i + 1) * bandSize);
                 let volume = getAverageVolume(band);
                 
@@ -90,8 +91,10 @@
                     let color = new THREE.Color('hsl(' + volume + ', 100%, 50%)');
                     points[i].material.color = color;  // Change point color
 
-                    let bandVertices = vertices.filter(vertex => vertex.band === i);
-            // If more than 50 vertices are above the volume threshold, we don't create the line.
+                    // let bandVertices = vertices.filter(vertex => vertex.band === i);
+
+                    let bandVertices =  0;
+                    // If more than 50 vertices are above the volume threshold, we don't create the line.
             if(bandVertices.length > 50) {
                 continue;
             }
