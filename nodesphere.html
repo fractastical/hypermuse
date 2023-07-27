@@ -100,6 +100,14 @@
                             let line = new THREE.Line(geometry, new THREE.LineBasicMaterial({color: color}));
                             scene.add(line);
                             lines.push(line);
+                            setTimeout(() => {
+                                    scene.remove(line);
+                                    const index = lines.indexOf(line);
+                                    if (index > -1) {
+                                        lines.splice(index, 1);
+                                    }
+                                }, 1000);
+
                         }
                     }
                 }
