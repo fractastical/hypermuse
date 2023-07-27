@@ -140,17 +140,17 @@
                             scene.add(line);
                             lines.push(line);
 
-                            let geom = new THREE.Geometry();
-                            geom.vertices.push(points[i].position, points[j].position);
-                            geom.faces.push(new THREE.Face3(0, 1, 2));
-                            let mesh = new THREE.Mesh(geom, new THREE.MeshBasicMaterial({
-                                color: color,
-                                opacity: 1,
-                                transparent: true,
-                                side: THREE.DoubleSide
-                            }));
-                            geometries.push({geometry: mesh, age: 0});
-                            scene.add(mesh);
+                            // let geom = new THREE.Geometry();
+                            // geom.vertices.push(points[i].position, points[j].position);
+                            // geom.faces.push(new THREE.Face3(0, 1, 2));
+                            // let mesh = new THREE.Mesh(geom, new THREE.MeshBasicMaterial({
+                            //     color: color,
+                            //     opacity: 1,
+                            //     transparent: true,
+                            //     side: THREE.DoubleSide
+                            // }));
+                            // geometries.push({geometry: mesh, age: 0});
+                            // scene.add(mesh);
 
                             setTimeout(() => {
                                     scene.remove(line);
