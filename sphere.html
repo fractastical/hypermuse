@@ -3,7 +3,8 @@
 <body>
 <button id="startButton">Start</button>
 <script>
-let scene, camera, renderer, sphere, audioContext, analyser;
+let scene, camera, renderer, audioContext, analyser;
+let xPos = 0;
 
 function setupThreeJS() {
     // Set up Three.js scene, camera, and renderer.
@@ -11,15 +12,10 @@ function setupThreeJS() {
     camera = new THREE.PerspectiveCamera(75, window.innerWidth/window.innerHeight, 0.1, 1000);
     renderer = new THREE.WebGLRenderer();
     renderer.setSize(window.innerWidth, window.innerHeight);
+    renderer.shadowMap.enabled = true;
     document.body.appendChild(renderer.domElement);
 
-    // Create a sphere.
-    let geometry = new THREE.SphereGeometry(1, 32, 32);
-    let material = new THREE.MeshBasicMaterial({color: 0x0000ff});
-    sphere = new THREE.Mesh(geometry, material);
-    scene.add(sphere);
-
-    // Position the camera and the sphere.
+    // Position the camera.
     camera.position.z = 5;
 }
 
@@ -56,8 +52,20 @@ function animate() {
     analyser.getByteFrequencyData(data);
     let average = getAverageVolume(data);
 
-    // Update the size of the sphere based on the average volume.
-    sphere.scale.x = sphere.scale.y = sphere.scale.z = average / 50;
+    // If the volume exceeds a certain threshold, create a new sphere.
+    if (average > 50) {
+        // Get the color based on the volume. This is a simplistic mapping, but you could use a more sophisticated approach based on Goethe's color theory.
+        let color = new THREE.Color('hsl(' + Math.round(average) + ', 100%, 50%)');
+
+        let geometry = new THREE.SphereGeometry(1, 32, 32);
+        let material = new THREE.MeshBasicMaterial({color: color});
+        let sphere = new THREE.Mesh(geometry, material);
+        sphere.castShadow = true;  // Enable shadows for this sphere.
+
+        sphere.position.x = xPos;
+        xPos += 2;  // Move the position to the right for the next sphere.
+        scene.add(sphere);
+    }
 
     // Render the scene.
     renderer.render(scene, camera);
