@@ -47,9 +47,21 @@ function setupAudio() {
 let prevLowerAverage = 0;
 let prevMidAverage = 0;
 let prevUpperAverage = 0;
+let lowVolume = 0;
+let midVolume = 0;
+let upperVolume = 0;
+
+// Initialize counts and volumes to store data over 3 minute intervals
+let counts = {low: 0, mid: 0, high: 0};
+let volumes = {low: 0, mid: 0, high: 0};
+let thresholds = {low: 33, mid: 66, high: 100};
+let lastResetTime = Date.now();
+
 
 function animate() {
     requestAnimationFrame(animate);
+
+    analyzeAudio();
 
     // Get the frequency data.
     let data = new Uint8Array(analyser.frequencyBinCount);
@@ -78,7 +90,7 @@ function animate() {
         let material = new THREE.MeshBasicMaterial({color: new THREE.Color("hsl(" + hue + ", 100%, 50%)")});
         let sphere = new THREE.Mesh(geometry, material);
         sphere.castShadow = true;
-
+        lowVolume += lowerAverage;
         sphere.position.x = xPos;
         sphere.position.y = -2;
         scene.add(sphere);
@@ -93,6 +105,7 @@ function animate() {
         let material = new THREE.MeshBasicMaterial({color: new THREE.Color("hsl(" + hue + ", 100%, 50%)")});
         let sphere = new THREE.Mesh(geometry, material);
         sphere.castShadow = true;
+        midVolume += midAverage;
 
         sphere.position.x = xPos;
         scene.add(sphere);
@@ -112,6 +125,7 @@ function animate() {
         sphere.position.y = 2;
         scene.add(sphere);
         xPos += 0.6;
+        upperVolume += upperAverage;
 
     }
 
@@ -125,6 +139,56 @@ function animate() {
 
     // Render the scene.
     renderer.render(scene, camera);
+}
+
+function analyzeAudio() {
+    let lowVolume = 20;
+    let midVolume = 50;
+    let highVolume = 70;
+
+    // Classify the volume level in each band as "low", "mid", or "high" based on the current thresholds.
+    let lowLevel = classifyVolumeLevel(lowVolume);
+    let midLevel = classifyVolumeLevel(midVolume);
+    let highLevel = classifyVolumeLevel(highVolume);
+
+    // Update the counts and total volumes.
+    counts[lowLevel]++;
+    counts[midLevel]++;
+    counts[highLevel]++;
+    volumes[lowLevel] += lowVolume;
+    volumes[midLevel] += midVolume;
+    volumes[highLevel] += highVolume;
+
+    // Every three minutes, rebalance the thresholds.
+    // if (Date.now() - lastResetTime >= 3 * 60 * 1000) {
+
+    if (Date.now() - lastResetTime >= 0.2 * 60 * 1000) {
+        let avgVolumes = {
+            low: volumes.low / counts.low,
+            mid: volumes.mid / counts.mid,
+            high: volumes.high / counts.high
+        };
+
+        // Adjust the thresholds based on the average volumes.
+        thresholds.low = avgVolumes.low;
+        thresholds.mid = avgVolumes.mid;
+        thresholds.high = avgVolumes.high;
+        console.log(thresholds);
+        // Reset the counts and total volumes.
+        counts = {low: 0, mid: 0, high: 0};
+        volumes = {low: 0, mid: 0, high: 0};
+        lastResetTime = Date.now();
+    }
+}
+
+function classifyVolumeLevel(volume) {
+    if (volume < thresholds.low) {
+        return 'low';
+    } else if (volume < thresholds.mid) {
+        return 'mid';
+    } else {
+        return 'high';
+    }
 }
 
 // let prevAverage = 0;
