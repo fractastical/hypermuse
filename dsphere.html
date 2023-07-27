@@ -13,7 +13,10 @@
 
     <button id="increase">Increase Bands</button>
     <button id="decrease">Decrease Bands</button>
+    <input type="color" id="colorPicker">
+
     <div id="container"></div>
+    
     <script>
         // Create the scene, camera, renderer, etc...
         const scene = new THREE.Scene();
@@ -34,6 +37,7 @@
         let bandCounts = new Array(numBands).fill(0);
         let volumeThresholds = new Array(numBands).fill(20);
         let xPos = 0;
+        var material;
 
         // Button handlers
         document.getElementById('increase').addEventListener('click', () => {
@@ -96,7 +100,7 @@
                     // let color = new THREE.Color('white');
 
                     let geometry = new THREE.SphereGeometry(volume/100, volume, volume);
-                    let material = new THREE.MeshBasicMaterial({color: color});
+                    material = new THREE.MeshBasicMaterial({color: color});
                     let sphere = new THREE.Mesh(geometry, material);
 
                     sphere.position.y = i * 6;  
@@ -120,6 +124,16 @@
         document.getElementById('startButton').addEventListener('click', function() {
             setupAudio();
         });
+
+        document.getElementById('colorPicker').addEventListener('input', function(event) {
+                let color = event.target.value;
+                // Convert the color to a THREE.Color object.
+                let threeColor = new THREE.Color(color);
+                // Update the color of the material.
+                // TODO: Replace with the actual material that you want to change.
+                material.color = threeColor;
+        });
+
 
         function setupAudio() {
             // Set up the audio context and analyser.
