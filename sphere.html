@@ -54,10 +54,14 @@ function animate() {
 
     // If the volume exceeds a certain threshold, create a new sphere.
     if (average > 20) {
+        // Limit the maximum average volume used for the geometry and color calculations.
+        let limitedAverage = Math.min(average, 100);
+
         // Get the color based on the volume. This is a simplistic mapping, but you could use a more sophisticated approach based on Goethe's color theory.
-        let color = new THREE.Color('hsl(' + average + ', 100%, 50%)');
+        let color = new THREE.Color('hsl(' + limitedAverage + ', 100%, 50%)');
         console.log(average);
-;        let geometry = new THREE.SphereGeometry(average/100, average, average);
+
+        let geometry = new THREE.SphereGeometry(limitedAverage / 100, limitedAverage, limitedAverage);
         let material = new THREE.MeshBasicMaterial({color: color});
         let sphere = new THREE.Mesh(geometry, material);
         sphere.castShadow = true;  // Enable shadows for this sphere.
@@ -73,6 +77,8 @@ function animate() {
     // Render the scene.
     renderer.render(scene, camera);
 }
+
+
 
 function getAverageVolume(array) {
     let values = 0;
