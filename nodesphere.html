@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>Audio Reactive Spheres</title>
+    <style>
+        body { margin: 0; overflow: hidden; }
+    </style>
+    <script src="https://threejs.org/build/three.js"></script>
+</head>
+<body>
+    <button id="startButton">Start</button>
+
+
+
+<script>
+let scene = new THREE.Scene();
+let camera = new THREE.PerspectiveCamera(75, window.innerWidth/window.innerHeight, 0.1, 1000);
+let renderer = new THREE.WebGLRenderer();
+
+renderer.setSize(window.innerWidth, window.innerHeight);
+document.body.appendChild(renderer.domElement);
+
+// Set up the audio context and analyser.
+let audioContext = new (window.AudioContext || window.webkitAudioContext)();
+let analyser = audioContext.createAnalyser();
+
+// Number of bands and volume threshold
+let numBands = 128;
+let volumeThreshold = 20;
+
+// Variables to hold the points and lines
+let points = [];
+let lines = [];
+
+// Create the points
+let geometry = new THREE.SphereGeometry(1, numBands, numBands);
+for (let i = 0; i < geometry.vertices.length; i++) {
+    let point = new THREE.Points(geometry, new THREE.PointsMaterial({color: 0xffffff}));
+    point.position.copy(geometry.vertices[i]);
+    scene.add(point);
+    points.push(point);
+}
+
+// Set up the audio input
+navigator.mediaDevices.getUserMedia({ audio: true, video: false })
+    .then(function(stream) {
+        // Create a gain node to prevent audio feedback.
+        let gainNode = audioContext.createGain();
+        gainNode.gain.value = 0;  // Mute the audio.
+
+        let source = audioContext.createMediaStreamSource(stream);
+        source.connect(analyser);
+        analyser.connect(gainNode);
+        gainNode.connect(audioContext.destination);
+        
+        // Start rendering the visualization
+        animate();
+    })
+    .catch(function(err) {
+        console.log('The following error occured: ' + err);
+    });
+
+function animate() {
+    requestAnimationFrame(animate);
+
+    // Clear previous lines
+    lines.forEach(line => scene.remove(line));
+    lines = [];
+
+    // Analyze the audio data
+    let data = new Uint8Array(analyser.frequencyBinCount);
+    analyser.getByteFrequencyData(data);
+
+    for (let i = 0; i < numBands; i++) {
+        let volume = data[i];
+        
+        if (volume > volumeThreshold) {
+            for (let j = i + 1; j < numBands; j++) {
+                if (data[j] > volumeThreshold) {
+                    // Create a line between the two points
+                    let material = new THREE.LineBasicMaterial({color: 0xffffff});
+                    let geometry = new THREE.Geometry();
+                    geometry.vertices.push(
+                        new THREE.Vector3(points[i].position.x, points[i].position.y, points[i].position.z),
+                        new THREE.Vector3(points[j].position.x, points[j].position.y, points[j].position.z)
+                    );
+                    let line = new THREE.Line(geometry, material);
+                    scene.add(line);
+                    lines.push(line);
+                }
+            }
+        }
+    }
+
+    renderer.render(scene, camera);
+}
+
+camera.position.z = 5;
+</script>
+
+</body>
+</html>
