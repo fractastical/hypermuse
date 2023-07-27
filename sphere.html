@@ -53,17 +53,17 @@ function animate() {
     let average = getAverageVolume(data);
 
     // If the volume exceeds a certain threshold, create a new sphere.
-    if (average > 50) {
+    if (average > 20) {
         // Get the color based on the volume. This is a simplistic mapping, but you could use a more sophisticated approach based on Goethe's color theory.
-        let color = new THREE.Color('hsl(' + Math.round(average) + ', 100%, 50%)');
-
-        let geometry = new THREE.SphereGeometry(1, 32, 32);
+        let color = new THREE.Color('hsl(' + average + ', 100%, 50%)');
+        console.log(average);
+;        let geometry = new THREE.SphereGeometry(average/100, average, average);
         let material = new THREE.MeshBasicMaterial({color: color});
         let sphere = new THREE.Mesh(geometry, material);
         sphere.castShadow = true;  // Enable shadows for this sphere.
 
         sphere.position.x = xPos;
-        xPos += 2;  // Move the position to the right for the next sphere.
+        xPos += 1;  // Move the position to the right for the next sphere.
         scene.add(sphere);
 
         // Move the camera along with the sphere generation.
@@ -85,7 +85,7 @@ function getAverageVolume(array) {
     }
 
     average = values / length;
-    return average;
+    return Math.round(average);
 }
 
 document.getElementById('startButton').addEventListener('click', function() {
