@@ -10,9 +10,12 @@
 </head>
 <body>
     <button id="startButton">Start</button>
-    Hue:<input id="hue" type="text" value="120"  />
-    <script>
+    Hue:<input id="hue" type="text" value="120" size ="6"  />
+    Threshold:<input id="threshold" type="text" value="40" size="4"  />
+   <script>
         let hueoffset = 120;
+        let volumeThreshold = 50;
+
 </script>
     <div id="container"></div>
     <script>
@@ -30,7 +33,6 @@
         var analyser;
 
         let numBands = 22;  // The initial number of bands.
-        let volumeThreshold = 20;
         
         // Points and lines
         let points = [];
@@ -142,17 +144,21 @@
         });
 
         document.getElementById('hue').addEventListener('change', function() {
-            console.log("hugchange");
             try {
                 hueoffset = parseInt(document.getElementById('hue').value); 
-                console.log(hueoffset);
             } catch (error) {
                 hueoffset = 120;
             }
-            
-            animate();
-        });
+      });
 
+      document.getElementById('threshold').addEventListener('change', function() {
+            try {
+                volumeThreshold = parseInt(document.getElementById('threshold').value); 
+                console.log(volumeThreshold);
+            } catch (error) {
+                hueoffset = 120;
+            }
+      });
 
         function setupAudio() {
             // Set up the audio context and analyser.
