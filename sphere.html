@@ -45,6 +45,7 @@ function setupAudio() {
 }
 
 let prevLowerAverage = 0;
+let prevMidAverage = 0;
 let prevUpperAverage = 0;
 
 function animate() {
@@ -54,50 +55,73 @@ function animate() {
     let data = new Uint8Array(analyser.frequencyBinCount);
     analyser.getByteFrequencyData(data);
 
-    // Split the frequency data into lower and upper halves.
-    let half = data.length / 2;
-    let lowerData = data.slice(0, half);
-    let upperData = data.slice(half);
+    // Split the frequency data into lower, middle and upper thirds.
+    let third = data.length / 3;
+    let lowerData = data.slice(0, third);
+    let midData = data.slice(third, 2 * third);
+    let upperData = data.slice(2 * third);
 
-    // Calculate the average volume in the lower and upper bands.
+    // Calculate the average volume in the lower, middle and upper bands.
     let lowerAverage = getAverageVolume(lowerData);
+    let midAverage = getAverageVolume(midData);
     let upperAverage = getAverageVolume(upperData);
 
     // Calculate the change in volume.
     let lowerDelta = Math.abs(prevLowerAverage - lowerAverage);
+    let midDelta = Math.abs(prevMidAverage - midAverage);
     let upperDelta = Math.abs(prevUpperAverage - upperAverage);
 
-    // If the volume change in the lower band exceeds a certain threshold, create a small red sphere.
-    if (lowerDelta > 5) {
-        let geometry = new THREE.SphereGeometry(0.5, 32, 32);
-        let material = new THREE.MeshBasicMaterial({color: 'red'});
+    // If the volume change in the lower band exceeds a certain threshold, create a sphere at the bottom.
+    if (lowerDelta > 3) {
+        let geometry = new THREE.SphereGeometry(lowerAverage / 100, 32, 32);
+        let hue = (240 + lowerAverage) % 360;  // Base color is blue, adjust hue based on volume.
+        let material = new THREE.MeshBasicMaterial({color: new THREE.Color("hsl(" + hue + ", 100%, 50%)")});
         let sphere = new THREE.Mesh(geometry, material);
         sphere.castShadow = true;
 
         sphere.position.x = xPos;
-        xPos += 2;
+        sphere.position.y = -2;
         scene.add(sphere);
+        xPos += 0.6;
 
-        camera.position.x = xPos;
     }
 
-    // If the volume change in the upper band exceeds a certain threshold, create a large blue sphere.
-    if (upperDelta > 5) {
-        let geometry = new THREE.SphereGeometry(1, 32, 32);
-        let material = new THREE.MeshBasicMaterial({color: 'blue'});
+    // If the volume change in the middle band exceeds a certain threshold, create a sphere in the middle.
+    if (midDelta > 3) {
+        let geometry = new THREE.SphereGeometry(midAverage / 100, 32, 32);
+        let hue = (0 + midAverage) % 360;  // Base color is red, adjust hue based on volume.
+        let material = new THREE.MeshBasicMaterial({color: new THREE.Color("hsl(" + hue + ", 100%, 50%)")});
         let sphere = new THREE.Mesh(geometry, material);
         sphere.castShadow = true;
 
         sphere.position.x = xPos;
-        xPos += 2;
         scene.add(sphere);
+        xPos += 0.6;
 
-        camera.position.x = xPos;
+    }
+
+    // If the volume change in the upper band exceeds a certain threshold, create a sphere at the top.
+    if (upperDelta > 3) {
+        let geometry = new THREE.SphereGeometry(upperAverage / 100, 32, 32);
+        let hue = (60 + upperAverage) % 360;  // Base color is yellow, adjust hue based on volume.
+        let material = new THREE.MeshBasicMaterial({color: new THREE.Color("hsl(" + hue + ", 100%, 50%)")});
+        let sphere = new THREE.Mesh(geometry, material);
+        sphere.castShadow = true;
+
+        sphere.position.x = xPos;
+        sphere.position.y = 2;
+        scene.add(sphere);
+        xPos += 0.6;
+
     }
 
     // Store the current average volumes for the next frame.
     prevLowerAverage = lowerAverage;
+    prevMidAverage = midAverage;
     prevUpperAverage = upperAverage;
+
+    // Move the camera along with the sphere generation.
+    camera.position.x = xPos;
 
     // Render the scene.
     renderer.render(scene, camera);
