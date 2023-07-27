@@ -8,12 +8,13 @@
     </style>
     <script src="https://threejs.org/build/three.js"></script>
 
-    <script src="https://unpkg.com/delaunator@3.0.2/delaunator.js"></script>
+<script src="https://unpkg.com/delaunator@3.0.2/delaunator.js"></script>
 
-    <script src="https://josephg.github.io/noisejs/perlin.js"></script>
-    
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/dat-gui/0.7.3/dat.gui.min.js"></script>
-    
+<script src="https://josephg.github.io/noisejs/perlin.js"></script>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/dat-gui/0.7.3/dat.gui.min.js"></script>
+<!-- <script src="https://threejs.org/examples/jsm/controls/OrbitControls.js"></script> -->
+
 </head>
 <body>
     <button id="startButton">Start</button>
@@ -34,7 +35,8 @@
 
         renderer.setSize(window.innerWidth, window.innerHeight);
         document.body.appendChild(renderer.domElement);
-        
+        // const controls = new THREE.OrbitControls(camera, renderer.domElement);
+
         // You'll need to set up the audio analyser here...
         // Replace this with your actual analyser initialization.
         var analyser;
@@ -178,6 +180,7 @@
 
             // Render the scene
             renderer.render(scene, camera);
+            // controls.update();
         }
 
         document.getElementById('startButton').addEventListener('click', function() {
