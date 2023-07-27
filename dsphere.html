@@ -30,7 +30,7 @@
         document.body.appendChild(renderer.domElement);
         
         var analyser;
-        let numBands = 7;  // The initial number of bands.
+        let numBands = 12;  // The initial number of bands.
         let bandCounts = new Array(numBands).fill(0);
         let volumeThresholds = new Array(numBands).fill(20);
         let xPos = 0;
@@ -90,7 +90,7 @@
 
                  // if (volume > volumeThresholds[i]) {
                 if (volume > 0) {
-                    console.log(volume);
+                    // console.log(volume);
                     
                     let color = new THREE.Color('hsl(' + volume + ', 100%, 50%)');
                     // let color = new THREE.Color('white');
@@ -99,7 +99,7 @@
                     let material = new THREE.MeshBasicMaterial({color: color});
                     let sphere = new THREE.Mesh(geometry, material);
 
-                    sphere.position.y = i * 4;  
+                    sphere.position.y = i * 6;  
                     sphere.position.x = xPos;
                     
                     scene.add(sphere);
