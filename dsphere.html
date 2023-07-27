@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>Audio Reactive Spheres</title>
+    <style>
+        body { margin: 0; overflow: hidden; }
+    </style>
+    <script src="https://threejs.org/build/three.js"></script>
+</head>
+<body>
+    <button id="startButton">Start</button>
+
+    <button id="increase">Increase Bands</button>
+    <button id="decrease">Decrease Bands</button>
+    <div id="container"></div>
+    <script>
+        // Create the scene, camera, renderer, etc...
+        const scene = new THREE.Scene();
+        // const camera = new THREE.PerspectiveCamera(75, window.innerWidth/window.innerHeight, 0.1, 1000);
+
+        const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+        camera.position.z = 50;  // Increase this to move the camera further out
+        camera.position.y = 30; // Adjust the y-position to match the height of the objects
+
+        const renderer = new THREE.WebGLRenderer();
+        // camera.position.z = 5;  // position the camera
+
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        document.body.appendChild(renderer.domElement);
+        
+        var analyser;
+        let numBands = 7;  // The initial number of bands.
+        let bandCounts = new Array(numBands).fill(0);
+        let volumeThresholds = new Array(numBands).fill(20);
+        let xPos = 0;
+
+        // Button handlers
+        document.getElementById('increase').addEventListener('click', () => {
+            numBands++;
+            bandCounts.push(0);
+            volumeThresholds.push(20);
+        });
+
+        document.getElementById('decrease').addEventListener('click', () => {
+            numBands = Math.max(1, numBands - 1);  // Ensure that we have at least one band.
+            bandCounts.pop();
+            volumeThresholds.pop();
+        });
+
+        // Volume adjustment
+        function adjustVolumeThresholds() {
+            let minCount = Math.min(...bandCounts);
+            let maxCount = Math.max(...bandCounts);
+
+            let minIndex = bandCounts.indexOf(minCount);
+            let maxIndex = bandCounts.indexOf(maxCount);
+
+            volumeThresholds[minIndex] = Math.max(0, volumeThresholds[minIndex] - 1);
+            volumeThresholds[maxIndex] = Math.min(100, volumeThresholds[maxIndex] + 1);
+        }
+
+        setInterval(adjustVolumeThresholds, 10000);
+
+        // Average volume calculation
+        function getAverageVolume(array) {
+            var values = 0;
+            var average;
+            var length = array.length;
+            for (var i = 0; i < length; i++) {
+                values += array[i];
+            }
+            average = values / length;
+            return average;
+        }
+
+        // Animation
+        function animate() {
+            requestAnimationFrame(animate);
+
+            // Analyze the audio data
+            let data = new Uint8Array(analyser.frequencyBinCount);
+            analyser.getByteFrequencyData(data);
+
+            let bandSize = Math.floor(data.length / numBands);
+
+            for (let i = 0; i < numBands; i++) {
+                let band = data.slice(i * bandSize, (i + 1) * bandSize);
+                let volume = getAverageVolume(band);
+
+                 // if (volume > volumeThresholds[i]) {
+                if (volume > 0) {
+                    console.log(volume);
+                    
+                    let color = new THREE.Color('hsl(' + volume + ', 100%, 50%)');
+                    // let color = new THREE.Color('white');
+
+                    let geometry = new THREE.SphereGeometry(volume/100, volume, volume);
+                    let material = new THREE.MeshBasicMaterial({color: color});
+                    let sphere = new THREE.Mesh(geometry, material);
+
+                    sphere.position.y = i * 4;  
+                    sphere.position.x = xPos;
+                    
+                    scene.add(sphere);
+
+                    bandCounts[i]++;
+                }
+            }
+
+            camera.position.x = xPos - 50;
+
+            xPos += 1;
+
+            // Render the scene
+            renderer.render(scene, camera);
+        }
+
+        // Audio setup
+        document.getElementById('startButton').addEventListener('click', function() {
+            setupAudio();
+        });
+
+        function setupAudio() {
+            // Set up the audio context and analyser.
+            audioContext = new (window.AudioContext || window.webkitAudioContext)();
+            analyser = audioContext.createAnalyser();
+
+            // Connect the microphone stream to the analyzer and the analyzer to the destination.
+            navigator.mediaDevices.getUserMedia({ audio: true, video: false })
+                .then(function(stream) {
+                    // Create a gain node to prevent audio feedback.
+                    let gainNode = audioContext.createGain();
+                    gainNode.gain.value = 0;  // Mute the audio.
+
+                    let source = audioContext.createMediaStreamSource(stream);
+                    source.connect(analyser);
+                    analyser.connect(gainNode);
+                    gainNode.connect(audioContext.destination);
+
+                    // Start rendering the visualization.
+                    animate();
+                })
+                .catch(function(err) {
+                    console.log('The following error occured: ' + err);
+                });
+        }
+    </script>
+</body>
+</html>
