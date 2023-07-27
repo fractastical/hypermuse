@@ -37,6 +37,7 @@
         // Points and lines
         let points = [];
         let lines = [];
+        let geometries = [];
 
         // Generate points on the surface of a sphere using the Golden Spiral algorithm
         let goldenRatio = (1 + Math.sqrt(5)) / 2;
@@ -67,6 +68,23 @@
                     points.push(point);
         }
 
+        function createTriangleGeometry(a, b, c) {
+            var geometry = new THREE.BufferGeometry();
+
+            var vertices = new Float32Array([
+                a.x, a.y, a.z,
+                b.x, b.y, b.z,
+                c.x, c.y, c.z
+            ]);
+
+            var indices = new Uint16Array([0, 1, 2]);
+
+            geometry.setAttribute('position', new THREE.BufferAttribute(vertices, 3));
+            geometry.setIndex(new THREE.BufferAttribute(indices, 1));
+
+            return geometry;
+        }
+
         function getAverageVolume(array) {
             var values = 0;
             var average;
@@ -88,6 +106,7 @@
             let bandSize = Math.floor(data.length / numBands);
             // for (let i = 0; i < numBands; i++) {
 
+
             for (let i = 0; i < 33; i++) {
                 let band = data.slice(i * bandSize, (i + 1) * bandSize);
                 let volume = getAverageVolume(band);
@@ -107,6 +126,9 @@
                 continue;
             }
 
+
+                
+
                     // Draw lines to other points that are also above the threshold
                     for (let j = 0; j < i; j++) {
                         let otherBand = data.slice(j * bandSize, (j + 1) * bandSize);
@@ -117,6 +139,19 @@
                             let line = new THREE.Line(geometry, new THREE.LineBasicMaterial({color: color}));
                             scene.add(line);
                             lines.push(line);
+
+                            let geom = new THREE.Geometry();
+                            geom.vertices.push(points[i].position, points[j].position);
+                            geom.faces.push(new THREE.Face3(0, 1, 2));
+                            let mesh = new THREE.Mesh(geom, new THREE.MeshBasicMaterial({
+                                color: color,
+                                opacity: 1,
+                                transparent: true,
+                                side: THREE.DoubleSide
+                            }));
+                            geometries.push({geometry: mesh, age: 0});
+                            scene.add(mesh);
+
                             setTimeout(() => {
                                     scene.remove(line);
                                     line.geometry.dispose();
