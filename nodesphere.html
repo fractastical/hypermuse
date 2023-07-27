@@ -90,6 +90,12 @@
                     let color = new THREE.Color('hsl(' + volume + ', 100%, 50%)');
                     points[i].material.color = color;  // Change point color
 
+                    let bandVertices = vertices.filter(vertex => vertex.band === i);
+            // If more than 50 vertices are above the volume threshold, we don't create the line.
+            if(bandVertices.length > 50) {
+                continue;
+            }
+
                     // Draw lines to other points that are also above the threshold
                     for (let j = 0; j < i; j++) {
                         let otherBand = data.slice(j * bandSize, (j + 1) * bandSize);
@@ -102,10 +108,14 @@
                             lines.push(line);
                             setTimeout(() => {
                                     scene.remove(line);
+                                    line.geometry.dispose();
+                                    line.material.dispose();
+                                    scene.remove(line);
                                     const index = lines.indexOf(line);
                                     if (index > -1) {
                                         lines.splice(index, 1);
                                     }
+
                                 }, 1000);
 
                         }
