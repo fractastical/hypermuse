@@ -44,6 +44,8 @@ function setupAudio() {
         });
 }
 
+let prevAverage = 0;
+
 function animate() {
     requestAnimationFrame(animate);
 
@@ -52,8 +54,11 @@ function animate() {
     analyser.getByteFrequencyData(data);
     let average = getAverageVolume(data);
 
-    // If the volume exceeds a certain threshold, create a new sphere.
-    if (average > 20) {
+    // Calculate the change in volume.
+    let delta = Math.abs(prevAverage - average);
+
+    // If the volume change exceeds a certain threshold, create a new sphere.
+    if (delta > 5) {
         // Limit the maximum average volume used for the geometry and color calculations.
         let limitedAverage = Math.min(average, 100);
 
@@ -74,10 +79,12 @@ function animate() {
         camera.position.x = xPos;
     }
 
+    // Store the current average volume for the next frame.
+    prevAverage = average;
+
     // Render the scene.
     renderer.render(scene, camera);
 }
-
 
 
 function getAverageVolume(array) {
