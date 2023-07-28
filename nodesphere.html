@@ -110,9 +110,9 @@
         function animate() {
             requestAnimationFrame(animate);
 
-            hueOffset += hueOffsetSpeed;
-            if(hueOffset > 360) {
-                hueOffset -= 360;
+            hueoffset += hueOffsetSpeed;
+            if(hueoffset > 360) {
+                hueoffset -= 360;
             }
 
             // Analyze the audio data
@@ -185,8 +185,8 @@
                 }
             }
 
-            scene.rotation.x += 0.005;
-            scene.rotation.y += 0.005;
+            scene.rotation.x += 0.001;
+            scene.rotation.y += 0.001;
 
             // Render the scene
             renderer.render(scene, camera);
