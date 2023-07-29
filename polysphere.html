@@ -12,10 +12,11 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/dat-gui/0.7.3/dat.gui.min.js"></script>
 </head>
 <body>
-    <button id="startButton">Start</button>
     <div id="thresholds"></div>
     <div id="container"></div>
-    <script>
+    <button id="startButton">Start</button>
+
+<script>
         let hueoffset = 120;
         let volumeThreshold = 50;
         let thresholds = Array(22).fill(40);
@@ -126,6 +127,19 @@
                     lastPoints.push(points[i].position.clone());
                 }
             }
+            for (let i = 0; i < numBands; i++) {
+                let band = data.slice(i * bandSize, (i + 1) * bandSize);
+                let volume = getAverageVolume(band);
+                let volumeDisplay = document.getElementById('volume' + i);
+                volumeDisplay.textContent = 'v: ' + volume.toFixed(2) + ' / ' + volumeThresholds[i];
+
+                if (volume >= volumeThresholds[i]) {
+                    volumeDisplay.style.color = '#00ff00'; // green
+                    //... rest of the logic
+                } else {
+                    volumeDisplay.style.color = '#ff0000'; // red
+                }
+            }
 
             for (let i = geometries.length - 1; i >= 0; i--) {
                 geometries[i].age++;
@@ -155,23 +169,35 @@
             });
         });
 
-        let thresholdContainer = document.getElementById('thresholds');
-        for (let i = 0; i < numBands; i++) {
-            let threshold = document.createElement('div');
-            let thresholdInput = document.createElement('input');
-            thresholdInput.type = 'range';
-            thresholdInput.min = '0';
-            thresholdInput.max = '255';
-            thresholdInput.value = thresholds[i];
-            thresholdInput.addEventListener('change', function() {
-                thresholds[i] = parseInt(this.value);
-            });
-            threshold.appendChild(thresholdInput);
-            let thresholdLabel = document.createElement('label');
-            thresholdLabel.innerText = 'Threshold for Band ' + (i + 1) + ': ' + thresholds[i];
-            threshold.appendChild(thresholdLabel);
-            thresholdContainer.appendChild(threshold);
+        let thresholdsDiv = document.getElementById('thresholds');
+        let volumeThresholds = new Array(numBands).fill(40);
+
+
+        for(let i = 0; i < numBands; i++){
+            let input = document.createElement('input');
+            input.type = 'range';
+            input.min = '0';
+            input.max = '255';
+            input.value = '40';
+            input.id = 'threshold' + i;
+            input.oninput = function(){
+                volumeThresholds[i] = this.value;  // Set the threshold for specific band
+                // Add this line to update the display text when the threshold changes
+                document.getElementById('volume' + i).textContent = 'v: ' + volume.toFixed(2) + ' / ' + volumeThresholds[i];
+            };
+
+            let volumeDisplay = document.createElement('span');
+            volumeDisplay.id = 'volume' + i;
+            volumeDisplay.style.color = 'white';
+            volumeDisplay.textContent = "v: ";
+
+            thresholdsDiv.appendChild(document.createTextNode('Band ' + i + ': '));
+            thresholdsDiv.appendChild(input);
+            thresholdsDiv.appendChild(volumeDisplay);
+            thresholdsDiv.appendChild(document.createElement('br'));
         }
+
+
     </script>
 </body>
 </html>
