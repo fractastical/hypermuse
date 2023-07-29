@@ -32,7 +32,14 @@
 
 </head>
 <body>
-    <div id="thresholds"></div>
+    <div id="thresholds">
+        <div id="master-control">
+            <span>Master Volume Threshold: </span>
+            <input type="range" id="master" min="0" max="255" value="40">
+            <br>
+        </div>    
+
+    </div>
     <button id="startButton">Start</button>
 
     <div id="container"></div>
@@ -221,6 +228,18 @@
             thresholdsDiv.appendChild(volumeDisplay);
             thresholdsDiv.appendChild(document.createElement('br'));
         }
+
+        let master = document.getElementById('master');
+        master.oninput = function() {
+            let masterValue = this.value;
+            volumeThresholds = volumeThresholds.map(() => masterValue);  // Set all thresholds to the master's value
+
+            for (let i = 0; i < numBands; i++) {
+                let input = document.getElementById('threshold' + i);
+                input.value = masterValue;
+                // document.getElementById('volume' + i).textContent = 'v: ' + volume.toFixed(2) + ' / ' + masterValue;
+            }
+        };
 
 
     </script>
