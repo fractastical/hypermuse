@@ -60,7 +60,7 @@
 
         var analyser;
 
-        let numBands = 22;
+        let numBands = 48;
         
         let points = [];
         let lines = [];
@@ -122,7 +122,7 @@
         function animate() {
             requestAnimationFrame(animate);
 
-            hueoffset += hueOffsetSpeed;
+            // hueoffset += hueOffsetSpeed;
             if(hueoffset > 360) {
                 hueoffset -= 360;
             }
