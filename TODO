@@ -1,0 +1,4 @@
+
+Integrate equalizer with nodesphere so both run at sametime
+fill in polygons so that there is a fade on opacity 
+allow a "conway's game of life" style effect where the structures grow if the next set of lines is adjacent 
