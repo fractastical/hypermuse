@@ -5,6 +5,7 @@
     <title>Audio Reactive Spheres</title>
     <style>
         body { margin: 0; overflow: hidden; }
+        #controls { position: fixed; top: 10px; left: 10px; }
     </style>
     <script src="https://threejs.org/build/three.js"></script>
     <script src="https://unpkg.com/delaunator@3.0.2/delaunator.js"></script>
@@ -13,16 +14,18 @@
 </head>
 <body>
     <button id="startButton">Start</button>
-    <div id="thresholds"></div>
+    Hue:<input id="hue" type="text" value="120" size ="6"  />
+    
+    <div id="controls">
+    </div>
+
     <div id="container"></div>
     <script>
         let hueoffset = 120;
-        let volumeThreshold = 50;
-        let thresholds = Array(22).fill(40);
 
         const scene = new THREE.Scene();
         const camera = new THREE.PerspectiveCamera(75, window.innerWidth/window.innerHeight, 0.1, 1000);
-        camera.position.z = 2;
+        camera.position.z = 2;  // Adjust camera position
         const renderer = new THREE.WebGLRenderer();
 
         renderer.setSize(window.innerWidth, window.innerHeight);
@@ -30,8 +33,9 @@
 
         var analyser;
 
-        let numBands = 22;
-        
+        let numBands = 22;  // The initial number of bands.
+        let volumeThresholds = new Array(numBands).fill(40);  // Array to hold threshold for each band
+
         let points = [];
         let lines = [];
         let geometries = [];
@@ -44,36 +48,14 @@
             let v = i / numBands;
             let phi = v * Math.PI;
             let theta = angleIncrement * i;
-
             let x = Math.sin(phi) * Math.cos(theta);
             let y = Math.sin(phi) * Math.sin(theta);
             let z = Math.cos(phi);
-
             x = isNaN(x) ? 0 : x;
             y = isNaN(y) ? 0 : y;
             z = isNaN(z) ? 0 : z;
-
-            let point = new THREE.Points(new THREE.BufferGeometry().setFromPoints([new THREE.Vector3(0, 0, 0)]), new THREE.PointsMaterial({color: 0xffffff, size: 0.01}));
-            point.position.set(x, y, z);
+            let point = new THREE.Vector3(x, y, z);
             points.push(point);
-            scene.add(point);
-        }
-
-        function createTriangleGeometry(a, b, c) {
-            var geometry = new THREE.BufferGeometry();
-
-            var vertices = new Float32Array([
-                a.x, a.y, a.z,
-                b.x, b.y, b.z,
-                c.x, c.y, c.z
-            ]);
-
-            var indices = new Uint16Array([0, 1, 2]);
-
-            geometry.setAttribute('position', new THREE.BufferAttribute(vertices, 3));
-            geometry.setIndex(new THREE.BufferAttribute(indices, 1));
-
-            return geometry;
         }
 
         function getAverageVolume(array) {
@@ -101,77 +83,126 @@
             analyser.getByteFrequencyData(data);
 
             let bandSize = Math.floor(data.length / numBands);
-            
+
             for (let i = 0; i < numBands; i++) {
                 let band = data.slice(i * bandSize, (i + 1) * bandSize);
                 let volume = getAverageVolume(band);
+
+                let volumeDisplay = document.getElementById('volume' + i);
+                volumeDisplay.textContent = " v: " + volume.toFixed(2);
                 
-                if (volume >= thresholds[i]) {
+                if (volume >= volumeThresholds[i]) {  // Here we use the specific threshold for each band
+
+
+                    
+                    volumeDisplay.style.color = "green";
                     let hue = volume + hueoffset;
                     if (hue > 360) hue -= 360;
                     let color = new THREE.Color('hsl(' + hue + ', 100%, 50%)');
 
-                    if(points[i]) points[i].material.color = color;
+                    for (let j = 0; j < i; j++) {
+                        let otherBand = data.slice(j * bandSize, (j + 1) * bandSize);
+                        let otherVolume = getAverageVolume(otherBand);
 
-                    if (lastPoints.length >= 3) {
-                        var geometry = createTriangleGeometry(lastPoints[0], lastPoints[1], lastPoints[2]);
-                        var material = new THREE.MeshBasicMaterial({color: color, opacity: 0.6, transparent: true, side: THREE.DoubleSide});
-                        var triangle = new THREE.Mesh(geometry, material);
-                        scene.add(triangle);
-                        geometries.push({geometry: triangle, age: 0});
+                        if (otherVolume >= volumeThresholds[j]) {  // Here we use the specific threshold for each band
+                            let vertices = [points[i], points[j]];
+                            let geometry = new THREE.BufferGeometry().setFromPoints([points[i], points[j]]);
+                            let line = new THREE.Line(geometry, new THREE.LineBasicMaterial({color: color}));
+                            scene.add(line);
+                            lines.push(line);
 
-                        lastPoints.shift();
+                            setTimeout(() => {
+                                scene.remove(line);
+                                line.geometry.dispose();
+                                line.material.dispose();
+                                const index = lines.indexOf(line);
+                                if (index > -1) {
+                                    lines.splice(index, 1);
+                                }
+                            }, 1000);
+                        }
                     }
-
-                    lastPoints.push(points[i].position.clone());
+                } else {
+                    volumeDisplay.style.color = "white";
                 }
             }
 
             for (let i = geometries.length - 1; i >= 0; i--) {
-                geometries[i].age++;
-                if (geometries[i].age > 20) {
-                    geometries[i].geometry.material.opacity -= 0.01;
-                    if (geometries[i].geometry.material.opacity <= 0) {
-                        scene.remove(geometries[i].geometry);
+                let obj = geometries[i];
+                obj.age++;
+                if (obj.age > 100) {
+                    obj.geometry.material.opacity -= 0.01;
+                    if (obj.geometry.material.opacity <= 0) {
+                        scene.remove(obj.geometry);
+                        obj.geometry.geometry.dispose();
+                        obj.geometry.material.dispose();
                         geometries.splice(i, 1);
                     }
                 }
             }
 
+            scene.rotation.x += 0.001;
+            scene.rotation.y += 0.001;
+
             renderer.render(scene, camera);
         }
 
-        let startButton = document.getElementById('startButton');
-        startButton.addEventListener('click', function() {
-            startButton.parentElement.removeChild(startButton);
-
-            navigator.mediaDevices.getUserMedia({ audio: true, video: false }).then(function(stream) {
-                let audioContext = new AudioContext();
-                let source = audioContext.createMediaStreamSource(stream);
-                analyser = audioContext.createAnalyser();
-                analyser.fftSize = 2048;
-                source.connect(analyser);
-                animate();
-            });
+        document.getElementById('startButton').addEventListener('click', function() {
+            setupAudio();
+            animate();
         });
 
-        let thresholdContainer = document.getElementById('thresholds');
-        for (let i = 0; i < numBands; i++) {
-            let threshold = document.createElement('div');
-            let thresholdInput = document.createElement('input');
-            thresholdInput.type = 'range';
-            thresholdInput.min = '0';
-            thresholdInput.max = '255';
-            thresholdInput.value = thresholds[i];
-            thresholdInput.addEventListener('change', function() {
-                thresholds[i] = parseInt(this.value);
-            });
-            threshold.appendChild(thresholdInput);
-            let thresholdLabel = document.createElement('label');
-            thresholdLabel.innerText = 'Threshold for Band ' + (i + 1) + ': ' + thresholds[i];
-            threshold.appendChild(thresholdLabel);
-            thresholdContainer.appendChild(threshold);
+        document.getElementById('hue').addEventListener('change', function() {
+            try {
+                hueoffset = parseInt(document.getElementById('hue').value); 
+            } catch (error) {
+                hueoffset = 120;
+            }
+        });
+
+        function setupAudio() {
+            audioContext = new (window.AudioContext || window.webkitAudioContext)();
+            analyser = audioContext.createAnalyser();
+
+            navigator.mediaDevices.getUserMedia({ audio: true, video: false })
+                .then(function(stream) {
+                    let gainNode = audioContext.createGain();
+                    gainNode.gain.value = 0;  // Mute the audio.
+
+                    let source = audioContext.createMediaStreamSource(stream);
+                    source.connect(analyser);
+                    analyser.connect(gainNode);
+                    gainNode.connect(audioContext.destination);
+                    animate();
+                })
+                .catch(function(err) {
+                    console.log('The following error occured: ' + err);
+                });
         }
+
+        let thresholdsDiv = document.getElementById('controls');
+        for(let i = 0; i < numBands; i++){
+            let input = document.createElement('input');
+            input.type = 'range';
+            input.min = '0';
+            input.max = '255';
+            input.value = '40';
+            input.id = 'threshold' + i;
+            input.oninput = function(){
+                volumeThresholds[i] = this.value;  // Set the threshold for specific band
+            };
+
+            let volumeDisplay = document.createElement('span');
+            volumeDisplay.id = 'volume' + i;
+            volumeDisplay.style.color = 'white';
+            volumeDisplay.textContent = "v: ";
+
+            thresholdsDiv.appendChild(document.createTextNode('Band ' + i + ': '));
+            thresholdsDiv.appendChild(input);
+            thresholdsDiv.appendChild(volumeDisplay);
+            thresholdsDiv.appendChild(document.createElement('br'));
+        }
+
     </script>
 </body>
 </html>
