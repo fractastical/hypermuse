@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>Audio Reactive Spheres</title>
+    <style>
+        body { margin: 0; overflow: hidden; }
+        #controls { position: fixed; top: 10px; left: 10px; }
+    </style>
+    <script src="https://threejs.org/build/three.js"></script>
+    <script src="https://unpkg.com/delaunator@3.0.2/delaunator.js"></script>
+    <script src="https://josephg.github.io/noisejs/perlin.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/dat-gui/0.7.3/dat.gui.min.js"></script>
+</head>
+<body>
+    <button id="startButton">Start</button>
+    Hue:<input id="hue" type="text" value="120" size ="6"  />
+    Threshold:<input id="threshold" type="text" value="40" size="4"  />
+
+    <div id="controls">
+    </div>
+
+    <div id="container"></div>
+    <script>
+        let hueoffset = 120;
+        let volumeThreshold = 50;
+
+        // Create the scene, camera, renderer, etc...
+        const scene = new THREE.Scene();
+        const camera = new THREE.PerspectiveCamera(75, window.innerWidth/window.innerHeight, 0.1, 1000);
+        camera.position.z = 2;  // Adjust camera position
+        const renderer = new THREE.WebGLRenderer();
+
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        document.body.appendChild(renderer.domElement);
+
+        // Initialize audio analyser
+        var analyser;
+
+        let numBands = 22;  // The initial number of bands.
+
+        let points = [];
+        let lines = [];
+        let geometries = [];
+
+        // Generate points on the surface of a sphere using the Golden Spiral algorithm
+        let goldenRatio = (1 + Math.sqrt(5)) / 2;
+        let angleIncrement = Math.PI * 2 * goldenRatio;
+
+        for (let i = 0; i < numBands; i++) {
+            let v = i / numBands;
+            let phi = v * Math.PI;
+            let theta = angleIncrement * i;
+            let x = Math.sin(phi) * Math.cos(theta);
+            let y = Math.sin(phi) * Math.sin(theta);
+            let z = Math.cos(phi);
+            x = isNaN(x) ? 0 : x;
+            y = isNaN(y) ? 0 : y;
+            z = isNaN(z) ? 0 : z;
+            let point = new THREE.Points(new THREE.BufferGeometry().setFromPoints([new THREE.Vector3(0, 0, 0)]), new THREE.PointsMaterial({color: 0xffffff}));
+            point.position.set(x, y, z);
+            points.push(point);
+        }
+
+        function getAverageVolume(array) {
+            var values = 0;
+            var average;
+            var length = array.length;
+            for (var i = 0; i < length; i++) {
+                values += array[i];
+            }
+            average = values / length;
+            return average;
+        }
+
+        let hueOffsetSpeed = 0.5; // controls the speed of hue change.
+
+        function animate() {
+            requestAnimationFrame(animate);
+
+            hueoffset += hueOffsetSpeed;
+            if(hueoffset > 360) {
+                hueoffset -= 360;
+            }
+
+            let data = new Uint8Array(analyser.frequencyBinCount);
+            analyser.getByteFrequencyData(data);
+
+            let bandSize = Math.floor(data.length / numBands);
+
+            for (let i = 0; i < 33; i++) {
+                let band = data.slice(i * bandSize, (i + 1) * bandSize);
+                let volume = getAverageVolume(band);
+
+                let volumeDisplay = document.getElementById('volume' + i);
+                volumeDisplay.textContent = " Volume: " + volume.toFixed(2);
+                
+                if (volume > volumeThreshold) {
+                    volumeDisplay.style.color = "green";
+                    let hue = volume + hueoffset;
+                    if (hue > 360) hue -= 360;
+                    let color = new THREE.Color('hsl(' + hue + ', 100%, 50%)');
+                    points[i].material.color = color;
+
+                    for (let j = 0; j < i; j++) {
+                        let otherBand = data.slice(j * bandSize, (j + 1) * bandSize);
+                        let otherVolume = getAverageVolume(otherBand);
+
+                        if (otherVolume > volumeThreshold) {
+                            let geometry = new THREE.BufferGeometry().setFromPoints([points[i].position, points[j].position]);
+                            let line = new THREE.Line(geometry, new THREE.LineBasicMaterial({color: color}));
+                            scene.add(line);
+                            lines.push(line);
+
+                            setTimeout(() => {
+                                    scene.remove(line);
+                                    line.geometry.dispose();
+                                    line.material.dispose();
+                                    scene.remove(line);
+                                    const index = lines.indexOf(line);
+                                    if (index > -1) {
+                                        lines.splice(index, 1);
+                                    }
+
+                                }, 1000);
+
+                        }
+                    }
+                } else {
+                    volumeDisplay.style.color = "black";
+                }
+            }
+
+            scene.rotation.x += 0.001;
+            scene.rotation.y += 0.001;
+
+            renderer.render(scene, camera);
+        }
+
+        document.getElementById('startButton').addEventListener('click', function() {
+            setupAudio();
+            animate();
+        });
+
+        document.getElementById('hue').addEventListener('change', function() {
+            try {
+                hueoffset = parseInt(document.getElementById('hue').value); 
+            } catch (error) {
+                hueoffset = 120;
+            }
+        });
+
+        document.getElementById('threshold').addEventListener('change', function() {
+            try {
+                volumeThreshold = parseInt(document.getElementById('threshold').value); 
+            } catch (error) {
+                hueoffset = 120;
+            }
+        });
+
+        function setupAudio() {
+            audioContext = new (window.AudioContext || window.webkitAudioContext)();
+            analyser = audioContext.createAnalyser();
+
+            navigator.mediaDevices.getUserMedia({ audio: true, video: false })
+                .then(function(stream) {
+                    let gainNode = audioContext.createGain();
+                    gainNode.gain.value = 0;  // Mute the audio.
+
+                    let source = audioContext.createMediaStreamSource(stream);
+                    source.connect(analyser);
+                    analyser.connect(gainNode);
+                    gainNode.connect(audioContext.destination);
+                    animate();
+                })
+                .catch(function(err) {
+                    console.log('The following error occured: ' + err);
+                });
+        }
+
+        let thresholdsDiv = document.getElementById('controls');
+        for(let i = 0; i < 22; i++){
+            let input = document.createElement('input');
+            input.type = 'range';
+            input.min = '0';
+            input.max = '255';
+            input.value = '40';
+            input.id = 'threshold' + i;
+            input.oninput = function(){
+                volumeThreshold = this.value;
+            };
+
+            let volumeDisplay = document.createElement('span');
+            volumeDisplay.id = 'volume' + i;
+            thresholdsDiv.appendChild(input);
+            thresholdsDiv.appendChild(volumeDisplay);
+        }
+
+    </script>
+</body>
+</html>
