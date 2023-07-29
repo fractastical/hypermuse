@@ -56,7 +56,7 @@
             let point = new THREE.Points(new THREE.BufferGeometry().setFromPoints([new THREE.Vector3(0, 0, 0)]), new THREE.PointsMaterial({color: 0xffffff, size: 0.01}));
             point.position.set(x, y, z);
             points.push(point);
-            scene.add(point);
+            // scene.add(point);
         }
 
         function createTriangleGeometry(a, b, c) {
