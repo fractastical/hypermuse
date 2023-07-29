@@ -143,6 +143,17 @@
 
                     if(points[i]) points[i].material.color = color;
 
+                }
+            }
+            for (let i = 0; i < numBands; i++) {
+                let band = data.slice(i * bandSize, (i + 1) * bandSize);
+                let volume = getAverageVolume(band);
+                let volumeDisplay = document.getElementById('volume' + i);
+                volumeDisplay.textContent = 'v: ' + volume.toFixed(2) + ' / ' + volumeThresholds[i];
+
+                if (volume >= volumeThresholds[i]) {
+                    volumeDisplay.style.color = '#00ff00'; // green
+
                     if (lastPoints.length >= 3) {
                         var geometry = createTriangleGeometry(lastPoints[0], lastPoints[1], lastPoints[2]);
                         var material = new THREE.MeshBasicMaterial({color: color, opacity: 0.6, transparent: true, side: THREE.DoubleSide});
@@ -154,17 +165,8 @@
                     }
 
                     lastPoints.push(points[i].position.clone());
-                }
-            }
-            for (let i = 0; i < numBands; i++) {
-                let band = data.slice(i * bandSize, (i + 1) * bandSize);
-                let volume = getAverageVolume(band);
-                let volumeDisplay = document.getElementById('volume' + i);
-                volumeDisplay.textContent = 'v: ' + volume.toFixed(2) + ' / ' + volumeThresholds[i];
 
-                if (volume >= volumeThresholds[i]) {
-                    volumeDisplay.style.color = '#00ff00'; // green
-                    //... rest of the logic
+
                 } else {
                     volumeDisplay.style.color = '#ff0000'; // red
                 }
