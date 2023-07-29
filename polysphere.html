@@ -15,6 +15,12 @@
             overflow: auto;
         }
 
+        #container {
+        height: 1000px;
+        flex-grow: 1;
+    }
+
+
         
     </style>
     <script src="https://threejs.org/build/three.js"></script>
@@ -27,8 +33,9 @@
 </head>
 <body>
     <div id="thresholds"></div>
-    <div id="container"></div>
     <button id="startButton">Start</button>
+
+    <div id="container"></div>
 
 <script>
         let hueoffset = 120;
@@ -40,8 +47,9 @@
         camera.position.z = 2;
         const renderer = new THREE.WebGLRenderer();
 
-        renderer.setSize(window.innerWidth, window.innerHeight);
-        document.body.appendChild(renderer.domElement);
+        let container = document.getElementById('container');
+        renderer.setSize(container.clientWidth, container.clientHeight);
+        container.appendChild(renderer.domElement);
 
         var analyser;
 
@@ -165,6 +173,9 @@
                     }
                 }
             }
+
+            scene.rotation.x += 0.00005;
+            scene.rotation.y += 0.0003;
 
             renderer.render(scene, camera);
         }
