@@ -45,7 +45,7 @@
     <div id="container"></div>
 
 <script>
-        let hueoffset = 120;
+        let hueoffset = 20;
         let volumeThreshold = 50;
         let thresholds = Array(22).fill(40);
 
@@ -146,7 +146,8 @@
 
 
                 if (volume >= volumeThresholds[i]) {
-                    let hue = volume + hueoffset;
+                    let hue = (volume * 1.4) + hueoffset;
+                    // let hue = 10;
                     if (hue > 360) hue -= 360;
 
                     let color = new THREE.Color('hsl(' + hue + ', 100%, 50%)');
@@ -161,9 +162,12 @@
                         scene.add(triangle);
 
                         if (geometries.length > 50) {
-                                // If so, remove the oldest triangle
+
+                                geometries[0].geometry.geometry.dispose();
+                                geometries[0].geometry.material.dispose();
                                 scene.remove(geometries[0].geometry);
                                 geometries.shift();
+
                         }
 
                         geometries.push({geometry: triangle, age: 0});
@@ -188,8 +192,8 @@
                 }
             }
 
-            scene.rotation.x += 0.00005;
-            scene.rotation.y += 0.0003;
+            scene.rotation.x += 0.0001;
+            scene.rotation.y += 0.0005;
 
             renderer.render(scene, camera);
         }
@@ -202,7 +206,7 @@
                 let audioContext = new AudioContext();
                 let source = audioContext.createMediaStreamSource(stream);
                 analyser = audioContext.createAnalyser();
-                analyser.fftSize = 2048;
+                analyser.fftSize = 32768;
                 source.connect(analyser);
                 animate();
             });
