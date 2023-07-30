@@ -258,15 +258,19 @@
         }
 
         let master = document.getElementById('master');
+        let lastMasterValue = 40;
         master.oninput = function() {
             let masterValue = this.value;
-            volumeThresholds = volumeThresholds.map(() => masterValue);  // Set all thresholds to the master's value
+            let delta = masterValue - lastMasterValue;
+            volumeThresholds = volumeThresholds.map(() => self += delta);  // Set all thresholds to the master's value
 
             for (let i = 0; i < numBands; i++) {
                 let input = document.getElementById('threshold' + i);
-                input.value = masterValue;
+                input.value = input.value += delta;
                 // document.getElementById('volume' + i).textContent = 'v: ' + volume.toFixed(2) + ' / ' + masterValue;
             }
+
+            lastMasterValue = masterValue;
         };
 
         var audioContext;
