@@ -4,6 +4,8 @@ Encodings for doing reactive music visualization with spheres and other geometri
 
 # poly sphere
 
+Input signal is split into bands logarithmicly mapped to the vertices on a sphere, equalized manually and distributed into polygons. 
+
 <img width="572" alt="Screenshot 2023-07-30 at 13 19 03" src="https://github.com/fractastical/audiosphere/assets/589191/9f220bc4-c54e-4fd6-91ad-3f52ca5c14e2">
 
 
