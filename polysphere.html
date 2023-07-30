@@ -159,6 +159,13 @@
                         var material = new THREE.MeshBasicMaterial({color: color, opacity: 0.6, transparent: true, side: THREE.DoubleSide});
                         var triangle = new THREE.Mesh(geometry, material);
                         scene.add(triangle);
+
+                        if (geometries.length > 50) {
+                                // If so, remove the oldest triangle
+                                scene.remove(geometries[0].geometry);
+                                geometries.shift();
+                        }
+
                         geometries.push({geometry: triangle, age: 0});
 
                         lastPoints.shift();
