@@ -1,4 +1,4 @@
-# audiosphere 0.11 
+# audiosphere 0.22 
 
 Encodings for doing reactive music visualization with spheres and other geometries. 
 
