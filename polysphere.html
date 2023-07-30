@@ -61,6 +61,20 @@
         var analyser;
 
         let numBands = 48;
+
+        let baseFrequency = 20; // Start from 20 Hz
+        let maxFrequency = 20000; // Up to 20 kHz
+        // let numBands = 22; // Number of frequency bands
+
+        // Now calculate the ratio between each band in a logarithmic scale
+        let ratio = Math.pow(maxFrequency / baseFrequency, 1.0 / (numBands - 1));
+
+        // Now we can get the frequency for each band
+        for (let i = 0; i < numBands; i++) {
+        let bandFrequency = baseFrequency * Math.pow(ratio, i);
+        console.log('Band ' + i + ' frequency: ' + bandFrequency + ' Hz');
+}
+
         
         let points = [];
         let lines = [];
@@ -206,7 +220,7 @@
                 let audioContext = new AudioContext();
                 let source = audioContext.createMediaStreamSource(stream);
                 analyser = audioContext.createAnalyser();
-                analyser.fftSize = 32768;
+                analyser.fftSize = 2048 * 2 * 2;
                 source.connect(analyser);
                 animate();
             });
