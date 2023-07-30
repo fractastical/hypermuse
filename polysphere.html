@@ -32,7 +32,10 @@
 
 </head>
 <body>
+  
     <div id="thresholds">
+        <input id="file" type="file" accept="audio/*">
+
         <div id="master-control">
             <span>Master Volume Threshold: </span>
             <input type="range" id="master" min="0" max="255" value="40">
@@ -265,6 +268,33 @@
                 // document.getElementById('volume' + i).textContent = 'v: ' + volume.toFixed(2) + ' / ' + masterValue;
             }
         };
+
+        document.getElementById('file').addEventListener('change', function(event) {
+        // Check if a file was selected
+        if (event.target.files.length > 0) {
+            // Get the first selected file
+            var file = event.target.files[0];
+            // Create a new FileReader
+            var reader = new FileReader();
+            // Add an event listener for when the file has been read
+            reader.addEventListener('load', function() {
+                // Decode the audio data from the array buffer
+                audioContext.decodeAudioData(reader.result, function(buffer) {
+                    // Create a new audio buffer source node
+                    var source = audioContext.createBufferSource();
+                    source.buffer = buffer;
+                    // Connect the source to the analyser and the context's destination
+                    source.connect(analyser);
+                    analyser.connect(audioContext.destination);
+                    // Start the source
+                    source.start();
+                });
+            });
+            // Read the file as an array buffer
+            reader.readAsArrayBuffer(file);
+        }
+    });
+
 
 
     </script>
