@@ -269,7 +269,14 @@
             }
         };
 
-        document.getElementById('file').addEventListener('change', function(event) {
+        var audioContext;
+
+        document.getElementById('file').addEventListener('change', async function(event) {
+
+            audioContext = new AudioContext();
+            analyser = audioContext.createAnalyser();
+            analyser.fftSize = 2048 * 2 * 2;
+ 
         // Check if a file was selected
         if (event.target.files.length > 0) {
             // Get the first selected file
@@ -277,24 +284,29 @@
             // Create a new FileReader
             var reader = new FileReader();
             // Add an event listener for when the file has been read
-            reader.addEventListener('load', function() {
+            reader.addEventListener('load', async function() {
                 // Decode the audio data from the array buffer
-                audioContext.decodeAudioData(reader.result, function(buffer) {
-                    // Create a new audio buffer source node
-                    var source = audioContext.createBufferSource();
-                    source.buffer = buffer;
-                    // Connect the source to the analyser and the context's destination
-                    source.connect(analyser);
-                    analyser.connect(audioContext.destination);
-                    // Start the source
-                    source.start();
-                });
+                try {
+                    let audioBuffer = await audioContext.decodeAudioData(reader.result);
+                    playSound(audioBuffer);
+                    animate();
+
+                } catch(e) {
+                    console.error("There was an error decoding the file", e);
+                }
             });
             // Read the file as an array buffer
             reader.readAsArrayBuffer(file);
         }
     });
 
+    function playSound(buffer) {
+    let source = audioContext.createBufferSource(); 
+    source.buffer = buffer;
+    source.connect(analyser); // Connect source to the analyser
+    source.connect(audioContext.destination); // Connect source to the speakers
+    source.start(0);
+}
 
 
     </script>
