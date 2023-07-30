@@ -122,7 +122,8 @@
         function animate() {
             requestAnimationFrame(animate);
 
-            hueoffset += hueOffsetSpeed;
+            // untoggle for now so is fully deterministic
+            // hueoffset += hueOffsetSpeed;
             if(hueoffset > 360) {
                 hueoffset -= 360;
             }
