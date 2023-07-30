@@ -44,12 +44,14 @@
 
     </div>
     <button id="startButton">Start</button>
-
     <div id="container"></div>
+    Hue increase <input id="hueincrease" value="0">
+    X Rotation <input id="xrotation" value="0.001">
+    Y Rotation <input id="yrotation" value="0.0001">
 
 <script>
         let hueoffset = 20;
-        let volumeThreshold = 50;
+        let volumeThreshold = 40;
         let thresholds = Array(22).fill(40);
 
         const scene = new THREE.Scene();
