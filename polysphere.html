@@ -16,12 +16,9 @@
         }
 
         #container {
-        height: 1000px;
-        flex-grow: 1;
-    }
-
-
-        
+            height: 1000px;
+            flex-grow: 1;
+        }
     </style>
     <script src="https://threejs.org/build/three.js"></script>
     <!-- <script src="https://unpkg.com/delaunator@3.0.2/delaunator.js"></script>
@@ -46,9 +43,10 @@
     <button id="startButton">Start</button>
     <div id="container"></div>
     <div id="advancedControls">
-        Hue increase <input id="hueincrease" value="0">
+        <!-- Hue increase <input id="hueincrease" value="0">
         X Rotation <input id="xrotation" value="0.001">
         Y Rotation <input id="yrotation" value="0.0001">
+        Bands <input id="numBands" value="48"> -->
     </div>
 
 <script>
@@ -236,7 +234,6 @@
         let thresholdsDiv = document.getElementById('thresholds');
         let volumeThresholds = new Array(numBands).fill(40);
 
-
         for(let i = 0; i < numBands; i++){
             let input = document.createElement('input');
             input.type = 'range';
@@ -266,11 +263,11 @@
         master.oninput = function() {
             let masterValue = this.value;
             let delta = masterValue - lastMasterValue;
-            volumeThresholds = volumeThresholds.map(() => self += delta);  // Set all thresholds to the master's value
+            volumeThresholds = volumeThresholds.map(() => masterValue);  // Set all thresholds to the master's value
 
             for (let i = 0; i < numBands; i++) {
                 let input = document.getElementById('threshold' + i);
-                input.value = input.value += delta;
+                input.value = parseInt(input.value) + delta;
                 // document.getElementById('volume' + i).textContent = 'v: ' + volume.toFixed(2) + ' / ' + masterValue;
             }
 
@@ -309,12 +306,12 @@
     });
 
     function playSound(buffer) {
-    let source = audioContext.createBufferSource(); 
-    source.buffer = buffer;
-    source.connect(analyser); // Connect source to the analyser
-    source.connect(audioContext.destination); // Connect source to the speakers
-    source.start(0);
-}
+        let source = audioContext.createBufferSource(); 
+        source.buffer = buffer;
+        source.connect(analyser); // Connect source to the analyser
+        source.connect(audioContext.destination); // Connect source to the speakers
+        source.start(0);
+    }
 
 
     </script>
