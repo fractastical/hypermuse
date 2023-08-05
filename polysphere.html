@@ -35,7 +35,7 @@
 
         <div id="master-control">
             <span>Master Volume Threshold: </span>
-            <input type="range" id="master" min="0" max="255" value="40">
+            <input type="range" id="master" min="0" max="255" value="150">
             <br>
         </div>    
 
@@ -235,11 +235,15 @@
         let volumeThresholds = new Array(numBands).fill(40);
 
         for(let i = 0; i < numBands; i++){
+            let highEnd = 200; // maximum volume threshold for lowest frequency band
+            let lowEnd = 10;   // minimum volume threshold for highest frequency band
+            let range = highEnd - lowEnd;
+
             let input = document.createElement('input');
             input.type = 'range';
             input.min = '0';
             input.max = '255';
-            input.value = '40';
+            input.value = highEnd - Math.floor((i/numBands) * range);
             input.id = 'threshold' + i;
             input.oninput = function(){
                 volumeThresholds[i] = this.value;  // Set the threshold for specific band

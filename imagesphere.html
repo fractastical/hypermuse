@@ -86,6 +86,10 @@
         let goldenRatio = (1 + Math.sqrt(5)) / 2;
         let angleIncrement = Math.PI * 2 * goldenRatio;
 
+        var textureLoader = new THREE.TextureLoader();
+        const texture = new THREE.TextureLoader().load('https://f8n-production-collection-assets.imgix.net/0x22FBa1D810ee545C71480a6B1EB1D7b0B925a36f/1/nft.jpg?q=80&auto=format%2Ccompress&cs=srgb&w=3000&h=3000&fit=max' ); 
+
+
         for (let i = 0; i < numBands; i++) {
             let v = i / numBands;
             let phi = v * Math.PI;
@@ -173,22 +177,30 @@
                     volumeDisplay.style.color = '#00ff00'; // green
                     if (lastPoints.length >= 3) {
                         var geometry = createTriangleGeometry(lastPoints[0], lastPoints[1], lastPoints[2]);
-                        var material = new THREE.MeshBasicMaterial({color: color, opacity: 0.6, transparent: true, side: THREE.DoubleSide});
-                        var triangle = new THREE.Mesh(geometry, material);
-                        scene.add(triangle);
+                        
 
-                        if (geometries.length > 50) {
+                            var material = new THREE.MeshBasicMaterial({ map:texture});
 
-                                geometries[0].geometry.geometry.dispose();
-                                geometries[0].geometry.material.dispose();
-                                scene.remove(geometries[0].geometry);
-                                geometries.shift();
+                            // var material = new THREE.MeshBasicMaterial({color: color, opacity: 0.6, transparent: true, side: THREE.DoubleSide, map:texture});
+                            var triangle = new THREE.Mesh(geometry, material);
+                            scene.add(triangle);
 
-                        }
+                            if (geometries.length > 50) {
 
-                        geometries.push({geometry: triangle, age: 0});
+                            geometries[0].geometry.geometry.dispose();
+                            geometries[0].geometry.material.dispose();
+                            scene.remove(geometries[0].geometry);
+                            geometries.shift();
 
-                        lastPoints.shift();
+                            }
+
+                            geometries.push({geometry: triangle, age: 0});
+
+                            lastPoints.shift();
+
+
+
+
                     }
 
                     lastPoints.push(points[i].position.clone());
@@ -232,12 +244,17 @@
         let volumeThresholds = new Array(numBands).fill(40);
 
         for(let i = 0; i < numBands; i++){
+            let highEnd = 100; // maximum volume threshold for lowest frequency band
+            let lowEnd = 10;   // minimum volume threshold for highest frequency band
+            let range = highEnd - lowEnd;
+
             let input = document.createElement('input');
             input.type = 'range';
             input.min = '0';
             input.max = '255';
-            input.value = '40';
+            input.value = highEnd - Math.floor((i/numBands) * range);
             input.id = 'threshold' + i;
+
             input.oninput = function(){
                 volumeThresholds[i] = this.value;  // Set the threshold for specific band
                 // Add this line to update the display text when the threshold changes
