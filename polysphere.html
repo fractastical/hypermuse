@@ -21,6 +21,9 @@
         }
     </style>
     <script src="https://threejs.org/build/three.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@tonejs/midi"></script>
+    <script src="https://cdn.jsdelivr.net/npm/tone"></script>
+
     <!-- <script src="https://unpkg.com/delaunator@3.0.2/delaunator.js"></script>
     <script src="https://josephg.github.io/noisejs/perlin.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/dat-gui/0.7.3/dat.gui.min.js"></script> -->
@@ -31,7 +34,7 @@
 <body>
   
     <div id="thresholds">
-        <input id="file" type="file" accept="audio/*">
+        <input id="file" type="file" accept="audio/*, .midi, .mid">
 
         <div id="master-control">
             <span>Master Volume Threshold: </span>
@@ -280,34 +283,64 @@
 
         var audioContext;
 
-        document.getElementById('file').addEventListener('change', async function(event) {
+
+    document.getElementById('file').addEventListener('change', async function(event) {
 
             audioContext = new AudioContext();
             analyser = audioContext.createAnalyser();
             analyser.fftSize = 2048 * 2 * 2;
- 
-        // Check if a file was selected
-        if (event.target.files.length > 0) {
-            // Get the first selected file
-            var file = event.target.files[0];
-            // Create a new FileReader
-            var reader = new FileReader();
-            // Add an event listener for when the file has been read
-            reader.addEventListener('load', async function() {
-                // Decode the audio data from the array buffer
-                try {
-                    let audioBuffer = await audioContext.decodeAudioData(reader.result);
-                    playSound(audioBuffer);
-                    animate();
 
-                } catch(e) {
-                    console.error("There was an error decoding the file", e);
-                }
-            });
-            // Read the file as an array buffer
-            reader.readAsArrayBuffer(file);
-        }
+            // Check if a file was selected
+            if (event.target.files.length > 0) {
+                // Get the first selected file
+                var file = event.target.files[0];
+                // Create a new FileReader
+                var reader = new FileReader();
+
+                // Add an event listener for when the file has been read
+                reader.addEventListener('load', async function() {
+                    // Check if it's a MIDI file based on its extension
+                    if (file.name.endsWith('.midi') || file.name.endsWith('.mid')) {
+                        // Parse the MIDI data
+                        
+                        const midiData = new Midi(reader.result);
+                        midiData.tracks[0].notes.sort((a, b) => a.time - b.time);
+
+                        await playMidi(midiData);
+                    } else if (file.type.startsWith('audio/')) {
+                        // Decode the audio data from the array buffer
+                        try {
+                            let audioBuffer = await audioContext.decodeAudioData(reader.result);
+                            playSound(audioBuffer);
+                            animate();
+                        } catch(e) {
+                            console.error("There was an error decoding the file", e);
+                        }
+                    }
+                });
+
+                // Read the file as an array buffer
+                reader.readAsArrayBuffer(file);
+            }
+
+        });
+
+// Your playSound and animate functions would be defined elsewhere
+
+async function playMidi(midiData) {
+    const synth = new Tone.Synth().toDestination();
+    synth.connect(analyser);
+    synth.toDestination();
+
+    // Schedule the events to play
+    midiData.tracks[0].notes.forEach(note => {
+        synth.triggerAttackRelease(note.name, note.duration, note.time, note.velocity);
     });
+
+    // Start the playback
+    await Tone.start();
+    Tone.Transport.start();
+}
 
     function playSound(buffer) {
         let source = audioContext.createBufferSource(); 
