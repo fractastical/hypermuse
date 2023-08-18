@@ -2,6 +2,10 @@
 
 Encodings for doing reactive music visualization with spheres and other geometries. 
 
+Ultimate goal is to use higher order math, especially hypergraphs, to deterministiically render the mathematical structure behind the music and serve as an aide to musicians as they play there music and... of course... to viewers to have. 
+
+See also the hypermusic repository. 
+
 # poly sphere
 
 Sound reactive input signal is split into bands logarithmicly mapped to the vertices on a sphere, equalized manually and distributed into polygons. 
