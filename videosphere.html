@@ -36,6 +36,8 @@
     <div id="thresholds">
        music: <input id="file" type="file" accept="audio/*, .midi, .mid">
     video: <input type="file" id="videoInput" accept="video/*">
+    image: <input type="file" id="folderInput" webkitdirectory directory multiple />
+
     <video id="videoElement" style="display:none;" loop autoplay></video>
     
         <div id="master-control">
@@ -198,7 +200,13 @@
                              material = new THREE.MeshBasicMaterial({map:texture, opacity: 0.6, transparent: true, side: THREE.DoubleSide});
                              material.needsUpdate = true;
                         }
-                        else
+                        else if (imageElementActive) {
+
+                            var texture = getNextImageTexture();
+                             material = new THREE.MeshBasicMaterial({map:texture, opacity: 0.6, transparent: true, side: THREE.DoubleSide});
+                             material.needsUpdate = true;
+
+                        } else 
                             material = new THREE.MeshBasicMaterial({color: color, opacity: 0.6, transparent: true, side: THREE.DoubleSide});
 
                         var triangle = new THREE.Mesh(geometry, material);
@@ -418,7 +426,47 @@ async function playMidi(midiData) {
         console.error('Video format not supported');
     }
 
-});
+
+    
+    let loadedImages = [];
+
+    document.getElementById('folderInput').addEventListener('change', function(event) {
+        let files = event.target.files;
+        for (let i = 0; i < files.length; i++) {
+            if (files[i].type.startsWith('image/')) { // Ensure the file is an image
+                let reader = new FileReader();
+                reader.readAsDataURL(files[i]);
+                reader.onload = function() {
+                    let img = new Image();
+                    img.src = reader.result;
+                    loadedImages.push(img);
+                };
+            }
+        }
+    });
+
+
+    function getNextImageTexture() {
+        if (loadedImages.length === 0) return null; // Handle the case when no images have been loaded
+        
+        // For sequential use:
+        let nextImage = loadedImages.shift();
+        loadedImages.push(nextImage); // Put the image at the end of the array to cycle through the images
+        
+        // Alternatively, for random use:
+        // let nextImage = loadedImages[Math.floor(Math.random() * loadedImages.length)];
+        
+        let textureCanvas = document.createElement('canvas');
+        textureCanvas.width = nextImage.width;
+        textureCanvas.height = nextImage.height;
+        let ctx = textureCanvas.getContext('2d');
+        ctx.drawImage(nextImage, 0, 0);
+
+        let texture = new THREE.Texture(textureCanvas);
+        texture.needsUpdate = true;
+
+        return texture;
+    }
 
     </script>
 </body>
