@@ -117,30 +117,25 @@
             // scene.add(point);
         }
 
-        function createTriangleGeometry(a, b, c) {
-            var geometry = new THREE.BufferGeometry();
+        function createTriangleGeometry(p1, p2, p3) {
+                const geometry = new THREE.BufferGeometry();
+                
+                const vertices = new Float32Array([
+                    p1.x, p1.y, p1.z,
+                    p2.x, p2.y, p2.z,
+                    p3.x, p3.y, p3.z
+                ]);
 
-            var vertices = new Float32Array([
-                a.x, a.y, a.z,
-                b.x, b.y, b.z,
-                c.x, c.y, c.z
-            ]);
+                const uvs = new Float32Array([
+                    0, 0,
+                    1, 0,
+                    0.5, 1
+                ]);
 
+                geometry.setAttribute('position', new THREE.BufferAttribute(vertices, 3));
+                geometry.setAttribute('uv', new THREE.BufferAttribute(uvs, 2));
 
-            var indices = new Uint16Array([0, 1, 2]);
-
-            geometry.setAttribute('position', new THREE.BufferAttribute(vertices, 3));
-            geometry.setIndex(new THREE.BufferAttribute(indices, 1));
-
-            // geometry.faceVertexUvs[0].push([
-            //     new THREE.Vector2(0, 0),
-            //     new THREE.Vector2(1, 0),
-            //     new THREE.Vector2(0.5, 1)
-            // ]);
-
-            // geometry.uvsNeedUpdate = true;
-
-            return geometry;
+                return geometry;
         }
 
         function getAverageVolume(array) {
