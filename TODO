@@ -2,10 +2,14 @@
 
 pull libraries local so can run offline
 change readme so has prettier pictures 
+two way message passing so controls are separate window
+
+snapshots 
 
 
 DONE
 
+video intregration 
 refactor all code, remove unused libraries
 Integrate equalizer with nodesphere so both run at sametime
 fill in polygons so that there is a fade on opacity 

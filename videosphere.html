@@ -16,7 +16,7 @@
         }
 
         #container {
-            height: 1000px;
+            height: 1600px;
             flex-grow: 1;
         }
     </style>
@@ -58,6 +58,7 @@
         let hueoffset = 20;
         let volumeThreshold = 40;
         let thresholds = Array(22).fill(40);
+        let freezeFrameEffectActive = true;
 
         const scene = new THREE.Scene();
         const camera = new THREE.PerspectiveCamera(75, window.innerWidth/window.innerHeight, 0.1, 1000);
@@ -194,7 +195,6 @@
                         var material; 
                         if(videoElementActive) {
                              var texture = getVideoFrameTexture();
-                            //  console.log(texture);
                              material = new THREE.MeshBasicMaterial({map:texture, opacity: 0.6, transparent: true, side: THREE.DoubleSide});
                              material.needsUpdate = true;
                         }
@@ -390,10 +390,19 @@ async function playMidi(midiData) {
 }
 
     function getVideoFrameTexture() {
+
+        if(freezeFrameEffectActive)
+            videoElement.pause();
+
+
         ctx.drawImage(videoElement, 0, 0, canvas.width, canvas.height);
         let texture = new THREE.Texture(canvas);
         texture.needsUpdate = true;
-        return texture;
+
+        videoElement.play();
+
+        if(freezeFrameEffectActive)
+             return texture;
     }
 
 
