@@ -194,7 +194,7 @@
                         var material; 
                         if(videoElementActive) {
                              var texture = getVideoFrameTexture();
-                             console.log(texture);
+                            //  console.log(texture);
                              material = new THREE.MeshBasicMaterial({map:texture, opacity: 0.6, transparent: true, side: THREE.DoubleSide});
                              material.needsUpdate = true;
                         }
@@ -392,7 +392,6 @@ async function playMidi(midiData) {
     function getVideoFrameTexture() {
         ctx.drawImage(videoElement, 0, 0, canvas.width, canvas.height);
         let texture = new THREE.Texture(canvas);
-        document.body.appendChild(canvas); // temporarily to debug
         texture.needsUpdate = true;
         return texture;
     }
