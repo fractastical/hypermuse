@@ -1,10 +1,16 @@
-# audiosphere 0.22 
+# audiosphere 0.33
 
 Encodings for doing reactive music visualization with spheres and other geometries. 
 
 Ultimate goal is to use higher order math, especially hypergraphs, to deterministiically render the mathematical structure behind the music and serve as an aide to musicians as they play there music and... of course... to viewers to have. 
 
 See also the hypermusic repository. 
+
+
+# video sphere
+
+Live VJing software allowing frame by frame display of music hyper imposed around a sphere. 
+
 
 # poly sphere
 
@@ -35,3 +41,6 @@ Sound reactive sides crolling sets of spheres mapped to low, mid, high bands dis
 # d3
 
 d3 - sound reactive 2d version circle
+
+
+Version .44 : added video controls
