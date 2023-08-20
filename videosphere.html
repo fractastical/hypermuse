@@ -72,9 +72,6 @@
 
         let numBands = 48;
 
-                // for video render
-                const canvas = document.createElement('canvas');
-        const ctx = canvas.getContext('2d');
 
 
         let baseFrequency = 20; // Start from 20 Hz
@@ -187,9 +184,18 @@
 
                     volumeDisplay.style.color = '#00ff00'; // green
                     if (lastPoints.length >= 3) {
+
+
                         var geometry = createTriangleGeometry(lastPoints[0], lastPoints[1], lastPoints[2]);
+                        let texture = getVideoFrameTexture();
+                        console.log(texture);
+
                         var material = new THREE.MeshBasicMaterial({color: color, opacity: 0.6, transparent: true, side: THREE.DoubleSide});
+                        material.map = texture;
+                        material.needsUpdate = true;
                         var triangle = new THREE.Mesh(geometry, material);
+
+
                         scene.add(triangle);
 
                         if (geometries.length > 50) {
@@ -352,14 +358,6 @@ async function playMidi(midiData) {
 }
 
 
-function animate() {
-    if (!videoElement.paused && !videoElement.ended) {
-        captureFrame(videoElement);
-        texture.needsUpdate = true;
-    }
-    renderer.render(scene, camera);
-    requestAnimationFrame(animate);
-}
 
 
     function playSound(buffer) {
@@ -372,17 +370,37 @@ function animate() {
 
 // SECTION: video
 
+        // for video render
+        const canvas = document.createElement('canvas');
+        const ctx = canvas.getContext('2d');
+
     function captureFrame(videoElement) {
     ctx.drawImage(videoElement, 0, 0, canvas.width, canvas.height);
     return ctx.getImageData(0, 0, canvas.width, canvas.height);
+
 }
+
+    function getVideoFrameTexture() {
+        ctx.drawImage(videoElement, 0, 0, canvas.width, canvas.height);
+        let texture = new THREE.Texture(canvas);
+        document.body.appendChild(canvas); // temporarily to debug
+        texture.needsUpdate = true;
+        return texture;
+    }
 
 
     document.getElementById('videoInput').addEventListener('change', function(event) {
     const videoElement = document.getElementById('videoElement');
-    const fileURL = URL.createObjectURL(event.target.files[0]);
-    videoElement.src = fileURL;
-    videoElement.play();
+
+
+    if (videoElement.canPlayType('video/mp4')) {
+        const fileURL = URL.createObjectURL(event.target.files[0]);
+        videoElement.src = fileURL;
+        videoElement.play();
+    } else {
+        console.error('Video format not supported');
+    }
+
 });
 
     </script>
