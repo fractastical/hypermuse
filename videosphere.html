@@ -75,7 +75,7 @@
 
         let numBands = 48;
 
-
+        let holographicFanMode = true;
 
         let baseFrequency = 20; // Start from 20 Hz
         let maxFrequency = 20000; // Up to 20 kHz
@@ -198,7 +198,7 @@
                         if(videoElementActive) {
                              var texture = getVideoFrameTexture();
                              var opacitylevel =  (7 / volume ) + .2;
-                             console.log(opacitylevel);
+                            //  console.log(opacitylevel);
                              material = new THREE.MeshBasicMaterial({map:texture, opacity: opacitylevel, transparent: true, side: THREE.DoubleSide});
                              material.needsUpdate = true;
                         }
@@ -432,12 +432,18 @@ async function playMidi(midiData) {
         videoTexture.magFilter = THREE.LinearFilter;
         videoTexture.format = THREE.RGBFormat;
         var sphereMaterial = new THREE.MeshBasicMaterial({map: videoTexture});
-        var radius = 100;  // Adjust this value for the size of your sphere
+        sphereMaterial.transparent = false;
+sphereMaterial.side = THREE.DoubleSide;
+
+        var radius = .2;  // Adjust this value for the size of your sphere
         var widthSegments = 32;
         var heightSegments = 32;
         var sphereGeometry = new THREE.SphereGeometry(radius, widthSegments, heightSegments);
         var sphere = new THREE.Mesh(sphereGeometry, sphereMaterial);
         sphere.position.set(0, 0, 0);  // Set sphere's position (x, y, z)
+//         camera.position.set(0, 0, 50);  // Example camera position to see the sphere
+// camera.lookAt(0, 0, 0);         // Ensure the camera is looking at the scene's origin
+
         scene.add(sphere);
         console.log("sphere");
         console.log(sphere);
@@ -451,6 +457,27 @@ async function playMidi(midiData) {
 
 
     let loadedImages = [];
+
+    var dodecahedron; 
+    if(holographicFanMode) {
+        const dodecahedronRadius = 0.3;  // Adjust as needed
+        const dodecahedronGeometry = new THREE.DodecahedronGeometry(dodecahedronRadius);
+        const dodecahedronMaterial = new THREE.MeshBasicMaterial({ color: "blue" });  // White color
+        dodecahedron = new THREE.Mesh(dodecahedronGeometry, dodecahedronMaterial);
+        dodecahedron.position.set(0, 0, 0);
+        scene.add(dodecahedron);
+
+    }
+
+    // const sphereRadius = .1;  // Adjust as needed
+    // const sphereWidthDivisions = 32;
+    // const sphereHeightDivisions = 32;
+
+    // const sphereGeometry = new THREE.SphereGeometry(sphereRadius, sphereWidthDivisions, sphereHeightDivisions);
+    // const sphereMaterial = new THREE.MeshBasicMaterial({ color: "blue" });  // White color
+    // const sphere = new THREE.Mesh(sphereGeometry, sphereMaterial);
+    // sphere.position.set(0, 0, 0);
+    // scene.add(sphere);
 
 
 document.getElementById('folderInput').addEventListener('change', function(event) {
