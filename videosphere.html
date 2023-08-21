@@ -417,9 +417,11 @@ async function playMidi(midiData) {
     }
 
 
+
     document.getElementById('videoInput').addEventListener('change', function(event) {
 
     const videoElement = document.getElementById('videoElement');
+    const videoFrameTextures = [];
 
     if (videoElement.canPlayType('video/mp4')) {
         const fileURL = URL.createObjectURL(event.target.files[0]);
@@ -427,26 +429,34 @@ async function playMidi(midiData) {
         videoElement.play();
         videoElementActive = true;
 
-        var videoTexture = new THREE.VideoTexture(videoElement);
-        videoTexture.minFilter = THREE.LinearFilter;
-        videoTexture.magFilter = THREE.LinearFilter;
-        videoTexture.format = THREE.RGBFormat;
-        var sphereMaterial = new THREE.MeshBasicMaterial({map: videoTexture});
-        sphereMaterial.transparent = false;
-sphereMaterial.side = THREE.DoubleSide;
+        const dodecahedronRadius = 0.5; 
+        const dodecahedronGeometry = new THREE.DodecahedronGeometry(dodecahedronRadius);
 
-        var radius = .2;  // Adjust this value for the size of your sphere
-        var widthSegments = 32;
-        var heightSegments = 32;
-        var sphereGeometry = new THREE.SphereGeometry(radius, widthSegments, heightSegments);
-        var sphere = new THREE.Mesh(sphereGeometry, sphereMaterial);
-        sphere.position.set(0, 0, 0);  // Set sphere's position (x, y, z)
-//         camera.position.set(0, 0, 50);  // Example camera position to see the sphere
-// camera.lookAt(0, 0, 0);         // Ensure the camera is looking at the scene's origin
+        for (let i = 0; i < 12; i++) {
+            videoFrameTextures.push(getVideoFrameTexture());
+        }
 
-        scene.add(sphere);
-        console.log("sphere");
-        console.log(sphere);
+        for (let i = 0; i < dodecahedronGeometry.faces.length; i++) {
+        let textureIndex = Math.floor(i / 3);
+        
+        if (videoFrameTextures[textureIndex]) {
+                dodecahedronGeometry.faceVertexUvs[0][i] = [
+                    new THREE.Vector2(0, 1),
+                    new THREE.Vector2(1, 1),
+                    new THREE.Vector2(0.5, 0)
+                ];
+            }
+        }
+        dodecahedronGeometry.uvsNeedUpdate = true;
+
+        const materials = videoFrameTextures.map(texture => {
+            return new THREE.MeshBasicMaterial({ map: texture });
+        });
+
+        const dodecahedron = new THREE.Mesh(dodecahedronGeometry, materials);
+
+        dodecahedron.position.set(0, 0, 0);
+        scene.add(dodecahedron);
 
 
     } else {
@@ -460,7 +470,7 @@ sphereMaterial.side = THREE.DoubleSide;
 
     var dodecahedron; 
     if(holographicFanMode) {
-        const dodecahedronRadius = 0.3;  // Adjust as needed
+        const dodecahedronRadius = 0.1;  // Adjust as needed
         const dodecahedronGeometry = new THREE.DodecahedronGeometry(dodecahedronRadius);
         const dodecahedronMaterial = new THREE.MeshBasicMaterial({ color: "blue" });  // White color
         dodecahedron = new THREE.Mesh(dodecahedronGeometry, dodecahedronMaterial);
