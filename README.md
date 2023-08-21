@@ -43,4 +43,4 @@ Sound reactive sides crolling sets of spheres mapped to low, mid, high bands dis
 d3 - sound reactive 2d version circle
 
 
-Version .44 : added video controls
+Version .33 : added video controls
