@@ -81,6 +81,8 @@
         let maxFrequency = 20000; // Up to 20 kHz
         // let numBands = 22; // Number of frequency bands
 
+        let dodecahedronMaterial; 
+
                 // Now calculate the ratio between each band in a logarithmic scale
         let ratio = Math.pow(maxFrequency / baseFrequency, 1.0 / (numBands - 1));
 
@@ -395,10 +397,10 @@ async function playMidi(midiData) {
         let imageElementActive = false;
 
     function captureFrame(videoElement) {
-    ctx.drawImage(videoElement, 0, 0, canvas.width, canvas.height);
-    return ctx.getImageData(0, 0, canvas.width, canvas.height);
+        ctx.drawImage(videoElement, 0, 0, canvas.width, canvas.height);
+        return ctx.getImageData(0, 0, canvas.width, canvas.height);
 
-}
+    }
 
     function getVideoFrameTexture() {
 
@@ -409,6 +411,12 @@ async function playMidi(midiData) {
         ctx.drawImage(videoElement, 0, 0, canvas.width, canvas.height);
         let texture = new THREE.Texture(canvas);
         texture.needsUpdate = true;
+
+        if (dodecahedronMaterial) {
+            dodecahedronMaterial.map = texture;
+            dodecahedronMaterial.needsUpdate = true;
+        }
+
 
         videoElement.play();
 
@@ -429,33 +437,17 @@ async function playMidi(midiData) {
         videoElement.play();
         videoElementActive = true;
 
-        const dodecahedronRadius = 0.5; 
+        const dodecahedronRadius = 0.15;
         const dodecahedronGeometry = new THREE.DodecahedronGeometry(dodecahedronRadius);
 
-        for (let i = 0; i < 12; i++) {
-            videoFrameTextures.push(getVideoFrameTexture());
-        }
+        // Get the video frame texture
+        let texture = getVideoFrameTexture();
 
-        for (let i = 0; i < dodecahedronGeometry.faces.length; i++) {
-        let textureIndex = Math.floor(i / 3);
-        
-        if (videoFrameTextures[textureIndex]) {
-                dodecahedronGeometry.faceVertexUvs[0][i] = [
-                    new THREE.Vector2(0, 1),
-                    new THREE.Vector2(1, 1),
-                    new THREE.Vector2(0.5, 0)
-                ];
-            }
-        }
-        dodecahedronGeometry.uvsNeedUpdate = true;
+        // Create a material with that texture
+        dodecahedronMaterial = new THREE.MeshBasicMaterial({ map: texture });
 
-        const materials = videoFrameTextures.map(texture => {
-            return new THREE.MeshBasicMaterial({ map: texture });
-        });
-
-        const dodecahedron = new THREE.Mesh(dodecahedronGeometry, materials);
-
-        dodecahedron.position.set(0, 0, 0);
+        // Create the mesh and add it to the scene
+        const dodecahedron = new THREE.Mesh(dodecahedronGeometry, dodecahedronMaterial);
         scene.add(dodecahedron);
 
 
