@@ -426,6 +426,23 @@ async function playMidi(midiData) {
         videoElement.src = fileURL;
         videoElement.play();
         videoElementActive = true;
+
+        var videoTexture = new THREE.VideoTexture(videoElement);
+        videoTexture.minFilter = THREE.LinearFilter;
+        videoTexture.magFilter = THREE.LinearFilter;
+        videoTexture.format = THREE.RGBFormat;
+        var sphereMaterial = new THREE.MeshBasicMaterial({map: videoTexture});
+        var radius = 100;  // Adjust this value for the size of your sphere
+        var widthSegments = 32;
+        var heightSegments = 32;
+        var sphereGeometry = new THREE.SphereGeometry(radius, widthSegments, heightSegments);
+        var sphere = new THREE.Mesh(sphereGeometry, sphereMaterial);
+        sphere.position.set(0, 0, 0);  // Set sphere's position (x, y, z)
+        scene.add(sphere);
+        console.log("sphere");
+        console.log(sphere);
+
+
     } else {
         console.error('Video format not supported');
     }
