@@ -197,7 +197,7 @@
                         var material; 
                         if(videoElementActive) {
                              var texture = getVideoFrameTexture();
-                             var opacitylevel =  (8 / volume) + .1;
+                             var opacitylevel =  (7 / volume ) + .2;
                              console.log(opacitylevel);
                              material = new THREE.MeshBasicMaterial({map:texture, opacity: opacitylevel, transparent: true, side: THREE.DoubleSide});
                              material.needsUpdate = true;

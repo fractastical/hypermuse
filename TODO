@@ -4,6 +4,9 @@ pull libraries local so can run offline
 change readme so has prettier pictures 
 two way message passing so controls are separate window
 
+extend opacity range  
+    (centers around .2-.3)  var opacitylevel =  (7 / volume ) + .2;
+
 snapshots 
 
 
