@@ -4,6 +4,11 @@ pull libraries local so can run offline
 change readme so has prettier pictures 
 two way message passing so controls are separate window
 
+MIDI
+    - allow midi input
+    - label scale
+    - match chordes
+    
 extend opacity range  
     (centers around .2-.3)  var opacitylevel =  (7 / volume ) + .2;
 
