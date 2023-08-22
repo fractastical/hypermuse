@@ -436,19 +436,20 @@ async function playMidi(midiData) {
         videoElement.src = fileURL;
         videoElement.play();
         videoElementActive = true;
+        if (holographicFanMode) {}
+            const dodecahedronRadius = 0.15;
+            const dodecahedronGeometry = new THREE.DodecahedronGeometry(dodecahedronRadius);
 
-        const dodecahedronRadius = 0.15;
-        const dodecahedronGeometry = new THREE.DodecahedronGeometry(dodecahedronRadius);
+            // Get the video frame texture
+            let texture = getVideoFrameTexture();
 
-        // Get the video frame texture
-        let texture = getVideoFrameTexture();
+            // Create a material with that texture
+            dodecahedronMaterial = new THREE.MeshBasicMaterial({ map: texture });
 
-        // Create a material with that texture
-        dodecahedronMaterial = new THREE.MeshBasicMaterial({ map: texture });
-
-        // Create the mesh and add it to the scene
-        const dodecahedron = new THREE.Mesh(dodecahedronGeometry, dodecahedronMaterial);
-        scene.add(dodecahedron);
+            // Create the mesh and add it to the scene
+            const dodecahedron = new THREE.Mesh(dodecahedronGeometry, dodecahedronMaterial);
+            scene.add(dodecahedron);
+    }
 
 
     } else {
