@@ -315,8 +315,9 @@
 
             for (let i = 0; i < numBands; i++) {
                 let input = document.getElementById('threshold' + i);
+                volumeThresholds[i] =  parseInt(input.value) + delta;
                 input.value = parseInt(input.value) + delta;
-                // document.getElementById('volume' + i).textContent = 'v: ' + volume.toFixed(2) + ' / ' + masterValue;
+                document.getElementById('volume' + i).textContent = 'v: 0 / ' + input.value;
             }
 
             lastMasterValue = masterValue;
