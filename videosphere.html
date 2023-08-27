@@ -367,6 +367,7 @@ function playNext() {
             try {
                 let audioBuffer = await audioContext.decodeAudioData(reader.result);
                 playSound(audioBuffer);
+                animate();
             } catch(e) {
                 console.error("There was an error decoding the file", e);
             }
