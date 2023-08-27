@@ -34,8 +34,9 @@
 <body>
   
     <div id="thresholds">
-     music: <input id="file" type="file" accept="audio/*, .midi, .mid">
+     music:  <input type="file" id="audioInput" multiple  accept="audio/*, .midi, .mid">
     video: <input type="file" id="videoInput" accept="video/*" multiple>
+    <audio id="audioElement" controls></audio>
 
     <!-- image: <input type="file" id="folderInput" webkitdirectory directory multiple /> -->
 
@@ -326,48 +327,67 @@
         };
 
         var audioContext;
+        const audioQueue = [];
+let audioSource;  // Keep track of the current audio source
+
+document.getElementById('audioInput').addEventListener('change', async function(event) {
+
+    audioContext = new AudioContext();
+    analyser = audioContext.createAnalyser();
+    analyser.fftSize = 2048 * 2 * 2;
+
+    // Populate the audioQueue with the selected files
+    audioQueue.length = 0;  // Clear the queue
+    for (let file of event.target.files) {
+        audioQueue.push(file);
+    }
+
+    playNext();
 
 
-    document.getElementById('file').addEventListener('change', async function(event) {
+        const file = audioQueue.shift();  // Get the next file from the queue
+        const reader = new FileReader();
 
-            audioContext = new AudioContext();
-            analyser = audioContext.createAnalyser();
-            analyser.fftSize = 2048 * 2 * 2;
-
-            // Check if a file was selected
-            if (event.target.files.length > 0) {
-                // Get the first selected file
-                var file = event.target.files[0];
-                // Create a new FileReader
-                var reader = new FileReader();
-
-                // Add an event listener for when the file has been read
-                reader.addEventListener('load', async function() {
-                    // Check if it's a MIDI file based on its extension
-                    if (file.name.endsWith('.midi') || file.name.endsWith('.mid')) {
-                        // Parse the MIDI data
-                        
-                        const midiData = new Midi(reader.result);
-                        midiData.tracks[0].notes.sort((a, b) => a.time - b.time);
-
-                        await playMidi(midiData);
-                    } else if (file.type.startsWith('audio/')) {
-                        // Decode the audio data from the array buffer
-                        try {
-                            let audioBuffer = await audioContext.decodeAudioData(reader.result);
-                            playSound(audioBuffer);
-                            animate();
-                        } catch(e) {
-                            console.error("There was an error decoding the file", e);
-                        }
-                    }
-                });
-
-                // Read the file as an array buffer
-                reader.readAsArrayBuffer(file);
+        reader.addEventListener('load', async function() {
+            if (file.name.endsWith('.midi') || file.name.endsWith('.mid')) {
+                const midiData = new Midi(reader.result);
+                midiData.tracks[0].notes.sort((a, b) => a.time - b.time);
+                await playMidi(midiData);
+                playNext();  // Play the next file when done
+            } else if (file.type.startsWith('audio/')) {
+                try {
+                    let audioBuffer = await audioContext.decodeAudioData(reader.result);
+                    playSound(audioBuffer);
+                } catch(e) {
+                    console.error("There was an error decoding the file", e);
+                }
             }
-
         });
+
+        reader.readAsArrayBuffer(file);
+    }
+});
+
+function playNext() {
+        if (audioQueue.length === 0) {
+            // If the queue is empty, repopulate it
+            for (let file of event.target.files) {
+                audioQueue.push(file);
+            }
+        }
+
+function playSound(audioBuffer) {
+    if (audioSource) {
+        audioSource.stop();
+    }
+
+    audioSource = audioContext.createBufferSource();
+    audioSource.buffer = audioBuffer;
+    audioSource.connect(analyser);
+    analyser.connect(audioContext.destination);
+    audioSource.onended = playNext;  // Play the next file when the current one finishes
+    audioSource.start();
+}
 
 // Your playSound and animate functions would be defined elsewhere
 
@@ -386,16 +406,24 @@ async function playMidi(midiData) {
     Tone.Transport.start();
 }
 
+function populateQueueAgain() {
+    const inputFiles = document.getElementById('audioInput').files;
 
-
-
-    function playSound(buffer) {
-        let source = audioContext.createBufferSource(); 
-        source.buffer = buffer;
-        source.connect(analyser); // Connect source to the analyser
-        source.connect(audioContext.destination); // Connect source to the speakers
-        source.start(0);
+    for (let file of inputFiles) {
+        const url = URL.createObjectURL(file);
+        audioQueue.push(url);
     }
+}
+
+
+
+    // function playSound(buffer) {
+    //     let source = audioContext.createBufferSource(); 
+    //     source.buffer = buffer;
+    //     source.connect(analyser); // Connect source to the analyser
+    //     source.connect(audioContext.destination); // Connect source to the speakers
+    //     source.start(0);
+    // }
 
 // SECTION: video
 
@@ -516,20 +544,20 @@ videoElement.addEventListener('ended', function() {
     // scene.add(sphere);
 
 
-document.getElementById('folderInput').addEventListener('change', function(event) {
-    let files = event.target.files;
-    for (let i = 0; i < files.length; i++) {
-        if (files[i].type.startsWith('image/')) { // Ensure the file is an image
-            let reader = new FileReader();
-            reader.readAsDataURL(files[i]);
-            reader.onload = function() {
-                let img = new Image();
-                img.src = reader.result;
-                loadedImages.push(img);
-            };
-        }
-    }
-});
+// document.getElementById('folderInput').addEventListener('change', function(event) {
+//     let files = event.target.files;
+//     for (let i = 0; i < files.length; i++) {
+//         if (files[i].type.startsWith('image/')) { // Ensure the file is an image
+//             let reader = new FileReader();
+//             reader.readAsDataURL(files[i]);
+//             reader.onload = function() {
+//                 let img = new Image();
+//                 img.src = reader.result;
+//                 loadedImages.push(img);
+//             };
+//         }
+//     }
+// });
 
 function getNextImageTexture() {
     
