@@ -436,7 +436,7 @@ async function playMidi(midiData) {
         videoElement.src = fileURL;
         videoElement.play();
         videoElementActive = true;
-        if (holographicFanMode) {}
+        if (holographicFanMode) {
             const dodecahedronRadius = 0.15;
             const dodecahedronGeometry = new THREE.DodecahedronGeometry(dodecahedronRadius);
 
@@ -449,10 +449,11 @@ async function playMidi(midiData) {
             // Create the mesh and add it to the scene
             const dodecahedron = new THREE.Mesh(dodecahedronGeometry, dodecahedronMaterial);
             scene.add(dodecahedron);
+
+    } 
+    
     }
-
-
-    } else {
+    else {
         console.error('Video format not supported');
     }
 
