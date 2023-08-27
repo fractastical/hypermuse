@@ -1,9 +1,3 @@
-
-
-
-
-
-
 <!DOCTYPE html>
 <html>
 <head>
@@ -26,6 +20,10 @@
             flex-grow: 1;
         }
     </style>
+    <!-- <script src="https://threejs.org/build/three.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@tonejs/midi"></script>
+    <script src="https://cdn.jsdelivr.net/npm/tone"></script> -->
+
     <script src="js/threejs.org_build_three.js"></script>
     <script src="js/cdn.jsdelivr.net_npm_@tonejs_midi.js"></script>
     <script src="js/js/cdn.jsdelivr.net_npm_tone.js"></script>
@@ -338,8 +336,6 @@ let audioSource;  // Keep track of the current audio source
 
 document.getElementById('audioInput').addEventListener('change', async function(event) {
 
-sendMessageToVisual({ type: "playaudio", payload: { /* your data here */ } });
-
 audioContext = new AudioContext();
 analyser = audioContext.createAnalyser();
 analyser.fftSize = 2048 * 2 * 2;
@@ -375,7 +371,7 @@ function playNext() {
             try {
                 let audioBuffer = await audioContext.decodeAudioData(reader.result);
                 playSound(audioBuffer);
-                // animate();
+                animate();
             } catch(e) {
                 console.error("There was an error decoding the file", e);
             }
@@ -591,23 +587,59 @@ function getNextImageTexture() {
     return texture;
 }
 
-let visualWindow;
+window.addEventListener('message', function(event) {
+    const data = event.data;
 
-function openVisualWindow() {
-    visualWindow = window.open('advancedvideosphere.html', '_blank');
-}
+    // let hueoffset = 20;
+    //     let volumeThreshold = 40;
+    //     let thresholds = Array(22).fill(40);
+    //     let freezeFrameEffectActive = true;
 
-function sendMessageToVisual(data) {
-    if (visualWindow) {
-        visualWindow.postMessage(data, '*'); // Use '*' to send to any origin, but be aware of potential security issues.
+    //     const scene = new THREE.Scene();
+    //     const camera = new THREE.PerspectiveCamera(75, window.innerWidth/window.innerHeight, 0.1, 1000);
+    //     camera.position.z = 2;
+    //     const renderer = new THREE.WebGLRenderer();
+
+    //     let container = document.getElementById('container');
+    //     renderer.setSize(container.clientWidth, container.clientHeight);
+    //     container.appendChild(renderer.domElement);
+
+    //     var analyser;
+
+    //     let numBands = 48;
+
+    //     let holographicFanMode = false;
+
+    //     let baseFrequency = 20; // Start from 20 Hz
+    //     let maxFrequency = 20000; // Up to 20 kHz
+
+    console.log("got a message");
+
+    if (data.type === "playbackspeed") {
+        console.log ("playbackspeed");
+        
     }
+
+    function updateVisualizer() {
+    let data = {
+        variableA: document.getElementById('variableA').value,
+        variableB: document.getElementById('variableB').value,
+        // ... add other variables as needed
+    };
+    sendMessageToVisual(data);
 }
 
-// Example usage:
-openVisualWindow();
-// sendMessageToVisual({ type: "updateGeometry", payload: { /* your data here */ } });
-// sendMessageToVisual({ type: "playbackspeed", payload: {speed: 0.2 } });
 
+    if (data.type === "playaudio") {
+        console.log ("playaudio");
+        
+    }
+
+    if (data.type === "updateGeometry") {
+        // Update the scene based on the received data
+    }
+
+});
 
     </script>
 </body>
