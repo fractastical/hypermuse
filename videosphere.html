@@ -332,49 +332,49 @@ let audioSource;  // Keep track of the current audio source
 
 document.getElementById('audioInput').addEventListener('change', async function(event) {
 
-    audioContext = new AudioContext();
-    analyser = audioContext.createAnalyser();
-    analyser.fftSize = 2048 * 2 * 2;
+audioContext = new AudioContext();
+analyser = audioContext.createAnalyser();
+analyser.fftSize = 2048 * 2 * 2;
 
-    // Populate the audioQueue with the selected files
-    audioQueue.length = 0;  // Clear the queue
-    for (let file of event.target.files) {
-        audioQueue.push(file);
-    }
+// Populate the audioQueue with the selected files
+audioQueue.length = 0;  // Clear the queue
+for (let file of event.target.files) {
+    audioQueue.push(file);
+}
 
-    playNext();
+playNext();
 
-
-        const file = audioQueue.shift();  // Get the next file from the queue
-        const reader = new FileReader();
-
-        reader.addEventListener('load', async function() {
-            if (file.name.endsWith('.midi') || file.name.endsWith('.mid')) {
-                const midiData = new Midi(reader.result);
-                midiData.tracks[0].notes.sort((a, b) => a.time - b.time);
-                await playMidi(midiData);
-                playNext();  // Play the next file when done
-            } else if (file.type.startsWith('audio/')) {
-                try {
-                    let audioBuffer = await audioContext.decodeAudioData(reader.result);
-                    playSound(audioBuffer);
-                } catch(e) {
-                    console.error("There was an error decoding the file", e);
-                }
-            }
-        });
-
-        reader.readAsArrayBuffer(file);
-    }
 });
 
 function playNext() {
-        if (audioQueue.length === 0) {
-            // If the queue is empty, repopulate it
-            for (let file of event.target.files) {
-                audioQueue.push(file);
+    if (audioQueue.length === 0) {
+        // If the queue is empty, repopulate it
+        for (let file of event.target.files) {
+            audioQueue.push(file);
+        }
+    }
+
+    const file = audioQueue.shift();  // Get the next file from the queue
+    const reader = new FileReader();
+
+    reader.addEventListener('load', async function() {
+        if (file.name.endsWith('.midi') || file.name.endsWith('.mid')) {
+            const midiData = new Midi(reader.result);
+            midiData.tracks[0].notes.sort((a, b) => a.time - b.time);
+            await playMidi(midiData);
+            playNext();  // Play the next file when done
+        } else if (file.type.startsWith('audio/')) {
+            try {
+                let audioBuffer = await audioContext.decodeAudioData(reader.result);
+                playSound(audioBuffer);
+            } catch(e) {
+                console.error("There was an error decoding the file", e);
             }
         }
+    });
+
+    reader.readAsArrayBuffer(file);
+}
 
 function playSound(audioBuffer) {
     if (audioSource) {
