@@ -75,7 +75,7 @@
 
         let numBands = 48;
 
-        let holographicFanMode = true;
+        let holographicFanMode = false;
 
         let baseFrequency = 20; // Start from 20 Hz
         let maxFrequency = 20000; // Up to 20 kHz
@@ -282,11 +282,14 @@
             input.min = '0';
             input.max = '255';
             input.value = highEnd - Math.floor((i/numBands) * range);
+            volumeThresholds[i] = highEnd - Math.floor((i/numBands) * range);
             input.id = 'threshold' + i;
             input.oninput = function(){
                 volumeThresholds[i] = this.value;  // Set the threshold for specific band
-                // Add this line to update the display text when the threshold changes
-                document.getElementById('volume' + i).textContent = 'v: ' + volume.toFixed(2) + ' / ' + volumeThresholds[i];
+                // Add this line to update the display text when the threshold changesf
+                // document.getElementById('volume' + i).textContent = 'v: ' + volumeThresholds[i] + ' 0 / ' + volumeThresholds[i];
+                document.getElementById('volume' + i).textContent = 'v: 0 / ' + volumeThresholds[i];
+
             };
 
             let volumeDisplay = document.createElement('span');
@@ -298,6 +301,9 @@
             thresholdsDiv.appendChild(input);
             thresholdsDiv.appendChild(volumeDisplay);
             thresholdsDiv.appendChild(document.createElement('br'));
+            document.getElementById('volume' + i).textContent = 'v: 0 / ' + volumeThresholds[i];
+            document.getElementById('volume' + i).style = 'color:black';
+
         }
 
         let master = document.getElementById('master');
