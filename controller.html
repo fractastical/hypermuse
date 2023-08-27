@@ -15,16 +15,21 @@
             overflow: hidden;
             display: flex;  /* Add this */
         }
-        #thresholds {
-            width: 200px;  /* Adjust this as needed */
-            height: 100%;
-            overflow: auto;
-        }
 
         #container {
-            height: 1600px;
+            height: 2000px;
             flex-grow: 1;
         }
+
+        .input-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); /* This will automatically adjust the number of columns based on the container width. Each column will be at least 200px wide */
+            grid-gap: 20px; /* Adjust as needed */
+            grid-auto-flow: column; /* Direct content to fill by column */
+            max-height: 90vh; /* adjust as necessary to prevent overflow off the bottom */
+            overflow-y: auto; /* allow scrolling if content exceeds max-height */
+        }
+
     </style>
     <script src="js/threejs.org_build_three.js"></script>
     <script src="js/cdn.jsdelivr.net_npm_@tonejs_midi.js"></script>
@@ -38,12 +43,13 @@
 
 </head>
 <body>
-  
+    <div class="class="input-grid">
     <div id="thresholds">
      music:  <input type="file" id="audioInput" multiple  accept="audio/*, .midi, .mid">
     video: <input type="file" id="videoInput" accept="video/*" multiple>
     <audio id="audioElement" controls></audio>
 
+  
     <!-- image: <input type="file" id="folderInput" webkitdirectory directory multiple /> -->
 
     <video id="videoElement" style="display:none;" autoplay muted></video>
@@ -55,7 +61,11 @@
         </div>    
 
     </div>
-    <button id="startButton">Start</button>
+
+    <!-- <button id="startButton">Start</button> -->
+
+</div>
+
     <div id="container"></div>
     <div id="advancedControls">
         <!-- Hue increase <input id="hueincrease" value="0">
@@ -265,19 +275,19 @@
             renderer.render(scene, camera);
         }
 
-        let startButton = document.getElementById('startButton');
-        startButton.addEventListener('click', function() {
-            startButton.parentElement.removeChild(startButton);
+        // let startButton = document.getElementById('startButton');
+        // startButton.addEventListener('click', function() {
+        //     startButton.parentElement.removeChild(startButton);
 
-            navigator.mediaDevices.getUserMedia({ audio: true, video: false }).then(function(stream) {
-                let audioContext = new AudioContext();
-                let source = audioContext.createMediaStreamSource(stream);
-                analyser = audioContext.createAnalyser();
-                analyser.fftSize = 2048 * 2 * 2;
-                source.connect(analyser);
-                animate();
-            });
-        });
+        //     navigator.mediaDevices.getUserMedia({ audio: true, video: false }).then(function(stream) {
+        //         let audioContext = new AudioContext();
+        //         let source = audioContext.createMediaStreamSource(stream);
+        //         analyser = audioContext.createAnalyser();
+        //         analyser.fftSize = 2048 * 2 * 2;
+        //         source.connect(analyser);
+        //         animate();
+        //     });
+        // });
 
         let thresholdsDiv = document.getElementById('thresholds');
         let volumeThresholds = new Array(numBands).fill(40);
@@ -603,6 +613,37 @@ function sendMessageToVisual(data) {
         visualWindow.postMessage(data, '*'); // Use '*' to send to any origin, but be aware of potential security issues.
     }
 }
+
+function sendMessage(name, value) {
+    // Handle the message sending here. For example:
+    if (visualWindow) {
+        visualWindow.postMessage({ name, value }, '*');
+    }
+}
+
+// Get all input fields
+const inputs = document.querySelectorAll('input');
+
+
+
+// Get all input fields
+const inputs = document.querySelectorAll('input');
+
+// Loop through each input and attach the event listener
+inputs.forEach(input => {
+    input.addEventListener('input', function(event) {
+        // Get the input's name and value
+        
+
+        let name = event.target.name;
+
+        let value = event.target.value;
+
+        // Send the message
+        sendMessage(name, value);
+    });
+});
+
 
 // Example usage:
 openVisualWindow();

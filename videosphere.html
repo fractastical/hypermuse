@@ -16,7 +16,7 @@
         }
 
         #container {
-            height: 1600px;
+            height: 2000px;
             flex-grow: 1;
         }
     </style>
@@ -619,6 +619,16 @@ window.addEventListener('message', function(event) {
         console.log ("playbackspeed");
         
     }
+
+    function updateVisualizer() {
+    let data = {
+        variableA: document.getElementById('variableA').value,
+        variableB: document.getElementById('variableB').value,
+        // ... add other variables as needed
+    };
+    sendMessageToVisual(data);
+}
+
 
     if (data.type === "playaudio") {
         console.log ("playaudio");
