@@ -35,10 +35,11 @@
   
     <div id="thresholds">
        music: <input id="file" type="file" accept="audio/*, .midi, .mid">
-    video: <input type="file" id="videoInput" accept="video/*">
+    video: <input type="file" id="videoInput" accept="video/*" multiple>
+
     image: <input type="file" id="folderInput" webkitdirectory directory multiple />
 
-    <video id="videoElement" style="display:none;" loop autoplay></video>
+    <video id="videoElement" style="display:none;" autoplay muted></video>
     
         <div id="master-control">
             <span>Master Volume Threshold: </span>
@@ -200,7 +201,8 @@
                         if(videoElementActive) {
                              var texture = getVideoFrameTexture();
                              var opacitylevel =  (12 / volume ) + .2;
-                             console.log(opacitylevel);
+                             // TODO: hits infinity too often
+                            //  console.log(opacitylevel);
                              material = new THREE.MeshBasicMaterial({map:texture, opacity: opacitylevel, transparent: true, side: THREE.DoubleSide});
                              material.needsUpdate = true;
                         }
@@ -424,25 +426,36 @@ async function playMidi(midiData) {
             dodecahedronMaterial.needsUpdate = true;
         }
 
-
+        videoElement.playbackRate = 1.0;  // Ensure normal playback speed
         videoElement.play();
 
         if(freezeFrameEffectActive)
              return texture;
     }
 
-
-
-    document.getElementById('videoInput').addEventListener('change', function(event) {
+    const videoQueue = [];
+    const originalVideos = [];
 
     const videoElement = document.getElementById('videoElement');
-    const videoFrameTextures = [];
 
-    if (videoElement.canPlayType('video/mp4')) {
-        const fileURL = URL.createObjectURL(event.target.files[0]);
-        videoElement.src = fileURL;
+document.getElementById('videoInput').addEventListener('change', function(event) {
+    videoQueue.length = 0;
+    originalVideos.length = 0;
+
+    // Convert FileList to Array and add to videoQueue
+    for (let file of event.target.files) {
+        const url = URL.createObjectURL(file);
+        videoQueue.push(url);
+        originalVideos.push(url);
+
+    }
+
+    // Play the first video
+    if (videoQueue.length > 0) {
+        videoElement.src = videoQueue.shift();
         videoElement.play();
         videoElementActive = true;
+
         if (holographicFanMode) {
             const dodecahedronRadius = 0.15;
             const dodecahedronGeometry = new THREE.DodecahedronGeometry(dodecahedronRadius);
@@ -456,16 +469,28 @@ async function playMidi(midiData) {
             // Create the mesh and add it to the scene
             const dodecahedron = new THREE.Mesh(dodecahedronGeometry, dodecahedronMaterial);
             scene.add(dodecahedron);
-
-    } 
-    
+        }
     }
     else {
         console.error('Video format not supported');
     }
+});
 
-    });
+videoElement.addEventListener('ended', function() {
+    if (videoQueue.length === 0) {
+        // Repopulate videoQueue with original video URLs
+        videoQueue.push(...originalVideos);
+    }
 
+    console.log("nextvideo");
+    if (videoQueue.length > 0) {
+        videoElement.src = videoQueue.shift();
+        videoElement.playbackRate = 1.0;  // Ensure normal playback speed
+        videoElement.play();
+    } else {
+        console.log("All videos have been played!");
+    }
+});
 
     let loadedImages = [];
 
