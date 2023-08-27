@@ -1,0 +1,611 @@
+
+
+
+
+
+
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>Audio Reactive Spheres</title>
+    <style>
+        body {
+            margin: 0;
+            overflow: hidden;
+            display: flex;  /* Add this */
+        }
+        #thresholds {
+            width: 200px;  /* Adjust this as needed */
+            height: 100%;
+            overflow: auto;
+        }
+
+        #container {
+            height: 1600px;
+            flex-grow: 1;
+        }
+    </style>
+    <script src="https://threejs.org/build/three.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@tonejs/midi"></script>
+    <script src="https://cdn.jsdelivr.net/npm/tone"></script>
+
+    <!-- <script src="https://unpkg.com/delaunator@3.0.2/delaunator.js"></script>
+    <script src="https://josephg.github.io/noisejs/perlin.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/dat-gui/0.7.3/dat.gui.min.js"></script> -->
+
+
+
+</head>
+<body>
+  
+    <div id="thresholds">
+     music:  <input type="file" id="audioInput" multiple  accept="audio/*, .midi, .mid">
+    video: <input type="file" id="videoInput" accept="video/*" multiple>
+    <audio id="audioElement" controls></audio>
+
+    <!-- image: <input type="file" id="folderInput" webkitdirectory directory multiple /> -->
+
+    <video id="videoElement" style="display:none;" autoplay muted></video>
+    
+        <div id="master-control">
+            <span>Master Volume Threshold: </span>
+            <input type="range" id="master" min="-100" max="355" value="150">
+            <br>
+        </div>    
+
+    </div>
+    <button id="startButton">Start</button>
+    <div id="container"></div>
+    <div id="advancedControls">
+        <!-- Hue increase <input id="hueincrease" value="0">
+        X Rotation <input id="xrotation" value="0.001">
+        Y Rotation <input id="yrotation" value="0.0001">
+        Bands <input id="numBands" value="48"> -->
+    </div>
+
+<script>
+        let hueoffset = 20;
+        let volumeThreshold = 40;
+        let thresholds = Array(22).fill(40);
+        let freezeFrameEffectActive = true;
+
+        const scene = new THREE.Scene();
+        const camera = new THREE.PerspectiveCamera(75, window.innerWidth/window.innerHeight, 0.1, 1000);
+        camera.position.z = 2;
+        const renderer = new THREE.WebGLRenderer();
+
+        let container = document.getElementById('container');
+        renderer.setSize(container.clientWidth, container.clientHeight);
+        container.appendChild(renderer.domElement);
+
+        var analyser;
+
+        let numBands = 48;
+
+        let holographicFanMode = false;
+
+        let baseFrequency = 20; // Start from 20 Hz
+        let maxFrequency = 20000; // Up to 20 kHz
+        // let numBands = 22; // Number of frequency bands
+
+        let dodecahedronMaterial; 
+
+                // Now calculate the ratio between each band in a logarithmic scale
+        let ratio = Math.pow(maxFrequency / baseFrequency, 1.0 / (numBands - 1));
+
+
+
+        // Now we can get the frequency for each band
+        for (let i = 0; i < numBands; i++) {
+        let bandFrequency = baseFrequency * Math.pow(ratio, i);
+        console.log('Band ' + i + ' frequency: ' + bandFrequency + ' Hz');
+}
+
+        
+        let points = [];
+        let lines = [];
+        let geometries = [];
+        let lastPoints = [];
+
+        let goldenRatio = (1 + Math.sqrt(5)) / 2;
+        let angleIncrement = Math.PI * 2 * goldenRatio;
+
+        for (let i = 0; i < numBands; i++) {
+            let v = i / numBands;
+            let phi = v * Math.PI;
+            let theta = angleIncrement * i;
+
+            let x = Math.sin(phi) * Math.cos(theta);
+            let y = Math.sin(phi) * Math.sin(theta);
+            let z = Math.cos(phi);
+
+            x = isNaN(x) ? 0 : x;
+            y = isNaN(y) ? 0 : y;
+            z = isNaN(z) ? 0 : z;
+
+            let point = new THREE.Points(new THREE.BufferGeometry().setFromPoints([new THREE.Vector3(0, 0, 0)]), new THREE.PointsMaterial({color: 0xffffff, size: 0.01}));
+            point.position.set(x, y, z);
+            points.push(point);
+            // scene.add(point);
+        }
+
+        function createTriangleGeometry(p1, p2, p3) {
+                const geometry = new THREE.BufferGeometry();
+                
+                const vertices = new Float32Array([
+                    p1.x, p1.y, p1.z,
+                    p2.x, p2.y, p2.z,
+                    p3.x, p3.y, p3.z
+                ]);
+
+                const uvs = new Float32Array([
+                    0, 0,
+                    1, 0,
+                    0.5, 1
+                ]);
+
+                geometry.setAttribute('position', new THREE.BufferAttribute(vertices, 3));
+                geometry.setAttribute('uv', new THREE.BufferAttribute(uvs, 2));
+
+                return geometry;
+        }
+
+        function getAverageVolume(array) {
+            var values = 0;
+            var average;
+            var length = array.length;
+            for (var i = 0; i < length; i++) {
+                values += array[i];
+            }
+            average = values / length;
+            return average;
+        }
+
+        let hueOffsetSpeed = 0.5;
+
+        function animate() {
+            requestAnimationFrame(animate);
+
+            // untoggle for now so is fully deterministic
+            // hueoffset += hueOffsetSpeed;
+            if(hueoffset > 360) {
+                hueoffset -= 360;
+            }
+
+            let data = new Uint8Array(analyser.frequencyBinCount);
+            analyser.getByteFrequencyData(data);
+
+            let bandSize = Math.floor(data.length / numBands);
+            
+            for (let i = 0; i < numBands; i++) {
+                let band = data.slice(i * bandSize, (i + 1) * bandSize);
+                let volume = getAverageVolume(band);
+                
+            }
+            for (let i = 0; i < numBands; i++) {
+                let band = data.slice(i * bandSize, (i + 1) * bandSize);
+                let volume = getAverageVolume(band);
+                let volumeDisplay = document.getElementById('volume' + i);
+                volumeDisplay.textContent = 'v: ' + volume.toFixed(2) + ' / ' + volumeThresholds[i];
+
+
+                if (volume >= volumeThresholds[i]) {
+                    let hue = (volume * 1.4) + hueoffset;
+                    // let hue = 10;
+                    if (hue > 360) hue -= 360;
+
+                    let color = new THREE.Color('hsl(' + hue + ', 100%, 50%)');
+
+                    if(points[i]) points[i].material.color = color;
+
+                    volumeDisplay.style.color = '#00ff00'; // green
+                    if (lastPoints.length >= 3) {
+
+
+                        var geometry = createTriangleGeometry(lastPoints[0], lastPoints[1], lastPoints[2]);
+                        var material; 
+                        if(videoElementActive) {
+                             var texture = getVideoFrameTexture();
+                             var opacitylevel =  (12 / volume ) + .2;
+                             // TODO: hits infinity too often
+                            //  console.log(opacitylevel);
+                             material = new THREE.MeshBasicMaterial({map:texture, opacity: opacitylevel, transparent: true, side: THREE.DoubleSide});
+                             material.needsUpdate = true;
+                        }
+                        else if (imageElementActive) {
+
+                            var texture = getNextImageTexture();
+                             material = new THREE.MeshBasicMaterial({map:texture, opacity: 0.6, transparent: true, side: THREE.DoubleSide});
+                             material.needsUpdate = true;
+
+                        } else 
+                            material = new THREE.MeshBasicMaterial({color: color, opacity: 0.6, transparent: true, side: THREE.DoubleSide});
+
+                        var triangle = new THREE.Mesh(geometry, material);
+
+
+                        scene.add(triangle);
+
+                        if (geometries.length > 50) {
+
+                                geometries[0].geometry.geometry.dispose();
+                                geometries[0].geometry.material.dispose();
+                                scene.remove(geometries[0].geometry);
+                                geometries.shift();
+
+                        }
+
+                        geometries.push({geometry: triangle, age: 0});
+
+                        lastPoints.shift();
+                    }
+
+                    lastPoints.push(points[i].position.clone());
+                } else {
+                    volumeDisplay.style.color = '#ff0000'; // red
+                }
+            }
+
+            for (let i = geometries.length - 1; i >= 0; i--) {
+                geometries[i].age++;
+                if (geometries[i].age > 20) {
+                    geometries[i].geometry.material.opacity -= 0.01;
+                    if (geometries[i].geometry.material.opacity <= 0) {
+                        scene.remove(geometries[i].geometry);
+                        geometries.splice(i, 1);
+                    }
+                }
+            }
+
+            scene.rotation.x += 0.0001;
+            scene.rotation.y += 0.0005;
+
+            renderer.render(scene, camera);
+        }
+
+        let startButton = document.getElementById('startButton');
+        startButton.addEventListener('click', function() {
+            startButton.parentElement.removeChild(startButton);
+
+            navigator.mediaDevices.getUserMedia({ audio: true, video: false }).then(function(stream) {
+                let audioContext = new AudioContext();
+                let source = audioContext.createMediaStreamSource(stream);
+                analyser = audioContext.createAnalyser();
+                analyser.fftSize = 2048 * 2 * 2;
+                source.connect(analyser);
+                animate();
+            });
+        });
+
+        let thresholdsDiv = document.getElementById('thresholds');
+        let volumeThresholds = new Array(numBands).fill(40);
+
+        for(let i = 0; i < numBands; i++){
+            let highEnd = 200; // maximum volume threshold for lowest frequency band
+            let lowEnd = 10;   // minimum volume threshold for highest frequency band
+            let range = highEnd - lowEnd;
+
+            let input = document.createElement('input');
+            input.type = 'range';
+            input.min = '0';
+            input.max = '255';
+            input.value = highEnd - Math.floor((i/numBands) * range);
+            volumeThresholds[i] = highEnd - Math.floor((i/numBands) * range);
+            input.id = 'threshold' + i;
+            input.oninput = function(){
+                volumeThresholds[i] = this.value;  // Set the threshold for specific band
+                // Add this line to update the display text when the threshold changesf
+                // document.getElementById('volume' + i).textContent = 'v: ' + volumeThresholds[i] + ' 0 / ' + volumeThresholds[i];
+                document.getElementById('volume' + i).textContent = 'v: 0 / ' + volumeThresholds[i];
+
+            };
+
+            let volumeDisplay = document.createElement('span');
+            volumeDisplay.id = 'volume' + i;
+            volumeDisplay.style.color = 'white';
+            volumeDisplay.textContent = "v: ";
+
+            thresholdsDiv.appendChild(document.createTextNode('Band ' + i + ': '));
+            thresholdsDiv.appendChild(input);
+            thresholdsDiv.appendChild(volumeDisplay);
+            thresholdsDiv.appendChild(document.createElement('br'));
+            document.getElementById('volume' + i).textContent = 'v: 0 / ' + volumeThresholds[i];
+            document.getElementById('volume' + i).style = 'color:black';
+
+        }
+
+        let master = document.getElementById('master');
+        let lastMasterValue = 40;
+        master.oninput = function() {
+            let masterValue = this.value;
+            let delta = masterValue - lastMasterValue;
+            // volumeThresholds = volumeThresholds.map(() => masterValue);  // Set all thresholds to the master's value
+
+            for (let i = 0; i < numBands; i++) {
+                let input = document.getElementById('threshold' + i);
+                volumeThresholds[i] =  parseInt(input.value) + delta;
+                input.value = parseInt(input.value) + delta;
+                document.getElementById('volume' + i).textContent = 'v: 0 / ' + input.value;
+            }
+
+            lastMasterValue = masterValue;
+        };
+
+        var audioContext;
+        const audioQueue = [];
+let audioSource;  // Keep track of the current audio source
+
+document.getElementById('audioInput').addEventListener('change', async function(event) {
+
+audioContext = new AudioContext();
+analyser = audioContext.createAnalyser();
+analyser.fftSize = 2048 * 2 * 2;
+
+// Populate the audioQueue with the selected files
+audioQueue.length = 0;  // Clear the queue
+for (let file of event.target.files) {
+    audioQueue.push(file);
+}
+
+playNext();
+
+});
+
+function playNext() {
+    if (audioQueue.length === 0) {
+        // If the queue is empty, repopulate it
+        for (let file of event.target.files) {
+            audioQueue.push(file);
+        }
+    }
+
+    const file = audioQueue.shift();  // Get the next file from the queue
+    const reader = new FileReader();
+
+    reader.addEventListener('load', async function() {
+        if (file.name.endsWith('.midi') || file.name.endsWith('.mid')) {
+            const midiData = new Midi(reader.result);
+            midiData.tracks[0].notes.sort((a, b) => a.time - b.time);
+            await playMidi(midiData);
+            playNext();  // Play the next file when done
+        } else if (file.type.startsWith('audio/')) {
+            try {
+                let audioBuffer = await audioContext.decodeAudioData(reader.result);
+                playSound(audioBuffer);
+                // animate();
+            } catch(e) {
+                console.error("There was an error decoding the file", e);
+            }
+        }
+    });
+
+    reader.readAsArrayBuffer(file);
+}
+
+function playSound(audioBuffer) {
+    if (audioSource) {
+        audioSource.stop();
+    }
+
+    audioSource = audioContext.createBufferSource();
+    audioSource.buffer = audioBuffer;
+    audioSource.connect(analyser);
+    analyser.connect(audioContext.destination);
+    audioSource.onended = playNext;  // Play the next file when the current one finishes
+    audioSource.start();
+}
+
+// Your playSound and animate functions would be defined elsewhere
+
+async function playMidi(midiData) {
+    const synth = new Tone.Synth().toDestination();
+    synth.connect(analyser);
+    synth.toDestination();
+
+    // Schedule the events to play
+    midiData.tracks[0].notes.forEach(note => {
+        synth.triggerAttackRelease(note.name, note.duration, note.time, note.velocity);
+    });
+
+    // Start the playback
+    await Tone.start();
+    Tone.Transport.start();
+}
+
+function populateQueueAgain() {
+    const inputFiles = document.getElementById('audioInput').files;
+
+    for (let file of inputFiles) {
+        const url = URL.createObjectURL(file);
+        audioQueue.push(url);
+    }
+}
+
+
+
+    // function playSound(buffer) {
+    //     let source = audioContext.createBufferSource(); 
+    //     source.buffer = buffer;
+    //     source.connect(analyser); // Connect source to the analyser
+    //     source.connect(audioContext.destination); // Connect source to the speakers
+    //     source.start(0);
+    // }
+
+// SECTION: video
+
+        // for video render
+        const canvas = document.createElement('canvas');
+        const ctx = canvas.getContext('2d');
+        let videoElementActive = false;
+        let imageElementActive = false;
+
+    function captureFrame(videoElement) {
+        ctx.drawImage(videoElement, 0, 0, canvas.width, canvas.height);
+        return ctx.getImageData(0, 0, canvas.width, canvas.height);
+
+    }
+
+    function getVideoFrameTexture() {
+
+        if(freezeFrameEffectActive)
+            videoElement.pause();
+
+
+        ctx.drawImage(videoElement, 0, 0, canvas.width, canvas.height);
+        let texture = new THREE.Texture(canvas);
+        texture.needsUpdate = true;
+
+        if (dodecahedronMaterial) {
+            dodecahedronMaterial.map = texture;
+            dodecahedronMaterial.needsUpdate = true;
+        }
+
+        videoElement.playbackRate = 1.0;  // Ensure normal playback speed
+        videoElement.play();
+
+        if(freezeFrameEffectActive)
+             return texture;
+    }
+
+    const videoQueue = [];
+    const originalVideos = [];
+
+    const videoElement = document.getElementById('videoElement');
+
+document.getElementById('videoInput').addEventListener('change', function(event) {
+    videoQueue.length = 0;
+    originalVideos.length = 0;
+
+    // Convert FileList to Array and add to videoQueue
+    for (let file of event.target.files) {
+        const url = URL.createObjectURL(file);
+        videoQueue.push(url);
+        originalVideos.push(url);
+
+    }
+
+    // Play the first video
+    if (videoQueue.length > 0) {
+        videoElement.src = videoQueue.shift();
+        videoElement.play();
+        videoElementActive = true;
+
+        if (holographicFanMode) {
+            const dodecahedronRadius = 0.15;
+            const dodecahedronGeometry = new THREE.DodecahedronGeometry(dodecahedronRadius);
+
+            // Get the video frame texture
+            let texture = getVideoFrameTexture();
+
+            // Create a material with that texture
+            dodecahedronMaterial = new THREE.MeshBasicMaterial({ map: texture });
+
+            // Create the mesh and add it to the scene
+            const dodecahedron = new THREE.Mesh(dodecahedronGeometry, dodecahedronMaterial);
+            scene.add(dodecahedron);
+        }
+    }
+    else {
+        console.error('Video format not supported');
+    }
+});
+
+videoElement.addEventListener('ended', function() {
+    if (videoQueue.length === 0) {
+        // Repopulate videoQueue with original video URLs
+        videoQueue.push(...originalVideos);
+    }
+
+    console.log("nextvideo");
+    if (videoQueue.length > 0) {
+        videoElement.src = videoQueue.shift();
+        videoElement.playbackRate = 1.0;  // Ensure normal playback speed
+        videoElement.play();
+    } else {
+        console.log("All videos have been played!");
+    }
+});
+
+    let loadedImages = [];
+
+    var dodecahedron; 
+    if(holographicFanMode) {
+        const dodecahedronRadius = 0.1;  // Adjust as needed
+        const dodecahedronGeometry = new THREE.DodecahedronGeometry(dodecahedronRadius);
+        const dodecahedronMaterial = new THREE.MeshBasicMaterial({ color: "blue" });  // White color
+        dodecahedron = new THREE.Mesh(dodecahedronGeometry, dodecahedronMaterial);
+        dodecahedron.position.set(0, 0, 0);
+        scene.add(dodecahedron);
+
+    }
+
+    // const sphereRadius = .1;  // Adjust as needed
+    // const sphereWidthDivisions = 32;
+    // const sphereHeightDivisions = 32;
+
+    // const sphereGeometry = new THREE.SphereGeometry(sphereRadius, sphereWidthDivisions, sphereHeightDivisions);
+    // const sphereMaterial = new THREE.MeshBasicMaterial({ color: "blue" });  // White color
+    // const sphere = new THREE.Mesh(sphereGeometry, sphereMaterial);
+    // sphere.position.set(0, 0, 0);
+    // scene.add(sphere);
+
+
+// document.getElementById('folderInput').addEventListener('change', function(event) {
+//     let files = event.target.files;
+//     for (let i = 0; i < files.length; i++) {
+//         if (files[i].type.startsWith('image/')) { // Ensure the file is an image
+//             let reader = new FileReader();
+//             reader.readAsDataURL(files[i]);
+//             reader.onload = function() {
+//                 let img = new Image();
+//                 img.src = reader.result;
+//                 loadedImages.push(img);
+//             };
+//         }
+//     }
+// });
+
+function getNextImageTexture() {
+    
+    if (loadedImages.length === 0) return null; // Handle the case when no images have been loaded
+    
+    // For sequential use:
+    let nextImage = loadedImages.shift();
+    loadedImages.push(nextImage); // Put the image at the end of the array to cycle through the images
+    
+    // Alternatively, for random use:
+    // let nextImage = loadedImages[Math.floor(Math.random() * loadedImages.length)];
+    
+    let textureCanvas = document.createElement('canvas');
+    textureCanvas.width = nextImage.width;
+    textureCanvas.height = nextImage.height;
+    let ctx = textureCanvas.getContext('2d');
+    ctx.drawImage(nextImage, 0, 0);
+
+    let texture = new THREE.Texture(textureCanvas);
+    texture.needsUpdate = true;
+
+    return texture;
+}
+
+let visualWindow;
+
+function openVisualWindow() {
+    visualWindow = window.open('videosphere.html', '_blank');
+}
+
+function sendMessageToVisual(data) {
+    if (visualWindow) {
+        visualWindow.postMessage(data, 'start');
+    }
+}
+
+// Example usage:
+openVisualWindow();
+sendMessageToVisual({ type: "updateGeometry", payload: { /* your data here */ } });
+
+
+    </script>
+</body>
+</html>
