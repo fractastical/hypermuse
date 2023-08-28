@@ -646,6 +646,18 @@ window.addEventListener('message', function(event) {
         
 
     }
+    if (event.data.name.startsWith("threshold")) {
+
+
+        let threshNum = event.data.name.slice(9,event.data.name.length);
+        let threshindex = parseInt(threshNum);
+        console.log(threshNum + ":" + volumeThresholds[threshindex]);
+        volumeThresholds[threshindex] = parseInt(event.data.value)
+        let input = document.getElementById('threshold' + threshindex);
+        input.value = volumeThresholds[threshindex];
+
+    }
+
     if (event.data.name === "master") {
         // Same for variable B
             let masterValue = parseInt(event.data.value);
