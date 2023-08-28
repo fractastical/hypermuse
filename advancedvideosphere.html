@@ -646,6 +646,23 @@ window.addEventListener('message', function(event) {
         
 
     }
+    if (event.data.name === "master") {
+        // Same for variable B
+            let masterValue = parseInt(event.data.value);
+            master.value = masterValue;
+            let delta = masterValue - lastMasterValue;
+            // volumeThresholds = volumeThresholds.map(() => masterValue);  // Set all thresholds to the master's value
+
+            for (let i = 0; i < numBands; i++) {
+                let input = document.getElementById('threshold' + i);
+                volumeThresholds[i] =  parseInt(input.value) + delta;
+                input.value = parseInt(input.value) + delta;
+                document.getElementById('volume' + i).textContent = 'v: 0 / ' + input.value;
+            }
+
+            lastMasterValue = masterValue;
+
+    }
 
 
     if (event.data.name === "hueoffset") {
