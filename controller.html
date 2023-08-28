@@ -51,8 +51,8 @@
 
     Mode: <input type="text" id="mode" value="color"/>
 
-    Xrotationspeed: <input type="text" id="xrotation" value="+.001"/>
-    Yrotationspeed: <input type="text" id="yrotation" value="-.001"/>
+    Xrotationspeed: <input type="text" id="xrotation" value="0.0001"/>
+    Yrotationspeed: <input type="text" id="yrotation" value="0.0005"/>
     Starting color: <input type="text" id="startcolor" value="orange"/>
     Hueoffset: <input type="text" id="hueoffset" value="201"/>
     Huerange: <input type="text" id="huerange" value="100"/>
@@ -639,7 +639,7 @@ inputs.forEach(input => {
         // Get the input's name and value
         
 
-        let name = event.target.id;
+        let id = event.target.id;
 
         let value = event.target.value;
 

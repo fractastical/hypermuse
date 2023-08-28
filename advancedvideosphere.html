@@ -66,6 +66,8 @@
         let volumeThreshold = 40;
         let thresholds = Array(22).fill(40);
         let freezeFrameEffectActive = true;
+        let X_ROTATION_SPEED = 0.0001;
+        let Y_ROTATION_SPEED = 0.0005;
 
         const scene = new THREE.Scene();
         const camera = new THREE.PerspectiveCamera(75, window.innerWidth/window.innerHeight, 0.1, 1000);
@@ -255,8 +257,8 @@
                 }
             }
 
-            scene.rotation.x += 0.0001;
-            scene.rotation.y += 0.0005;
+            scene.rotation.x += X_ROTATION_SPEED; 
+            scene.rotation.y += Y_ROTATION_SPEED;
 
             renderer.render(scene, camera);
         }
@@ -619,16 +621,37 @@ window.addEventListener('message', function(event) {
         
     }
 
+        
+    // console.log(event.data);
+
     if (event.data.huerange) {
         // Assuming you have a static variable named staticVariableA
-        staticVariableA = event.data.variableA;
+        // staticVariableA = event.data.variableA;
+        console.log(event.data);
     }
 
-    if (event.data.variableB) {
+    if (event.data.name === "xrotation") {
         // Same for variable B
-        staticVariableB = event.data.variableB;
+
+        // staticVariableB = event.data.variableB;
+        console.log(event.data.value);
+
+        X_ROTATION_SPEED = parseFloat(event.data.value);
+        
+
     }
 
+
+
+    if (event.data.name === "yrotation") {
+
+        // staticVariableB = event.data.variableB;
+        console.log(event.data.value);
+
+        Y_ROTATION_SPEED = parseFloat(event.data.value);
+        
+
+    }
     
 
 
