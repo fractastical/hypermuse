@@ -713,8 +713,14 @@ window.addEventListener('message', function(event) {
         Y_ROTATION_SPEED = parseFloat(event.data.value);
 
     }
-    
 
+    if (event.data.name === "playbackrate") {
+
+        videoElement.playbackRate = parseFloat(event.data.value);
+
+    }
+
+    
     if (event.data.name === "videoInput") {
 
         console.log(event.data.value);
