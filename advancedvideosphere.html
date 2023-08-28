@@ -691,6 +691,18 @@ window.addEventListener('message', function(event) {
 
     }
 
+    if (event.data.name === "audiopop") {
+
+    // put final video off the queue
+
+    }
+
+    if (event.data.name === "videopop") {
+
+        // put final video off the queue
+
+    }
+
     if (event.data.name === "numbands") {
 
         numBands = parseInt(event.data.value);
@@ -698,6 +710,7 @@ window.addEventListener('message', function(event) {
     }
 
     if (event.data.name === "holofanmode") {
+        console.log(event.data.value);
 
         let fanon = parseInt(event.data.value);
         if(fanon == 1)
@@ -722,7 +735,7 @@ window.addEventListener('message', function(event) {
     }
 
     if (event.data.name === "playbackrate") {
-        
+
         //TODO: sort of works but makes no difference
         console.log("playback");
         videoElement.playbackRate = parseFloat(event.data.value);
