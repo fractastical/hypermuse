@@ -8,7 +8,7 @@
 <html>
 <head>
     <meta charset="utf-8">
-    <title>Audio Reactive Spheres</title>
+    <title>Controller (for Audiosphere)</title>
     <style>
         body {
             margin: 0;
@@ -17,7 +17,7 @@
         }
 
         #container {
-            height: 2000px;
+            height: 1600px;
             flex-grow: 1;
         }
 
@@ -32,8 +32,8 @@
 
     </style>
     <script src="js/threejs.org_build_three.js"></script>
-    <script src="js/cdn.jsdelivr.net_npm_@tonejs_midi.js"></script>
-    <script src="js/js/cdn.jsdelivr.net_npm_tone.js"></script>
+    <!-- <script src="js/cdn.jsdelivr.net_npm_@tonejs_midi.js"></script>
+    <script src="js/js/cdn.jsdelivr.net_npm_tone.js"></script> -->
 
     <!-- <script src="https://unpkg.com/delaunator@3.0.2/delaunator.js"></script>
     <script src="https://josephg.github.io/noisejs/perlin.js"></script>
@@ -47,7 +47,15 @@
     <div id="thresholds">
      music:  <input type="file" id="audioInput" multiple  accept="audio/*, .midi, .mid">
     video: <input type="file" id="videoInput" accept="video/*" multiple>
-    <audio id="audioElement" controls></audio>
+    <!-- <audio id="audioElement" controls></audio> -->
+
+    Mode: <input type="text" id="mode" value="color"/>
+
+    Xrotationspeed: <input type="text" id="xrotation" value="+.001"/>
+    Yrotationspeed: <input type="text" id="yrotation" value="-.001"/>
+    Starting color: <input type="text" id="startcolor" value="orange"/>
+    Hueoffset: <input type="text" id="hueoffset" value="201"/>
+    Huerange: <input type="text" id="huerange" value="100"/>
 
   
     <!-- image: <input type="file" id="folderInput" webkitdirectory directory multiple /> -->
@@ -621,10 +629,6 @@ function sendMessage(name, value) {
     }
 }
 
-// Get all input fields
-const inputs = document.querySelectorAll('input');
-
-
 
 // Get all input fields
 const inputs = document.querySelectorAll('input');
@@ -635,12 +639,12 @@ inputs.forEach(input => {
         // Get the input's name and value
         
 
-        let name = event.target.name;
+        let name = event.target.id;
 
         let value = event.target.value;
 
         // Send the message
-        sendMessage(name, value);
+        sendMessage(id, value);
     });
 });
 

@@ -40,7 +40,6 @@
     <div id="thresholds">
      music:  <input type="file" id="audioInput" multiple  accept="audio/*, .midi, .mid">
     video: <input type="file" id="videoInput" accept="video/*" multiple>
-    <audio id="audioElement" controls></audio>
 
     <!-- image: <input type="file" id="folderInput" webkitdirectory directory multiple /> -->
 
@@ -620,14 +619,17 @@ window.addEventListener('message', function(event) {
         
     }
 
-    function updateVisualizer() {
-    let data = {
-        variableA: document.getElementById('variableA').value,
-        variableB: document.getElementById('variableB').value,
-        // ... add other variables as needed
-    };
-    sendMessageToVisual(data);
-}
+    if (event.data.huerange) {
+        // Assuming you have a static variable named staticVariableA
+        staticVariableA = event.data.variableA;
+    }
+
+    if (event.data.variableB) {
+        // Same for variable B
+        staticVariableB = event.data.variableB;
+    }
+
+    
 
 
     if (data.type === "playaudio") {
