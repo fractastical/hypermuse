@@ -686,21 +686,28 @@ window.addEventListener('message', function(event) {
 
 
     if (event.data.name === "hueoffset") {
-        // Same for variable B
 
         hueoffset = parseInt(event.data.value);
 
     }
 
     if (event.data.name === "numbands") {
-        // Same for variable B
 
         numBands = parseInt(event.data.value);
         initBands();
     }
 
+    if (event.data.name === "holofanmode") {
+
+        let fanon = parseInt(event.data.value);
+        if(fanon == 1)
+            holographicFanMode = true;
+        else(fanon == 0)
+            holographicFanMode = false;
+
+    }
+
     if (event.data.name === "hueoffsetspeed") {
-        // Same for variable B
 
         hueoffsetspeed = parseFloat(event.data.value);
         console.log("speed");
@@ -715,6 +722,7 @@ window.addEventListener('message', function(event) {
     }
 
     if (event.data.name === "playbackrate") {
+        
         //TODO: sort of works but makes no difference
         console.log("playback");
         videoElement.playbackRate = parseFloat(event.data.value);
