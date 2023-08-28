@@ -55,8 +55,14 @@
     Yrotationspeed: <input type="text" id="yrotation" value="0.0005"/>
     Hueoffset (changes starting color of range): <input type="text" id="hueoffset" value="20"/>
     Hue cycle (changes how fast the hues change) <input type="text" id="hueoffsetspeed" value="0"/>
+    Playback speed (1 is normal) <input type="text" id="playbackspeed" value="1"/>
 
-  
+    Number of frequency bands <input type="text" id="numbands" value="48"/>
+    holofan mode <input type="text" id="holofan" value="false"/>
+    Base frequency (in Hz) <input type="text" id="baseFrequency" value="20"/>
+    Max frequency (in Hz) <input type="text" id="maxFrequency" value="20000"/>
+
+
     <!-- image: <input type="file" id="folderInput" webkitdirectory directory multiple /> -->
 
     <video id="videoElement" style="display:none;" autoplay muted></video>
@@ -87,17 +93,6 @@
         let thresholds = Array(22).fill(40);
         let freezeFrameEffectActive = true;
 
-        const scene = new THREE.Scene();
-        const camera = new THREE.PerspectiveCamera(75, window.innerWidth/window.innerHeight, 0.1, 1000);
-        camera.position.z = 2;
-        const renderer = new THREE.WebGLRenderer();
-
-        let container = document.getElementById('container');
-        renderer.setSize(container.clientWidth, container.clientHeight);
-        container.appendChild(renderer.domElement);
-
-        var analyser;
-
         let numBands = 48;
 
         let holographicFanMode = false;
@@ -112,40 +107,6 @@
         let ratio = Math.pow(maxFrequency / baseFrequency, 1.0 / (numBands - 1));
 
 
-
-        // Now we can get the frequency for each band
-        for (let i = 0; i < numBands; i++) {
-        let bandFrequency = baseFrequency * Math.pow(ratio, i);
-        console.log('Band ' + i + ' frequency: ' + bandFrequency + ' Hz');
-}
-
-        
-        let points = [];
-        let lines = [];
-        let geometries = [];
-        let lastPoints = [];
-
-        let goldenRatio = (1 + Math.sqrt(5)) / 2;
-        let angleIncrement = Math.PI * 2 * goldenRatio;
-
-        for (let i = 0; i < numBands; i++) {
-            let v = i / numBands;
-            let phi = v * Math.PI;
-            let theta = angleIncrement * i;
-
-            let x = Math.sin(phi) * Math.cos(theta);
-            let y = Math.sin(phi) * Math.sin(theta);
-            let z = Math.cos(phi);
-
-            x = isNaN(x) ? 0 : x;
-            y = isNaN(y) ? 0 : y;
-            z = isNaN(z) ? 0 : z;
-
-            let point = new THREE.Points(new THREE.BufferGeometry().setFromPoints([new THREE.Vector3(0, 0, 0)]), new THREE.PointsMaterial({color: 0xffffff, size: 0.01}));
-            point.position.set(x, y, z);
-            points.push(point);
-            // scene.add(point);
-        }
 
         function createTriangleGeometry(p1, p2, p3) {
                 const geometry = new THREE.BufferGeometry();
