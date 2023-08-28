@@ -693,13 +693,16 @@ window.addEventListener('message', function(event) {
 
     if (event.data.name === "audiopop") {
 
-    // put final video off the queue
+        audioQueue.shift();
 
     }
 
+    console.log(event.data);
+
     if (event.data.name === "videopop") {
 
-        // put final video off the queue
+        console.log("videopop");
+        videoQueue.shift();
 
     }
 

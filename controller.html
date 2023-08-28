@@ -46,9 +46,9 @@
     <div class="class="input-grid">
     <div id="thresholds">
      music add:  <input type="file" id="audioInput" multiple  accept="audio/*, .midi, .mid">
-     <input type="button" id="audiopop" value="pop"/>
+     <input type="text" id="audiopop" value="pop"/>
     video: <input type="file" id="videoInput" accept="video/*" multiple>
-     <input type="button" id="videopop" value="pop"/>
+     <input type="text" id="videopop" value="pop"/>
 
     <!-- <audio id="audioElement" controls></audio> -->
 
@@ -434,8 +434,8 @@ function populateQueueAgain() {
 
     function getVideoFrameTexture() {
 
-        if(freezeFrameEffectActive)
-            videoElement.pause();
+        // if(freezeFrameEffectActive)
+        //     videoElement.pause();
 
 
         ctx.drawImage(videoElement, 0, 0, canvas.width, canvas.height);
