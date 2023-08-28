@@ -1,7 +1,11 @@
+BUGS
 
+video playback is sometimes *way* too fast
 
-hueoffsetspeed no longer works
-videourl passing is borked (i.e. "fakeurl")
+videourl passing is borked (i.e. "fakeurl") (including with offset ) error to fix:
+"message-controller.js:40 Uncaught TypeError: Failed to execute 'createObjectURL' on 'URL': Overload resolution failed."
+
+hueoffsetspeed no longer works for unknown reasons
 
 EXTRA 
 
