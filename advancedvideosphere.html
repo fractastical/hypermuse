@@ -632,6 +632,22 @@ window.addEventListener('message', function(event) {
 
     }
 
+    if (event.data.name === "mode") {
+        // Same for variable B
+
+        if(event.data.value === "color")
+        {
+            videoElementActive = false;
+        }
+        if(event.data.value === "video")
+        {
+            videoElementActive = true;
+        }
+        
+
+    }
+
+
     if (event.data.name === "hueoffset") {
         // Same for variable B
 
