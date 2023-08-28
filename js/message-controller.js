@@ -31,18 +31,29 @@ window.addEventListener('message', function(event) {
         
     }
 
-        
+    //TODO: figure out some way to get this to work
+    if (event.data.name === "videoInput") {
+
+        console.log(event.data.value);
+        // substitute "fakepath" for root to file /Users/jd/Desktop/Audiosphere_VJ
+        const path = "/Users/jd/Desktop/Audiosphere_VJ/" + event.data.value.slice(12,event.data.value.length);
+        console.log(path);
+        const url = URL.createObjectURL(path);
+        console.log(url);
+        videoQueue.push(url);
+
+    }
+
 
     if (event.data.name === "xrotation") {
-        // Same for variable B
 
         X_ROTATION_SPEED = parseFloat(event.data.value);
         
 
     }
 
-    if (event.data.name === "mode") {
-        // Same for variable B
+    if (event.data.name === "mode") 
+    {
 
         if(event.data.value === "color")
         {
@@ -55,6 +66,7 @@ window.addEventListener('message', function(event) {
         
 
     }
+
     if (event.data.name.startsWith("threshold")) {
 
 
@@ -147,47 +159,6 @@ window.addEventListener('message', function(event) {
     }
 
     
-    if (event.data.name === "videoInput") {
-
-        console.log(event.data.value);
-
-        videoQueue.length = 0;
-        originalVideos.length = 0;
-
-        // Convert FileList to Array and add to videoQueue
-        for (let file of event.data.value.files) {
-            const url = URL.createObjectURL(file);
-            videoQueue.push(url);
-            originalVideos.push(url);
-
-        }
-
-        // Play the first video
-        if (videoQueue.length > 0) {
-            videoElement.src = videoQueue.shift();
-            videoElement.play();
-            videoElementActive = true;
-
-            if (holographicFanMode) {
-                const dodecahedronRadius = 0.15;
-                const dodecahedronGeometry = new THREE.DodecahedronGeometry(dodecahedronRadius);
-
-                // Get the video frame texture
-                let texture = getVideoFrameTexture();
-
-                // Create a material with that texture
-                dodecahedronMaterial = new THREE.MeshBasicMaterial({ map: texture });
-
-                // Create the mesh and add it to the scene
-                const dodecahedron = new THREE.Mesh(dodecahedronGeometry, dodecahedronMaterial);
-                scene.add(dodecahedron);
-            }
-        }
-        else {
-            console.error('Video format not supported');
-        }
-
-    }
 
 
 
