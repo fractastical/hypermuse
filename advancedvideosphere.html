@@ -715,9 +715,10 @@ window.addEventListener('message', function(event) {
     }
 
     if (event.data.name === "playbackrate") {
-
+        //TODO: sort of works but makes no difference
+        console.log("playback");
         videoElement.playbackRate = parseFloat(event.data.value);
-
+        console.log(videoElement.playbackRate);
     }
 
     
