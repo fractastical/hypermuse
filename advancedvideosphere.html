@@ -98,6 +98,7 @@
         let geometries = [];
         let lastPoints = [];
 
+        //TODO: this function doesn't preoperly work when run repeat times (i.e. the points are evenly distributed over the surface of the sphere)
         function initBands(){
 
         // Now we can get the frequency for each band
@@ -110,6 +111,7 @@
 
         let goldenRatio = (1 + Math.sqrt(5)) / 2;
         let angleIncrement = Math.PI * 2 * goldenRatio;
+
 
             for (let i = 0; i < numBands; i++) {
                 let v = i / numBands;
@@ -174,8 +176,9 @@
         function animate() {
             requestAnimationFrame(animate);
 
-            // untoggle for now so is fully deterministic
+            // untoggle if to make fully deterministic
             hueoffset += hueOffsetSpeed;
+
             if(hueoffset > 360) {
                 hueoffset -= 360;
             }
@@ -191,6 +194,8 @@
                 
             }
             for (let i = 0; i < numBands; i++) {
+                // TODO: this doesn't seem to be properly using the band frequency
+
                 let band = data.slice(i * bandSize, (i + 1) * bandSize);
                 let volume = getAverageVolume(band);
                 let volumeDisplay = document.getElementById('volume' + i);
@@ -341,23 +346,24 @@
 
         var audioContext;
         const audioQueue = [];
-let audioSource;  // Keep track of the current audio source
+        let audioSource;  // Keep track of the current audio source
 
-document.getElementById('audioInput').addEventListener('change', async function(event) {
+    document.getElementById('audioInput').addEventListener('change', async function(event) {
 
-audioContext = new AudioContext();
-analyser = audioContext.createAnalyser();
-analyser.fftSize = 2048 * 2 * 2;
+        audioContext = new AudioContext();
+        analyser = audioContext.createAnalyser();
+        analyser.fftSize = 2048 * 2 * 2;
 
-// Populate the audioQueue with the selected files
-audioQueue.length = 0;  // Clear the queue
-for (let file of event.target.files) {
-    audioQueue.push(file);
-}
+        // Populate the audioQueue with the selected files
+        audioQueue.length = 0;  // Clear the queue
+        for (let file of event.target.files) {
+            console.log(file);
+            audioQueue.push(file);
+        }
 
-playNext();
+        playNext();
 
-});
+    });
 
 function playNext() {
     if (audioQueue.length === 0) {
@@ -425,6 +431,7 @@ function populateQueueAgain() {
 
     for (let file of inputFiles) {
         const url = URL.createObjectURL(file);
+        console.log(url);
         audioQueue.push(url);
     }
 }
@@ -487,6 +494,7 @@ document.getElementById('videoInput').addEventListener('change', function(event)
     // Convert FileList to Array and add to videoQueue
     for (let file of event.target.files) {
         const url = URL.createObjectURL(file);
+        console.log(url);
         videoQueue.push(url);
         originalVideos.push(url);
 

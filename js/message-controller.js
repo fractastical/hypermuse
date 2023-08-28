@@ -126,7 +126,7 @@ window.addEventListener('message', function(event) {
 
     if (event.data.name === "hueoffsetspeed") {
 
-        hueoffsetspeed = parseFloat(event.data.value);
+        hueOffsetSpeed = parseFloat(event.data.value);
         console.log("speed");
         console.log(event.data);
 
