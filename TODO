@@ -1,22 +1,25 @@
 
 
-pull libraries local so can run offline
+hueoffsetspeed no longer works
+videourl passing is borked (i.e. "fakeurl")
+
+EXTRA 
+
 change readme so has prettier pictures 
-two way message passing so controls are separate window
 
 MIDI
     - allow midi input
     - label scale
     - match chordes
-    
+
 extend opacity range  
     (centers around .2-.3)  var opacitylevel =  (7 / volume ) + .2;
-
-snapshots 
 
 
 DONE
 
+pull libraries local so can run offline
+two way message passing so controls are separate window
 video intregration 
 refactor all code, remove unused libraries
 Integrate equalizer with nodesphere so both run at sametime
