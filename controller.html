@@ -58,7 +58,10 @@
     Yrotationspeed: <input type="text" id="yrotation" value="0.0005"/>
     Hue is a degree on the color wheel from 0 to 360. 0 is red, 120 is green, and 240 is blue.
 
-    Hueoffset (changes starting color of range): <input type="text" id="hueoffset" value="20"/>
+    Saturation: <input type="text" id="saturation" value="100"/>
+    Hueoffset: <input type="text" id="brightness" value="50"/>
+    Volume magnifier: <input type="text" id="volumemagnification" value="1.4"/>
+
     Playback speed (1 is normal) <input type="text" id="playbackrate" value="1"/>
     Number of frequency bands <input type="text" id="numbands" value="48"/>
     holofan mode (0 is false 1 is true) <input type="text" id="holofanmode" value="0"/>
@@ -179,7 +182,8 @@
                     let hue = (volume * 1.4) + hueoffset;
                     // let hue = 10;
                     if (hue > 360) hue -= 360;
-
+                    let sat = 100;
+                    let lightness = 50;
                     let color = new THREE.Color('hsl(' + hue + ', 100%, 50%)');
 
                     if(points[i]) points[i].material.color = color;

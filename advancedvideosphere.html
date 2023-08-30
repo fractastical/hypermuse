@@ -68,6 +68,9 @@
         let freezeFrameEffectActive = true;
         let X_ROTATION_SPEED = 0.0001;
         let Y_ROTATION_SPEED = 0.0005;
+        let saturation = 100;
+        let brightness = 50; 
+        let volumemagnification = 1.4; 
 
         const scene = new THREE.Scene();
         const camera = new THREE.PerspectiveCamera(75, window.innerWidth/window.innerHeight, 0.1, 1000);
@@ -203,11 +206,10 @@
 
 
                 if (volume >= volumeThresholds[i]) {
-                    let hue = (volume * 1.4) + hueoffset;
+                    let hue = (volume * volumemagnification) + hueoffset;
                     // let hue = 10;
                     if (hue > 360) hue -= 360;
-
-                    let color = new THREE.Color('hsl(' + hue + ', 100%, 50%)');
+                    let color = new THREE.Color('hsl(' + hue + ', ' + saturation + '%, ' + brightness  + '%)');
 
                     if(points[i]) points[i].material.color = color;
 

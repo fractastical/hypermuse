@@ -150,15 +150,22 @@ window.addEventListener('message', function(event) {
 
     }
 
-    if (event.data.name === "playbackrate") {
+    if (event.data.name === "brightness") {
 
-        //TODO: sort of works but makes no difference
-        console.log("playback");
-        videoElement.playbackRate = parseFloat(event.data.value);
-        console.log(videoElement.playbackRate);
+        brightness = parseInt(event.data.value);
+
     }
 
+    if (event.data.name === "saturation") {
+
+        saturation = parseInt(event.data.value);
+    }
     
+    if (event.data.name === "volumemagnification") {
+
+        volumemagnification = parseFloat(event.data.value);
+    }
+
 
 
 
