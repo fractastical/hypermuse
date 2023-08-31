@@ -245,8 +245,12 @@
 
                         var triangle = new THREE.Mesh(geometry, material);
 
+                
                         triangle.castShadow = true;    // to cast shadows
                         triangle.receiveShadow = true; // to receive shadows
+
+                        // const tetra = new THREE.TetrahedronGeometry(.5);
+
 
                         scene.add(triangle);
 
@@ -658,6 +662,45 @@ function mergeGeometries(geometries) {
 
     return mergedGeometry;
 }
+
+
+// ERRORs
+// THREE.Object3D.add: object not an instance of THREE.Object3D. TetrahedronGeometry
+// add @ threejs.org_build_three.js:7439
+// threejs.org_build_three.js:10826 THREE.BufferGeometry.computeBoundingSphere(): Computed radius is NaN. The "position" attribute is likely to have NaN values. 
+
+// const size = 0.5;
+
+// const tetrahedron1 = createTetrahedron(size);
+// const tetrahedron2 = createTetrahedron(size, true);
+
+// // const starTetrahedronGeometry = mergeGeometries([tetrahedron1, tetrahedron2]);
+// // const material = new THREE.MeshBasicMaterial({ color: 0x00ff00, wireframe: true }); // wireframe material for visualization
+
+// // const starTetrahedron = new THREE.Mesh(starTetrahedronGeometry, material);
+// // scene.add(starTetrahedron);
+// scene.add(tetrahedron1);
+// scene.add(tetrahedron2);
+
+
+// material = new THREE.MeshLambertMaterial({color:0x00ff00, wireframe: false});
+
+// // https://codepen.io/alexpeach/pen/OOOpOZ
+// /* PYRAMID */
+// //This a bit weird because it's like a cylinder
+
+// geometryPyramid = new THREE.CylinderGeometry(0, 75, 100, 3, false); 
+// pyramid = new THREE.Mesh(geometryPyramid, material);
+// pyramid.position.x = 10;	
+// scene.add(pyramid);
+
+// geometryPyramid = new THREE.CylinderGeometry(0, 75, 100, 3, false); 
+// // material = new THREE.MeshLambertMaterial({color:0x00fff, wireframe: false});
+// pyramid2 = new THREE.Mesh(geometryPyramid, material);
+// pyramid2.position.x = 10;
+// pyramid2.position.y = -51;
+// pyramid2.rotation.x = 380;
+// scene.add(pyramid2);
 
 
     </script>
