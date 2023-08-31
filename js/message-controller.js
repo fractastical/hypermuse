@@ -166,6 +166,20 @@ window.addEventListener('message', function(event) {
         volumemagnification = parseFloat(event.data.value);
     }
 
+    if (event.data.name === "cxposition") {
+
+        camera.position.x = parseFloat(event.data.value);
+    }
+
+    if (event.data.name === "cyposition") {
+
+        camera.position.y = parseFloat(event.data.value);
+    }
+    
+    if (event.data.name === "czposition") {
+
+        camera.position.z = parseFloat(event.data.value);
+    }
 
 
 

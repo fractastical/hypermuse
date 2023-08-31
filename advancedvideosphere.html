@@ -77,6 +77,13 @@
         camera.position.z = 2;
         const renderer = new THREE.WebGLRenderer();
 
+        renderer.shadowMap.enabled = true;
+        const pointLight = new THREE.PointLight(0xffffff, 1, 100);
+        pointLight.position.set(5, 5, 5);  // x, y, z
+        scene.add(pointLight);
+        pointLight.castShadow = true;
+
+
         let container = document.getElementById('container');
         renderer.setSize(container.clientWidth, container.clientHeight);
         container.appendChild(renderer.domElement);
@@ -238,6 +245,8 @@
 
                         var triangle = new THREE.Mesh(geometry, material);
 
+                        triangle.castShadow = true;    // to cast shadows
+                        triangle.receiveShadow = true; // to receive shadows
 
                         scene.add(triangle);
 
@@ -604,6 +613,50 @@ function getNextImageTexture() {
     texture.needsUpdate = true;
 
     return texture;
+}
+
+function createTetrahedron(size, flip = false) {
+    const geometry = new THREE.TetrahedronGeometry(size);
+    if (flip) {
+        geometry.rotateY(Math.PI);
+    }
+    return geometry;
+}
+
+function mergeGeometries(geometries) {
+    const mergedGeometry = new THREE.BufferGeometry();
+    let offset = 0;
+
+    geometries.forEach(geometry => {
+        for (let attributeName in geometry.attributes) {
+            if (mergedGeometry.attributes[attributeName] === undefined) {
+                mergedGeometry.attributes[attributeName] = geometry.attributes[attributeName].clone();
+            } else {
+                mergedGeometry.attributes[attributeName].array.set(geometry.attributes[attributeName].array, offset);
+            }
+        }
+        offset += geometry.attributes.position.count;
+    });
+
+    return mergedGeometry;
+}
+
+function mergeGeometries(geometries) {
+    const mergedGeometry = new THREE.BufferGeometry();
+    let offset = 0;
+
+    geometries.forEach(geometry => {
+        for (let attributeName in geometry.attributes) {
+            if (mergedGeometry.attributes[attributeName] === undefined) {
+                mergedGeometry.attributes[attributeName] = geometry.attributes[attributeName].clone();
+            } else {
+                mergedGeometry.attributes[attributeName].array.set(geometry.attributes[attributeName].array, offset);
+            }
+        }
+        offset += geometry.attributes.position.count;
+    });
+
+    return mergedGeometry;
 }
 
 
