@@ -664,7 +664,7 @@ function mergeGeometries(geometries) {
 }
 
 
-// ERRORs
+// ERRORs   
 // THREE.Object3D.add: object not an instance of THREE.Object3D. TetrahedronGeometry
 // add @ threejs.org_build_three.js:7439
 // threejs.org_build_three.js:10826 THREE.BufferGeometry.computeBoundingSphere(): Computed radius is NaN. The "position" attribute is likely to have NaN values. 
@@ -701,6 +701,52 @@ function mergeGeometries(geometries) {
 // pyramid2.position.y = -51;
 // pyramid2.rotation.x = 380;
 // scene.add(pyramid2);
+
+function createTriangleWithBorder(vertices, defaultColor = "0xffffff", thickness = 0.1) {
+    const mainGeometry = new THREE.BufferGeometry().setFromPoints(vertices);
+
+    // Calculate the centroid of the triangle
+    const centroid = new THREE.Vector3();
+    for (let vertex of vertices) {
+        centroid.add(vertex);
+    }
+    centroid.divideScalar(vertices.length);
+
+    // Create an inner triangle by moving each vertex towards the centroid
+    const innerVertices = vertices.map(v => {
+        const dir = new THREE.Vector3().subVectors(centroid, v).normalize();
+        return new THREE.Vector3().addVectors(v, dir.multiplyScalar(thickness));
+    });
+
+    const innerGeometry = new THREE.BufferGeometry().setFromPoints(innerVertices);
+
+    // Create line geometries for the border
+    const borderLines = [];
+    for (let i = 0; i < vertices.length; i++) {
+        borderLines.push(new THREE.Line(
+            new THREE.BufferGeometry().setFromPoints([vertices[i], innerVertices[i]]),
+            new THREE.LineBasicMaterial({ color: defaultColor })
+        ));
+    }
+
+    // Group everything together
+    const group = new THREE.Group();
+    group.add(new THREE.Line(mainGeometry, new THREE.LineBasicMaterial({ color: defaultColor })));
+    group.add(new THREE.Line(innerGeometry, new THREE.LineBasicMaterial({ color: defaultColor })));
+    borderLines.forEach(line => group.add(line));
+
+    return group;
+}
+
+// Example usage:
+const triangleVertices = [
+    new THREE.Vector3(-0.5, -0.5, 0),
+    new THREE.Vector3(.5, -0.5, 0),
+    new THREE.Vector3(0, .5, 0)
+];
+
+const triangleWithBorder = createTriangleWithBorder(triangleVertices);
+scene.add(triangleWithBorder);
 
 
     </script>
