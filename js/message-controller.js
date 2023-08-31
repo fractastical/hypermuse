@@ -176,11 +176,16 @@ window.addEventListener('message', function(event) {
         camera.position.y = parseFloat(event.data.value);
     }
     
+    
     if (event.data.name === "czposition") {
 
         camera.position.z = parseFloat(event.data.value);
     }
 
+    if (event.data.name === "activegeometrieslimit") {
+
+        ACTIVE_GEOMETRIES_LIMIT = parseInt(event.data.value);
+    }
 
 
 

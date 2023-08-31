@@ -68,6 +68,7 @@
         let freezeFrameEffectActive = true;
         let X_ROTATION_SPEED = 0.0001;
         let Y_ROTATION_SPEED = 0.0005;
+        let ACTIVE_GEOMETRIES_LIMIT = 25;
         let saturation = 100;
         let brightness = 50; 
         let volumemagnification = 1.4; 
@@ -90,7 +91,7 @@
 
         var analyser;
 
-        let numBands = 64;
+        let numBands = 48;
 
         let holographicFanMode = false;
 
@@ -254,7 +255,7 @@
 
                         scene.add(triangle);
 
-                        if (geometries.length > 50) {
+                        if (geometries.length > ACTIVE_GEOMETRIES_LIMIT) {
 
                                 geometries[0].geometry.geometry.dispose();
                                 geometries[0].geometry.material.dispose();
