@@ -497,27 +497,33 @@ function populateQueueAgain() {
              return texture;
     }
 
-    const videoQueue = [];
+    const allVideoQueues;
+
+    const activeVideoQueue = [];
     const originalVideos = [];
 
     const videoElement = document.getElementById('videoElement');
 
 document.getElementById('videoInput').addEventListener('change', function(event) {
-    videoQueue.length = 0;
+
+    // if(activeVideoQueue.length > 0)
+    //      allVideoQueues.push("video1", )
+
+    activeVideoQueue.length = 0;
     originalVideos.length = 0;
 
-    // Convert FileList to Array and add to videoQueue
+    // Convert FileList to Array and add to activeVideoQueue
     for (let file of event.target.files) {
         const url = URL.createObjectURL(file);
         console.log(url);
-        videoQueue.push(url);
+        activeVideoQueue.push(url);
         originalVideos.push(url);
 
     }
 
     // Play the first video
-    if (videoQueue.length > 0) {
-        videoElement.src = videoQueue.shift();
+    if (activeVideoQueue.length > 0) {
+        videoElement.src = activeVideoQueue.shift();
         videoElement.play();
         videoElementActive = true;
 
@@ -542,14 +548,14 @@ document.getElementById('videoInput').addEventListener('change', function(event)
 });
 
 videoElement.addEventListener('ended', function() {
-    if (videoQueue.length === 0) {
-        // Repopulate videoQueue with original video URLs
-        videoQueue.push(...originalVideos);
+    if (activeVideoQueue.length === 0) {
+        // Repopulate activeVideoQueue with original video URLs
+        activeVideoQueue.push(...originalVideos);
     }
 
     console.log("nextvideo");
-    if (videoQueue.length > 0) {
-        videoElement.src = videoQueue.shift();
+    if (activeVideoQueue.length > 0) {
+        videoElement.src = activeVideoQueue.shift();
         videoElement.playbackRate = 1.0;  // Ensure normal playback speed
         videoElement.play();
     } else {
