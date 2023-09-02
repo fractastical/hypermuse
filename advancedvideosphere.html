@@ -69,6 +69,8 @@
         let X_ROTATION_SPEED = 0.0001;
         let Y_ROTATION_SPEED = 0.0005;
         let ACTIVE_GEOMETRIES_LIMIT = 3;
+
+        let REFRESH_SPEED = 3;
         let saturation = 100;
         let brightness = 50; 
         let volumemagnification = 1.4; 
@@ -80,7 +82,7 @@
 
         renderer.shadowMap.enabled = true;
         const pointLight = new THREE.PointLight(0xffffff, 1, 100);
-        pointLight.position.set(5, 5, 5);  // x, y, z
+        pointLight.position.set(1, 1, 1);  // x, y, z
         scene.add(pointLight);
         pointLight.castShadow = true;
 
