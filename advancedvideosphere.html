@@ -72,6 +72,8 @@
         let ACTIVE_GEOMETRIES_LIMIT = 3;
         let FORCE_EQUILATERAL = false;
         let innerTriangleActive = true;
+        let innerTriangleOffset = 0.005;
+
         let REFRESH_SPEED = 3;
         let saturation = 100;
         let brightness = 50; 
@@ -176,7 +178,7 @@
                 return geometry;
         }
 
-        function createInnerTriangleGeometry(p1, p2, p3, triangleOffset=0.001) {
+        function createInnerTriangleGeometry(p1, p2, p3, triangleOffset=innerTriangleOffset) {
                 const geometry = new THREE.BufferGeometry();
                 
                 const vertices = new Float32Array([
@@ -302,6 +304,11 @@
                         }
 
                         geometries.push({geometry: triangle, age: 0});
+                        if (innerTriangleActive)
+                        {
+                            geometries.push({geometry: innerTriangle, age: 0});
+
+                        }
 
                         lastPoints.shift();
                     }
