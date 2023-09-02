@@ -188,5 +188,24 @@ window.addEventListener('message', function(event) {
     }
 
 
+    if (event.data.name === "pointlightx") {
+
+        
+        pointLight.position.set(parseFloat(event.data.value), pointLight.position.y, pointLight.position.z);  // x, y, z
+
+    }
+
+    if (event.data.name === "pointlighty") {
+
+        pointLight.position.set(pointLight.position.x, parseFloat(event.data.value), pointLight.position.z);  // x, y, z
+
+    }
+
+    if (event.data.name === "pointlightz") {
+
+        pointLight.position.set(pointLight.position.x, pointLight.position.y, parseFloat(event.data.value));  // x, y, z
+
+    }
+
 
 });
