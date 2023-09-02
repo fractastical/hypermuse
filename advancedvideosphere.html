@@ -70,6 +70,7 @@
         let X_ROTATION_SPEED = 0.0001;
         let Y_ROTATION_SPEED = 0.0005;
         let ACTIVE_GEOMETRIES_LIMIT = 3;
+        let FORCE_EQUILATERAL = true;
 
         let REFRESH_SPEED = 3;
         let saturation = 100;
@@ -161,6 +162,29 @@
                     p2.x, p2.y, p2.z,
                     p3.x, p3.y, p3.z
                 ]);
+
+
+                const uvs = new Float32Array([
+                    0, 0,
+                    1, 0,
+                    0.5, 1
+                ]);
+
+                geometry.setAttribute('position', new THREE.BufferAttribute(vertices, 3));
+                geometry.setAttribute('uv', new THREE.BufferAttribute(uvs, 2));
+
+                return geometry;
+        }
+
+        function createInnerTriangleGeometry(p1, p2, p3, triangleOffset=0.1) {
+                const geometry = new THREE.BufferGeometry();
+                
+                const vertices = new Float32Array([
+                    p1.x - triangleOffset, p1.y - triangleOffset, p1.z  - triangleOffset,
+                    p2.x - triangleOffset, p2.y - triangleOffset, p2.z - triangleOffset,
+                    p3.x- triangleOffset, p3.y - triangleOffset, p3.z - triangleOffset
+                ]);
+
 
                 const uvs = new Float32Array([
                     0, 0,
