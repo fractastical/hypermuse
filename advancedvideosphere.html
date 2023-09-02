@@ -70,8 +70,8 @@
         let X_ROTATION_SPEED = 0.0001;
         let Y_ROTATION_SPEED = 0.0005;
         let ACTIVE_GEOMETRIES_LIMIT = 3;
-        let FORCE_EQUILATERAL = true;
-
+        let FORCE_EQUILATERAL = false;
+        let innerTriangleActive = true;
         let REFRESH_SPEED = 3;
         let saturation = 100;
         let brightness = 50; 
@@ -176,7 +176,7 @@
                 return geometry;
         }
 
-        function createInnerTriangleGeometry(p1, p2, p3, triangleOffset=0.1) {
+        function createInnerTriangleGeometry(p1, p2, p3, triangleOffset=0.001) {
                 const geometry = new THREE.BufferGeometry();
                 
                 const vertices = new Float32Array([
@@ -267,8 +267,11 @@
                              material = new THREE.MeshBasicMaterial({map:texture, opacity: 0.6, transparent: true, side: THREE.DoubleSide});
                              material.needsUpdate = true;
 
-                        } else 
+                        } else  {
+
                             material = new THREE.MeshBasicMaterial({color: color, opacity: 0.6, transparent: true, side: THREE.DoubleSide});
+
+                        }
 
                         var triangle = new THREE.Mesh(geometry, material);
 
@@ -279,7 +282,15 @@
                         // const tetra = new THREE.TetrahedronGeometry(.5);
 
 
-                        scene.add(triangle);
+                        scene.add(triangle); 
+                        if (innerTriangleActive)
+                        {
+                            var innerGeometry = createInnerTriangleGeometry(lastPoints[0], lastPoints[1], lastPoints[2]);
+                            var innerMaterial = new THREE.MeshBasicMaterial({color: "black", opacity: 0.5, transparent: false, side: THREE.DoubleSide});
+                            var innerTriangle = new THREE.Mesh(innerGeometry, innerMaterial);
+                            scene.add(innerTriangle); 
+
+                        }
 
                         if (geometries.length > ACTIVE_GEOMETRIES_LIMIT) {
 
