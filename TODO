@@ -1,12 +1,12 @@
 
-rename sonic sphere
-
-rename files 
-
-find videos 
 
 
+do "sphere" fade in 
 
+setup more fans
+find promo videos 
+setup insta
+script to integrate with github issues(?)
 
 BUGS
 
@@ -30,6 +30,11 @@ extend opacity range
 
 
 DONE
+
+rename sonic sphere
+
+rename files 
+
 
 video playback is sometimes *way* too fast
 
