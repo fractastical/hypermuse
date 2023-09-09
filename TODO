@@ -1,6 +1,13 @@
+
+rename sonic sphere
+
+find videos 
+
+
+
+
 BUGS
 
-video playback is sometimes *way* too fast
 
 videourl passing is borked (i.e. "fakeurl") (including with offset ) error to fix:
 "message-controller.js:40 Uncaught TypeError: Failed to execute 'createObjectURL' on 'URL': Overload resolution failed."
@@ -21,6 +28,9 @@ extend opacity range
 
 
 DONE
+
+video playback is sometimes *way* too fast
+
 
 pull libraries local so can run offline
 two way message passing so controls are separate window
