@@ -214,4 +214,23 @@ window.addEventListener('message', function(event) {
     }
 
 
+    if (event.data.name === "innertriangleactive") {
+
+        if(parseInt(event.data.value) == 1)
+         innerTriangleActive = true;
+        else if (parseInt(event.data.value) == 0)
+            innerTriangleActive = false;
+        
+
+    }
+
+    if (event.data.name === "innertriangleoffset") {
+
+        innerTriangleOffset = parseFloat(event.data.value); 
+        
+
+    }
+
+
+
 });
