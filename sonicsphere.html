@@ -20,17 +20,9 @@
             flex-grow: 1;
         }
     </style>
-    <!-- <script src="https://threejs.org/build/three.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@tonejs/midi"></script>
-    <script src="https://cdn.jsdelivr.net/npm/tone"></script> -->
-
     <script src="js/threejs.org_build_three.js"></script>
     <script src="js/cdn.jsdelivr.net_npm_@tonejs_midi.js"></script>
-    <script src="js/js/cdn.jsdelivr.net_npm_tone.js"></script>
-
-    <!-- <script src="https://unpkg.com/delaunator@3.0.2/delaunator.js"></script>
-    <script src="https://josephg.github.io/noisejs/perlin.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/dat-gui/0.7.3/dat.gui.min.js"></script> -->
+    <script src="js/cdn.jsdelivr.net_npm_tone.js"></script>
 
 
 
@@ -69,7 +61,7 @@
         let freezeFrameEffectActive = true;
         let X_ROTATION_SPEED = 0.0001;
         let Y_ROTATION_SPEED = 0.0005;
-        let ACTIVE_GEOMETRIES_LIMIT = 3;
+        let ACTIVE_GEOMETRIES_LIMIT = 25;
         let FORCE_EQUILATERAL = false;
         let innerTriangleActive = false;
         let innerTriangleOffset = 0.005;
@@ -156,17 +148,6 @@
         }
 
         initBands();
-
-        function getAverageVolume(array) {
-            var values = 0;
-            var average;
-            var length = array.length;
-            for (var i = 0; i < length; i++) {
-                values += array[i];
-            }
-            average = values / length;
-            return average;
-        }
 
 
         function animate() {
@@ -382,76 +363,6 @@
 
     });
 
-function playNext() {
-    if (audioQueue.length === 0) {
-        // If the queue is empty, repopulate it
-        for (let file of event.target.files) {
-            audioQueue.push(file);
-        }
-    }
-
-    const file = audioQueue.shift();  // Get the next file from the queue
-    const reader = new FileReader();
-
-    reader.addEventListener('load', async function() {
-        if (file.name.endsWith('.midi') || file.name.endsWith('.mid')) {
-            const midiData = new Midi(reader.result);
-            midiData.tracks[0].notes.sort((a, b) => a.time - b.time);
-            await playMidi(midiData);
-            playNext();  // Play the next file when done
-        } else if (file.type.startsWith('audio/')) {
-            try {
-                let audioBuffer = await audioContext.decodeAudioData(reader.result);
-                playSound(audioBuffer);
-                animate();
-            } catch(e) {
-                console.error("There was an error decoding the file", e);
-            }
-        }
-    });
-
-    reader.readAsArrayBuffer(file);
-}
-
-function playSound(audioBuffer) {
-    if (audioSource) {
-        audioSource.stop();
-    }
-
-    audioSource = audioContext.createBufferSource();
-    audioSource.buffer = audioBuffer;
-    audioSource.connect(analyser);
-    analyser.connect(audioContext.destination);
-    audioSource.onended = playNext;  // Play the next file when the current one finishes
-    audioSource.start();
-}
-
-// Your playSound and animate functions would be defined elsewhere
-
-async function playMidi(midiData) {
-    const synth = new Tone.Synth().toDestination();
-    synth.connect(analyser);
-    synth.toDestination();
-
-    // Schedule the events to play
-    midiData.tracks[0].notes.forEach(note => {
-        synth.triggerAttackRelease(note.name, note.duration, note.time, note.velocity);
-    });
-
-    // Start the playback
-    await Tone.start();
-    Tone.Transport.start();
-}
-
-function populateQueueAgain() {
-    const inputFiles = document.getElementById('audioInput').files;
-
-    for (let file of inputFiles) {
-        const url = URL.createObjectURL(file);
-        console.log(url);
-        audioQueue.push(url);
-    }
-}
 
 
 
@@ -578,76 +489,9 @@ videoElement.addEventListener('ended', function() {
 
     }
 
-    // const sphereRadius = .1;  // Adjust as needed
-    // const sphereWidthDivisions = 32;
-    // const sphereHeightDivisions = 32;
-
-    // const sphereGeometry = new THREE.SphereGeometry(sphereRadius, sphereWidthDivisions, sphereHeightDivisions);
-    // const sphereMaterial = new THREE.MeshBasicMaterial({ color: "blue" });  // White color
-    // const sphere = new THREE.Mesh(sphereGeometry, sphereMaterial);
-    // sphere.position.set(0, 0, 0);
-    // scene.add(sphere);
-
-
-// document.getElementById('folderInput').addEventListener('change', function(event) {
-//     let files = event.target.files;
-//     for (let i = 0; i < files.length; i++) {
-//         if (files[i].type.startsWith('image/')) { // Ensure the file is an image
-//             let reader = new FileReader();
-//             reader.readAsDataURL(files[i]);
-//             reader.onload = function() {
-//                 let img = new Image();
-//                 img.src = reader.result;
-//                 loadedImages.push(img);
-//             };
-//         }
-//     }
-// });
-
-
-// ERRORs   
-// THREE.Object3D.add: object not an instance of THREE.Object3D. TetrahedronGeometry
-// add @ threejs.org_build_three.js:7439
-// threejs.org_build_three.js:10826 THREE.BufferGeometry.computeBoundingSphere(): Computed radius is NaN. The "position" attribute is likely to have NaN values. 
-
-// const size = 0.5;
-
-// const tetrahedron1 = createTetrahedron(size);
-// const tetrahedron2 = createTetrahedron(size, true);
-
-// // const starTetrahedronGeometry = mergeGeometries([tetrahedron1, tetrahedron2]);
-// // const material = new THREE.MeshBasicMaterial({ color: 0x00ff00, wireframe: true }); // wireframe material for visualization
-
-// // const starTetrahedron = new THREE.Mesh(starTetrahedronGeometry, material);
-// // scene.add(starTetrahedron);
-// scene.add(tetrahedron1);
-// scene.add(tetrahedron2);
-
-
-// material = new THREE.MeshLambertMaterial({color:0x00ff00, wireframe: false});
-
-// // https://codepen.io/alexpeach/pen/OOOpOZ
-// /* PYRAMID */
-// //This a bit weird because it's like a cylinder
-
-// geometryPyramid = new THREE.CylinderGeometry(0, 75, 100, 3, false); 
-// pyramid = new THREE.Mesh(geometryPyramid, material);
-// pyramid.position.x = 10;	
-// scene.add(pyramid);
-
-// geometryPyramid = new THREE.CylinderGeometry(0, 75, 100, 3, false); 
-// // material = new THREE.MeshLambertMaterial({color:0x00fff, wireframe: false});
-// pyramid2 = new THREE.Mesh(geometryPyramid, material);
-// pyramid2.position.x = 10;
-// pyramid2.position.y = -51;
-// pyramid2.rotation.x = 380;
-// scene.add(pyramid2);
-
-
-
     </script>
-    <script src="js/sonic_geometries.js"></script>
-
+<script src="js/audio_controller.js"></script>
+<script src="js/sonic_geometries.js"></script>
 <script src="js/message-controller.js"></script>
 </body>
 </html>
