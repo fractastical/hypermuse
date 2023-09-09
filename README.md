@@ -1,4 +1,4 @@
-# audiosphere 0.333
+# sonicsphere 0.333
 
 # instructions
 
