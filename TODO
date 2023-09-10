@@ -1,13 +1,19 @@
 
-
+midi
+    - parse midi file and determine unique notes
+    - generate sphere with notes linked to verticies 
+    - pulse vertice when note is played
 
 do "sphere" fade in 
+    - very low thresholds
+    - then gradually increase to baseline
 
 setup more fans
 find promo videos 
 setup insta
 script to integrate inline TODOs with github issues(?)
 remap hertz bands
+figure out how to make and program remote 
 
 BUGS
 
