@@ -1,13 +1,19 @@
-# audiosphere 0.33
+# sonicsphere 0.333
 
-Encodings for doing reactive music visualization with spheres and other geometries. 
+# instructions
 
-Ultimate goal is to use higher order math, especially hypergraphs, to deterministiically render the mathematical structure behind the music and serve as an aide to musicians as they play there music and... of course... to viewers to have. 
+open up controller.html. visualizer will open up in separate tab. If desired you can display on a separate screen. Click play to start audio reactive version, otherwise pick a song with the picker. 
 
-See also the hypermusic repository. 
+# description
+
+Encodings for doing audio reactive visualization with spheres and other geometries. 
+
+Ultimate goal is to use higher order math, especially hypergraphs, to deterministiically render the mathematical structure behind the music and serve as an aide to musicians as they play there music and... of course... to viewers to have a more immersive experience of the music. 
+
+See also the hypermusic repository for the theoertical background: https://github.com/fractastical/hypermusic
 
 
-# video sphere
+# videosphere
 
 Live VJing software allowing frame by frame display of music hyper imposed around a sphere. 
 
