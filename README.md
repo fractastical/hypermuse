@@ -13,6 +13,12 @@ Ultimate goal is to use higher order math, especially hypergraphs, to determinis
 See also the hypermusic repository for the theoertical background: https://github.com/fractastical/hypermusic
 
 
+
+# usage notes
+
+If using the onboard microphone it will often filter out any speaker output coming from the same device, so it is recommened to using the picker in this case or use external input. 
+
+
 # videosphere
 
 Live VJing software allowing frame by frame display of music hyper imposed around a sphere. 
