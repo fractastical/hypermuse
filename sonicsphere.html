@@ -56,12 +56,12 @@
 <script>
         let hueoffset = 20;
         let hueOffsetSpeed = 0;
-        let volumeThreshold = 40;
-        let thresholds = Array(22).fill(40);
+        let startingVolumeThreshold = 5;
+        let thresholds = Array(22).fill(startingVolumeThreshold);
         let freezeFrameEffectActive = true;
         let X_ROTATION_SPEED = 0.0001;
         let Y_ROTATION_SPEED = 0.0005;
-        let ACTIVE_GEOMETRIES_LIMIT = 25    ;
+        let ACTIVE_GEOMETRIES_LIMIT = 25;
         let FORCE_EQUILATERAL = false;
         let innerTriangleActive = false;
         let innerTriangleOffset = 0.005;
@@ -73,7 +73,7 @@
         let volumemagnification = 1.4; 
 
         const scene = new THREE.Scene();
-        const camera = new THREE.PerspectiveCamera(75, window.innerWidth/window.innerHeight, 0.1, 1000);
+        const camera = new THREE.PerspectiveCamera(75, window.innerWidth/window.innerHeight, 0.1, 100);
         camera.position.z = 2;
         const renderer = new THREE.WebGLRenderer();
 
@@ -176,10 +176,10 @@
                 let band = data.slice(i * bandSize, (i + 1) * bandSize);
                 let volume = getAverageVolume(band);
                 let volumeDisplay = document.getElementById('volume' + i);
-                volumeDisplay.textContent = 'v: ' + volume.toFixed(2) + ' / ' + volumeThresholds[i];
+                volumeDisplay.textContent = 'v: ' + volume.toFixed(2) + ' / ' + startingVolumeThresholds[i];
 
 
-                if (volume >= volumeThresholds[i]) {
+                if (volume >= startingVolumeThresholds[i]) {
                     let hue = (volume * volumemagnification) + hueoffset;
                     // let hue = 10;
                     if (hue > 360) hue -= 360;
@@ -289,7 +289,7 @@
         });
 
         let thresholdsDiv = document.getElementById('thresholds');
-        let volumeThresholds = new Array(numBands).fill(40);
+        let startingVolumeThresholds = new Array(numBands).fill(startingVolumeThreshold);
 
         for(let i = 0; i < numBands; i++){
             let highEnd = 200; // maximum volume threshold for lowest frequency band
@@ -300,14 +300,17 @@
             input.type = 'range';
             input.min = '0';
             input.max = '255';
-            input.value = highEnd - Math.floor((i/numBands) * range);
-            volumeThresholds[i] = highEnd - Math.floor((i/numBands) * range);
+            input.value = startingVolumeThreshold;
+            startingVolumeThresholds[i] = startingVolumeThreshold;
+
+            // input.value = highEnd - Math.floor((i/numBands) * range);
+            // startingVolumeThresholds[i] = highEnd - Math.floor((i/numBands) * range);
             input.id = 'threshold' + i;
             input.oninput = function(){
-                volumeThresholds[i] = this.value;  // Set the threshold for specific band
+                startingVolumeThresholds[i] = this.value;  // Set the threshold for specific band
                 // Add this line to update the display text when the threshold changesf
-                // document.getElementById('volume' + i).textContent = 'v: ' + volumeThresholds[i] + ' 0 / ' + volumeThresholds[i];
-                document.getElementById('volume' + i).textContent = 'v: 0 / ' + volumeThresholds[i];
+                // document.getElementById('volume' + i).textContent = 'v: ' + startingVolumeThresholds[i] + ' 0 / ' + startingVolumeThresholds[i];
+                document.getElementById('volume' + i).textContent = 'v: 0 / ' + startingVolumeThresholds[i];
 
             };
 
@@ -320,21 +323,21 @@
             thresholdsDiv.appendChild(input);
             thresholdsDiv.appendChild(volumeDisplay);
             thresholdsDiv.appendChild(document.createElement('br'));
-            document.getElementById('volume' + i).textContent = 'v: 0 / ' + volumeThresholds[i];
+            document.getElementById('volume' + i).textContent = 'v: 0 / ' + startingVolumeThresholds[i];
             document.getElementById('volume' + i).style = 'color:black';
 
         }
 
         let master = document.getElementById('master');
-        let lastMasterValue = 40;
+        let lastMasterValue = startingVolumeThreshold;
         master.oninput = function() {
             let masterValue = this.value;
             let delta = masterValue - lastMasterValue;
-            // volumeThresholds = volumeThresholds.map(() => masterValue);  // Set all thresholds to the master's value
+            // startingVolumeThresholds = startingVolumeThresholds.map(() => masterValue);  // Set all thresholds to the master's value
 
             for (let i = 0; i < numBands; i++) {
                 let input = document.getElementById('threshold' + i);
-                volumeThresholds[i] =  parseInt(input.value) + delta;
+                startingVolumeThresholds[i] =  parseInt(input.value) + delta;
                 input.value = parseInt(input.value) + delta;
                 document.getElementById('volume' + i).textContent = 'v: 0 / ' + input.value;
             }
