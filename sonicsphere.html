@@ -288,6 +288,9 @@
             });
         });
 
+        let masterInput = document.getElementById('master');
+        masterInput.value = startingVolumeThreshold;
+
         let thresholdsDiv = document.getElementById('thresholds');
         let startingVolumeThresholds = new Array(numBands).fill(startingVolumeThreshold);
 
