@@ -626,17 +626,84 @@ inputs.forEach(input => {
         let id = event.target.id;
 
         let value = event.target.value;
+        lightUpButton(64, 1);  // Lights up the first pad in green
+        lightUpButton(65, 3);  // Lights up the second pad in red
+
 
         // Send the message
         sendMessage(id, value);
     });
 });
 
+let apcMiniOutput;
+
+
+if (navigator.requestMIDIAccess) {
+    navigator.requestMIDIAccess({ sysex: true })
+        .then(onMIDISuccess, onMIDIFailure);
+} else {
+    console.warn("WebMIDI is not supported in this browser.");
+}
+
+function onMIDISuccess(midiAccess) {
+    // MIDI devices that send you data.
+    const inputs = midiAccess.inputs.values();
+
+    for (let input = inputs.next(); input && !input.done; input = inputs.next()) {
+        input.value.onmidimessage = onMIDIMessage;
+    }
+}
+
+function onMIDIFailure() {
+    console.warn("Could not access your MIDI devices.");
+}
+
+function onMIDIMessage(event) {
+    const [status, data1, data2] = event.data;
+
+    // Assuming note on/off messages (channel 1) for the APC Mini's buttons
+    if (status === 0x90 && data2 > 0) { // Note on message on channel 1
+        handleButtonPress(data1);
+    } else if (status === 0x80 || (status === 0x90 && data2 === 0)) { // Note off message or note on with velocity 0
+        handleButtonRelease(data1);
+    }
+    // Handle other MIDI messages, like CC for the faders, etc.
+}
+
+function onMIDIMessage(event) {
+    const [status, data1, data2] = event.data;
+
+    // Assuming note on/off messages (channel 1) for the APC Mini's buttons
+    if (status === 0x90 && data2 > 0) { // Note on message on channel 1
+        handleButtonPress(data1);
+    } else if (status === 0x80 || (status === 0x90 && data2 === 0)) { // Note off message or note on with velocity 0
+        handleButtonRelease(data1);
+    }
+    // Handle other MIDI messages, like CC for the faders, etc.
+}
+
+function lightUpButton(buttonId, color) {
+    if (apcMiniOutput) {
+        apcMiniOutput.send([0x90, buttonId, color]);
+    }
+}
+
+function turnOffButtonLight(buttonId) {
+    if (apcMiniOutput) {
+        apcMiniOutput.send([0x80, buttonId, 0]);  // Note off message
+    }
+}
+
+
+lightUpButton(64, 1);  // Lights up the first pad in green
+lightUpButton(65, 3);  // Lights up the second pad in red
+
 
 // Example usage:
 openVisualWindow();
 // sendMessageToVisual({ type: "updateGeometry", payload: { /* your data here */ } });
 // sendMessageToVisual({ type: "playbackspeed", payload: {speed: 0.2 } });
+
 
 
     </script>
