@@ -30,6 +30,21 @@
             overflow-y: auto; /* allow scrolling if content exceeds max-height */
         }
 
+        .flash {
+            animation: flash .15s;
+        }
+
+        @keyframes flash {
+            50% {
+                background: green;
+            }
+            100% {
+                background: transparent;
+            }
+        }
+
+        
+
     </style>
     <script src="js/threejs.org_build_three.js"></script>
     <!-- <script src="js/cdn.jsdelivr.net_npm_@tonejs_midi.js"></script>
@@ -114,6 +129,7 @@
         let volumeThreshold = 40;
         let thresholds = Array(22).fill(40);
         let freezeFrameEffectActive = true;
+        let flashClass = 'flash';
 
         let numBands = 48;
 
@@ -626,13 +642,20 @@ inputs.forEach(input => {
         let id = event.target.id;
 
         let value = event.target.value;
+
+        //TODO : does nothing might be power issue on APCmini 
         lightUpButton(64, 1);  // Lights up the first pad in green
         lightUpButton(65, 3);  // Lights up the second pad in red
-
+        console.log("(not actually) light up");
 
         // Send the message
         sendMessage(id, value);
     });
+
+    input.addEventListener('animationend',function() {
+        this.classList.remove(flashClass);
+    });
+
 });
 
 let apcMiniOutput;
@@ -660,27 +683,119 @@ function onMIDIFailure() {
 
 function onMIDIMessage(event) {
     const [status, data1, data2] = event.data;
+    // console.log(event.data);
 
     // Assuming note on/off messages (channel 1) for the APC Mini's buttons
     if (status === 0x90 && data2 > 0) { // Note on message on channel 1
         handleButtonPress(data1);
     } else if (status === 0x80 || (status === 0x90 && data2 === 0)) { // Note off message or note on with velocity 0
         handleButtonRelease(data1);
+    }  else if (status === 0xB0) {
+        handleFaderMove(data1, data2);
     }
+
     // Handle other MIDI messages, like CC for the faders, etc.
 }
 
-function onMIDIMessage(event) {
-    const [status, data1, data2] = event.data;
 
-    // Assuming note on/off messages (channel 1) for the APC Mini's buttons
-    if (status === 0x90 && data2 > 0) { // Note on message on channel 1
-        handleButtonPress(data1);
-    } else if (status === 0x80 || (status === 0x90 && data2 === 0)) { // Note off message or note on with velocity 0
-        handleButtonRelease(data1);
+function handleFaderMove(controlNumber, value) {
+    
+    if (controlNumber === 48) { // eq master 
+
+        sendMessage("master", (parseInt(value) - 10) * 1.2 );
+
+    } else if (controlNumber === 49) { // hue
+
+        sendMessage("hueoffset", parseInt(value) * 2);
+
+    } else if (controlNumber === 50) { //  
+
+        sendMessage("brightness", value);
+
+    } else if (controlNumber === 51) { //  
+
+        sendMessage("saturation", value);
+
+    } else if (controlNumber === 52) { //  
+
+        sendMessage("xrotation", (parseInt(value) - 50) / 100);
+
+    } else if (controlNumber === 53) { //  
+
+        sendMessage("yrotation", (parseInt(value) - 50) / 100);
+        
+    } else if (controlNumber === 54) { //  
+
+        sendMessage("activegeometrieslimit", value);
+
     }
-    // Handle other MIDI messages, like CC for the faders, etc.
+
 }
+
+
+function handleButtonPress(buttonId) {
+    // Here, you'll map the buttonId (which button on the APC Mini was pressed)
+    // to some action in your Three.js scene or other UI controls.
+    // For example:
+    console.log(buttonId)
+    let newVal;
+    let activeElement;
+    switch (buttonId) {
+        case 56: 
+                activeElement = document.getElementById("xrotation");
+                newVal = parseFloat(activeElement.value)-0.1;
+                sendMessage("xrotation", newVal);
+                activeElement.classList.add(flashClass);
+        case 57: 
+                activeElement = document.getElementById("xrotation");
+                newVal = parseFloat(activeElement.value)-0.01;
+                sendMessage("xrotation", newVal);
+                activeElement.classList.add(flashClass);
+        case 58: 
+                activeElement = document.getElementById("xrotation");
+                newVal = parseFloat(activeElement.value)-0.001;
+                sendMessage("xrotation", newVal);
+                activeElement.classList.add(flashClass);
+        case 59: 
+                activeElement = document.getElementById("xrotation");
+                newVal = parseFloat(activeElement.value)-0.0001;
+                sendMessage("xrotation", newVal);
+                activeElement.classList.add(flashClass);
+        case 60: 
+                activeElement = document.getElementById("xrotation");
+                newVal = parseFloat(activeElement.value)+0.0001;
+                sendMessage("xrotation", newVal);   
+                activeElement.classList.add(flashClass);
+        case 61: 
+                activeElement = document.getElementById("xrotation");
+                newVal = parseFloat(activeElement.value)+0.001;
+                sendMessage("xrotation", newVal);
+                activeElement.classList.add(flashClass);
+        case 62: 
+                activeElement = document.getElementById("xrotation");
+                newVal = parseFloat(activeElement.value)+0.01;
+                sendMessage("xrotation", newVal);
+                activeElement.classList.add(flashClass);
+
+        case 63: 
+                activeElement = document.getElementById("xrotation");
+                newVal = parseFloat(activeElement.value)+0.1;
+                sendMessage("xrotation", newVal);
+                activeElement.classList.add(flashClass);
+
+                // flash the input
+
+            // Handle first button press
+            // Perhaps toggle a light in your scene
+            break;
+        // ... handle other buttons
+    }
+}
+
+function handleButtonRelease(buttonId) {
+    // Handle the release of a button if necessary
+}
+
 
 function lightUpButton(buttonId, color) {
     if (apcMiniOutput) {
@@ -695,8 +810,9 @@ function turnOffButtonLight(buttonId) {
 }
 
 
-lightUpButton(64, 1);  // Lights up the first pad in green
-lightUpButton(65, 3);  // Lights up the second pad in red
+// lightUpButton(64, 1);  // Lights up the first pad in green
+// lightUpButton(65, 3);  // Lights up the second pad in red
+
 
 
 // Example usage:
