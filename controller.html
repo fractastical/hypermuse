@@ -702,7 +702,7 @@ function handleFaderMove(controlNumber, value) {
     
     if (controlNumber === 48) { // eq master 
 
-        sendMessage("master", (parseInt(value) - 10) * 1.2 );
+        sendMessage("master", (parseInt(value) - 5) * 2 );
 
     } else if (controlNumber === 49) { // hue
 
@@ -718,17 +718,22 @@ function handleFaderMove(controlNumber, value) {
 
     } else if (controlNumber === 52) { //  
 
-        sendMessage("xrotation", (parseInt(value) - 50) / 100);
+        sendMessage("xrotation", (parseInt(value) - 50) / 1000);
 
     } else if (controlNumber === 53) { //  
 
-        sendMessage("yrotation", (parseInt(value) - 50) / 100);
+        sendMessage("yrotation", (parseInt(value) - 50) / 1000);
         
     } else if (controlNumber === 54) { //  
 
         sendMessage("activegeometrieslimit", value);
 
+    } else if (controlNumber === 55) { //  
+
+            sendMessage("pointlightintensity", value);
     }
+
+
 
 }
 

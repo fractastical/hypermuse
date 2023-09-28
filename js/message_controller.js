@@ -73,7 +73,7 @@ window.addEventListener('message', function(event) {
         let threshNum = event.data.name.slice(9,event.data.name.length);
         let threshindex = parseInt(threshNum);
         console.log(threshNum + ":" + volumeThresholds[threshindex]);
-        volumeThresholds[threshindex] = parseInt(event.data.value)
+        thresholds[threshindex] = parseInt(event.data.value)
         let input = document.getElementById('threshold' + threshindex);
         input.value = volumeThresholds[threshindex];
 
@@ -88,9 +88,10 @@ window.addEventListener('message', function(event) {
 
             for (let i = 0; i < numBands; i++) {
                 let input = document.getElementById('threshold' + i);
-                volumeThresholds[i] =  parseInt(input.value) + delta;
-                input.value = parseInt(input.value) + delta;
-                document.getElementById('volume' + i).textContent = 'v: 0 / ' + input.value;
+                thresholds[i] =  parseInt(input.value) + delta;
+                input.value = thresholds[i];
+                console.log(thresholds[i]);
+                document.getElementById('volume' + i).textContent = 'v: 0 / ' + thresholds[i];
             }
 
             lastMasterValue = masterValue;
@@ -103,6 +104,13 @@ window.addEventListener('message', function(event) {
         hueoffset = parseInt(event.data.value);
 
     }
+
+    if (event.data.name === "pointlightintensity") {
+
+        pointLight.intensity = parseFloat(event.data.value);
+
+    }
+
 
     if (event.data.name === "audiopop") {
 
@@ -183,7 +191,7 @@ window.addEventListener('message', function(event) {
     }
 
     if (event.data.name === "activegeometrieslimit") {
-
+        console.log(parseInt(event.data.value));
         ACTIVE_GEOMETRIES_LIMIT = parseInt(event.data.value);
     }
 
