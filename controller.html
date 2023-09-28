@@ -87,6 +87,7 @@
     Pointlight position x <input type="text" id="pointlightx" value="5"/>
     y <input type="text" id="pointlighty" value="5"/>
     z <input type="text" id="pointlightz" value="5"/>
+    intensity <input type="text" id="pointlightintensity" value="5"/>
 
     Camera position x <input type="text" id="cxposition" value="1"/>
     y <input type="text" id="cyposition" value="0"/>
@@ -700,38 +701,53 @@ function onMIDIMessage(event) {
 
 function handleFaderMove(controlNumber, value) {
     
-    if (controlNumber === 48) { // eq master 
+    let newVal;
 
-        sendMessage("master", (parseInt(value) - 5) * 2 );
+    if (controlNumber === 48) { // eq master 
+        newVal = (parseInt(value) - 5) * 2;
+        sendMessage("master", newVal);
+        document.getElementById("master").value = newVal;
 
     } else if (controlNumber === 49) { // hue
 
-        sendMessage("hueoffset", parseInt(value) * 2);
+        newVal = parseInt(value) * 2;
+        sendMessage("hueoffset", newVal);
+        document.getElementById("hueoffset").value = newVal;
 
     } else if (controlNumber === 50) { //  
 
         sendMessage("brightness", value);
+        document.getElementById("brightness").value = value;
 
     } else if (controlNumber === 51) { //  
 
         sendMessage("saturation", value);
+        document.getElementById("saturation").value = value;
 
     } else if (controlNumber === 52) { //  
 
-        sendMessage("xrotation", (parseInt(value) - 50) / 1000);
+        newVal =  (parseInt(value) - 50) / 1000;
+        sendMessage("xrotation", newVal);
+        document.getElementById("xrotation").value = newVal;
 
     } else if (controlNumber === 53) { //  
 
-        sendMessage("yrotation", (parseInt(value) - 50) / 1000);
+        newVal =  (parseInt(value) - 50) / 1000;
+        sendMessage("yrotation", newVal);
+        document.getElementById("yrotation").value = newVal;
         
     } else if (controlNumber === 54) { //  
 
         sendMessage("activegeometrieslimit", value);
+        document.getElementById("xrotation").value = value;
+        activegeometrieslimit
 
     } else if (controlNumber === 55) { //  
 
             sendMessage("pointlightintensity", value);
-    }
+            document.getElementById("pointlightintensity").value = value;
+
+        }
 
 
 

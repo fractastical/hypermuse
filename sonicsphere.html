@@ -76,7 +76,7 @@
         const camera = new THREE.PerspectiveCamera(75, window.innerWidth/window.innerHeight, 0.1, 100);
         camera.position.z = 2;
         const renderer = new THREE.WebGLRenderer({ antialias: true });
-        renderer.setPixelRatio(window.devicePixelRatio * 1.5); // 1.5 times the normal resolution
+        renderer.setPixelRatio(window.devicePixelRatio * 2); // x times the normal resolution
 
         renderer.shadowMap.enabled = true;
         const pointLight = new THREE.PointLight(0xffffff, 1, 100);
@@ -307,12 +307,12 @@
             input.value = startingVolumeThreshold;
             startingVolumeThresholds[i] = startingVolumeThreshold;
             thresholds[i] =  startingVolumeThreshold;
-            
+
             // input.value = highEnd - Math.floor((i/numBands) * range);
             // startingVolumeThresholds[i] = highEnd - Math.floor((i/numBands) * range);
             input.id = 'threshold' + i;
             input.oninput = function(){
-                startingVolumeThresholds[i] = this.value;  // Set the threshold for specific band
+                thresholds[i] = this.value;  // Set the threshold for specific band
                 // Add this line to update the display text when the threshold changesf
                 // document.getElementById('volume' + i).textContent = 'v: ' + startingVolumeThresholds[i] + ' 0 / ' + startingVolumeThresholds[i];
                 document.getElementById('volume' + i).textContent = 'v: 0 / ' + thresholds[i];
