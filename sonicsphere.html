@@ -177,10 +177,10 @@
                 let band = data.slice(i * bandSize, (i + 1) * bandSize);
                 let volume = getAverageVolume(band);
                 let volumeDisplay = document.getElementById('volume' + i);
-                volumeDisplay.textContent = 'v: ' + volume.toFixed(2) + ' / ' + startingVolumeThresholds[i];
+                volumeDisplay.textContent = 'v: ' + volume.toFixed(2) + ' / ' + thresholds[i];
 
 
-                if (volume >= startingVolumeThresholds[i]) {
+                if (volume >= thresholds[i]) {
                     let hue = (volume * volumemagnification) + hueoffset;
                     // let hue = 10;
                     if (hue > 360) hue -= 360;
@@ -306,7 +306,8 @@
             input.max = '255';
             input.value = startingVolumeThreshold;
             startingVolumeThresholds[i] = startingVolumeThreshold;
-
+            thresholds[i] =  startingVolumeThreshold;
+            
             // input.value = highEnd - Math.floor((i/numBands) * range);
             // startingVolumeThresholds[i] = highEnd - Math.floor((i/numBands) * range);
             input.id = 'threshold' + i;
@@ -314,7 +315,7 @@
                 startingVolumeThresholds[i] = this.value;  // Set the threshold for specific band
                 // Add this line to update the display text when the threshold changesf
                 // document.getElementById('volume' + i).textContent = 'v: ' + startingVolumeThresholds[i] + ' 0 / ' + startingVolumeThresholds[i];
-                document.getElementById('volume' + i).textContent = 'v: 0 / ' + startingVolumeThresholds[i];
+                document.getElementById('volume' + i).textContent = 'v: 0 / ' + thresholds[i];
 
             };
 
@@ -341,7 +342,7 @@
 
             for (let i = 0; i < numBands; i++) {
                 let input = document.getElementById('threshold' + i);
-                startingVolumeThresholds[i] =  parseInt(input.value) + delta;
+                thresholds[i] =  parseInt(input.value) + delta;
                 input.value = parseInt(input.value) + delta;
                 document.getElementById('volume' + i).textContent = 'v: 0 / ' + input.value;
             }
