@@ -73,7 +73,7 @@
         let volumemagnification = 1.4; 
 
         let captureInterval;
-        const CAPTURE_INTERVAL_MS = 500;  // e.g., Capture every 100ms
+        const CAPTURE_INTERVAL_MS = 300;  // e.g., Capture every 100ms
 
         const scene = new THREE.Scene();
         const camera = new THREE.PerspectiveCamera(75, window.innerWidth/window.innerHeight, 0.1, 100);
@@ -165,6 +165,9 @@
             clearNoteSpheres();
 
             let bandWidth = audioContext.sampleRate / analyser.frequencyBinCount; // Adjust as necessary based on how you set up the Web Audio API.
+           
+            console.log(bandWidth);
+
             let peakVolume = 0;
             let peakBand = null;
 
@@ -179,13 +182,13 @@
 
                 }
             }
-            console.log("Peak band index:", peakBandIndex);
-            console.log("Peak volume:", peakVolume);
+            // console.log("Peak band index:", peakBandIndex);
+            // console.log("Peak volume:", peakVolume);
 
 
             if (peakBand) {
                 let note = detectNoteFromBand(peakBand, bandWidth);
-                console.log("Detected note for peak band:", note);
+                // console.log("Detected note for peak band:", note);
 
                 if (note) {
                     console.log("Peak note detected");
@@ -195,7 +198,7 @@
                     noteSphere.scale.set(0.1, 0.1, 0.1);  // Scale down the sphere to make it smaller
                     noteSphere.rotation.y = -Math.PI / 2;
                     scene.add(noteSphere);
-                    console.log("Added peak note sphere:", noteSphere);
+                    // console.log("Added peak note sphere:", noteSphere);
                 }
             }
 
@@ -336,7 +339,7 @@
                 audioContext = new AudioContext();
                 let source = audioContext.createMediaStreamSource(stream);
                 analyser = audioContext.createAnalyser();
-                analyser.fftSize = 2048 * 2 * 2;
+                analyser.fftSize = 2048 * 2 ;
                 source.connect(analyser);
                 animate();
                 captureInterval = setInterval(captureAudioData, CAPTURE_INTERVAL_MS);
@@ -740,12 +743,6 @@ function createNoteSphere(note) {
     return new THREE.Mesh(geometry, material);
 }
 
-function detectNote(band) {
-    // TODO: Placeholder for actual note detection
-    const notes = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B'];
-    return notes[band % notes.length];
-}
-
 function clearNoteSpheres() {
     for (let i = scene.children.length - 1; i >= 0; i--) {
         let child = scene.children[i];
@@ -770,9 +767,33 @@ function getPeakIndex(data) {
     return peakIndex;
 }
 
+function findPeaks(dataArray) {
+    const threshold = 128; // Adjust this value based on your needs
+    let peaks = [];
+
+    for (let i = 1; i < dataArray.length - 1; i++) {
+        if (dataArray[i] > threshold && dataArray[i] > dataArray[i-1] && dataArray[i] > dataArray[i+1]) {
+            peaks.push({ index: i, value: dataArray[i] });
+        }
+    }
+
+    // Sort peaks by value in descending order
+    peaks.sort((a, b) => b.value - a.value);
+
+    return peaks;
+}
+
+
 function detectNoteFromBand(band, bandWidth) {
+
+    // let maxVolume = Math.max(...band);
+    // let maxIndex = band.indexOf(maxVolume);
+
     const peakIndex = getPeakIndex(band);
+
     if (peakIndex === null) return null;
+    let peaks = findPeaks(band);
+    let topNPeaks = peaks.slice(0, 5); // Taking top 5 peaks as an example
 
     const freq = peakIndex * bandWidth;
     let closestNote = NOTES[0];
@@ -785,7 +806,16 @@ function detectNoteFromBand(band, bandWidth) {
             smallestDifference = difference;
         }
     }
+    // console.log(freq);
+    console.log(audioContext.sampleRate);
+    console.log(analyser.fftSize);
+    console.log(analyser.frequencyBinCount); // Should be half of fftSize
+    // console.log(bandwidth);
 
+    for (let peak of topNPeaks) {
+        const frequency = peak.index * bandWidth;
+        console.log("Peak at:", frequency, "Hz with amplitude:", peak.value);
+    }
     return closestNote;
 }
 
