@@ -261,15 +261,20 @@ function detectNoteFromBand(band, bandWidth) {
     for (let peak of topNPeaks) {
         const frequency = peak.index * bandWidth;
         console.log("Peak at:", frequency, "Hz with amplitude:", peak.value);
+        // if (peak.value < 150)
+        //     detectBeat();
     }
     return closestNote;
 }
 
 function detectBeat() {
     analyser.getByteTimeDomainData(beatDataArray);
-    
+    // console.log(beatDataArray);
+    console.log("finding beat!");
+    console.log(beatDataArray.slice(0, 10)); // Log the first 10 values
+
     // Calculate the energy of the current buffer
-    let energy = beatDataArray.reduce((acc, val) => acc + val * val, 0);
+    let energy = beatDataArray.reduce((acc, val) => acc + (val - 128) * (val - 128), 0);
     
     // Get average energy of the previous frames
     let avgEnergy = previousEnergies.length ? (previousEnergies.reduce((acc, val) => acc + val, 0) / previousEnergies.length) : energy;
@@ -279,6 +284,8 @@ function detectBeat() {
         console.log("Beat detected!");
         // Handle the beat. Here you can adjust your fade & interval functions or whatever you wish to sync with the beat
     }
+    console.log("Energy:", energy, "Avg Energy:", avgEnergy);
+
     
     // Keep track of past energies
     previousEnergies.push(energy);
