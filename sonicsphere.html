@@ -59,8 +59,8 @@
         let startingVolumeThreshold = 5;
         let thresholds = Array(22).fill(startingVolumeThreshold);
         let freezeFrameEffectActive = true;
-        let X_ROTATION_SPEED = 0.0001;
-        let Y_ROTATION_SPEED = 0.0005;
+        let X_ROTATION_SPEED = 0;
+        let Y_ROTATION_SPEED = 0;
         let ACTIVE_GEOMETRIES_LIMIT = 25;
         let FORCE_EQUILATERAL = false;
         let innerTriangleActive = false;
@@ -73,7 +73,7 @@
         let volumemagnification = 1.4; 
 
         let captureInterval;
-        const CAPTURE_INTERVAL_MS = 100;  // e.g., Capture every 100ms
+        const CAPTURE_INTERVAL_MS = 500;  // e.g., Capture every 100ms
 
         const scene = new THREE.Scene();
         const camera = new THREE.PerspectiveCamera(75, window.innerWidth/window.innerHeight, 0.1, 100);
@@ -159,30 +159,47 @@
 
             let data = new Uint8Array(analyser.frequencyBinCount);
             analyser.getByteFrequencyData(data);
-            
+
             let bandSize = Math.floor(data.length / numBands);
 
             clearNoteSpheres();
 
             let bandWidth = audioContext.sampleRate / analyser.frequencyBinCount; // Adjust as necessary based on how you set up the Web Audio API.
+            let peakVolume = 0;
+            let peakBand = null;
 
             for (let i = 0; i < numBands; i++) {
                 let band = data.slice(i * bandSize, (i + 1) * bandSize);
-                let note = detectNoteFromBand(band, bandWidth);
-
-                if (note) {
-                    console.log("note detected");
-                    let noteSphere = createNoteSphere(note);
-                    noteSphere.position.copy(points[i].position);  // Set the note sphere's position to the point's position
-                    noteSphere.userData.type = 'noteSphere';  // Tagging the sphere so that we can easily remove it later
-                    noteSphere.scale.set(0.1, 0.1, 0.1);  // Scale down the sphere to make it smaller
-                    scene.add(noteSphere);
-                    console.log("Added note sphere:", noteSphere);
-
-                }
                 let volume = getAverageVolume(band);
                 
+                if (volume > peakVolume) {
+                    peakVolume = volume;
+                    peakBand = band;
+                    peakBandIndex = i;  // Store the index of the peak band
+
+                }
             }
+            console.log("Peak band index:", peakBandIndex);
+            console.log("Peak volume:", peakVolume);
+
+
+            if (peakBand) {
+                let note = detectNoteFromBand(peakBand, bandWidth);
+                console.log("Detected note for peak band:", note);
+
+                if (note) {
+                    console.log("Peak note detected");
+                    let noteSphere = createNoteSphere(note);
+                    noteSphere.position.copy(points[peakBandIndex].position);
+                    noteSphere.userData.type = 'noteSphere';  // Tagging the sphere so that we can easily remove it later
+                    noteSphere.scale.set(0.1, 0.1, 0.1);  // Scale down the sphere to make it smaller
+                    noteSphere.rotation.y = -Math.PI / 2;
+                    scene.add(noteSphere);
+                    console.log("Added peak note sphere:", noteSphere);
+                }
+            }
+
+
             for (let i = 0; i < numBands; i++) {
                 // TODO: this doesn't seem to be properly using the band frequency
 
