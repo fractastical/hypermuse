@@ -32,6 +32,8 @@
     <div id="thresholds">
      music:  <input type="file" id="audioInput" multiple  accept="audio/*, .midi, .mid">
     video: <input type="file" id="videoInput" accept="video/*" multiple>
+    <input type="button" value="beat" onclick="detectBeat()"/>
+    
 
     <!-- image: <input type="file" id="folderInput" webkitdirectory directory multiple /> -->
 
@@ -66,6 +68,7 @@
         let innerTriangleActive = false;
         let innerTriangleOffset = 0.005;
         let merkabaMode = false;
+        let noteDisplayEnabled= false;
 
         let REFRESH_SPEED = 3;
         let saturation = 100;
@@ -166,7 +169,7 @@
 
             let bandWidth = audioContext.sampleRate / analyser.frequencyBinCount; // Adjust as necessary based on how you set up the Web Audio API.
            
-            console.log(bandWidth);
+            // console.log(bandWidth);
 
             let peakVolume = 0;
             let peakBand = null;
@@ -190,8 +193,8 @@
                 let note = detectNoteFromBand(peakBand, bandWidth);
                 // console.log("Detected note for peak band:", note);
 
-                if (note) {
-                    console.log("Peak note detected");
+                if (note && noteDisplayEnabled) {
+                    // console.log("Peak note detected");
                     let noteSphere = createNoteSphere(note);
                     noteSphere.position.copy(points[peakBandIndex].position);
                     noteSphere.userData.type = 'noteSphere';  // Tagging the sphere so that we can easily remove it later
@@ -330,7 +333,14 @@
             renderer.render(scene, camera);
         }
 
+        let previousEnergies = []; // To store recent energy values
+        let ENERGY_HISTORY = 10;  // How many past energy values to store
+        let BEAT_THRESHOLD = 1.5; // To be adjusted
+        let beatDataArray;
+        let bufferLength;
+
         let audioContext;
+        let biquadFilter;
         let startButton = document.getElementById('startButton');
         startButton.addEventListener('click', function() {
             startButton.parentElement.removeChild(startButton);
@@ -339,14 +349,22 @@
                 audioContext = new AudioContext();
                 let source = audioContext.createMediaStreamSource(stream);
                 analyser = audioContext.createAnalyser();
-                analyser.fftSize = 2048 * 2 ;
+                analyser.fftSize = 2048 * 2;
                 source.connect(analyser);
+                biquadFilter = audioContext.createBiquadFilter();
+                biquadFilter.type = "lowpass";
+                biquadFilter.frequency.setValueAtTime(150, audioContext.currentTime); // Keeping frequencies below 150Hz
+                source.connect(biquadFilter);
+                biquadFilter.connect(analyser);
+                bufferLength = analyser.frequencyBinCount;
+                beatDataArray = new Uint8Array(bufferLength);
                 animate();
                 captureInterval = setInterval(captureAudioData, CAPTURE_INTERVAL_MS);
 
             });
         });
 
+        
         let masterInput = document.getElementById('master');
         masterInput.value = startingVolumeThreshold;
 
@@ -819,7 +837,31 @@ function detectNoteFromBand(band, bandWidth) {
     return closestNote;
 }
 
+function detectBeat() {
+    analyser.getByteTimeDomainData(beatDataArray);
     
+    // Calculate the energy of the current buffer
+    let energy = beatDataArray.reduce((acc, val) => acc + val * val, 0);
+    
+    // Get average energy of the previous frames
+    let avgEnergy = previousEnergies.length ? (previousEnergies.reduce((acc, val) => acc + val, 0) / previousEnergies.length) : energy;
+
+    // Check if current energy is significantly higher than the recent average
+    if (energy > BEAT_THRESHOLD * avgEnergy) {
+        console.log("Beat detected!");
+        // Handle the beat. Here you can adjust your fade & interval functions or whatever you wish to sync with the beat
+    }
+    
+    // Keep track of past energies
+    previousEnergies.push(energy);
+    if (previousEnergies.length > ENERGY_HISTORY) {
+        previousEnergies.shift(); // Remove the oldest energy value if we exceed the ENERGY_HISTORY limit
+    }
+    
+    requestAnimationFrame(detectBeat);
+}
+ 
+
     </script>
 <script src="js/audio_controller.js"></script>
 <script src="js/sonic_geometries.js"></script>
