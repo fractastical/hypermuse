@@ -72,6 +72,9 @@
         let brightness = 50; 
         let volumemagnification = 1.4; 
 
+        let captureInterval;
+        const CAPTURE_INTERVAL_MS = 100;  // e.g., Capture every 100ms
+
         const scene = new THREE.Scene();
         const camera = new THREE.PerspectiveCamera(75, window.innerWidth/window.innerHeight, 0.1, 100);
         camera.position.z = 2;
@@ -151,19 +154,12 @@
         initBands();
 
 
-        function animate() {
-            requestAnimationFrame(animate);
+        function captureAudioData() {
 
-            // untoggle if to make fully deterministic
-            hueoffset += hueOffsetSpeed;
-
-            if(hueoffset > 360) {
-                hueoffset -= 360;
-            }
 
             let data = new Uint8Array(analyser.frequencyBinCount);
             analyser.getByteFrequencyData(data);
-
+            
             let bandSize = Math.floor(data.length / numBands);
 
             clearNoteSpheres();
@@ -294,6 +290,19 @@
                     }
                 }
             }
+        }
+
+        function animate() {
+            requestAnimationFrame(animate);
+
+            // untoggle if to make fully deterministic
+            hueoffset += hueOffsetSpeed;
+
+            if(hueoffset > 360) {
+                hueoffset -= 360;
+            }
+
+
 
             scene.rotation.x += X_ROTATION_SPEED; 
             scene.rotation.y += Y_ROTATION_SPEED;
@@ -313,6 +322,8 @@
                 analyser.fftSize = 2048 * 2 * 2;
                 source.connect(analyser);
                 animate();
+                captureInterval = setInterval(captureAudioData, CAPTURE_INTERVAL_MS);
+
             });
         });
 
