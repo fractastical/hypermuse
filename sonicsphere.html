@@ -824,11 +824,12 @@ function detectNoteFromBand(band, bandWidth) {
             smallestDifference = difference;
         }
     }
+    // TODO: is off by a wide margin
     // console.log(freq);
-    console.log(audioContext.sampleRate);
-    console.log(analyser.fftSize);
-    console.log(analyser.frequencyBinCount); // Should be half of fftSize
-    // console.log(bandwidth);
+    // console.log(audioContext.sampleRate);
+    // console.log(analyser.fftSize);
+    // console.log(analyser.frequencyBinCount); // Should be half of fftSize
+    // // console.log(bandwidth);
 
     for (let peak of topNPeaks) {
         const frequency = peak.index * bandWidth;
