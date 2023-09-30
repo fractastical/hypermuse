@@ -739,8 +739,7 @@ function handleFaderMove(controlNumber, value) {
     } else if (controlNumber === 54) { //  
 
         sendMessage("activegeometrieslimit", value);
-        document.getElementById("xrotation").value = value;
-        activegeometrieslimit
+        document.getElementById("activegeometrieslimit").value = value;
 
     } else if (controlNumber === 55) { //  
 
@@ -753,6 +752,7 @@ function handleFaderMove(controlNumber, value) {
 
 }
 
+// TODO: we will switch this to mapping video loops
 
 function handleButtonPress(buttonId) {
     // Here, you'll map the buttonId (which button on the APC Mini was pressed)
