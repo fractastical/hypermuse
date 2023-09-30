@@ -59,7 +59,6 @@
         let hueoffset = 20;
         let hueOffsetSpeed = 0;
         let startingVolumeThreshold = 5;
-        let thresholds = Array(22).fill(startingVolumeThreshold);
         let freezeFrameEffectActive = true;
         let X_ROTATION_SPEED = 0;
         let Y_ROTATION_SPEED = 0;
@@ -98,6 +97,7 @@
         var analyser;
 
         let numBands = 48;
+        let thresholds = Array(numBands).fill(startingVolumeThreshold);
 
         let holographicFanMode = false;
 
@@ -497,6 +497,7 @@
 
     const activeVideoQueue = [];
     const originalVideos = [];
+    const allVideoLoops = [];
 
     const videoElement = document.getElementById('videoElement');
 
@@ -517,6 +518,8 @@ document.getElementById('videoInput').addEventListener('change', function(event)
 
     }
 
+    allVideoLoops.push(originalVideos);
+      
     // Play the first video
     if (activeVideoQueue.length > 0) {
         videoElement.src = activeVideoQueue.shift();
