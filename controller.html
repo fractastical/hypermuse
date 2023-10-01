@@ -79,6 +79,8 @@
     Volume magnifier: <input type="text" id="volumemagnification" value="1.4"/>
 
     Active Geometries limit: <input type="text" id="activegeometrieslimit" value="25"/>
+    Video change: <input type="text" id="videochange" value="no"/>
+    Video loop change: <input type="text" id="videochangeloop" value="no"/>
 
     Playback speed (1 is normal) <input type="text" id="playbackrate" value="1"/>
     Number of frequency bands <input type="text" id="numbands" value="48"/>
@@ -482,7 +484,7 @@ function populateQueueAgain() {
             dodecahedronMaterial.needsUpdate = true;
         }
 
-        videoElement.playbackRate = 1.0;  // Ensure normal playback speed
+        videoElement.playbackRate = playbackrate;  // Ensure normal playback speed
         videoElement.play();
 
         if(freezeFrameEffectActive)
@@ -541,7 +543,7 @@ videoElement.addEventListener('ended', function() {
     console.log("nextvideo");
     if (videoQueue.length > 0) {
         videoElement.src = videoQueue.shift();
-        videoElement.playbackRate = 1.0;  // Ensure normal playback speed
+        videoElement.playbackRate = playbackrate;  // Ensure normal playback speed
         videoElement.play();
     } else {
         console.log("All videos have been played!");

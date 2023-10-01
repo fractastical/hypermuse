@@ -8,6 +8,7 @@
             margin: 0;
             overflow: hidden;
             display: flex;  
+            background-color: black;
         }
         #thresholds {
             width: 200px;  /* Adjust this as needed */
@@ -32,7 +33,7 @@
     <div id="thresholds">
      music:  <input type="file" id="audioInput" multiple  accept="audio/*, .midi, .mid">
     video: <input type="file" id="videoInput" accept="video/*" multiple>
-    <input type="button" value="beat" onclick="detectBeat()"/>
+    <input type="button" value="beat" onclick="hide()"/>
     
 
     <!-- image: <input type="file" id="folderInput" webkitdirectory directory multiple /> -->
@@ -68,6 +69,8 @@
         let innerTriangleOffset = 0.005;
         let merkabaMode = false;
         let noteDisplayEnabled= false;
+
+        let playbackRate= 1.0;
 
         let REFRESH_SPEED = 3;
         let saturation = 100;
@@ -486,7 +489,7 @@
             dodecahedronMaterial.needsUpdate = true;
         }
 
-        videoElement.playbackRate = 1.0;  // Ensure normal playback speed
+        videoElement.playbackRate = playbackRate;  // Ensure normal playback speed
         videoElement.play();
 
         if(freezeFrameEffectActive)
@@ -495,7 +498,7 @@
 
     // const allVideoQueues;s
 
-    const activeVideoQueue = [];
+    let activeVideoQueue = [];
     const originalVideos = [];
     const allVideoLoops = [];
 
@@ -518,8 +521,8 @@ document.getElementById('videoInput').addEventListener('change', function(event)
 
     }
 
-    allVideoLoops.push(originalVideos);
-      
+    allVideoLoops.push([...originalVideos]);
+
     // Play the first video
     if (activeVideoQueue.length > 0) {
         videoElement.src = activeVideoQueue.shift();
@@ -555,7 +558,7 @@ videoElement.addEventListener('ended', function() {
     console.log("nextvideo");
     if (activeVideoQueue.length > 0) {
         videoElement.src = activeVideoQueue.shift();
-        videoElement.playbackRate = 1.0;  // Ensure normal playback speed
+        videoElement.playbackRate = playbackRate;  // Ensure normal playback speed
         videoElement.play();
     } else {
         console.log("All videos have been played!");
@@ -574,7 +577,11 @@ videoElement.addEventListener('ended', function() {
         scene.add(dodecahedron);
 
     }
- 
+
+    function hide() {
+        document.getElementById("thresholds").style.display = "none";
+    }
+
 
     </script>
 <script src="js/note_analyzer.js"></script>

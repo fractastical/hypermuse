@@ -260,7 +260,7 @@ function detectNoteFromBand(band, bandWidth) {
 
     for (let peak of topNPeaks) {
         const frequency = peak.index * bandWidth;
-        console.log("Peak at:", frequency, "Hz with amplitude:", peak.value);
+        // console.log("Peak at:", frequency, "Hz with amplitude:", peak.value);
         // if (peak.value < 150)
         //     detectBeat();
     }

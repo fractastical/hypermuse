@@ -1,3 +1,5 @@
+allVideoLoopsIndex = 0;
+
 window.addEventListener('message', function(event) {
     const data = event.data;
 
@@ -26,8 +28,9 @@ window.addEventListener('message', function(event) {
 
     console.log("got a message");
 
-    if (data.type === "playbackspeed") {
-        console.log ("playbackspeed");
+    if (data.type === "playbackrate") {
+
+        playbackrate =  parseFloat(event.data.value);
         
     }
 
@@ -48,6 +51,50 @@ window.addEventListener('message', function(event) {
     if (event.data.name === "xrotation") {
 
         X_ROTATION_SPEED = parseFloat(event.data.value);
+        
+
+    }
+    if (event.data.name === "videochange") {
+
+        if (activeVideoQueue.length === 0) {
+            // Repopulate activeVideoQueue with original video URLs
+            activeVideoQueue.push(...originalVideos);
+        }
+    
+        if (activeVideoQueue.length > 0) {
+            videoElement.src = activeVideoQueue.shift();
+            videoElement.playbackRate = playbackRate;  // Ensure normal playback speed
+            videoElement.play();
+        }
+             
+
+    }
+    if (event.data.name === "videochangeloop") {
+        
+        allVideoLoopsIndex++;
+
+
+        if(allVideoLoopsIndex >= allVideoLoops.length)
+            allVideoLoopsIndex = 0;
+
+        console.log("allVideoLoopsIndex"+allVideoLoopsIndex);
+        console.log("allVideoLoops.length"+allVideoLoops.length);
+
+        activeVideoQueue.length = 0; 
+        activeVideoQueue = [];
+
+        console.log("allVideoLoops[allVideoLoopsIndex:" + allVideoLoops[allVideoLoopsIndex].length);
+        console.log(allVideoLoops[allVideoLoopsIndex]);
+        activeVideoQueue.push(...allVideoLoops[allVideoLoopsIndex]);
+        console.log("activeVideoQueue.length"+activeVideoQueue.length);
+
+        if (activeVideoQueue.length > 0) {
+            videoElement.src = activeVideoQueue[0];
+            videoElement.muted = true;
+            videoElement.playbackRate = playbackRate;  // Ensure normal playback speed
+            // videoElement.load();
+            videoElement.play();
+        }
         
 
     }
