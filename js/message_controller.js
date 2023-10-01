@@ -237,6 +237,7 @@ window.addEventListener('message', function(event) {
         camera.position.z = parseFloat(event.data.value);
     }
 
+    //TODO: doesn't not apepar to update properly
     if (event.data.name === "activegeometrieslimit") {
         console.log(parseInt(event.data.value));
         ACTIVE_GEOMETRIES_LIMIT = parseInt(event.data.value);
