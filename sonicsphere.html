@@ -13,6 +13,8 @@
         #thresholds {
             width: 200px;  /* Adjust this as needed */
             height: 100%;
+            background-color: white;
+
             /* overflow: auto; */
         }
 
@@ -106,7 +108,7 @@
 
         let baseFrequency = 20; // Start from 20 Hz
         let maxFrequency = 20000; // Up to 20 kHz
-
+        let MAX_SIZE;
         let dodecahedronMaterial; 
 
                 // Now calculate the ratio between each band in a logarithmic scale
@@ -348,7 +350,14 @@
         startButton.addEventListener('click', function() {
             startButton.parentElement.removeChild(startButton);
 
-            navigator.mediaDevices.getUserMedia({ audio: true, video: false }).then(function(stream) {
+            navigator.mediaDevices.getUserMedia({ video: false, audio: {
+            "mandatory": {
+                "googEchoCancellation": "false",
+                "googAutoGainControl": "false",
+                "googNoiseSuppression": "false",
+                "googHighpassFilter": "false"
+            }}}).then(function(stream) {
+                
                 audioContext = new AudioContext();
                 let source = audioContext.createMediaStreamSource(stream);
                 analyser = audioContext.createAnalyser();
@@ -363,6 +372,9 @@
                 beatDataArray = new Uint8Array(bufferLength);
                 animate();
                 captureInterval = setInterval(captureAudioData, CAPTURE_INTERVAL_MS);
+                MAX_SIZE = Math.max(4,Math.floor(audioContext.sampleRate/5000));	// corresponds to a 5kHz signal
+                // startPitchDetect();
+                updatePitch();
 
             });
         });
