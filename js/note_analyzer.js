@@ -167,8 +167,8 @@ function generateNoteTexture(note) {
     context.fillStyle = 'black';
     context.textAlign = 'center';
     context.textBaseline = 'middle';
-    console.log(note);
-    context.fillText(note.note, canvas.width / 2, canvas.height / 2);
+    // console.log(note);
+    context.fillText(note, canvas.width / 2, canvas.height / 2);
 
     // Return a Three.js texture
     const texture = new THREE.CanvasTexture(canvas);
@@ -234,12 +234,13 @@ function detectNoteFromBand(band, bandWidth) {
     // let maxVolume = Math.max(...band);
     // let maxIndex = band.indexOf(maxVolume);
 
-    const peakIndex = getPeakIndex(band);
+    // peakIndex = getPeakIndex(band);
 
-    if (peakIndex === null) return null;
+    // if (peakIndex === null) return null;
     let peaks = findPeaks(band);
     let topNPeaks = peaks.slice(0, 5); // Taking top 5 peaks as an example
-
+    peakIndex = topNPeaks[0];
+    
     const freq = peakIndex * bandWidth;
     let closestNote = NOTES[0];
     let smallestDifference = Math.abs(NOTES[0].frequency - freq);
@@ -260,7 +261,7 @@ function detectNoteFromBand(band, bandWidth) {
 
     for (let peak of topNPeaks) {
         const frequency = peak.index * bandWidth;
-        // console.log("Peak at:", frequency, "Hz with amplitude:", peak.value);
+        console.log("Peak at:", frequency, "Hz with amplitude:", peak.value);
         // if (peak.value < 150)
         //     detectBeat();
     }
