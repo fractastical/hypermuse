@@ -21,6 +21,17 @@
             /* overflow: auto; */
         }
 
+        #videoList {
+            max-height: 400px;
+            overflow-y: auto;
+            border: 1px solid #ccc;
+            padding: 10px;
+            color: white;
+}
+
+            /* overflow: auto; */
+        } 
+
         #container {
             margin-top:50px;
             height: 500px;
@@ -67,7 +78,7 @@ button {
   background-color: #4CAF50; /* Green */
   border: none;
   color: white;
-  padding: 15px 32px;
+  padding: 5px 16px;
   text-align: center;
   text-decoration: none;
   display: inline-block;
@@ -96,7 +107,7 @@ button:hover {
 
 </head>
 <body>
-  
+
     <div id="app">
         <div id="thresholds">
           <div class="file-input-group">
@@ -108,7 +119,7 @@ button:hover {
             <input type="file" id="videoInput" accept="video/*" multiple />
           </div>
           <button id="startButton">Start</button>
-          <button id="beatButton" onclick="hide()">Hide</button>
+          <button id="beatButton" onclick="hide()">Hide ("h")</button>
           <video id="videoElement" class="hidden" autoplay muted></video>
           <div id="master-control">
             <label for="master">Master Volume Threshold:</label>
@@ -118,6 +129,8 @@ button:hover {
 
         <div id="advancedControls"></div>
       </div>
+      <div id="videoList">Press "v" to toggle view</div>
+
       <div id="container"></div>
       
 <script>
@@ -611,6 +624,7 @@ document.getElementById('videoInput').addEventListener('change', function(event)
         console.log(url);
         activeVideoQueue.push(url);
         originalVideos.push(url);
+        appendFilenameToList(file.name);
 
     }
 
@@ -642,6 +656,14 @@ document.getElementById('videoInput').addEventListener('change', function(event)
     }
 });
 
+function appendFilenameToList(filename) {
+    const videoList = document.getElementById('videoList');
+    console.log(videoList);
+    const listItem = document.createElement('li');
+    listItem.textContent = filename;
+    videoList.appendChild(listItem);
+}
+
 document.addEventListener("keydown", function(event) {
     if (event.key === "h") {
         const menu = document.getElementById("thresholds");
@@ -655,6 +677,19 @@ document.addEventListener("keydown", function(event) {
         // Prevent default behavior (avoid scrolling, etc.)
         event.preventDefault();
     }
+    if (event.key === "v") {
+        const vlist = document.getElementById("videoList");
+        
+        // Toggle between displaying and hiding the video element
+        if (vlist.style.display === "none" || vlist.style.display === "") {
+            vlist.style.display = "block";
+        } else {
+            vlist.style.display = "none";
+        }
+        // Prevent default behavior (avoid scrolling, etc.)
+        event.preventDefault();
+    }
+
 });
 
 videoElement.addEventListener('ended', function() {
