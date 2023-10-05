@@ -79,8 +79,8 @@
     Volume magnifier: <input type="text" id="volumemagnification" value="1.4"/>
 
     Active Geometries limit: <input type="text" id="activegeometrieslimit" value="25"/>
-    Video change: <input type="text" id="videochange" value="no"/>
-    Video loop change: <input type="text" id="videochangeloop" value="no"/>
+    Video change: <input  type="button"  id="videochange" value="change"/>
+    Video loop change: <input  type="button"  id="videochangeloop" value="change"/>
 
     Playback speed (1 is normal) <input type="text" id="playbackrate" value="1"/>
     Number of frequency bands <input type="text" id="numbands" value="48"/>
@@ -638,6 +638,16 @@ const inputs = document.querySelectorAll('input');
 
 // Loop through each input and attach the event listener
 inputs.forEach(input => {
+
+    if(input.type === 'button') {
+    input.addEventListener('click', function(event) {
+      // Handle button click
+      let id = event.target.id;
+      console.log("Button Clicked: " + id);
+      sendMessage(id, "change");
+    });
+  } else {
+
     input.addEventListener('input', function(event) {
         // Get the input's name and value
         
@@ -647,13 +657,15 @@ inputs.forEach(input => {
         let value = event.target.value;
 
         //TODO : does nothing might be power issue on APCmini 
-        lightUpButton(64, 1);  // Lights up the first pad in green
-        lightUpButton(65, 3);  // Lights up the second pad in red
-        console.log("(not actually) light up");
-
+        // lightUpButton(64, 1);  // Lights up the first pad in green
+        // lightUpButton(65, 3);  // Lights up the second pad in red
+        // console.log("(not actually) light up");
+        console.log("id"+ id + "value" + value);
         // Send the message
         sendMessage(id, value);
     });
+
+    }
 
     input.addEventListener('animationend',function() {
         this.classList.remove(flashClass);
