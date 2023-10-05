@@ -309,7 +309,7 @@ function updatePitch( time ) {
 		}
 	}
 
-	if (!window.requestAnimationFrame)
-		window.requestAnimationFrame = window.webkitRequestAnimationFrame;
-	rafID = window.requestAnimationFrame( updatePitch );
+	// if (!window.requestAnimationFrame)
+	// 	window.requestAnimationFrame = window.webkitRequestAnimationFrame;
+	// rafID = window.requestAnimationFrame( updatePitch );
 }
