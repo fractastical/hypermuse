@@ -3,11 +3,21 @@ MAJOR BUGS
 
 TODO 
 
-sample inbound harp and label tones
-
-active geometry limit not working
-add render density to slider
+test playrate update on video from controller
+change toggles to sliders or "on/off" or buttons for key lements (like video change) 
+create log of all actions done with time stamp (so can be recareated)
+create list of all files in queue
+created tagging of videos by keywords (possibly based on filename)
+auto populate video queue from folders
+stylesheet for controller
+include image folers
 test playback speed
+allow unhiding
+ 
+active geometry limit not working (not sure about this, test)
+add render density to slider
+
+== LOW ==
 
 midi
     - parse midi file and determine unique notes
@@ -20,12 +30,13 @@ do "sphere" fade in
 
 setup more fans
 find promo videos 
-setup insta
+setup insta (sonicsource code,done)
 script to integrate inline TODOs with github issues(?)
 remap hertz bands
 figure out how to make and program remote 
 
 BUGS
+
 
 
 videourl passing is borked (i.e. "fakeurl") (including with offset ) error to fix:
@@ -47,3 +58,4 @@ extend opacity range
 
 
 DONE
+sample inbound harp and label tones
