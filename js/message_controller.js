@@ -268,8 +268,18 @@ window.addEventListener('message', function(event) {
 
     }
 
+    if (event.data.name === "renderdensity") {
+
+        let pixeldensity = parseFloat(event.data.value);
+        renderer.setPixelRatio(pixeldensity); // x times the normal resolution
+
+        // might not work
+
+    }
+
     if (event.data.name === "refreshrate") {
 
+        
         // pointLight.position.set(pointLight.position.x, pointLight.position.y, parseFloat(event.data.value));  // x, y, z
 
     }
