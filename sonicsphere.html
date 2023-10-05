@@ -580,6 +580,21 @@ document.getElementById('videoInput').addEventListener('change', function(event)
     }
 });
 
+document.addEventListener("keydown", function(event) {
+    if (event.key === "h") {
+        const menu = document.getElementById("thresholds");
+        
+        // Toggle between displaying and hiding the video element
+        if (menu.style.display === "none" || menu.style.display === "") {
+            menu.style.display = "block";
+        } else {
+            menu.style.display = "none";
+        }
+        // Prevent default behavior (avoid scrolling, etc.)
+        event.preventDefault();
+    }
+});
+
 videoElement.addEventListener('ended', function() {
     if (activeVideoQueue.length === 0) {
         // Repopulate activeVideoQueue with original video URLs
