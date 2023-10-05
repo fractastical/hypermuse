@@ -4,6 +4,8 @@
     <meta charset="utf-8">
     <title>Audio Reactive Spheres</title>
     <style>
+
+        
         body {
             margin: 0;
             overflow: hidden;
@@ -13,15 +15,78 @@
         #thresholds {
             width: 200px;  /* Adjust this as needed */
             height: 100%;
+            align:left;
             background-color: white;
 
             /* overflow: auto; */
         }
 
         #container {
+            margin-top:50px;
             height: 500px;
             flex-grow: 1;
         }
+
+        /* body {
+  font-family: 'Arial', sans-serif;
+  background-color: #222;
+  color: #eee;
+  padding: 20px;
+} */
+
+/* #app {
+  max-width: 200px;
+  margin: 0 auto;
+}
+ */
+.file-input-group,
+#master-control {
+  margin-bottom: 15px;
+}
+
+label {
+  display: block;
+  margin-bottom: 5px;
+}
+
+input[type="file"] {
+  width: 85%;
+  padding: 10px;
+  background-color: #444;
+  color: #eee;
+  border: none;
+  border-radius: 5px;
+}
+
+input[type="range"] {
+  width: calc(100% - 10px);
+  margin: 5px;
+}
+
+button {
+  background-color: #4CAF50; /* Green */
+  border: none;
+  color: white;
+  padding: 15px 32px;
+  text-align: center;
+  text-decoration: none;
+  display: inline-block;
+  font-size: 16px;
+  margin: 4px 2px;
+  transition-duration: 0.4s;
+  cursor: pointer;
+  border-radius: 5px;
+}
+
+button:hover {
+  background-color: white;
+  color: black;
+}
+
+.hidden {
+  display: none;
+}
+
     </style>
     <script src="js/threejs.org_build_three.js"></script>
     <script src="js/cdn.jsdelivr.net_npm_@tonejs_midi.js"></script>
@@ -32,32 +97,29 @@
 </head>
 <body>
   
-    <div id="thresholds">
-     music:  <input type="file" id="audioInput" multiple  accept="audio/*, .midi, .mid">
-    video: <input type="file" id="videoInput" accept="video/*" multiple>
-    <input type="button" value="beat" onclick="hide()"/>
-    
+    <div id="app">
+        <div id="thresholds">
+          <div class="file-input-group">
+            <label for="audioInput">Music:</label>
+            <input type="file" id="audioInput" multiple accept="audio/*, .midi, .mid" />
+          </div>
+          <div class="file-input-group">
+            <label for="videoInput">Video:</label>
+            <input type="file" id="videoInput" accept="video/*" multiple />
+          </div>
+          <button id="startButton">Start</button>
+          <button id="beatButton" onclick="hide()">Hide</button>
+          <video id="videoElement" class="hidden" autoplay muted></video>
+          <div id="master-control">
+            <label for="master">Master Volume Threshold:</label>
+            <input type="range" id="master" min="-100" max="355" value="150" />
+          </div>
+        </div>
 
-    <!-- image: <input type="file" id="folderInput" webkitdirectory directory multiple /> -->
-
-    <video id="videoElement" style="display:none;" autoplay muted></video>
-    
-        <div id="master-control">
-            <span>Master Volume Threshold: </span>
-            <input type="range" id="master" min="-100" max="355" value="150">
-            <br>
-        </div>    
-
-    </div>
-    <button id="startButton">Start</button>
-    <div id="container"></div>
-    <div id="advancedControls">
-        <!-- Hue increase <input id="hueincrease" value="0">
-        X Rotation <input id="xrotation" value="0.001">
-        Y Rotation <input id="yrotation" value="0.0001">
-        Bands <input id="numBands" value="48"> -->
-    </div>
-
+        <div id="advancedControls"></div>
+      </div>
+      <div id="container"></div>
+      
 <script>
         let hueoffset = 20;
         let hueOffsetSpeed = 0;
