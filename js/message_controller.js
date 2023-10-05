@@ -28,10 +28,15 @@ window.addEventListener('message', function(event) {
 
     console.log("got a message");
 
-    if (data.type === "playbackrate") {
+    if (event.data.name === "playbackrate") {
 
         playbackrate =  parseFloat(event.data.value);
-        
+        const videoElement = document.getElementById('videoElement');
+        videoElement.playbackRate = playbackRate;  // Ensure normal playback speed
+        console.log(playbackrate);
+        console.log(videoElement.playbackRate);
+        videoElement.play();
+
     }
 
     //TODO: figure out some way to get this to work

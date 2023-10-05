@@ -241,9 +241,9 @@ button:hover {
 
             let peakVolume = 0;
             let peakBand = null;
-            console.log(numBands);
+            // console.log(numBands);
             for (let i = 0; i < numBands; i++) {
-                console.log("i");
+                // console.log("i");
 
                 let band = data.slice(i * bandSize, (i + 1) * bandSize);
                 let volume = getAverageVolume(band);
@@ -252,7 +252,7 @@ button:hover {
                     peakVolume = volume;
                     peakBand = band;
                     peakBandIndex = i;  // Store the index of the peak band
-                    console.log("peakBandIndex" + peakBandIndex);
+                    // console.log("peakBandIndex" + peakBandIndex);
 
                 }
             }
@@ -666,7 +666,11 @@ videoElement.addEventListener('ended', function() {
     console.log("nextvideo");
     if (activeVideoQueue.length > 0) {
         videoElement.src = activeVideoQueue.shift();
+        //TODO: this doesn't work, never updates playback rate
         videoElement.playbackRate = playbackRate;  // Ensure normal playback speed
+        console.log(videoElement.playbackRate);
+        console.log(playbackRate);
+
         videoElement.play();
     } else {
         console.log("All videos have been played!");
