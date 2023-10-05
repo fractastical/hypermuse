@@ -10,25 +10,33 @@
     <meta charset="utf-8">
     <title>Controller (for Audiosphere)</title>
     <style>
-        body {
-            margin: 0;
-            overflow: hidden;
-            display: flex;  /* Add this */
-        }
+    body {
+        margin: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        min-height: 100vh;
+        background: #f0f0f0;
+    }
 
-        #container {
-            height: 1600px;
-            flex-grow: 1;
-        }
+    input {
+        padding:3px;
+        margin:3px;
+        size:10;
+    }
 
-        .input-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); /* This will automatically adjust the number of columns based on the container width. Each column will be at least 200px wide */
-            grid-gap: 20px; /* Adjust as needed */
-            grid-auto-flow: column; /* Direct content to fill by column */
-            max-height: 90vh; /* adjust as necessary to prevent overflow off the bottom */
-            overflow-y: auto; /* allow scrolling if content exceeds max-height */
-        }
+    .input-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+        gap: 20px;
+        max-height: 90vh;
+        overflow-y: auto;
+        padding: 20px;
+        border-radius: 10px;
+        background: #fff;
+        box-shadow: 0px 5px 15px rgba(0, 0, 0, 0.1);
+    }
+
 
         .flash {
             animation: flash .15s;
@@ -58,44 +66,71 @@
 
 </head>
 <body>
-    <div class="class="input-grid">
-    <div id="thresholds">
+    <div id="thresholds" class="input-grid">
      <!-- music add:  <input type="file" id="audioInput" multiple  accept="audio/*, .midi, .mid">
      <input type="text" id="audiopop" value="pop"/>
     video: <input type="file" id="videoInput" accept="video/*" multiple>
      <input type="text" id="videopop" value="pop"/> -->
 
     <!-- <audio id="audioElement" controls></audio> -->
-
-    Hue is a degree on the color wheel from 0 to 360. 0 is red, 120 is green, and 240 is blue.
-    Hueoffset: <input type="text" id="hueoffset" value="20"/>
-
-    Video change: <input  type="button"  id="videochange" value="change"/>
-    Video loop change: <input  type="button"  id="videochangeloop" value="change"/>
-
+    <div class="input-group">
+        Hue is a degree on the color wheel from 0 to 360. 0 is red, 120 is green, and 240 is blue.
+        Hueoffset: <input type="text" id="hueoffset" value="20"/>
+    </div>
+    <div class="input-group">
+        Video change: <input  type="button"  id="videochange" value="change"/>
+    </div>
+    <div class="input-group">
+         Video loop change: <input  type="button"  id="videochangeloop" value="change"/>
+    </div>
+    <div class="input-group">    
     Mode ("color","video","lines"): <input type="text" id="mode" value="color"/>
-
+    </div>
+    <div class="input-group">
     Xrotationspeed: <input type="text" id="xrotation" value="0.0001"/>
+    </div>
+    <div class="input-group">
     Yrotationspeed: <input type="text" id="yrotation" value="0.0005"/>
-
+    </div>
+    <div class="input-group">
     Saturation: <input type="text" id="saturation" value="100"/>
+     </div>
+    <div class="input-group">
     Brightness: <input type="text" id="brightness" value="50"/>
-    Volume magnifier: <input type="text" id="volumemagnification" value="1.4"/>
+    </div>
+    <div class="input-group">
+        Volume magnifier: <input type="text" id="volumemagnification" value="1.4"/>
+    </div>
+    <div class="input-group">
+        Active Geometries limit: <input type="text" id="activegeometrieslimit" value="25"/>
+    </div>
+    <div class="input-group">
+         Playback speed (1 is normal) <input type="text" id="playbackrate" value="1"/>
+     </div>
+    <div class="input-group">
+        Pointlight position x <input type="text" id="pointlightx" value="5"/>
+    </div>
+    <div class="input-group">
+        y <input type="text" id="pointlighty" value="5"/>
+    </div>
+    <div class="input-group">
+         z <input type="text" id="pointlightz" value="5"/>
+    </div>
+    <div class="input-group">
+        intensity <input type="text" id="pointlightintensity" value="5"/>
+    </div>
+    <div class="input-group">
+         Camera position x <input type="text" id="cxposition" value="1"/>
+    </div>
+    <div class="input-group">
+        y <input type="text" id="cyposition" value="0"/>
+    </div>
+    <div class="input-group">
+        z <input type="text" id="czposition" value="0"/>
+    </div>
 
-    Active Geometries limit: <input type="text" id="activegeometrieslimit" value="25"/>
-
-    Playback speed (1 is normal) <input type="text" id="playbackrate" value="1"/>
     <!-- Number of frequency bands <input type="text" id="numbands" value="48"/>
     holofan mode (0 is false 1 is true) <input type="text" id="holofanmode" value="0"/> -->
-
-    Pointlight position x <input type="text" id="pointlightx" value="5"/>
-    y <input type="text" id="pointlighty" value="5"/>
-    z <input type="text" id="pointlightz" value="5"/>
-    intensity <input type="text" id="pointlightintensity" value="5"/>
-
-    Camera position x <input type="text" id="cxposition" value="1"/>
-    y <input type="text" id="cyposition" value="0"/>
-    z <input type="text" id="czposition" value="0"/>
 
     <!-- Hue cycle (changes how fast the hues change) <input type="text" id="hueoffsetspeed" value="0"/>
 
@@ -106,28 +141,16 @@
 
 
     <!-- image: <input type="file" id="folderInput" webkitdirectory directory multiple /> -->
-
-    <video id="videoElement" style="display:none;" autoplay muted></video>
-    
+ <div class="input-group">
         <div id="master-control">
             <span>Master Volume Threshold: </span>
             <input type="range" id="master" min="-100" max="355" value="150">
             <br>
         </div>    
+  </div>
 
-    </div>
-
-    <!-- <button id="startButton">Start</button> -->
 
 </div>
-
-    <div id="container"></div>
-    <div id="advancedControls">
-        <!-- Hue increase <input id="hueincrease" value="0">
-        X Rotation <input id="xrotation" value="0.001">
-        Y Rotation <input id="yrotation" value="0.0001">
-        Bands <input id="numBands" value="48"> -->
-    </div>
 
 <script>
         let hueoffset = 20;
@@ -329,10 +352,15 @@
             volumeDisplay.style.color = 'white';
             volumeDisplay.textContent = "v: ";
 
-            thresholdsDiv.appendChild(document.createTextNode('Band ' + i + ': '));
-            thresholdsDiv.appendChild(input);
-            thresholdsDiv.appendChild(volumeDisplay);
-            thresholdsDiv.appendChild(document.createElement('br'));
+            let inputGroup = document.createElement('div');
+            inputGroup.className = "inputgroup";
+
+            thresholdsDiv.appendChild(inputGroup);
+
+            inputGroup.appendChild(document.createTextNode('Band ' + i + ': '));
+            inputGroup.appendChild(input);
+            inputGroup.appendChild(volumeDisplay);
+            inputGroup.appendChild(document.createElement('br'));
             document.getElementById('volume' + i).textContent = 'v: 0 / ' + volumeThresholds[i];
             document.getElementById('volume' + i).style = 'color:black';
 
@@ -557,6 +585,8 @@ inputs.forEach(input => {
 
     if(input.type === 'button') {
     input.addEventListener('click', function(event) {
+        flashElement(input);
+
       // Handle button click
       let id = event.target.id;
       console.log("Button Clicked: " + id);
@@ -566,7 +596,8 @@ inputs.forEach(input => {
 
     input.addEventListener('input', function(event) {
         // Get the input's name and value
-        
+        flashElement(input);
+
 
         let id = event.target.id;
 
@@ -759,6 +790,14 @@ function turnOffButtonLight(buttonId) {
         apcMiniOutput.send([0x80, buttonId, 0]);  // Note off message
     }
 }
+
+function flashElement(element) {
+    element.classList.add('flash');
+    setTimeout(() => {
+        element.classList.remove('flash');
+    }, 300); // same duration as the CSS animation
+}
+
 
 
 // lightUpButton(64, 1);  // Lights up the first pad in green
