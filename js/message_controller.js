@@ -3,28 +3,7 @@ allVideoLoopsIndex = 0;
 window.addEventListener('message', function(event) {
     const data = event.data;
 
-    // let hueoffset = 20;
-    //     let volumeThreshold = 40;
-    //     let thresholds = Array(22).fill(40);
-    //     let freezeFrameEffectActive = true;
-
-    //     const scene = new THREE.Scene();
-    //     const camera = new THREE.PerspectiveCamera(75, window.innerWidth/window.innerHeight, 0.1, 1000);
-    //     camera.position.z = 2;
-    //     const renderer = new THREE.WebGLRenderer();
-
-    //     let container = document.getElementById('container');
-    //     renderer.setSize(container.clientWidth, container.clientHeight);
-    //     container.appendChild(renderer.domElement);
-
-    //     var analyser;
-
-    //     let numBands = 48;
-
-    //     let holographicFanMode = false;
-
-    //     let baseFrequency = 20; // Start from 20 Hz
-    //     let maxFrequency = 20000; // Up to 20 kHz
+    //TODO add bidirectional messaging
 
     console.log("got a message");
 
