@@ -38,20 +38,19 @@
     }
 
 
-        .flash {
-            animation: flash .15s;
-        }
+    .flash {
+        animation: flash .15s;
+    }
 
-        @keyframes flash {
-            50% {
-                background: green;
-            }
-            100% {
-                background: transparent;
-            }
+    @keyframes flash {
+        50% {
+            background: green;
         }
+        100% {
+            background: transparent;
+        }
+    }
 
-        
 
     </style>
     <script src="js/threejs.org_build_three.js"></script>
@@ -138,6 +137,11 @@
     <div class="input-group">
 
         history:  <textarea id="changelog"  rows="8" cols="30">
+            </textarea>
+     </div>
+     <div class="input-group">
+
+        active videos:  <textarea id="videoList"  rows="8" cols="30">
             </textarea>
      </div>
 
@@ -829,7 +833,20 @@ openVisualWindow();
 // sendMessageToVisual({ type: "updateGeometry", payload: { /* your data here */ } });
 // sendMessageToVisual({ type: "playbackspeed", payload: {speed: 0.2 } });
 
+window.addEventListener('message', function(event) {
 
+    console.log("message received");
+
+    console.log(event.data);
+
+    if (event.data.name === "videolist") {
+
+            document.getElementById('videoList').value = event.data.value;
+
+    }
+
+
+});
 
     </script>
 </body>

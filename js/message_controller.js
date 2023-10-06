@@ -1,9 +1,17 @@
 allVideoLoopsIndex = 0;
 
+
 window.addEventListener('message', function(event) {
     const data = event.data;
 
+    // const targetOrigin = event.origin || "*";
+    const targetOrigin = "*";
+
     //TODO add bidirectional messaging
+    event.source.postMessage({
+        name: 'videolist',
+        value: document.getElementById('videoListContents').textContent,
+    }, targetOrigin);
 
     console.log("got a message");
 

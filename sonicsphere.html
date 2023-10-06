@@ -30,7 +30,6 @@
 }
 
             /* overflow: auto; */
-        } 
 
         #container {
             margin-top:50px;
@@ -129,7 +128,9 @@ button:hover {
 
         <div id="advancedControls"></div>
       </div>
-      <div id="videoList">Press "v" to toggle view</div>
+      <div id="videoList">Press "v" to toggle view
+        <div id="videoListContents"></div>
+      </div>
 
       <div id="container"></div>
       
@@ -657,7 +658,7 @@ document.getElementById('videoInput').addEventListener('change', function(event)
 });
 
 function appendFilenameToList(filename) {
-    const videoList = document.getElementById('videoList');
+    const videoList = document.getElementById('videoListContents');
     console.log(videoList);
     const listItem = document.createElement('li');
     listItem.textContent = filename;
