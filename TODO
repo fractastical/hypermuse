@@ -3,7 +3,8 @@ MAJOR BUGS
 
 TODO 
 
-not displaying!
+fix flashing
+bidirecitonal communication
 test playrate update on video from controller BROKEN
 create log of all actions done with time stamp (so can be recareated)
 created tagging of videos by keywords (possibly based on filename)
