@@ -17,8 +17,7 @@ If using the onboard microphone it will often filter out any speaker output comi
 
 # videosphere
 
-<img src="[https://github.com/fractastical/sonicsourcecode/assets/589191/dfa2e145-26e9-43e6-8758-588dd2bee8df](https://github.com/fractastical/sonicsourcecode/assets/589191/3b94708f-2f0a-40cd-89d1-2f8e859b6349)" width="200" height="200" />
-
+<img src="https://github.com/fractastical/sonicsourcecode/assets/589191/3b94708f-2f0a-40cd-89d1-2f8e859b6349" width="200" height="200" />
 
 Live VJing software allowing frame by frame display of music hyper imposed around a sphere. 
 
