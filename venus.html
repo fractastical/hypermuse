@@ -75,16 +75,17 @@ function init() {
 function animate() {
     requestAnimationFrame(animate);
 
-    const time = Date.now() * 0.0005;
+    const time = Date.now() * 0.001; // Slow down time progression for better visualization
 
-    // Simulating Venus's movement
+    // Simulating Venus's movement with adjusted timing
     const venusOrbitRadius = 8;
-    venus.position.x = venusOrbitRadius * Math.cos(time);
-    venus.position.y = venusOrbitRadius * Math.sin(time);
+    const venusPeriodAdjustment = 8/13; // Adjust Venus's orbit period relative to Earth's
+    venus.position.x = venusOrbitRadius * Math.cos(time * venusPeriodAdjustment);
+    venus.position.y = venusOrbitRadius * Math.sin(time * venusPeriodAdjustment);
 
     // Updating the trail
     venusTrailPoints.push(new THREE.Vector3(venus.position.x, venus.position.y, venus.position.z));
-    if (venusTrailPoints.length > 500) {  // Limiting trail length for performance
+    if (venusTrailPoints.length > 2000) {  // Limiting trail length for performance
         venusTrailPoints.shift();
     }
 
