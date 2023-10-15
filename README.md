@@ -12,6 +12,7 @@ Ultimate goal is to use higher order math, especially hypergraphs, to determinis
 
 See also the hypermusic repository for the theoertical background: https://github.com/fractastical/hypermusic
 
+![bach-techno-cathedral](https://github.com/fractastical/sonicsourcecode/assets/589191/a54d9be5-cf29-4983-a944-a333e4375b6a)
 
 
 # usage notes
