@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>Audio Reactive Spheres</title>
+    <style>
+
+   
+
+    </style>
+    <script src="js/threejs.org_build_three.js"></script>
+
+
+
+</head>
+<body>
+
+
+      <div id="container"></div>
+      
+<script>
+
+
+
+let scene, camera, renderer;
+let sun, earth, venus;
+let venusTrailGeometry, venusTrail;
+
+init();
+animate();
+
+function init() {
+    scene = new THREE.Scene();
+    camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+    renderer = new THREE.WebGLRenderer();
+    renderer.setSize(window.innerWidth, window.innerHeight);
+    document.body.appendChild(renderer.domElement);
+
+    // Lighting
+    const light = new THREE.PointLight(0xffffff, 1.2, 1000);
+    light.position.set(0, 0, 0);
+    scene.add(light);
+
+    // Sun (centered)
+    const sunGeometry = new THREE.SphereGeometry(1, 32, 32);
+    const sunMaterial = new THREE.MeshBasicMaterial({ color: 0xffff00 });
+    sun = new THREE.Mesh(sunGeometry, sunMaterial);
+    scene.add(sun);
+
+    // Earth (geocentric view, so Earth is static)
+    const earthGeometry = new THREE.SphereGeometry(0.5, 32, 32);
+    const earthMaterial = new THREE.MeshLambertMaterial({ color: 0x0000ff });
+    earth = new THREE.Mesh(earthGeometry, earthMaterial);
+    earth.position.set(10, 0, 0);
+    scene.add(earth);
+
+    // Venus
+    const venusGeometry = new THREE.SphereGeometry(0.3, 32, 32);
+    const venusMaterial = new THREE.MeshLambertMaterial({ color: 0x916e99 });
+    venus = new THREE.Mesh(venusGeometry, venusMaterial);
+    scene.add(venus);
+
+    // Venus's Trail
+    venusTrailPoints = [];
+    const venusTrailMaterial = new THREE.LineBasicMaterial({ color: 0x916e99 });
+    venusTrail = new THREE.Line(new THREE.BufferGeometry().setFromPoints(venusTrailPoints), venusTrailMaterial);
+    scene.add(venusTrail);
+
+    camera.position.z = 30;
+
+    // Controls to rotate the scene
+    // const controls = new OrbitControls(camera, renderer.domElement);
+}
+
+function animate() {
+    requestAnimationFrame(animate);
+
+    const time = Date.now() * 0.0005;
+
+    // Simulating Venus's movement
+    const venusOrbitRadius = 8;
+    venus.position.x = venusOrbitRadius * Math.cos(time);
+    venus.position.y = venusOrbitRadius * Math.sin(time);
+
+    // Updating the trail
+    venusTrailPoints.push(new THREE.Vector3(venus.position.x, venus.position.y, venus.position.z));
+    if (venusTrailPoints.length > 500) {  // Limiting trail length for performance
+        venusTrailPoints.shift();
+    }
+
+    venusTrail.geometry.setFromPoints(venusTrailPoints); // Update the line with new points
+
+    renderer.render(scene, camera);
+}
+
+// Handle the resize event to make the app responsive
+window.addEventListener('resize', function () {
+    renderer.setSize(window.innerWidth, window.innerHeight);
+    camera.aspect = window.innerWidth / window.innerHeight;
+    camera.updateProjectionMatrix();
+});
+    </script>
+</body>
+</html>
