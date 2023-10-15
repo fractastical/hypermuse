@@ -12,8 +12,7 @@ Ultimate goal is to use higher order math, especially hypergraphs, to determinis
 
 See also the hypermusic repository for the theoertical background: https://github.com/fractastical/hypermusic
 
-![bach-techno-cathedral](https://github.com/fractastical/sonicsourcecode/assets/589191/a54d9be5-cf29-4983-a944-a333e4375b6a)
-
+![daniel_rootflute_1](https://github.com/fractastical/sonicsourcecode/assets/589191/dfa2e145-26e9-43e6-8758-588dd2bee8df)
 
 # usage notes
 
@@ -24,13 +23,14 @@ If using the onboard microphone it will often filter out any speaker output comi
 
 Live VJing software allowing frame by frame display of music hyper imposed around a sphere. 
 
+![bach-techno-cathedral](https://github.com/fractastical/sonicsourcecode/assets/589191/a54d9be5-cf29-4983-a944-a333e4375b6a)
+
 
 # poly sphere
 
 Sound reactive input signal is split into bands logarithmicly mapped to the vertices on a sphere, equalized manually and distributed into polygons. 
 
 <img width="572" alt="Screenshot 2023-07-30 at 13 19 03" src="https://github.com/fractastical/audiosphere/assets/589191/9f220bc4-c54e-4fd6-91ad-3f52ca5c14e2">
-
 
 
 # node sphere
@@ -40,19 +40,17 @@ Sound bands are mapped as edges between vertices mapped over the surface of a sp
 ![estaban-polygons](https://github.com/fractastical/sonicsourcecode/assets/589191/301f81b2-2ee1-4a05-9067-ec538fe68a69)
 
 
+# dynamic sphere
+
+Sound reactive sides crolling sets of spheres mapped to low, mid, high bands displaying over a time series, allows you to dynamically set number of bands
+
+![richardawatson_speaking](https://github.com/fractastical/sonicsourcecode/assets/589191/2d287873-0ade-415d-84ba-769398e86445)
 
 # static sphere
 
 sound reactive sets of side scrolling spheres mapped to low, mid, high bands displaying over a time series
 
 <img width="1006" alt="Screenshot 2023-07-28 at 19 16 13" src="https://github.com/fractastical/audiosphere/assets/589191/d147a44c-f533-49b1-944f-c31ad5c26613">
-
-![richardawatson_speaking](https://github.com/fractastical/sonicsourcecode/assets/589191/2d287873-0ade-415d-84ba-769398e86445)
-
-
-# dynamic sphere
-
-Sound reactive sides crolling sets of spheres mapped to low, mid, high bands displaying over a time series, allows you to dynamically set number of bands
 
 
 # d3
