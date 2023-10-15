@@ -27,7 +27,7 @@ Live VJing software allowing frame by frame display of music hyper imposed aroun
 
 Sound reactive input signal is split into bands logarithmicly mapped to the vertices on a sphere, equalized manually and distributed into polygons. 
 
-<img src="[http://....jpg](https://github.com/fractastical/sonicsourcecode/assets/589191/dfa2e145-26e9-43e6-8758-588dd2bee8df)" width="200" height="200" />
+<img src="https://github.com/fractastical/sonicsourcecode/assets/589191/dfa2e145-26e9-43e6-8758-588dd2bee8df" width="200" height="200" />
 
 
 # node sphere
