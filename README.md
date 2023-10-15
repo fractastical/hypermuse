@@ -22,7 +22,6 @@ Live VJing software allowing frame by frame display of music hyper imposed aroun
 
 ![bach-techno-cathedral](https://github.com/fractastical/sonicsourcecode/assets/589191/a54d9be5-cf29-4983-a944-a333e4375b6a)
 
-
 # poly sphere
 
 Sound reactive input signal is split into bands logarithmicly mapped to the vertices on a sphere, equalized manually and distributed into polygons. 
@@ -31,13 +30,11 @@ Sound reactive input signal is split into bands logarithmicly mapped to the vert
 ![daniel_rootflute_1](https://github.com/fractastical/sonicsourcecode/assets/589191/dfa2e145-26e9-43e6-8758-588dd2bee8df) 
 
 
-
 # node sphere
 
 Sound bands are mapped as edges between vertices mapped over the surface of a sphere. Allows dynamic hues.  
 
 ![estaban-polygons](https://github.com/fractastical/sonicsourcecode/assets/589191/301f81b2-2ee1-4a05-9067-ec538fe68a69)
-
 
 # dynamic sphere
 
@@ -49,12 +46,10 @@ Sound reactive sides crolling sets of spheres mapped to low, mid, high bands dis
 
 sound reactive sets of side scrolling spheres mapped to low, mid, high bands displaying over a time series
 
-<img width="1006" alt="Screenshot 2023-07-28 at 19 16 13" src="https://github.com/fractastical/audiosphere/assets/589191/d147a44c-f533-49b1-944f-c31ad5c26613">
+![carlos talking](https://github.com/fractastical/sonicsourcecode/assets/589191/1d5cbfab-e8d1-461b-a2f7-209d5a95170d)
 
 
-# d3
 
-d3 - sound reactive 2d version circle
 
 
 Version .33 : added video controls
