@@ -13,8 +13,6 @@ Ultimate goal is to use higher order math, especially hypergraphs, to determinis
 See also the hypermusic repository for the theoertical background: https://github.com/fractastical/hypermusic
 
 
-# usage notes
-
 If using the onboard microphone it will often filter out any speaker output coming from the same device, so it is recommened to using the picker in this case or use external input. 
 
 
@@ -29,7 +27,11 @@ Live VJing software allowing frame by frame display of music hyper imposed aroun
 
 Sound reactive input signal is split into bands logarithmicly mapped to the vertices on a sphere, equalized manually and distributed into polygons. 
 
-![daniel_rootflute_1](https://github.com/fractastical/sonicsourcecode/assets/589191/dfa2e145-26e9-43e6-8758-588dd2bee8df)
+![daniel_rootflute_1](https://github.com/fractastical/sonicsourcecode/assets/589191/dfa2e145-26e9-43e6-8758-588dd2bee8df) 
+
+# usage notes![daniel_rootflute_2](https://github.com/fractastical/sonicsourcecode/assets/589191/d0ec26fb-25e0-4d22-8fac-7901c891134f)
+
+
 
 
 # node sphere
