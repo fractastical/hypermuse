@@ -20,7 +20,9 @@ If using the onboard microphone it will often filter out any speaker output comi
 
 Live VJing software allowing frame by frame display of music hyper imposed around a sphere. 
 
+![danielrootflute_pyramids](https://github.com/fractastical/sonicsourcecode/assets/589191/3b94708f-2f0a-40cd-89d1-2f8e859b6349)
 ![bach-techno-cathedral](https://github.com/fractastical/sonicsourcecode/assets/589191/a54d9be5-cf29-4983-a944-a333e4375b6a)
+
 
 # poly sphere
 
