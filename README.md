@@ -12,7 +12,6 @@ Ultimate goal is to use higher order math, especially hypergraphs, to determinis
 
 See also the hypermusic repository for the theoertical background: https://github.com/fractastical/hypermusic
 
-![daniel_rootflute_1](https://github.com/fractastical/sonicsourcecode/assets/589191/dfa2e145-26e9-43e6-8758-588dd2bee8df)
 
 # usage notes
 
@@ -30,7 +29,7 @@ Live VJing software allowing frame by frame display of music hyper imposed aroun
 
 Sound reactive input signal is split into bands logarithmicly mapped to the vertices on a sphere, equalized manually and distributed into polygons. 
 
-<img width="572" alt="Screenshot 2023-07-30 at 13 19 03" src="https://github.com/fractastical/audiosphere/assets/589191/9f220bc4-c54e-4fd6-91ad-3f52ca5c14e2">
+![daniel_rootflute_1](https://github.com/fractastical/sonicsourcecode/assets/589191/dfa2e145-26e9-43e6-8758-588dd2bee8df)
 
 
 # node sphere
