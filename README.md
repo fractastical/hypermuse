@@ -47,6 +47,8 @@ sound reactive sets of side scrolling spheres mapped to low, mid, high bands dis
 
 <img width="1006" alt="Screenshot 2023-07-28 at 19 16 13" src="https://github.com/fractastical/audiosphere/assets/589191/d147a44c-f533-49b1-944f-c31ad5c26613">
 
+![richardawatson_speaking](https://github.com/fractastical/sonicsourcecode/assets/589191/2d287873-0ade-415d-84ba-769398e86445)
+
 
 # dynamic sphere
 
