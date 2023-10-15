@@ -12,8 +12,7 @@ You can also pick videos to play over the surface area (i.e. similar to VJing)
 If using the onboard microphone it will often filter out any speaker output coming from the same device, so it is recommened to using the picker in this case or use external input. 
 
 
-![tutorial1](https://github.com/fractastical/sonicsourcecode/assets/589191/4326f557-a1d6-4310-a3bf-826be4644dac)
-
+<img src="https://github.com/fractastical/sonicsourcecode/assets/589191/4326f557-a1d6-4310-a3bf-826be4644dac" width="500" />
 
 # how it works
 
