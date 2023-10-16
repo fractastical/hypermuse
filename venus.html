@@ -167,7 +167,8 @@ function animate() {
         if (splitDistance > .2) { // start revealing after a sufficient split
             emergingObject.position.z += 0.01; // control the speed of emerging
             // emergingObject.position.y += 0.02; // control the speed of emerging
-
+            if(emergingObject.position.z > 35)
+                emergingObject.position.z = -2;
         }
 
         // Stop the splitting at some point
