@@ -23,11 +23,31 @@
 
 
 let scene, camera, renderer;
-let sun, earth, venus;
+let sun, earth, venus, topHalf, bottomHalf, emergingObject;
 let venusTrailGeometry, venusTrail;
+let splitComplete = false;
+let splitDistance = 0;
 
 init();
 animate();
+
+function updateOpacityBasedOnDistance() {
+  const centerPosition = new THREE.Vector3(0, 0, 0); // change this if your center is different
+  const maxDistance = .1; // define the maximum distance for fully transparent
+
+  // calculate distances of the egg halves from the center
+  const distanceHalf1 = topHalf.position.distanceTo(centerPosition);
+  const distanceHalf2 = bottomHalf.position.distanceTo(centerPosition);
+
+  // calculate new opacities based on the distances
+  const opacityHalf1 = 1 - Math.min(distanceHalf1 / maxDistance, 1);
+  const opacityHalf2 = 1 - Math.min(distanceHalf2 / maxDistance, 1);
+
+  // apply new opacities to the egg halves
+  topHalf.material.opacity = opacityHalf1;
+  bottomHalf.material.opacity = opacityHalf2;
+}
+
 
 function init() {
     scene = new THREE.Scene();
@@ -37,6 +57,7 @@ function init() {
 
     renderer = new THREE.WebGLRenderer();
     renderer.setSize(window.innerWidth, window.innerHeight);
+    // renderer.setPixelRatio(window.devicePixelRatio * 5); // x times the normal resolution
     document.body.appendChild(renderer.domElement);
 
     // Lighting
@@ -44,13 +65,41 @@ function init() {
     light.position.set(0, 0, 0);
     scene.add(light);
 
-    // Sun (centered)
-    const sunGeometry = new THREE.SphereGeometry(0.2, 32, 32);
-    const sunMaterial = new THREE.MeshBasicMaterial({ color: 0xffff00 });
-    sun = new THREE.Mesh(sunGeometry, sunMaterial);
-    sun.scale.set(1, 1.5, 1); // Adjust the '1.5' value to make the egg shape more or less pronounced
 
-    scene.add(sun);
+    // Create the top half of the egg
+    const topGeometry = new THREE.SphereGeometry(.2, 32, 32, 0, Math.PI * 2, 0, Math.PI / 2);
+    const topMaterial = new THREE.MeshBasicMaterial({ color: 0xffff00 });
+    topHalf = new THREE.Mesh(topGeometry, topMaterial);
+    topHalf.scale.set(1, 1.5, 1); // elongate on the y axis
+    scene.add(topHalf);
+
+    // Create the bottom half of the egg
+    const bottomGeometry = new THREE.SphereGeometry(.2, 32, 32, 0, Math.PI * 2, Math.PI / 2, Math.PI / 2);
+    const bottomMaterial = new THREE.MeshBasicMaterial({ color: 0xffff00 });
+    bottomHalf = new THREE.Mesh(bottomGeometry, bottomMaterial);
+    bottomHalf.scale.set(1, 1.5, 1); // elongate on the y axis
+    scene.add(bottomHalf);
+
+    // Sun (centered)
+    // const sunGeometry = new THREE.SphereGeometry(0.2, 32, 32);
+    // const sunMaterial = new THREE.MeshBasicMaterial({ color: 0xffff00 });
+    // sun = new THREE.Mesh(sunGeometry, sunMaterial);
+    // sun.scale.set(1, 1.5, 1); // Adjust the '1.5' value to make the egg shape more or less pronounced
+
+    // scene.add(sun);
+
+    const textureLoader = new THREE.TextureLoader();
+
+    const objectGeometry = new THREE.SphereGeometry(.1, 32, 32); // this can be any geometry
+    // const objectMaterial = new THREE.MeshBasicMaterial({ color: 0xff0000 }); // use any color you want
+    const texture = textureLoader.load('http://localhost:8000/images/eggcrew.png'); // e.g., 'textures/bird.jpg'
+
+    // Create a standard material using the texture.
+    const objectMaterial = new THREE.MeshBasicMaterial({ map: texture });
+
+    emergingObject = new THREE.Mesh(objectGeometry, objectMaterial);
+    emergingObject.position.set(0, 0, -5); // initially, place it inside the egg
+    scene.add(emergingObject);
 
     // Earth (geocentric view, so Earth is static)
     const earthGeometry = new THREE.SphereGeometry(0.15, 32, 32);
@@ -96,7 +145,36 @@ function animate() {
         venusTrailPoints.shift();
     }
 
+    updateOpacityBasedOnDistance();
+    emergingObject.rotation.y -= 0.015;
+    emergingObject.rotation.x += 0.0001;
+
     venusTrail.geometry.setFromPoints(venusTrailPoints); // Update the line with new points
+
+    if (splitDistance < .01) {
+
+        splitDistance += 0.00001; // control the speed of splitting
+        topHalf.position.y += 0.00001;
+        bottomHalf.position.y -= 0.00001;
+
+    } else if (!splitComplete) {
+        // Move the halves apart
+        splitDistance += 0.001; // control the speed of splitting
+        topHalf.position.y += 0.001;
+        bottomHalf.position.y -= 0.001;
+
+        // Move the emerging object up
+        if (splitDistance > .2) { // start revealing after a sufficient split
+            emergingObject.position.z += 0.01; // control the speed of emerging
+            // emergingObject.position.y += 0.02; // control the speed of emerging
+
+        }
+
+        // Stop the splitting at some point
+        if (splitDistance > 5) { // control how much the egg splits
+            splitComplete = true;
+        }
+    }
 
     renderer.render(scene, camera);
 }
