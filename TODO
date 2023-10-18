@@ -3,15 +3,16 @@ MAJOR BUGS
 
 TODO 
 
-fix flashing
-bidirecitonal communication
+change mode to dropdown
+allow easy toggle between modes (poly, node, video, etc)
+further improve readme
 test playrate update on video from controller BROKEN
-create log of all actions done with time stamp (so can be recareated)
-created tagging of videos by keywords (possibly based on filename)
-auto populate video queue from folders
-active geometry limit not working (not sure about this, test)
 
 == LOW ==
+
+created tagging of videos by keywords (possibly based on filename)
+auto populate video queue from folders IMPOSSIBLE
+active geometry limit not working (not sure about this, test)
 
 midi
     - parse midi file and determine unique notes
@@ -23,18 +24,12 @@ do "sphere" fade in
     - then gradually increase to baseline
 
 setup more fans
-find promo videos 
-setup insta (sonicsource code,done)
 script to integrate inline TODOs with github issues(?)
 remap hertz bands
 figure out how to make and program remote 
 
 BUGS
 
-
-
-videourl passing is borked (i.e. "fakeurl") (including with offset ) error to fix:
-"message-controller.js:40 Uncaught TypeError: Failed to execute 'createObjectURL' on 'URL': Overload resolution failed."
 
 hueoffsetspeed no longer works for unknown reasons
 
@@ -52,10 +47,20 @@ extend opacity range
 
 
 DONE
+fix flashing
+
+videourl passing is borked (i.e. "fakeurl") (including with offset ) error to fix:
+"message-controller.js:40 Uncaught TypeError: Failed to execute 'createObjectURL' on 'URL': Overload resolution failed."
+
+create log of all actions done with time stamp (so can be recareated)
 change toggles to sliders or "on/off" or buttons for key lements (like video change) 
 add render density to slider
+find promo videos 
+setup insta (sonicsource code,done)
+
 sample inbound harp and label tones
 hotkey to bring back menu
 create list of all files in queue
 stylesheet for controller 
+bidirecitonal communication
 
