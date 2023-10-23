@@ -1,12 +1,44 @@
 MAJOR BUGS
 
-
 TODO 
 
 change mode to dropdown
 allow easy toggle between modes (poly, node, video, etc)
 further improve readme
 test playrate update on video from controller BROKEN
+
+
+REQUESTS DRF
+
+Midi template for touch osc 
+With large labeled buttons
+
+Multiple plug and play presets for new users 
+
+Operation manual in pdf
+
+Instructions on how to add your own videos 
+
+iPad iPhone version that works with touch osc
+
+ Midi commands 
+
+Faders~
+Speed 
+Size / zoom in / out 
+Rotation vertical 
+Rotation horizontal 
+Time of video play
+
+Buttons 
+Link to video banks 
+ 
+Sequence of buttons 
+Create video arrangements for quick automation
+
+REQUESTS T
+
+plus visual stuff like Contrast/Saturation
 
 == LOW ==
 
