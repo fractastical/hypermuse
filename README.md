@@ -16,7 +16,7 @@ If using the onboard microphone it will often filter out any speaker output comi
 
 # how it works
 
-Uses a spectrum analizer to break music into bands, isolate tones, and then make the music visible by assigning each tone to a section of a sphere.
+Uses a spectrum analizer to break music into bands, isolate tones, and then make the music visible by assigning each tone to the vertice spread over the surface of a sphere. When tones are played the vertices are activated and resulting lines or polygons are displayed. 
 
 # why?
 
