@@ -41,19 +41,33 @@ async function playMidi(midiData) {
     Tone.Transport.start();
 }
 
-// Define a function to highlight a vertex by its index
 function highlightVertex(vertexIndex) {
-    // Change the appearance of the specified vertex (e.g., color or size)
+    if (highlightedVertex !== null) {
+        // Reset the previously highlighted vertex
+        vertexPositions[highlightedVertex].material.color.set(0xffffff);
+    }
+
+    // Highlight the current vertex
+    vertexPositions[vertexIndex].material.color.set(0xff0000);
+    highlightedVertex = vertexIndex;
 }
 
-// Define a function to reset the appearance of all vertices
+// Create a function to reset the appearance of all vertices
 function resetVertices() {
-    // Reset the appearance of all vertices to the default state
+    if (highlightedVertex !== null) {
+        // Reset the previously highlighted vertex
+        vertexPositions[highlightedVertex].material.color.set(0xffffff);
+        highlightedVertex = null;
+    }
 }
 
-// Define a function to draw a line between two vertices
+// Create a function to draw a line between two vertices
 function drawLineBetweenVertices(vertexIndex1, vertexIndex2) {
-    // Use three.js to draw a line between the specified vertices
+    const geometry = new THREE.Geometry();
+    geometry.vertices.push(vertexPositions[vertexIndex1].position, vertexPositions[vertexIndex2].position);
+    const line = new THREE.Line(geometry, new THREE.LineBasicMaterial({ color: 0x00ff00 }));
+    scene.add(line);
+    lines.push(line);
 }
 
 // Play MIDI with vertex highlighting
