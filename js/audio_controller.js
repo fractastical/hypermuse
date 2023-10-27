@@ -115,7 +115,7 @@ function playNext() {
         }
     }
 
-    const file = audioQueue.shift();  // Get the next file from the queue
+    const file = audioQueue.shift(); // Get the next file from the queue
     const reader = new FileReader();
 
     reader.addEventListener('load', async function() {
@@ -123,14 +123,15 @@ function playNext() {
             const midiData = new Midi(reader.result);
             midiData.tracks[0].notes.sort((a, b) => a.time - b.time);
             await playMidi(midiData);
-            // playNext();  // Play the next file when done
+            playNext(); // Play the next file when done
         } else if (file.type.startsWith('audio/')) {
             try {
                 let audioBuffer = await audioContext.decodeAudioData(reader.result);
                 playSound(audioBuffer);
                 animate();
-            } catch(e) {
-                console.error("There was an error decoding the file", e);
+                audioQueue.push(file); // Push the audio file back into the queue
+            } catch (e) {
+                console.error('There was an error decoding the file', e);
             }
         }
     });
