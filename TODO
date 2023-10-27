@@ -3,7 +3,8 @@ MAJOR BUGS
 TODO 
 
     What i think is a bug where you need to also click "Start" even if you've picked music. 
-    
+    something serious is broken in sthe spectrum analyzer because it is not distributnig well anymore (even on pretrained music)
+
     Berlioz 
         test midi code
         load symphonie fantasique midi
