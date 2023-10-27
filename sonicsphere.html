@@ -173,6 +173,8 @@ button:hover {
 
 
         let container = document.getElementById('container');
+
+        //TODO: might want to revisit this and reset it if the window sie has changed
         renderer.setSize(container.clientWidth, container.clientHeight);
         container.appendChild(renderer.domElement);
 

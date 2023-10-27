@@ -2,22 +2,25 @@ MAJOR BUGS
 
 TODO 
 
-Berlioz 
-    test midi code
-    load symphonie fantasique midi
-    isolate instruments with nested spheres
-    load mp3 so can play along side midi 
-    - match tempo 
-    live concert?
+    What i think is a bug where you need to also click "Start" even if you've picked music. 
+    
+    Berlioz 
+        test midi code
+        load symphonie fantasique midi
+        isolate instruments with nested spheres
+        load mp3 so can play along side midi 
+        - match tempo 
+        live concert?
 
-change mode to dropdown
-allow easy toggle between modes (poly, node, video, etc)
-further improve readme
-     - alighment
-     - group viduals
-     - use markovjr as template 
-test playrate update on video from controller BROKEN
+    change mode to dropdown
+    allow easy toggle between modes (poly, node, video, etc)
+    further improve readme
+        - alighment
+        - group viduals
+        - use markovjr as template 
 
+    test playrate update on video from controller BROKEN
+    commission more classical music 
 
 REQUESTS DRF (Rootflute)
 
