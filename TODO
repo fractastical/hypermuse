@@ -15,37 +15,32 @@ further improve readme
 test playrate update on video from controller BROKEN
 
 
-REQUESTS DRF
+REQUESTS DRF (Rootflute)
 
 Midi template for touch osc 
 With large labeled buttons
-
 Multiple plug and play presets for new users 
-
 Operation manual in pdf
-
 Instructions on how to add your own videos 
-
 iPad iPhone version that works with touch osc
 
- Midi commands 
+Midi commands  (for controller)
 
 Faders~
 Speed 
 Size / zoom in / out 
 Rotation vertical 
 Rotation horizontal 
-Time of video play
+Time of video play (per video I assume)
++ plus visual stuff like Contrast/Saturation (from T)
 
 Buttons 
-Link to video banks 
- 
+
+Link to video banks (need to think since these tend to be proprietary, maybe can preload some free free ones)
 Sequence of buttons 
 Create video arrangements for quick automation
 
-REQUESTS T
 
-plus visual stuff like Contrast/Saturation
 
 == LOW ==
 
