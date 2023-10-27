@@ -60,6 +60,48 @@ Sound reactive sides crolling sets of spheres mapped to low, mid, high bands dis
 sound reactive sets of side scrolling spheres mapped to low, mid, high bands displaying over a time series
 
 
+# Mathematical Logic Behind Vertex Distribution
+
+## Band Frequency Calculation
+The frequency for each band (i) can be calculated using the formula:
+
+`bandFrequency = baseFrequency * ratio^i`
+
+Where:
+- `i` is the band number ranging from 0 to `(numBands - 1)`.
+- `baseFrequency` is the starting frequency.
+- `ratio` is the frequency multiplier factor.
+
+## Golden Ratio and Angle Increment
+The golden ratio (phi, φ) is defined as:
+
+`φ = (1 + √5) / 2`
+
+The angle increment based on the golden ratio is:
+
+`angleIncrement = 2π * φ`
+
+## 3D Point Computation
+For each band (i), a 3D point is calculated as follows:
+
+- Normalize the band index:
+`v = i / numBands`
+
+- Compute spherical coordinates:
+`ϕ = v * π`
+`θ = angleIncrement * i`
+
+- Convert spherical coordinates to Cartesian coordinates:
+`x = sin(ϕ) * cos(θ)`
+`y = sin(ϕ) * sin(θ)`
+`z = cos(ϕ)`
+
+## Point Creation
+A 3D point with coordinates (x, y, z) can be created and added to a scene. The creation of the point is more of a procedural step and does not have a direct mathematical representation.
+
+This mathematical logic is used to distribute vertices in a 3D space, which can be applied to various computer graphics and visualization tasks.
+
+
 
 See also the hypermusic repository for the theoertical background: https://github.com/fractastical/hypermusic
 
