@@ -2,6 +2,13 @@ MAJOR BUGS
 
 TODO 
 
+test midi code
+load symphonie fantasique midi
+isolate instruments with nested spheres
+load mp3 so can play along side midi 
+ - match tempo 
+ 
+
 change mode to dropdown
 allow easy toggle between modes (poly, node, video, etc)
 further improve readme
