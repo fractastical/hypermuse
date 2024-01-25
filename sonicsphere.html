@@ -15,21 +15,21 @@
         #thresholds {
             width: 200px;  /* Adjust this as needed */
             height: 100%;
-            align:left;
+            /* align:left; */
             background-color: white;
-
-            /* overflow: auto; */
+            overflow-y: scroll;
+        
         }
 
         #videoList {
             max-height: 400px;
             overflow-y: auto;
-            border: 1px solid #ccc;
             padding: 10px;
             color: white;
-}
+        }
 
-            /* overflow: auto; */
+            /*             border: 1px solid #ccc;
+; */
 
         #container {
             margin-top:50px;
@@ -126,9 +126,9 @@ button:hover {
           </div>
         </div>
 
-        <div id="advancedControls"></div>
+        <!-- <div id="advancedControls"></div> -->
       </div>
-      <div id="videoList">Press "v" to toggle view
+      <div id="videoList">"v" to toggle view
         <div id="videoListContents"></div>
       </div>
 
@@ -174,7 +174,7 @@ button:hover {
 
         let container = document.getElementById('container');
 
-        //TODO: might want to revisit this and reset it if the window sie has changed
+        //TODO: might want to revisit this and reset it if the window sie has
         renderer.setSize(container.clientWidth, container.clientHeight);
         container.appendChild(renderer.domElement);
 
@@ -447,6 +447,8 @@ button:hover {
 
             navigator.mediaDevices.getUserMedia({ video: false, audio: true}).then(function(stream) {
 
+            //NOTE: this helped with some pitch detection but had side effects
+
             // navigator.mediaDevices.getUserMedia({ video: false, audio: {
             // "mandatory": {
             //     "googEchoCancellation": "false",
@@ -460,11 +462,15 @@ button:hover {
                 analyser = audioContext.createAnalyser();
                 analyser.fftSize = 2048 * 2;
                 source.connect(analyser);
+
+                //NOTE: not sure this is adding much value
+
                 biquadFilter = audioContext.createBiquadFilter();
                 biquadFilter.type = "lowpass";
                 biquadFilter.frequency.setValueAtTime(150, audioContext.currentTime); // Keeping frequencies below 150Hz
                 source.connect(biquadFilter);
                 biquadFilter.connect(analyser);
+                
                 bufferLength = analyser.frequencyBinCount;
                 beatDataArray = new Uint8Array(bufferLength);
                 animate();
