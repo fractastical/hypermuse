@@ -5,6 +5,12 @@ TODO
     What i think is a bug where you need to also click "Start" even if you've picked music. 
     something serious is broken in sthe spectrum analyzer because it is not distributnig well anymore (even on pretrained music)
 
+    Ponse butterly filter 
+        - put in images
+        - train on music
+        - isolate colors
+        - export as video (?)
+
     Presets (request from seb) for music types 
 
     Berlioz 
