@@ -1,43 +1,28 @@
-const vertexShader = `
-    varying vec2 vUv;
-
-    void main() {
-        vUv = uv;
-        gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
-    }
-`;
-
 const fragmentShader = `
     varying vec2 vUv;
     uniform sampler2D texture;
+    uniform float time;
 
     void main() {
         vec4 texel = texture2D(texture, vUv);
-        
-        // Detect red hue and replace with blue
-        if (texel.r > 0.8 && texel.g < 0.2 && texel.b < 0.2) {
-            gl_FragColor = vec4(0.0, 0.0, 1.0, 1.0); // Blue color
-        } else {
-            gl_FragColor = texel;
-        }
+
+        // Use the time variable to modify the shading
+        // Example: oscillating between red and blue hues
+        float redStrength = sin(time) * 0.5 + 0.5;
+        float blueStrength = cos(time) * 0.5 + 0.5;
+
+        vec4 modifiedColor = mix(vec4(1.0, 0.0, 0.0, 1.0), vec4(0.0, 0.0, 1.0, 1.0), blueStrength);
+        modifiedColor = mix(texel, modifiedColor, redStrength);
+
+        gl_FragColor = modifiedColor;
     }
 `;
 
 const material = new THREE.ShaderMaterial({
     uniforms: {
-        texture: { value: null }
+        texture: { value: null },
+        time: { value: 0.0 }
     },
     vertexShader,
     fragmentShader
 });
-
-
-const loader = new THREE.TextureLoader();
-loader.load('path/to/your/image.jpg', function(texture) {
-    material.uniforms.texture.value = texture;
-});
-
-
-const geometry = new THREE.PlaneGeometry(5, 5);
-const plane = new THREE.Mesh(geometry, material);
-scene.add(plane);
