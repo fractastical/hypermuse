@@ -18,6 +18,7 @@ function playSound(audioBuffer) {
 
     audioSource = audioContext.createBufferSource();
     audioSource.buffer = audioBuffer;
+    // if()
     audioSource.connect(analyser);
     analyser.connect(audioContext.destination);
     audioSource.onended = playNext;  // Play the next file when the current one finishes
