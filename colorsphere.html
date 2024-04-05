@@ -141,7 +141,13 @@ button:hover {
       <div id="container"></div>
       
 <script>
+        let activeOffset = 1;
         let hueoffset = 20;
+        let hueoffset1 = 20;
+        let hueoffset2 = 20;
+        let hueoffset3 = 20;
+        let hueoffset4 = 20;
+        let hueoffset5 = 20;
         let hueOffsetSpeed = 0;
         let startingVolumeThreshold = 5;
         let freezeFrameEffectActive = true;
@@ -329,10 +335,28 @@ button:hover {
 
                 if (volume >= thresholds[i]) {
 
+
                     // TODO pull from active color range
                     // increment, move to next range
 
-                    let hue = (volume * volumemagnification) + hueoffset;
+                    if(activeOffset > 5)
+                        activeOffset = 1; 
+
+                    let activeHueoffset = 20;
+                    if (activeOffset == 1)
+                        activeHueoffset = hueoffset1;
+                    if (activeOffset == 2)
+                        activeHueoffset = hueoffset2;
+                    if (activeOffset == 3)
+                        activeHueoffset = hueoffset3;
+                    if (activeOffset == 4)
+                        activeHueoffset = hueoffset4;
+                    if (activeOffset == 5)
+                        activeHueoffset = hueoffset5;
+                    console.log(activeHueoffset);
+                    let hue = (volume * volumemagnification) + activeHueoffset;
+                    activeOffset++; 
+
                     // let hue = 10;
                     if (hue > 360) hue -= 360;
                     let color = new THREE.Color('hsl(' + hue + ', ' + saturation + '%, ' + brightness  + '%)');

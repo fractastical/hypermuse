@@ -137,10 +137,34 @@ window.addEventListener('message', function(event) {
 
     }
 
-
     if (event.data.name === "hueoffset") {
 
         hueoffset = parseInt(event.data.value);
+
+    }
+    if (event.data.name === "hueoffset1") {
+
+        hueoffset1 = parseInt(event.data.value);
+
+    }
+    if (event.data.name === "hueoffset2") {
+
+        hueoffset2 = parseInt(event.data.value);
+
+    }
+    if (event.data.name === "hueoffset3") {
+
+        hueoffset3 = parseInt(event.data.value);
+
+    }
+    if (event.data.name === "hueoffset4") {
+
+        hueoffset4 = parseInt(event.data.value);
+
+    }
+    if (event.data.name === "hueoffset5") {
+
+        hueoffset5 = parseInt(event.data.value);
 
     }
 
