@@ -141,7 +141,9 @@ button:hover {
       <div id="container"></div>
       
 <script>
+    
         let activeOffset = 1;
+        let colorShaderMode = true;
         let hueoffset = 20;
         let hueoffset1 = 20;
         let hueoffset2 = 20;
@@ -162,14 +164,14 @@ button:hover {
         let peakBandIndex;
         let playbackRate= 1.0;
         let videoFullOpacity = true;
-
+        let videoTexture;
         let REFRESH_SPEED = 3;
         let saturation = 100;
         let brightness = 50; 
         let volumemagnification = 1.4; 
 
         let captureInterval;
-        const CAPTURE_INTERVAL_MS = 416.666666667 / 10;  // e.g., Capture every Xms 
+        const CAPTURE_INTERVAL_MS = 416.666666667 / 2;  // e.g., Capture every Xms 
 
         const scene = new THREE.Scene();
         const camera = new THREE.PerspectiveCamera(75, window.innerWidth/window.innerHeight, 0.1, 100);
@@ -251,6 +253,39 @@ button:hover {
         }
 
         initBands();
+
+        const colorIsolationShader = {
+        uniforms: {
+            texture: { value: videoTexture },
+            targetColor: { value: new THREE.Vector3(1.0, 0.0, 0.0) }, // Example: target red
+            tolerance: { value: 0.2 }, // Adjust for stricter or looser color matching
+            opacityLevel: { type: "f", value: 1.0 } // Default opacity
+        },
+        vertexShader: `
+            varying vec2 vUv;
+            void main() {
+                vUv = uv;
+                gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+            }
+        `,
+        fragmentShader: `
+            uniform sampler2D texture;
+            uniform vec3 targetColor;
+            uniform float tolerance;
+            uniform float opacityLevel;
+            varying vec2 vUv;
+
+            void main() {
+                vec4 texColor = texture2D(texture, vUv);
+                float colorDistance = distance(targetColor, texColor.rgb);
+                if (colorDistance < tolerance) {
+                    gl_FragColor = vec4(texColor.rgb, opacityLevel);
+                } else {
+                    gl_FragColor = vec4(0.0, 0.0, 0.0, opacityLevel); // Black for colors outside the tolerance
+                }
+            }
+        `
+    };
 
 
         const volumeSlider = document.getElementById('volumeSlider');
@@ -357,10 +392,15 @@ button:hover {
                     let hue = (volume * volumemagnification) + activeHueoffset;
                     activeOffset++; 
 
+
                     // let hue = 10;
                     if (hue > 360) hue -= 360;
                     let color = new THREE.Color('hsl(' + hue + ', ' + saturation + '%, ' + brightness  + '%)');
-                   
+                    updateTargetColor(color);
+
+
+
+
                     // console.log(band);
 
 
@@ -378,7 +418,7 @@ button:hover {
                         var geometry = createTriangleGeometry(lastPoints[0], lastPoints[1], lastPoints[2]);
                         var material; 
                         if(videoElementActive) {
-                             var texture = getVideoFrameTexture();
+                            videoTexture = getVideoFrameTexture();
                              let opacitylevel=1;
                              if (videoFullOpacity)
                                 opacitylevel = 1;
@@ -386,13 +426,19 @@ button:hover {
                                opacitylevel =  (12 / volume ) + .2;
                              // TODO: hits infinity too often
                             //  console.log(opacitylevel);
-                             material = new THREE.MeshBasicMaterial({map:texture, opacity: opacitylevel, transparent: true, side: THREE.DoubleSide});
+                            if (colorShaderMode) {
+                                material = new THREE.ShaderMaterial(colorIsolationShader);
+
+                            } else {
+                                material = new THREE.MeshBasicMaterial({map:videoTexture, opacity: opacitylevel, transparent: true, side: THREE.DoubleSide});
+
+                            }
                              material.needsUpdate = true;
                         }
                         else if (imageElementActive) {
 
-                            var texture = getNextImageTexture();
-                             material = new THREE.MeshBasicMaterial({map:texture, opacity: 0.6, transparent: true, side: THREE.DoubleSide});
+                            videoTexture = getNextImageTexture();
+                             material = new THREE.MeshBasicMaterial({map:videoTexture, opacity: 0.6, transparent: true, side: THREE.DoubleSide});
                              material.needsUpdate = true;
 
                         } else  {
@@ -455,6 +501,10 @@ button:hover {
                     }
                 }
             }
+        }
+
+        function updateTargetColor(updatedColor) {
+            colorIsolationShader.uniforms.targetColor.value.set(updatedColor.r, updatedColor.g, updatedColor.b);
         }
 
         function animate() {
