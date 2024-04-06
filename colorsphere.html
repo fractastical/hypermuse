@@ -141,7 +141,7 @@ button:hover {
       <div id="container"></div>
       
 <script>
-    
+
         let activeOffset = 1;
         let colorShaderMode = false;
         let hueoffset = 20;
@@ -156,6 +156,8 @@ button:hover {
         let freezeFrameEffectActive = true;
         let X_ROTATION_SPEED = 0;
         let Y_ROTATION_SPEED = 0;
+        let activegeometriesopacityreduction = 0.01;
+        let activegeometriesagedeath = 10;
         let ACTIVE_GEOMETRIES_LIMIT = 7;
         let FORCE_EQUILATERAL = false;
         let innerTriangleActive = false;
@@ -419,7 +421,8 @@ button:hover {
                         var geometry = createTriangleGeometry(lastPoints[0], lastPoints[1], lastPoints[2]);
                         var material; 
                         if(mixedElementActive)
-                            mixedModeCounter++
+                            mixedModeCounter++;
+
                         if(videoElementActive && (mixedModeCounter % 2 == 0 )) {
                             videoTexture = getVideoFrameTexture();
                              let opacitylevel=1;
@@ -496,8 +499,8 @@ button:hover {
 
             for (let i = geometries.length - 1; i >= 0; i--) {
                 geometries[i].age++;
-                if (geometries[i].age > 20) {
-                    geometries[i].geometry.material.opacity -= 0.01;
+                if (geometries[i].age > activegeometriesagedeath) {
+                    geometries[i].geometry.material.opacity -= activegeometriesopacityreduction;
                     if (geometries[i].geometry.material.opacity <= 0) {
                         scene.remove(geometries[i].geometry);
                         geometries.splice(i, 1);

@@ -90,7 +90,7 @@ window.addEventListener('message', function(event) {
         
 
     }
-
+    
     if (event.data.name === "mode") 
     {
 
@@ -110,7 +110,10 @@ window.addEventListener('message', function(event) {
         }
         if(event.data.value === "mixed")
         {
+            videoElementActive = true;
             mixedElementActive = true;
+            mixedModeCounter = 1;
+
         }
         
 
@@ -269,6 +272,16 @@ window.addEventListener('message', function(event) {
         ACTIVE_GEOMETRIES_LIMIT = parseInt(event.data.value);
     }
 
+    if (event.data.name === "activegeometriesagedeath") {
+        console.log(parseInt(event.data.value));
+        activegeometriesagedeath = parseInt(event.data.value);
+    }
+    if (event.data.name === "activegeometriesopacityreduction") {
+        console.log(parseFloat(event.data.value));
+        activegeometriesopacityreduction = parseFloat(event.data.value);
+    }
+
+    
 
     if (event.data.name === "pointlightx") {
 
