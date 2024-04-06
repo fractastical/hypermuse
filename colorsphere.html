@@ -151,6 +151,7 @@ button:hover {
         let hueoffset4 = 20;
         let hueoffset5 = 20;
         let hueOffsetSpeed = 0;
+        let mixedModeCounter = 0;
         let startingVolumeThreshold = 5;
         let freezeFrameEffectActive = true;
         let X_ROTATION_SPEED = 0;
@@ -417,7 +418,9 @@ button:hover {
 
                         var geometry = createTriangleGeometry(lastPoints[0], lastPoints[1], lastPoints[2]);
                         var material; 
-                        if(videoElementActive) {
+                        if(mixedElementActive)
+                            mixedModeCounter++
+                        if(videoElementActive && (mixedModeCounter % 2 == 0 )) {
                             videoTexture = getVideoFrameTexture();
                              let opacitylevel=1;
                              if (videoFullOpacity)

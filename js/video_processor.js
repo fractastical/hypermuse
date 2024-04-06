@@ -3,6 +3,7 @@ const canvas = document.createElement('canvas');
 const ctx = canvas.getContext('2d');
 let videoElementActive = false;
 let imageElementActive = false;
+let mixedElementActive = false;
 
 function captureFrame(videoElement) {
 ctx.drawImage(videoElement, 0, 0, canvas.width, canvas.height);

@@ -97,10 +97,20 @@ window.addEventListener('message', function(event) {
         if(event.data.value === "color")
         {
             videoElementActive = false;
+            mixedElementActive = false;
+            mixedModeCounter = 0;
+
         }
         if(event.data.value === "video")
         {
             videoElementActive = true;
+            mixedElementActive = false;
+            mixedModeCounter = 0;
+
+        }
+        if(event.data.value === "mixed")
+        {
+            mixedElementActive = true;
         }
         
 
