@@ -143,7 +143,7 @@ button:hover {
 <script>
     
         let activeOffset = 1;
-        let colorShaderMode = true;
+        let colorShaderMode = false;
         let hueoffset = 20;
         let hueoffset1 = 20;
         let hueoffset2 = 20;
@@ -256,37 +256,37 @@ button:hover {
 
         const colorIsolationShader = {
     uniforms: {
-        uTexture: { value: videoTexture }, // Ensure this matches in JS and GLSL
-        targetColor: { value: new THREE.Vector3(1.0, 0.0, 0.0) },
-        tolerance: { value: 0.2 },
-        opacityLevel: { value: 1.0 }
+        uTexture: { value: videoTexture },
+        targetColor: { value: new THREE.Vector3(1.0, 0.0, 0.0) }, // Example: target red
+        tolerance: { value: 1.4 }, // Adjust for stricter or looser color matching
+        opacityLevel: { value: 1.0 } // Default opacity
     },
-    vertexShader: `#version 300 es
-        in vec2 uv;
-        out vec2 vUv;
-        uniform mat4 projectionMatrix;
-        uniform mat4 modelViewMatrix;
+    vertexShader: `
+        varying vec2 vUv;
         void main() {
             vUv = uv;
             gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
         }
     `,
-    fragmentShader: `#version 300 es
+    fragmentShader: `
         precision highp float;
-        in vec2 vUv;
-        out vec4 fragColor;
+        varying vec2 vUv;
         uniform sampler2D uTexture;
         uniform vec3 targetColor;
         uniform float tolerance;
         uniform float opacityLevel;
+
         void main() {
-            vec4 texColor = texture(uTexture, vUv);
+            vec4 texColor = texture2D(uTexture, vUv);
             float colorDistance = distance(targetColor, texColor.rgb);
-            fragColor = (colorDistance < tolerance) ? vec4(texColor.rgb, opacityLevel) : vec4(0.0, 0.0, 0.0, opacityLevel);
+            if (colorDistance < tolerance) {
+                gl_FragColor = vec4(texColor.rgb, opacityLevel);
+            } else {
+                gl_FragColor = vec4(1.0, 0.0, 0.0, opacityLevel); // Red for colors outside the tolerance
+            }
         }
     `
 };
-
 
         const volumeSlider = document.getElementById('volumeSlider');
         volumeSlider.addEventListener('input', function() {
