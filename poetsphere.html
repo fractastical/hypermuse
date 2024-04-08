@@ -710,47 +710,95 @@ button:hover {
 
         // for video render
 
-    // const allVideoQueues;s
-
-    function renderTrinityOrb(sizeFactor) {
 
 
-        const planeSize = 4 / sizeFactor;
-    const geometry = new THREE.PlaneGeometry(planeSize, planeSize);
-    const material = new THREE.MeshBasicMaterial({ color: 0x000000 });
-    const plane = new THREE.Mesh(geometry, material);
-    scene.add(plane);
+// claude3 also sucks
+function renderTrinityOrb(sizeFactor) {
 
-    const circleRadius = 2 / sizeFactor;
-    const circleThickness = 0.05 / sizeFactor;
-    const circleGeometry = new THREE.TorusGeometry(circleRadius, circleThickness, 16, 50, Math.PI);
-    const circleMaterial = new THREE.MeshBasicMaterial({ color: 0xffffff });
-    const leftSemiCircle = new THREE.Mesh(circleGeometry, circleMaterial);
-    const rightSemiCircle = new THREE.Mesh(circleGeometry, circleMaterial);
+    // Create a circular geometry
+    const radius = 2;
+    const segments = 64;
+    const circleGeometry = new THREE.CircleGeometry(radius, segments);
 
-    leftSemiCircle.rotation.z = Math.PI / 2;
-    leftSemiCircle.position.x = -planeSize / 2;
+    // Create a material for the circle
+    const circleMaterial = new THREE.LineBasicMaterial({ color: 0xffffff });
 
-    rightSemiCircle.rotation.z = Math.PI / 2;
-    rightSemiCircle.position.x = planeSize / 2;
+    // Create a LineSegments object for the circle
+    const circle = new THREE.LineSegments(new THREE.EdgesGeometry(circleGeometry), circleMaterial);
+    scene.add(circle);
 
-    scene.add(leftSemiCircle);
-    scene.add(rightSemiCircle);
+    // Create line geometries for the intersecting lines
+    const lineGeometry1 = new THREE.BufferGeometry().setFromPoints([
+    new THREE.Vector3(-radius, 0, 0),
+    new THREE.Vector3(radius, 0, 0)
+    ]);
 
-    const lineWidth = 0.1 / sizeFactor;
-    const lineLength = Math.sqrt(Math.pow(planeSize, 2) * 2);
-    const lineMaterial = new THREE.MeshBasicMaterial({ color: 0xffffff });
+    const lineGeometry2 = new THREE.BufferGeometry().setFromPoints([
+    new THREE.Vector3(0, -radius, 0),
+    new THREE.Vector3(0, radius, 0)
+    ]);
 
-    const diagonalLine1Geometry = new THREE.BoxGeometry(lineWidth, lineLength, lineWidth);
-    const diagonalLine2Geometry = new THREE.BoxGeometry(lineWidth, lineLength, lineWidth);
-    const diagonalLine1 = new THREE.Mesh(diagonalLine1Geometry, lineMaterial);
-    const diagonalLine2 = new THREE.Mesh(diagonalLine2Geometry, lineMaterial);
+    // Create a material for the lines
+    const lineMaterial = new THREE.LineBasicMaterial({ color: 0xffffff });
 
-    diagonalLine1.rotation.z = Math.PI / 4;
-    diagonalLine2.rotation.z = -Math.PI / 4;
+    // Create Line objects for the intersecting lines
+    const line1 = new THREE.Line(lineGeometry1, lineMaterial);
+    const line2 = new THREE.Line(lineGeometry2, lineMaterial);
+    scene.add(line1, line2);
 
-    scene.add(diagonalLine1);
-    scene.add(diagonalLine2);
+    }
+    // GPT sucks
+    function renderTrinityOrbbyChatGPT2(sizeFactor) {
+
+
+
+
+
+    // Create quarter-circle
+    const quarterCircleRadius = 2 / sizeFactor;
+    const curve = new THREE.EllipseCurve(
+        0, 0,             // ax, aY
+        quarterCircleRadius, quarterCircleRadius, // xRadius, yRadius
+        0, Math.PI / 2,   // aStartAngle, aEndAngle
+        false,            // aClockwise
+        0                 // aRotation
+    );
+
+    const points = curve.getPoints(50);
+    const geometry = new THREE.BufferGeometry().setFromPoints(points);
+
+    const material = new THREE.LineBasicMaterial({ color: 0xffffff });
+    const quarterCircle = new THREE.Line(geometry, material);
+
+    // Create the lines
+    const lineGeometry = new THREE.BufferGeometry().setFromPoints([
+        new THREE.Vector3(-quarterCircleRadius, 0, 0),
+        new THREE.Vector3(0, quarterCircleRadius, 0)
+    ]);
+    const line = new THREE.Line(lineGeometry, material);
+
+    // Add the quarter-circle and line to the scene
+    scene.add(quarterCircle);
+    scene.add(line);
+
+    // Now clone and mirror the quarter-circle and line across the X and Y axes to complete the pattern
+    const quarterCircleMirrorX = quarterCircle.clone();
+    quarterCircleMirrorX.rotation.z = Math.PI;
+    scene.add(quarterCircleMirrorX);
+
+    const quarterCircleMirrorY = quarterCircle.clone();
+    quarterCircleMirrorY.rotation.z = -Math.PI / 2;
+    scene.add(quarterCircleMirrorY);
+
+    const lineMirrorX = line.clone();
+    lineMirrorX.rotation.z = Math.PI;
+    scene.add(lineMirrorX);
+
+    const lineMirrorY = line.clone();
+    lineMirrorY.rotation.z = -Math.PI / 2;
+    scene.add(lineMirrorY);
+
+
 
 
     }
