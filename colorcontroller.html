@@ -10,14 +10,8 @@
     <meta charset="utf-8">
     <title>Controller (for Audiosphere)</title>
     <style>
-    body {
-        margin: 0;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        min-height: 100vh;
-        background: #f0f0f0;
-    }
+        
+    body { margin: 0; overflow: hidden; display: flex; background-color: #000000; color: #00ff00; font-family: 'Courier New', Courier, monospace; }
 
     input {
         padding:3px;
@@ -33,9 +27,9 @@
         overflow-y: auto;
         padding: 20px;
         border-radius: 10px;
-        background: #fff;
         box-shadow: 0px 5px 15px rgba(0, 0, 0, 0.1);
     }
+
 
 
     .flash {
@@ -72,15 +66,7 @@
      <input type="text" id="videopop" value="pop"/> -->
 
     <!-- <audio id="audioElement" controls></audio> -->
-    <div class="input-group">
-        Hue is a degree on the color wheel from 0 to 360. 0 is red, 120 is green, and 240 is blue.
-        Hueoffset1: <input type="text" id="hueoffset1" value="20"/>
-        Hueoffset2: <input type="text" id="hueoffset2" value="20"/>
-        Hueoffset3: <input type="text" id="hueoffset3" value="20"/>
-        Hueoffset4: <input type="text" id="hueoffset4" value="20"/>
-        Hueoffset5: <input type="text" id="hueoffset5" value="20"/>
 
-    </div>
 
     <div class="input-group">
         Loaded videos: <input  type="textarea"  id="loadedvideos" value=""/>
@@ -95,6 +81,27 @@
     <div class="input-group">    
     Mode ("color","video","lines"): <input type="text" id="mode" value="color"/>
     </div>
+    <div class="input-group">
+        Hue is a degree on the color wheel from 0 to 360. 0 is red, 120 is green, and 240 is blue.
+        Hueoffset1: <input type="text" id="hueoffset1" value="20"/>
+    </div>
+
+    <div class="input-group">
+    Hueoffset2: <input type="text" id="hueoffset2" value="20"/>
+    </div>
+
+    <div class="input-group">
+    Hueoffset3: <input type="text" id="hueoffset3" value="20"/>
+    </div>
+
+    <div class="input-group">
+    Hueoffset4: <input type="text" id="hueoffset4" value="20"/>
+    </div>
+
+    <div class="input-group">
+    Hueoffset5: <input type="text" id="hueoffset5" value="20"/>
+    </div>
+
     <div class="input-group">
     Xrotationspeed: <input type="text" id="xrotation" value="0.0001"/>
     </div>
