@@ -102,7 +102,290 @@ button:hover {
     <script src="js/cdn.jsdelivr.net_npm_@tonejs_midi.js"></script>
     <script src="js/cdn.jsdelivr.net_npm_tone.js"></script>
 
+    <script>
 
+let currentText = '';
+let currentIndex = 0;
+let intervalHandle = null;
+let displaySpeed = 200; // Speed in milliseconds
+const textCanvas = document.createElement('canvas');
+const context = textCanvas.getContext('2d');
+
+textCanvas.width = 512; // Adjust as needed
+textCanvas.height = 512; // Adjust as needed
+
+var poemText = `The critical thought
+Is to say
+Of course, you
+Sashayed comme un
+Ange through white
+Horizon, mountains of
+Sea, suckle eye
+Milky Way as
+It be when
+ 
+Guide of map
+Omega. But I
+Know better. Couldn’t
+Say in modern
+Ity. Pneuma Sophia
+Post immediate eternal
+Aiōn aisthētikos Fluid
+Base blank full
+With rhythms of
+The sea. [I’ve
+
+Braided my hair
+Nonchalantly. Brands disturb
+Harmony and today’s
+Symbols have lost
+Their symphony. I
+Wish you were
+here. Her name,
+Saudade. Spark. Touch
+ 
+Your skin with
+Clean eyes ritual
+fuck frontal lobe
+stark symbol of
+the yearning art
+Mottled viscous bruise
+of its own
+Implicit breathe there
+Must be a
+
+Trilogy.  Dance Caress
+Entrance. The rhyme.
+We say. Nothing.
+Of after. Birds.
+Sun. Curtains. Lashes.
+Navel. Shadow. Nous.
+I am here
+For the Revelation:
+Trinity * Trinity]
+ 
+You reveal doom
+The devil enters
+Sweet desire, sweet
+Black hole, I
+Repent, drip, rage
+Unworthy, unholy, whore
+John, why such
+Blasphemy? Peter, why
+Sin’s incessant jeer
+
+Paul, superlative smite
+I want to
+Give; you ask
+STOP 	  ask	STOP
+Slaughter peacock What
+else? Arrheton echo
+You will not
+Stop until the
+Kingdom is yours.
+ 
+A triangle stands
+Alone. Pinnacle of
+Spirit, matter, Lord
+It is time
+to cube the
+equation time to
+twin the soul
+Power of Three
+Three. Three to
+
+the power. Beyond
+Euclid’s plane a
+Star multiplies: us
+We are two
+Triangles meeting at
+A star. A
+Third invisible. Felt. 
+Wordless divine guiltless
+The star does
+ 
+not ask; Is
+Body word soul
+Unite kiss breathe
+Not with desire
+But devotion. Gratitude
+Infinite space to
+Swell, to fill,
+To condense into
+Air, into vapor,
+
+Horizon. To calm,
+To Inspire. The
+Sea. Asks nothing.
+(Be) The star,
+The Kiss, the
+Union. Trinity field
+Of two triangles
+Meeting at a
+Prayer, are us.
+ 
+The wretched weep
+But we are
+The wretched. Beings
+Inevitably foul (swell)
+Genesis Babel Flood
+Perfection impossible, cheap
+And I grieve
+Pray to perfection
+eidos teleiotes idea
+
+Sweet mirror X
+Sensation of peace
+Uninterrupted by decision
+Uninterrupted by desire
+Uninterrupted by storm
+And I wail
+That the good
+Should be the
+Enemy (condense) of
+ 
+The perfect. Rage
+That we must
+Call it sin
+To realize the
+Weight of guilt
+No tears may
+Bear they are
+Too sweet. A
+Word struggles to
+
+Emerge. Can’t. Black.
+Descend into the
+Pain of knowing
+Your presence ___
+Be no gift.
+Come back from
+The void (the
+Perfect) She bids
+Because sun doesn’t
+ 
+Give a damn
+If you are
+Albino or Hitler
+Or even Einstein
+Sun, hapless sun
+Glorious prime mover
+Deity of trinity
+Star moon earth
+Khaos Cosmos Universe
+
+Uneven garnish of
+light on this
+ page. Simple sea. 
+Miracle being. Birth
+of tomatoes. Fleshy
+Olives. Goosebumps. Shade.
+Sinew. Sandals. Color.
+Saliva. Gift of
+Breathe, of joy
+ 
+And love. Life!
+O! such gratitude
+Knelt in abandon
+Complete Zero Gravity
+Still air hovering
+Merciful over horizon
+Total.  Monk chanting
+Solitude. To exist
+On barren lava
+
+Peaks: a goat
+The edge of
+The earth a
+Voice – you’re alive
+Stone. Dust. Dialectos.
+Element: Energy - Kneel
+Without choice abandon
+Knowing. Alive. Quake
+at the horizon.
+ 
+White line infinite
+I’ve evaporated into
+The thing itself
+No distance. One
+edge of sea
+and sky. Engulf.
+Surrender. Sense. Feed.
+Sun Sea Earth 
+Irreducible forms, the.
+
+Our wobegone logos
+Hard thoughts at
+Each others’, no --
+I swell body
+word soul gaping
+stitches seamless love
+ is faith: bare
+immaculate (I am)
+But for gratitude:
+ 
+If you are
+The moon it
+Is time you
+Set and wane
+And wander but
+Never so much
+As Venus or
+Mars (and today
+And then again,
+
+You come) When
+I call when
+I breathe your
+Name rhythm of
+Sea: my head
+You always come
+There is no
+End to the
+Power of three
+ 
+Infinity three. What
+Can contain the
+Coast or sea?
+Galaxias, find the
+Point exact: Behind,
+After Zeno? Nevermind
+Horizon where do
+ You lie? The
+Mind. No. Heart.
+
+The moon’s intuition
+Breathes late August
+Blue moon drunk
+With love for
+Hera I have
+Known other types
+of ecstasy but
+None as pure
+As Heroine none
+ 
+As pure as
+Trinity Star Trinity
+give with abandon
+feel only adoration
+the more I
+sense your energy
+the higher it
+multiplies love is
+the source to
+
+infinity, three. Here!
+Now! God the
+Belief in infinity
+Damnation of totality
+Trinity Star Trinity
+I believe in
+Infinity I believe
+We are one
+Trinity. Star. Trinity.`;
+
+
+    </script>
 
 </head>
 <body>
@@ -118,11 +401,20 @@ button:hover {
             <input type="file" id="videoInput" accept="video/*" multiple />
           </div>
           <input type="file" id="xmlInput" accept=".xml" />
+          
           <pre id="output"></pre>
         
           <button id="startButton">Start</button>
           <button id="orbButton" onclick="renderTrinityOrb(5)">Trinity</button>
+          <button id="poemButton" onclick="processPoemText(poemText)">Poem</button>
 
+          <button id="poemTextButton" onclick="startTextAnimation(100)">Text</button>
+
+         
+
+          <label for="speedRange">Adjust Speed:</label>
+          <input type="range" id="speedRange" min="50" max="1000" value="200">
+          
           <button id="beatButton" onclick="hide()">Hide ("h")</button>
 
           <video id="videoElement" class="hidden" autoplay muted></video>
@@ -259,6 +551,75 @@ button:hover {
         }
 
         initBands();
+        let lineCount = 0;
+
+        function updateTextCanvas(text, fontSize = 48) {
+            context.clearRect(0, 0, textCanvas.width, textCanvas.height); // Clear the canvas
+            context.font = `${fontSize}px Arial`;
+            context.textAlign = 'center';
+            context.textBaseline = 'middle';
+            context.fillText(text, textCanvas.width / 2, textCanvas.height / 2);
+        }
+
+        updateTextCanvas('');
+
+        // Create a texture from the canvas
+        const texture = new THREE.Texture(textCanvas);
+        texture.needsUpdate = true;
+
+        // Create a material using this texture
+        const material = new THREE.MeshBasicMaterial({ map: texture, side: THREE.DoubleSide, transparent: true });
+
+        // Create a plane geometry for the text
+        const geometry = new THREE.PlaneGeometry(5, 5); // Adjust size as needed
+
+        const textMesh = new THREE.Mesh(geometry, material);
+
+        // Add the text mesh to your scene
+        scene.add(textMesh);
+
+
+        function displayNextCharacter() {
+            console.log("dnc");
+
+            if (currentIndex < poemText.length) {
+                currentText += poemText.charAt(currentIndex);
+                console.log(currentText);
+                updateTextCanvas(currentText); // Update the canvas with the new text
+                texture.needsUpdate = true; // Important to refresh the texture
+                currentIndex++;
+            } else {
+                clearInterval(intervalHandle);
+                intervalHandle = null;
+            }
+        }
+
+        function displayNextCharacter() {
+            if (currentIndex < poemText.length) {
+                const char = poemText.charAt(currentIndex);
+                currentText += char;
+                updateTextCanvas(currentText);
+                texture.needsUpdate = true;
+                currentIndex++;
+
+                if (char === '\n') lineCount++;
+                if (lineCount === 3) { // Every three lines
+                    lineCount = 0;
+                    textMesh.rotation.z += Math.PI / 3; // Rotate by 60 degrees
+                }
+            } else {
+                clearInterval(intervalHandle);
+                intervalHandle = null;
+            }
+        }
+
+        function startTextAnimation(speed) {
+            if (intervalHandle) clearInterval(intervalHandle);
+            displaySpeed = speed;
+            console.log("sta");
+            intervalHandle = setInterval(displayNextCharacter, displaySpeed);
+        }
+
 
         const colorIsolationShader = {
     uniforms: {
@@ -711,6 +1072,128 @@ button:hover {
         // for video render
 
 
+    function readPoem() {
+
+
+        
+    }
+
+    function setupPoemScene(linesGroup) {
+    // Setup the Three.js scene
+    // const scene = new THREE.Scene();
+    // const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+    // camera.position.z = 5;
+
+    // const renderer = new THREE.WebGLRenderer();
+    // renderer.setSize(window.innerWidth, window.innerHeight);
+    // document.body.appendChild(renderer.domElement);
+
+    // Create a group to hold the triangles
+    const trianglesGroup = new THREE.Group();
+
+    // Define geometry for the triangles
+    const triangleGeometry = new THREE.Geometry();
+    triangleGeometry.vertices.push(
+        new THREE.Vector3(-1, 0, 0), // Vertex 1
+        new THREE.Vector3(1, 0, 0),  // Vertex 2
+        new THREE.Vector3(0, Math.sqrt(3), 0) // Vertex 3
+    );
+    triangleGeometry.faces.push(new THREE.Face3(0, 1, 2));
+
+    // Create three triangles and position them
+    for (let i = 0; i < 3; i++) {
+        const triangleMesh = new THREE.Mesh(triangleGeometry, new THREE.MeshBasicMaterial({ color: 0xffffff, wireframe: true }));
+        triangleMesh.rotation.z = (Math.PI * 2 / 3) * i; // Rotate each triangle
+        trianglesGroup.add(triangleMesh);
+    }
+
+    // Create text geometry for each line and position them on the vertices
+    const loader = new THREE.FontLoader();
+
+    // Ensure you have the font data available (e.g., from a JSON file or inline variable)
+    loader.load('path_to_font.json', function (font) {
+        linesGroup.forEach((lines, index) => {
+            lines.forEach((line, vertex) => {
+                const textGeometry = new THREE.TextGeometry(line, {
+                    font: font,
+                    size: 0.2,
+                    height: 0.01
+                });
+
+                // Position the text on the vertices
+                const textMesh = new THREE.Mesh(textGeometry, new THREE.MeshBasicMaterial({ color: 0x000000 }));
+                textMesh.position.copy(trianglesGroup.children[index].geometry.vertices[vertex]);
+                scene.add(textMesh);
+            });
+        });
+    });
+
+    // Add the triangles group to the scene
+    scene.add(trianglesGroup);
+
+}
+
+
+function readPoemAndDisplay(url) {
+    url = "trinitypoem.txt";
+    fetch(url)
+        .then(response => response.text())
+        .then(text => {
+            const lines = text.split('\n').filter(line => line.trim() !== ''); // Split by new line and remove blank lines
+            const linesGroup = [];
+
+            // Group lines into sets of nine, skipping blank lines
+            for (let i = 0, group = []; i < lines.length; i++) {
+                if (lines[i].trim() !== '') {
+                    group.push(lines[i]);
+                    if (group.length === 9) {
+                        linesGroup.push(group);
+                        group = [];
+                    }
+                }
+            }
+
+            // If the last group has less than 9 lines, you can decide to add it or not
+            if (group.length > 0 && group.length < 9) {
+                linesGroup.push(group); // Add the last group even if it's incomplete
+            }
+
+            // Pass the grouped lines to the setup function
+            setupPoemScene(linesGroup);
+        })
+        .catch(error => console.error('Error fetching the poem:', error));
+}
+
+let group = [];
+
+function processPoemText(poemText) {
+            const lines = poemText.split('\n').filter(line => line.trim() !== ''); // Split by new line and remove blank lines
+            const linesGroup = [];
+
+            // Group lines into sets of nine, skipping blank lines
+            for (let i = 0; i < lines.length; i++) {
+                console.log("n");
+                group.push(lines[i]);
+                if (group.length === 9) {
+                    linesGroup.push(group);
+                    group = [];
+                }
+            }
+            
+
+            // If the last group has less than 9 lines, you can decide to add it or not
+            // if (group.length > 0 && group.length < 9) {
+            //     linesGroup.push(group); // Add the last group even if it's incomplete
+            // }
+
+            // Pass the grouped lines to the setup function
+            setupPoemScene(linesGroup);
+        }
+
+document.getElementById('speedRange').addEventListener('input', function() {
+    const newSpeed = parseInt(this.value, 10);
+    startTextAnimation(newSpeed);
+});
 
 // claude3 also sucks
 function renderTrinityOrb(sizeFactor) {
@@ -797,7 +1280,6 @@ function renderTrinityOrb(sizeFactor) {
     const lineMirrorY = line.clone();
     lineMirrorY.rotation.z = -Math.PI / 2;
     scene.add(lineMirrorY);
-
 
 
 
