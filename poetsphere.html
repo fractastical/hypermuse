@@ -121,7 +121,7 @@ button:hover {
           <pre id="output"></pre>
         
           <button id="startButton">Start</button>
-          <button id="orbButton" onclick="renderTrinityOrb()">Trinity</button>
+          <button id="orbButton" onclick="renderTrinityOrb(5)">Trinity</button>
 
           <button id="beatButton" onclick="hide()">Hide ("h")</button>
 
@@ -712,43 +712,45 @@ button:hover {
 
     // const allVideoQueues;s
 
-    function renderTrinityOrb() {
+    function renderTrinityOrb(sizeFactor) {
 
 
-        const geometry = new THREE.PlaneGeometry(4, 4);
-        const material = new THREE.MeshBasicMaterial({ color: 0x000000 }); // Black
-        const plane = new THREE.Mesh(geometry, material);
-        scene.add(plane);
+        const planeSize = 4 / sizeFactor;
+    const geometry = new THREE.PlaneGeometry(planeSize, planeSize);
+    const material = new THREE.MeshBasicMaterial({ color: 0x000000 });
+    const plane = new THREE.Mesh(geometry, material);
+    scene.add(plane);
 
-        const circleGeometry = new THREE.TorusGeometry(2, 0.05, 16, 50, Math.PI);
-        const circleMaterial = new THREE.MeshBasicMaterial({ color: 0xffffff }); // White
-        const leftSemiCircle = new THREE.Mesh(circleGeometry, circleMaterial);
-        const rightSemiCircle = new THREE.Mesh(circleGeometry, circleMaterial);
+    const circleRadius = 2 / sizeFactor;
+    const circleThickness = 0.05 / sizeFactor;
+    const circleGeometry = new THREE.TorusGeometry(circleRadius, circleThickness, 16, 50, Math.PI);
+    const circleMaterial = new THREE.MeshBasicMaterial({ color: 0xffffff });
+    const leftSemiCircle = new THREE.Mesh(circleGeometry, circleMaterial);
+    const rightSemiCircle = new THREE.Mesh(circleGeometry, circleMaterial);
 
-        leftSemiCircle.rotation.z = Math.PI / 2;
-        leftSemiCircle.position.x = -1;
+    leftSemiCircle.rotation.z = Math.PI / 2;
+    leftSemiCircle.position.x = -planeSize / 2;
 
-        rightSemiCircle.rotation.z = Math.PI / 2;
-        rightSemiCircle.position.x = 1;
+    rightSemiCircle.rotation.z = Math.PI / 2;
+    rightSemiCircle.position.x = planeSize / 2;
 
-        scene.add(leftSemiCircle);
-        scene.add(rightSemiCircle);
+    scene.add(leftSemiCircle);
+    scene.add(rightSemiCircle);
 
-        // Create diagonal lines
-        const lineMaterial = new THREE.MeshBasicMaterial({ color: 0xffffff }); // White
-        const lineWidth = 0.1;
-        const lineLength = Math.sqrt(Math.pow(4, 2) * 2); // Diagonal of the square
+    const lineWidth = 0.1 / sizeFactor;
+    const lineLength = Math.sqrt(Math.pow(planeSize, 2) * 2);
+    const lineMaterial = new THREE.MeshBasicMaterial({ color: 0xffffff });
 
-        const diagonalLine1Geometry = new THREE.BoxGeometry(lineWidth, lineLength, 0);
-        const diagonalLine2Geometry = new THREE.BoxGeometry(lineWidth, lineLength, 0);
-        const diagonalLine1 = new THREE.Mesh(diagonalLine1Geometry, lineMaterial);
-        const diagonalLine2 = new THREE.Mesh(diagonalLine2Geometry, lineMaterial);
+    const diagonalLine1Geometry = new THREE.BoxGeometry(lineWidth, lineLength, lineWidth);
+    const diagonalLine2Geometry = new THREE.BoxGeometry(lineWidth, lineLength, lineWidth);
+    const diagonalLine1 = new THREE.Mesh(diagonalLine1Geometry, lineMaterial);
+    const diagonalLine2 = new THREE.Mesh(diagonalLine2Geometry, lineMaterial);
 
-        diagonalLine1.rotation.z = Math.PI / 4;
-        diagonalLine2.rotation.z = -Math.PI / 4;
+    diagonalLine1.rotation.z = Math.PI / 4;
+    diagonalLine2.rotation.z = -Math.PI / 4;
 
-        scene.add(diagonalLine1);
-        scene.add(diagonalLine2);
+    scene.add(diagonalLine1);
+    scene.add(diagonalLine2);
 
 
     }
