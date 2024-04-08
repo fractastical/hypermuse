@@ -121,9 +121,12 @@ button:hover {
           <pre id="output"></pre>
         
           <button id="startButton">Start</button>
-          <button id="beatButton" onclick="hide()">Hide ("h")</button>
-          <video id="videoElement" class="hidden" autoplay muted></video>
+          <button id="orbButton" onclick="renderTrinityOrb()">Trinity</button>
 
+          <button id="beatButton" onclick="hide()">Hide ("h")</button>
+
+          <video id="videoElement" class="hidden" autoplay muted></video>
+          
           <div id="master-control">
              <input type="range" id="volumeSlider" min="0" max="1" step="0.01" value="1" >
 
@@ -581,6 +584,7 @@ button:hover {
             });
         });
 
+
         
         let masterInput = document.getElementById('master');
         masterInput.value = startingVolumeThreshold;
@@ -707,6 +711,48 @@ button:hover {
         // for video render
 
     // const allVideoQueues;s
+
+    function renderTrinityOrb() {
+
+
+        const geometry = new THREE.PlaneGeometry(4, 4);
+        const material = new THREE.MeshBasicMaterial({ color: 0x000000 }); // Black
+        const plane = new THREE.Mesh(geometry, material);
+        scene.add(plane);
+
+        const circleGeometry = new THREE.TorusGeometry(2, 0.05, 16, 50, Math.PI);
+        const circleMaterial = new THREE.MeshBasicMaterial({ color: 0xffffff }); // White
+        const leftSemiCircle = new THREE.Mesh(circleGeometry, circleMaterial);
+        const rightSemiCircle = new THREE.Mesh(circleGeometry, circleMaterial);
+
+        leftSemiCircle.rotation.z = Math.PI / 2;
+        leftSemiCircle.position.x = -1;
+
+        rightSemiCircle.rotation.z = Math.PI / 2;
+        rightSemiCircle.position.x = 1;
+
+        scene.add(leftSemiCircle);
+        scene.add(rightSemiCircle);
+
+        // Create diagonal lines
+        const lineMaterial = new THREE.MeshBasicMaterial({ color: 0xffffff }); // White
+        const lineWidth = 0.1;
+        const lineLength = Math.sqrt(Math.pow(4, 2) * 2); // Diagonal of the square
+
+        const diagonalLine1Geometry = new THREE.BoxGeometry(lineWidth, lineLength, 0);
+        const diagonalLine2Geometry = new THREE.BoxGeometry(lineWidth, lineLength, 0);
+        const diagonalLine1 = new THREE.Mesh(diagonalLine1Geometry, lineMaterial);
+        const diagonalLine2 = new THREE.Mesh(diagonalLine2Geometry, lineMaterial);
+
+        diagonalLine1.rotation.z = Math.PI / 4;
+        diagonalLine2.rotation.z = -Math.PI / 4;
+
+        scene.add(diagonalLine1);
+        scene.add(diagonalLine2);
+
+
+    }
+
 
     function hide() {
         document.getElementById("thresholds").style.display = "none";
