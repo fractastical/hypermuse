@@ -1,6 +1,6 @@
 function createTriangleGeometry(p1, p2, p3) {
     const geometry = new THREE.BufferGeometry();
-    console.log("tg");
+    // console.log("tg");
     const vertices = new Float32Array([
         p1.x, p1.y, p1.z,
         p2.x, p2.y, p2.z,
