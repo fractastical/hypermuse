@@ -172,6 +172,7 @@ button:hover {
         let saturation = 100;
         let brightness = 50; 
         let volumemagnification = 1.4; 
+        let midiData;
 
         let captureInterval;
         const CAPTURE_INTERVAL_MS = 416.666666667 / 2;  // e.g., Capture every Xms 
@@ -497,6 +498,8 @@ button:hover {
                 }
             }
 
+
+
             for (let i = geometries.length - 1; i >= 0; i--) {
                 geometries[i].age++;
                 if (geometries[i].age > activegeometriesagedeath) {
@@ -508,6 +511,21 @@ button:hover {
                     }
                 }
             }
+
+            if (midiData) {
+                let currentTime = Tone.Transport.seconds;
+                midiData.tracks[0].notes.forEach(note => {
+                    if (currentTime >= note.time && currentTime < note.time + note.duration) {
+                        let noteSphere = createNoteSphere(note.name);
+                        noteSphere.position.copy(points[note.midi % numBands].position);
+                        noteSphere.userData.type = 'noteSphere';
+                        noteSphere.scale.set(0.1, 0.1, 0.1);
+                        noteSphere.rotation.y = -Math.PI / 2;
+                        scene.add(noteSphere);
+                    }
+                });
+            }
+
         }
 
         function updateTargetColor(updatedColor) {

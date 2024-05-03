@@ -124,7 +124,7 @@ async function playNext() {
     reader.addEventListener('load', async function() {
         if (file.name.endsWith('.midi') || file.name.endsWith('.mid')) {
             try {
-            const midiData = new Midi(reader.result);
+            midiData = new Midi(reader.result);
             console.log('MIDI data:', midiData); // Log the parsed MIDI data
             midiData.tracks[0].notes.sort((a, b) => a.time - b.time);
             await playMidi(midiData);
