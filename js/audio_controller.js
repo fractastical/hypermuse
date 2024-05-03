@@ -34,10 +34,23 @@ async function playMidi(midiData) {
     synth.connect(analyser);
     synth.toDestination();
 
-    // Schedule the events to play
-    midiData.tracks[0].notes.forEach(note => {
-        synth.triggerAttackRelease(note.name, note.duration, note.time, note.velocity);
+
+    // Collect all notes from all tracks
+    const allNotes = [];
+    midiData.tracks.forEach(track => {
+        allNotes.push(...track.notes);
     });
+
+    // Sort all notes based on their start time
+    allNotes.sort((a, b) => a.time - b.time);
+
+    // Schedule the events to play
+    allNotes.forEach(note => {
+        Tone.Transport.schedule(() => {
+            synth.triggerAttackRelease(note.name, note.duration, 0, note.velocity);
+        }, note.time);
+    });
+
 
     // Start the playback
     await Tone.start();

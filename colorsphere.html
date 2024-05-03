@@ -516,7 +516,8 @@ button:hover {
                     let currentTime = Tone.Transport.seconds;
                     let activeNotes = [];
 
-                    midiData.tracks[0].notes.forEach(note => {
+                    midiData.tracks.forEach(track => {
+                    track.notes.forEach(note => {
                         if (currentTime >= note.time && currentTime < note.time + note.duration) {
                             let noteSphere = createNoteSphere(note.name);
                             noteSphere.position.copy(points[note.midi % numBands].position);
@@ -527,6 +528,7 @@ button:hover {
                             activeNotes.push(noteSphere);
                         }
                     });
+                });
 
                     // Draw lines between active notes
                     if (activeNotes.length >= 2) {
