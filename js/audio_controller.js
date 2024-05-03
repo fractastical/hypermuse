@@ -29,32 +29,41 @@ function playSound(audioBuffer) {
 
 
 async function playMidi(midiData) {
-    const synth = new Tone.Synth().toDestination();
-    const analyser = new Tone.Analyser();
-    synth.connect(analyser);
-    synth.toDestination();
+    try {
+        const synth = new Tone.Synth().toDestination();
+        const analyser = new Tone.Analyser();
+        synth.connect(analyser);
 
+        console.log('MIDI data:', midiData);
+        console.log('Synth:', synth);
 
-    // Collect all notes from all tracks
-    const allNotes = [];
-    midiData.tracks.forEach(track => {
-        allNotes.push(...track.notes);
-    });
+        // Collect all notes from all tracks
+        const allNotes = [];
+        midiData.tracks.forEach(track => {
+            allNotes.push(...track.notes);
+        });
 
-    // Sort all notes based on their start time
-    allNotes.sort((a, b) => a.time - b.time);
+        // Sort all notes based on their start time
+        allNotes.sort((a, b) => a.time - b.time);
 
-    // Schedule the events to play
-    allNotes.forEach(note => {
-        Tone.Transport.schedule(() => {
-            synth.triggerAttackRelease(note.name, note.duration, 0, note.velocity);
-        }, note.time);
-    });
+        // Schedule the events to play
+        allNotes.forEach(note => {
+            Tone.Transport.schedule(() => {
+                console.log('Triggering note:', note);
+                synth.triggerAttackRelease(note.name, note.duration, note.time, note.velocity);
+            }, note.time);
+        });
 
+        // Resume the audio context
+        await Tone.context.resume();
 
-    // Start the playback
-    await Tone.start();
-    Tone.Transport.start();
+        // Start the playback
+        Tone.Transport.start();
+
+        console.log('Playback started');
+    } catch (error) {
+        console.error('Error during MIDI playback:', error);
+    }
 }
 
 function highlightVertex(vertexIndex) {
