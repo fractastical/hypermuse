@@ -314,27 +314,6 @@ button:hover {
                 }
             }
 
-            function processPoemText(poemText) {
-                const lines = poemText.split('\n').filter(line => line.trim() !== ''); // Split by new line and remove blank lines
-                const linesGroup = [];
-
-                // Group lines into sets of nine, skipping blank lines
-                for (let i = 0, group = []; i < lines.length; i++) {
-                    group.push(lines[i]);
-                    if (group.length === 9) {
-                        linesGroup.push(group);
-                        group = [];
-                    }
-                }
-
-                // If the last group has less than 9 lines, you can decide to add it or not
-                if (group.length > 0 && group.length < 9) {
-                    linesGroup.push(group); // Add the last group even if it's incomplete
-                }
-
-                // Pass the grouped lines to the setup function
-                setupPoemScene(linesGroup);
-            }
 
 
             for (let i = 0; i < numBands; i++) {

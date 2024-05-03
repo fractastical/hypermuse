@@ -501,6 +501,7 @@ button:hover {
                 geometries[i].age++;
                 if (geometries[i].age > activegeometriesagedeath) {
                     geometries[i].geometry.material.opacity -= activegeometriesopacityreduction;
+                    geometries[i].geometry.material.opacity -= activegeometriesopacityreduction;
                     if (geometries[i].geometry.material.opacity <= 0) {
                         scene.remove(geometries[i].geometry);
                         geometries.splice(i, 1);

@@ -69,7 +69,7 @@
 
 
     <div class="input-group">
-        Loaded videos: <input  type="textarea"  id="loadedvideos" value=""/>
+        Loaded videos: <ienput  type="textarea"  id="loadedvideos" value=""/>
     </div>
 
     <div class="input-group">
@@ -437,7 +437,7 @@ function playNext() {
         if (file.name.endsWith('.midi') || file.name.endsWith('.mid')) {
             const midiData = new Midi(reader.result);
             midiData.tracks[0].notes.sort((a, b) => a.time - b.time);
-            await playMidi(midiData);
+            // await playMidi(midiData);
             playNext();  // Play the next file when done
         } else if (file.type.startsWith('audio/')) {
             try {

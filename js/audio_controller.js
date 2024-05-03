@@ -25,10 +25,12 @@ function playSound(audioBuffer) {
     audioSource.start();
 }
 
-// Your playSound and animate functions would be defined elsewhere
+// TODO: This function fails with an unknown error 
+
 
 async function playMidi(midiData) {
     const synth = new Tone.Synth().toDestination();
+    const analyser = new Tone.Analyser();
     synth.connect(analyser);
     synth.toDestination();
 
@@ -108,7 +110,7 @@ function populateQueueAgain() {
     }
 }
 
-function playNext() {
+async function playNext() {
     if (audioQueue.length === 0) {
         // If the queue is empty, repopulate it
         for (let file of event.target.files) {
@@ -121,11 +123,16 @@ function playNext() {
 
     reader.addEventListener('load', async function() {
         if (file.name.endsWith('.midi') || file.name.endsWith('.mid')) {
+            try {
             const midiData = new Midi(reader.result);
+            console.log('MIDI data:', midiData); // Log the parsed MIDI data
             midiData.tracks[0].notes.sort((a, b) => a.time - b.time);
             await playMidi(midiData);
-            playNext(); // Play the next file when done
-        } else if (file.type.startsWith('audio/')) {
+            //  playNext(); // Play the next file when done
+            } catch (e) {
+                console.error('Error processing MIDI file', e);
+            }
+    } else if (file.type.startsWith('audio/')) {
             try {
                 let audioBuffer = await audioContext.decodeAudioData(reader.result);
                 playSound(audioBuffer);
