@@ -544,52 +544,111 @@ button:hover {
                 }
             }
 
-         if (midiData) {
-            let currentTime = Tone.Transport.seconds;
-            let activeNotes = [];
+            if (midiData) {
+                let currentTime = Tone.Transport.seconds;
+                let activeNotes = [];
 
-            midiData.tracks.forEach((track, trackIndex) => {
-                let sphere = points[trackIndex % numBands];
+                midiData.tracks.forEach((track, trackIndex) => {
+                    let sphere = points[trackIndex % numBands];
 
-                track.notes.forEach(note => {
-                    if (currentTime >= note.time && currentTime < note.time + note.duration) {
-                        let noteSphere = createNoteSphere(note.name);
-                        let color = getColorForTrack(trackIndex);
-                        noteSphere.material.color.set(color);
-                        noteSphere.position.copy(sphere.position);
-                        noteSphere.userData.type = 'noteSphere';
-                        noteSphere.scale.set(0.1, 0.1, 0.1);
-                        noteSphere.rotation.y = -Math.PI / 2;
-                        scene.add(noteSphere);
-                        activeNotes.push(noteSphere);
-                    }
+                    track.notes.forEach(note => {
+                        if (currentTime >= note.time && currentTime < note.time + note.duration) {
+                            let noteSphere = createNoteSphere(note.name);
+                            let color = getColorForTrack(trackIndex);
+                            noteSphere.material.color.set(color);
+                            noteSphere.position.copy(sphere.position);
+                            noteSphere.userData.type = 'noteSphere';
+                            // Make spheres half as large
+                            noteSphere.scale.set(0.05, 0.05, 0.05); // Half the size of the original scale 0.1
+                            noteSphere.rotation.y = -Math.PI / 2;
+                            scene.add(noteSphere);
+                            activeNotes.push(noteSphere);
+                        }
+                    });
                 });
-        });
 
-        // Draw lines between active notes
-        if (activeNotes.length >= 2) {
-            for (let i = 0; i < activeNotes.length - 1; i++) {
-                for (let j = i + 1; j < activeNotes.length; j++) {
-                    let startPos = activeNotes[i].position;
-                    let endPos = activeNotes[j].position;
-                    let lineGeometry = new THREE.BufferGeometry().setFromPoints([startPos, endPos]);
-                    let lineMaterial = new THREE.LineBasicMaterial({ color: 0xffffff });
-                    let line = new THREE.Line(lineGeometry, lineMaterial);
-                    scene.add(line);
+                // Draw lines between active notes
+                if (activeNotes.length >= 2) {
+                    for (let i = 0; i < activeNotes.length - 1; i++) {
+                        for (let j = i + 1; j < activeNotes.length; j++) {
+                            let startPos = activeNotes[i].position;
+                            let endPos = activeNotes[j].position;
+                            let lineGeometry = new THREE.BufferGeometry().setFromPoints([startPos, endPos]);
+                            // Make lines twice as thick
+                            let lineMaterial = new THREE.LineBasicMaterial({ color: 0xffffff, linewidth: 2 }); // Assuming linewidth works, WebGL limitations might apply
+                            let line = new THREE.Line(lineGeometry, lineMaterial);
+                            scene.add(line);
 
-                    // Store the line for removal in the next frame
-                    geometries.push({ geometry: line, age: 0 });
-                }
-            }
-        }
+                            // Store the line for quick expiry
+                            geometries.push({ geometry: line, age: 0 });
+                        }
+                    }
+    }
 
-        // Remove active notes from the scene
-        // activeNotes.forEach(noteSphere => {
-        //     scene.remove(noteSphere);
-        // });
-            // }
+//     // Expire old geometries to keep only the most recent 15
+    geometries.forEach(obj => {
+        obj.age++;
+    });
 
-        }}
+    // Filter out old geometries and remove them from the scene
+const maxAge = 1.1;  // Adjust as necessary for your application
+geometries = geometries.filter(obj => {
+    if (obj.age >= maxAge) {
+        scene.remove(obj.geometry);  // Ensure the geometry is removed from the scene
+        obj.geometry.dispose();  // Optional: Dispose of the geometry to free up resources
+        return false;
+    }
+    return true;
+});
+
+
+//     // Expire old notes
+    while (activeNotes.length > 15) {
+        let oldestNote = activeNotes.shift(); // Removes the oldest note if over 15
+        scene.remove(oldestNote);
+    }
+
+//     const sideLight = new THREE.DirectionalLight(0xffffff, 1.0);  // White light, full intensity
+
+// sideLight.position.set(10, 0, 0);  // Position to the side
+// scene.add(sideLight);
+
+// // Optionally add a slight tilt to direct the light downwards
+// sideLight.position.set(10, 5, 0);
+
+// // Enable shadows if not already enabled
+// renderer.shadowMap.enabled = true;
+// sideLight.castShadow = true;
+
+// // Set up shadow properties for better performance and quality
+// sideLight.shadow.mapSize.width = 512;  // Default is 512
+// sideLight.shadow.mapSize.height = 512;  // Default is 512
+// sideLight.shadow.camera.near = 0.5;  // Default is 0.5
+// sideLight.shadow.camera.far = 500;  // Default is 500
+
+// // Ensure your objects cast and receive shadows
+// activeNotes.forEach(noteSphere => {
+//     noteSphere.castShadow = true;
+//     noteSphere.receiveShadow = true;
+// });
+
+// // You may also want to adjust the material properties to enhance the interaction with light
+// activeNotes.forEach(noteSphere => {
+//     noteSphere.material = new THREE.MeshPhongMaterial({
+//         color: noteSphere.material.color,  // Keep the original color
+//         specular: 0x050505,
+//         shininess: 100
+//     });
+// });
+
+// // Adjust ambient light if the scene becomes too dark
+// const ambientLight = new THREE.AmbientLight(0x404040, 0.5);  // Soft white light
+// scene.add(ambientLight);
+
+}
+
+    
+    }
 
         function updateTargetColor(updatedColor) {
             colorIsolationShader.uniforms.targetColor.value.set(updatedColor.r, updatedColor.g, updatedColor.b);
