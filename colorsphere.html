@@ -594,8 +594,13 @@ button:hover {
 const maxAge = 1.1;  // Adjust as necessary for your application
 geometries = geometries.filter(obj => {
     if (obj.age >= maxAge) {
-        scene.remove(obj.geometry);  // Ensure the geometry is removed from the scene
-        obj.geometry.dispose();  // Optional: Dispose of the geometry to free up resources
+        scene.remove(obj.geometry);  // Remove the line from the scene
+        if (obj.geometry.geometry) {
+            obj.geometry.geometry.dispose();  // Dispose of the geometry
+        }
+        if (obj.geometry.material) {
+            obj.geometry.material.dispose();  // Dispose of the material
+        }
         return false;
     }
     return true;
