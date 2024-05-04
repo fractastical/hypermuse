@@ -112,7 +112,34 @@ button:hover {
           <div class="file-input-group">
             <label for="audioInput">Music:</label>
             <input type="file" id="audioInput" multiple accept="audio/*, .midi, .mid" />
+            <button id="music1back1">Back1</button>
+            <button id="music1back5">Back5</button>
+            <button id="music1back10">Back10</button>       
+        </div>
+          <div class="file-input-group">
+            <label for="audioInput">Music2:</label>
+            <input type="file" id="audioInput2" multiple accept="audio/*, .midi, .mid" />
+            <button id="music2back1">Back1</button>
+            <button id="music2back5">Back5</button>
+            <button id="music2back10">Back10</button> 
+        </div>
+          <div class="file-input-group">
+            <label for="audioInput">Music3:</label>
+            <input type="file" id="audioInput3" multiple accept="audio/*, .midi, .mid" />
+            <button id="music3back1">Back1</button>
+            <button id="music3back5">Back5</button>
+            <button id="music3back10">Back10</button>
+
+        </div>
+          <div class="file-input-group">
+            <label for="audioInput">Music4:</label>
+            <input type="file" id="audioInput4" multiple accept="audio/*, .midi, .mid" />
+            <button id="music4back1">Back1</button>
+            <button id="music4back5">Back5</button>
+            <button id="music4back10">Back10</button>
+
           </div>
+
           <div class="file-input-group">
             <label for="videoInput">Video:</label>
             <input type="file" id="videoInput" accept="video/*" multiple />
@@ -512,66 +539,63 @@ button:hover {
                 }
             }
 
-            if (midiData) {
-                    let currentTime = Tone.Transport.seconds;
-                    let activeNotes = [];
+         if (midiData) {
+            let currentTime = Tone.Transport.seconds;
+            let activeNotes = [];
 
-                    midiData.tracks.forEach(track => {
-                    track.notes.forEach(note => {
-                        if (currentTime >= note.time && currentTime < note.time + note.duration) {
-                            let noteSphere = createNoteSphere(note.name);
-                            noteSphere.position.copy(points[note.midi % numBands].position);
-                            noteSphere.userData.type = 'noteSphere';
-                            noteSphere.scale.set(0.1, 0.1, 0.1);
-                            noteSphere.rotation.y = -Math.PI / 2;
-                            scene.add(noteSphere);
-                            activeNotes.push(noteSphere);
-                        }
-                    });
-                });
+            midiData.tracks.forEach((track, trackIndex) => {
+                let sphere = points[trackIndex % numBands];
 
-                    // Draw lines between active notes
-                    if (activeNotes.length >= 2) {
-                        for (let i = 0; i < activeNotes.length - 1; i++) {
-                            for (let j = i + 1; j < activeNotes.length; j++) {
-                                let startPos = activeNotes[i].position;
-                                let endPos = activeNotes[j].position;
-                                let lineGeometry = new THREE.BufferGeometry().setFromPoints([startPos, endPos]);
-                                let lineMaterial = new THREE.LineBasicMaterial({ color: 0xffffff });
-                                let line = new THREE.Line(lineGeometry, lineMaterial);
-                                scene.add(line);
-
-                                // Store the line for removal in the next frame
-                                geometries.push({ geometry: line, age: 0 });
-                            }
-                        }
+                track.notes.forEach(note => {
+                    if (currentTime >= note.time && currentTime < note.time + note.duration) {
+                        let noteSphere = createNoteSphere(note.name);
+                        let color = getColorForTrack(trackIndex);
+                        noteSphere.material.color.set(color);
+                        noteSphere.position.copy(sphere.position);
+                        noteSphere.userData.type = 'noteSphere';
+                        noteSphere.scale.set(0.1, 0.1, 0.1);
+                        noteSphere.rotation.y = -Math.PI / 2;
+                        scene.add(noteSphere);
+                        activeNotes.push(noteSphere);
                     }
+                });
+        });
 
-                    // Remove active notes from the scene
-                    // activeNotes.forEach(noteSphere => {
-                    //     scene.remove(noteSphere);
-                    // });
+        // Draw lines between active notes
+        if (activeNotes.length >= 2) {
+            for (let i = 0; i < activeNotes.length - 1; i++) {
+                for (let j = i + 1; j < activeNotes.length; j++) {
+                    let startPos = activeNotes[i].position;
+                    let endPos = activeNotes[j].position;
+                    let lineGeometry = new THREE.BufferGeometry().setFromPoints([startPos, endPos]);
+                    let lineMaterial = new THREE.LineBasicMaterial({ color: 0xffffff });
+                    let line = new THREE.Line(lineGeometry, lineMaterial);
+                    scene.add(line);
+
+                    // Store the line for removal in the next frame
+                    geometries.push({ geometry: line, age: 0 });
                 }
+            }
+        }
 
-            // if (midiData) {
-            //     let currentTime = Tone.Transport.seconds;
-            //     midiData.tracks[0].notes.forEach(note => {
-            //         if (currentTime >= note.time && currentTime < note.time + note.duration) {
-            //             let noteSphere = createNoteSphere(note.name);
-            //             noteSphere.position.copy(points[note.midi % numBands].position);
-            //             noteSphere.userData.type = 'noteSphere';
-            //             noteSphere.scale.set(0.1, 0.1, 0.1);
-            //             noteSphere.rotation.y = -Math.PI / 2;
-            //             scene.add(noteSphere);
-            //         }
-            //     });
+        // Remove active notes from the scene
+        // activeNotes.forEach(noteSphere => {
+        //     scene.remove(noteSphere);
+        // });
             // }
 
-        }
+        }}
 
         function updateTargetColor(updatedColor) {
             colorIsolationShader.uniforms.targetColor.value.set(updatedColor.r, updatedColor.g, updatedColor.b);
         }
+
+
+function getColorForTrack(trackIndex) {
+    // Assign a unique color to each track based on its index
+    const colors = [0xff0000, 0x00ff00, 0x0000ff, 0xffff00, 0xff00ff, 0x00ffff];
+    return colors[trackIndex % colors.length];
+}
 
         function animate() {
             requestAnimationFrame(animate);
@@ -721,6 +745,57 @@ button:hover {
         playNext();
 
     });
+
+    document.getElementById('audioInput2').addEventListener('change', async function(event) {
+
+            audioContext = new AudioContext();
+            analyser = audioContext.createAnalyser();
+            analyser.fftSize = 2048 * 2 * 2;
+
+            // Populate the audioQueue with the selected files
+            audioQueue.length = 0;  // Clear the queue
+            for (let file of event.target.files) {
+                console.log(file);
+                audioQueue.push(file);
+            }
+
+            playNext();
+
+    });
+
+    document.getElementById('audioInput3').addEventListener('change', async function(event) {
+
+audioContext = new AudioContext();
+analyser = audioContext.createAnalyser();
+analyser.fftSize = 2048 * 2 * 2;
+
+// Populate the audioQueue with the selected files
+audioQueue.length = 0;  // Clear the queue
+for (let file of event.target.files) {
+    console.log(file);
+    audioQueue.push(file);
+}
+
+playNext();
+
+});
+
+document.getElementById('audioInput4').addEventListener('change', async function(event) {
+
+audioContext = new AudioContext();
+analyser = audioContext.createAnalyser();
+analyser.fftSize = 2048 * 2 * 2;
+
+// Populate the audioQueue with the selected files
+audioQueue.length = 0;  // Clear the queue
+for (let file of event.target.files) {
+    console.log(file);
+    audioQueue.push(file);
+}
+
+playNext();
+
+});
 
 
     // XML color range extraction

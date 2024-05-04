@@ -135,7 +135,7 @@ function populateQueueAgain() {
 }
 
 async function playNext() {
-    if (audioQueue.length === 0) {
+    if (audioQueue.length === 0 && !midiData) {
         // If the queue is empty, repopulate it
         for (let file of event.target.files) {
             audioQueue.push(file);
@@ -143,6 +143,11 @@ async function playNext() {
     }
 
     const file = audioQueue.shift(); // Get the next file from the queue
+    if (!file) {
+        console.log('No more files in the queue');
+        return;
+      }
+    
     const reader = new FileReader();
 
     reader.addEventListener('load', async function() {
@@ -164,6 +169,11 @@ async function playNext() {
             try {
                 let audioBuffer = await audioContext.decodeAudioData(reader.result);
                 playSound(audioBuffer);
+                
+                // if there is a midi file already playing restart it and mute it
+                if(midiData)
+                    Tone.stop;
+                
                 animate();
                 audioQueue.push(file); // Push the audio file back into the queue
             } catch (e) {
