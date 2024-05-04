@@ -101,6 +101,12 @@ button:hover {
     <script src="js/threejs.org_build_three.js"></script>
     <script src="js/cdn.jsdelivr.net_npm_@tonejs_midi.js"></script>
     <script src="js/cdn.jsdelivr.net_npm_tone.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.meshline/1.4.0/THREE.MeshLine.min.js"></script>
+
+
+
+
+
 
 
 
@@ -112,12 +118,12 @@ button:hover {
           <div class="file-input-group">
             <label for="audioInput">Music:</label>
             <input type="file" id="audioInput" multiple accept="audio/*, .midi, .mid" />
-            <button id="back-1000ms">Back1</button>
-            <button id="back-300ms">Back.3</button>
-            <button id="back-200ms">Back.2</button>
-            <button id="back-100ms">Back.1</button>
-            <button id="forward-1000ms">Forward1</button>       
-            <button id="forward-10000ms">Forward10</button>       
+            <button id="back-1000ms">-1</button>
+            <button id="back-300ms">-.3</button>
+            <button id="back-200ms">-.2</button>
+            <button id="back-100ms">-.1</button>
+            <button id="forward-1000ms">+1</button>       
+            <button id="forward-10000ms">+10</button>       
 
         </div>
           <!-- <div class="file-input-group">
@@ -573,17 +579,20 @@ button:hover {
                         for (let j = i + 1; j < activeNotes.length; j++) {
                             let startPos = activeNotes[i].position;
                             let endPos = activeNotes[j].position;
-                            let lineGeometry = new THREE.BufferGeometry().setFromPoints([startPos, endPos]);
-                            // Make lines twice as thick
-                            let lineMaterial = new THREE.LineBasicMaterial({ color: 0xffffff, linewidth: 2 }); // Assuming linewidth works, WebGL limitations might apply
-                            let line = new THREE.Line(lineGeometry, lineMaterial);
-                            scene.add(line);
+                            let lineGeometry = new THREE.Geometry();
+                            lineGeometry.vertices.push(startPos, endPos);
+                            let meshLine = new MeshLine();
+                            meshLine.setGeometry(lineGeometry);
 
-                            // Store the line for quick expiry
-                            geometries.push({ geometry: line, age: 0 });
+                            let lineMaterial = new MeshLineMaterial({
+                                color: 0xffffff,
+                                lineWidth: 5  // This can be much thicker than standard lines
+                            });
+                            let line = new THREE.Mesh(meshLine.geometry, lineMaterial);
+                            scene.add(line);
                         }
                     }
-    }
+                }
 
 //     // Expire old geometries to keep only the most recent 15
     geometries.forEach(obj => {
