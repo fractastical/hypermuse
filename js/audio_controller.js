@@ -66,6 +66,8 @@ async function playMidi(midiData) {
     }
 }
 
+
+
 function highlightVertex(vertexIndex) {
     if (highlightedVertex !== null) {
         // Reset the previously highlighted vertex
@@ -148,8 +150,12 @@ async function playNext() {
             try {
             midiData = new Midi(reader.result);
             console.log('MIDI data:', midiData); // Log the parsed MIDI data
-            midiData.tracks[0].notes.sort((a, b) => a.time - b.time);
-            await playMidi(midiData);
+            // midiData.tracks[0].notes.sort((a, b) => a.time - b.time);
+            // play only if there is no other sound, otherwise re-start that other sound 
+                if(audioSource)
+                    playNext(); 
+                else
+                    await playMidi(midiData);
             //  playNext(); // Play the next file when done
             } catch (e) {
                 console.error('Error processing MIDI file', e);
