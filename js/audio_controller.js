@@ -1,4 +1,8 @@
 
+let startTime = 0; // When playback was started
+let pauseTime = 0; // Current playback position in seconds when paused
+
+
 function getAverageVolume(array) {
     var values = 0;
     var average;
@@ -25,7 +29,28 @@ function playSound(audioBuffer) {
     audioSource.start();
 }
 
-// TODO: This function fails with an unknown error 
+
+function replay() {
+    if (audioSource) {
+        audioSource.stop();
+        audioSource.disconnect();
+    }
+    audioSource = audioContext.createBufferSource();
+    audioSource.buffer = audioBuffer;
+    audioSource.connect(audioContext.destination);
+    audioSource.start(0, pauseTime);
+    startTime = audioContext.currentTime - pauseTime;
+}
+
+function changePlaybackPosition(ms) {
+    const currentTime = audioContext.currentTime - startTime;
+    let newTime = currentTime + ms / 1000.0;
+    if (newTime < 0) newTime = 0;
+    if (newTime > audioBuffer.duration) newTime = audioBuffer.duration;
+    pauseTime = newTime;
+    replay();
+}
+
 
 
 async function playMidi(midiData) {
@@ -167,13 +192,13 @@ async function playNext() {
             }
     } else if (file.type.startsWith('audio/')) {
             try {
-                let audioBuffer = await audioContext.decodeAudioData(reader.result);
+                audioBuffer = await audioContext.decodeAudioData(reader.result);
                 playSound(audioBuffer);
                 
                 // if there is a midi file already playing restart it and mute it
                 if(midiData)
                     Tone.stop;
-                
+
                 animate();
                 audioQueue.push(file); // Push the audio file back into the queue
             } catch (e) {
