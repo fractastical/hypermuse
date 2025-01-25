@@ -1,0 +1,1011 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>Audio Reactive Spheres</title>
+    <style>
+
+        
+        body {
+            margin: 0;
+            overflow: hidden;
+            display: flex;  
+            background-color: black;
+        }
+        #thresholds {
+            width: 200px;  /* Adjust this as needed */
+            height: 100%;
+            /* align:left; */
+            background-color: white;
+            overflow-y: scroll;
+        
+        }
+
+        #videoList {
+            max-height: 400px;
+            overflow-y: auto;
+            padding: 10px;
+            color: white;
+        }
+
+            /*             border: 1px solid #ccc;
+; */
+
+        #container {
+            margin-top:50px;
+            height: 500px;
+            flex-grow: 1;
+        }
+
+        /* body {
+  font-family: 'Arial', sans-serif;
+  background-color: #222;
+  color: #eee;
+  padding: 20px;
+} */
+
+/* #app {
+  max-width: 200px;
+  margin: 0 auto;
+}
+ */
+.file-input-group,
+#master-control {
+  margin-bottom: 15px;
+}
+
+label {
+  display: block;
+  margin-bottom: 5px;
+}
+
+input[type="file"] {
+  width: 85%;
+  padding: 10px;
+  background-color: #444;
+  color: #eee;
+  border: none;
+  border-radius: 5px;
+}
+
+input[type="range"] {
+  width: calc(100% - 10px);
+  margin: 5px;
+}
+
+button {
+  background-color: #4CAF50; /* Green */
+  border: none;
+  color: white;
+  padding: 5px 16px;
+  text-align: center;
+  text-decoration: none;
+  display: inline-block;
+  font-size: 16px;
+  margin: 4px 2px;
+  transition-duration: 0.4s;
+  cursor: pointer;
+  border-radius: 5px;
+}
+
+button:hover {
+  background-color: white;
+  color: black;
+}
+
+.hidden {
+  display: none;
+}
+
+    </style>
+    <script src="js/threejs.org_build_three.js"></script>
+    <script src="js/cdn.jsdelivr.net_npm_@tonejs_midi.js"></script>
+    <script src="js/cdn.jsdelivr.net_npm_tone.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.meshline/1.4.0/THREE.MeshLine.min.js"></script>
+
+
+
+
+
+
+
+
+</head>
+<body>
+
+    <div id="app">
+        <div id="thresholds">
+          <div class="file-input-group">
+            <label for="audioInput">Music:</label>
+            <input type="file" id="audioInput" multiple accept="audio/*, .midi, .mid" />
+            <button id="back-1000ms">-1</button>
+            <button id="back-300ms">-.3</button>
+            <button id="back-200ms">-.2</button>
+            <button id="back-100ms">-.1</button>
+            <button id="forward-1000ms">+1</button>       
+            <button id="forward-10000ms">+10</button>       
+
+        </div>
+          <!-- <div class="file-input-group">
+            <label for="audioInput">Music2:</label>
+            <input type="file" id="audioInput2" multiple accept="audio/*, .midi, .mid" />
+            <button id="music2back1">Back1</button>
+            <button id="music2back5">Back5</button>
+            <button id="music2back10">Back10</button> 
+        </div>
+          <div class="file-input-group">
+            <label for="audioInput">Music3:</label>
+            <input type="file" id="audioInput3" multiple accept="audio/*, .midi, .mid" />
+            <button id="music3back1">Back1</button>
+            <button id="music3back5">Back5</button>
+            <button id="music3back10">Back10</button>
+
+        </div>
+          <div class="file-input-group">
+            <label for="audioInput">Music4:</label>
+            <input type="file" id="audioInput4" multiple accept="audio/*, .midi, .mid" />
+            <button id="music4back1">Back1</button>
+            <button id="music4back5">Back5</button>
+            <button id="music4back10">Back10</button>
+
+          </div> -->
+
+          <div class="file-input-group">
+            <label for="videoInput">Video:</label>
+            <input type="file" id="videoInput" accept="video/*" multiple />
+          </div>
+          <input type="file" id="xmlInput" accept=".xml" />
+          <pre id="output"></pre>
+        
+          <button id="startButton">Start</button>
+          <button id="beatButton" onclick="hide()">Hide ("h")</button>
+          <video id="videoElement" class="hidden" autoplay muted></video>
+
+          <div id="master-control">
+             <input type="range" id="volumeSlider" min="0" max="1" step="0.01" value="1" >
+
+            <label for="master">Equalizer Master Volume :</label>
+            <input type="range" id="master" min="-100" max="355" value="150" />
+          </div>
+        </div>
+
+        <!-- <div id="advancedControls"></div> -->
+      </div>
+      <div id="videoList">"v" to toggle view
+        <div id="videoListContents"></div>
+      </div>
+
+      <div id="container"></div>
+      
+<script>
+
+        let activeOffset = 1;
+        let colorShaderMode = false;
+        let hueoffset = 20;
+        let hueoffset1 = 20;
+        let hueoffset2 = 20;
+        let hueoffset3 = 20;
+        let hueoffset4 = 20;
+        let hueoffset5 = 20;
+        let hueOffsetSpeed = 0;
+        let mixedModeCounter = 0;
+        let startingVolumeThreshold = 5;
+        let freezeFrameEffectActive = true;
+        let X_ROTATION_SPEED = 0;
+        let Y_ROTATION_SPEED = 0;
+        let activegeometriesopacityreduction = 0.01;
+        let activegeometriesagedeath = 10;
+        let ACTIVE_GEOMETRIES_LIMIT = 50;
+        let FORCE_EQUILATERAL = false;
+        let innerTriangleActive = false;
+        let innerTriangleOffset = 0.005;
+        let merkabaMode = false;
+        let noteDisplayEnabled= false;
+        let peakBandIndex;
+        let playbackRate= 1.0;
+        let videoFullOpacity = true;
+        let videoTexture;
+        let REFRESH_SPEED = 3;
+        let saturation = 100;
+        let brightness = 50; 
+        let volumemagnification = 1.4; 
+        let midiData;
+        let audioBuffer;
+
+// Kuromoto specific
+
+        let oscillators = [];
+		const MAX_DISTANCE = 3; // Maximum neighbor distance
+		const SMALL_WORLD_CONNECTIONS = 2; // Number of random long-range connections per oscillator
+
+        let captureInterval;
+        const CAPTURE_INTERVAL_MS = 416.666666667 / 2;  // e.g., Capture every Xms 
+
+        const scene = new THREE.Scene();
+        const camera = new THREE.PerspectiveCamera(75, window.innerWidth/window.innerHeight, 0.1, 100);
+        camera.position.z = 2;
+        const renderer = new THREE.WebGLRenderer({ antialias: true });
+        renderer.setPixelRatio(window.devicePixelRatio * 5); // x times the normal resolution
+
+        renderer.shadowMap.enabled = true;
+        const pointLight = new THREE.PointLight(0xffffff, 1, 100);
+        pointLight.position.set(1, 1, 1);  // x, y, z
+        scene.add(pointLight);
+        pointLight.castShadow = true;
+
+
+        let container = document.getElementById('container');
+
+        //TODO: might want to revisit this and reset it if the window sie has
+        renderer.setSize(container.clientWidth, container.clientHeight);
+        container.appendChild(renderer.domElement);
+
+        var analyser;
+
+        let numBands = 48;
+        let thresholds = Array(numBands).fill(startingVolumeThreshold);
+
+        let holographicFanMode = false;
+
+        let baseFrequency = 20; // Start from 20 Hz
+        let maxFrequency = 20000; // Up to 20 kHz
+        let MAX_SIZE;
+        let dodecahedronMaterial; 
+
+                // Now calculate the ratio between each band in a logarithmic scale
+        let ratio = Math.pow(maxFrequency / baseFrequency, 1.0 / (numBands - 1));
+       
+       
+        let points = [];
+        let lines = [];
+        let geometries = [];
+        let lastPoints = [];
+
+        //TODO: this function doesn't preoperly work when run repeat times (i.e. the points are evenly distributed over the surface of the sphere)
+function initBands() {
+    // Initialize oscillators first
+    oscillators = Array(numBands).fill().map((_, i) => ({
+        phase: Math.random() * 2 * Math.PI,
+        naturalFreq: Math.random() * 2 - 1,
+        smallWorldNeighbors: new Set(),
+        position: new THREE.Vector3()
+    }));
+
+    // Add small-world connections
+    oscillators.forEach((osc, i) => {
+        while(osc.smallWorldNeighbors.size < SMALL_WORLD_CONNECTIONS) {
+            const randomNeighbor = Math.floor(Math.random() * numBands);
+            if (randomNeighbor !== i) {
+                osc.smallWorldNeighbors.add(randomNeighbor);
+            }
+        }
+    });
+
+    // Create visualization points
+    points = oscillators.map((osc, i) => {
+        const phi = osc.phase;
+        const theta = (i / numBands) * Math.PI * 2;
+        const radius = 1;
+
+        const x = radius * Math.sin(phi) * Math.cos(theta);
+        const y = radius * Math.sin(phi) * Math.sin(theta);
+        const z = radius * Math.cos(phi);
+
+        const point = new THREE.Points(
+            new THREE.BufferGeometry().setFromPoints([new THREE.Vector3(0, 0, 0)]),
+            new THREE.PointsMaterial({color: 0xffffff, size: 0.05})
+        );
+        point.position.set(x, y, z);
+        scene.add(point);
+        return point;
+    });
+}
+
+        initBands();
+
+        const colorIsolationShader = {
+    uniforms: {
+        uTexture: { value: videoTexture },
+        targetColor: { value: new THREE.Vector3(1.0, 0.0, 0.0) }, // Example: target red
+        tolerance: { value: 1.4 }, // Adjust for stricter or looser color matching
+        opacityLevel: { value: 1.0 } // Default opacity
+    },
+    vertexShader: `
+        varying vec2 vUv;
+        void main() {
+            vUv = uv;
+            gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+        }
+    `,
+    fragmentShader: `
+        precision highp float;
+        varying vec2 vUv;
+        uniform sampler2D uTexture;
+        uniform vec3 targetColor;
+        uniform float tolerance;
+        uniform float opacityLevel;
+
+        void main() {
+            vec4 texColor = texture2D(uTexture, vUv);
+            float colorDistance = distance(targetColor, texColor.rgb);
+            if (colorDistance < tolerance) {
+                gl_FragColor = vec4(texColor.rgb, opacityLevel);
+            } else {
+                gl_FragColor = vec4(1.0, 0.0, 0.0, opacityLevel); // Red for colors outside the tolerance
+            }
+        }
+    `
+};
+
+        const volumeSlider = document.getElementById('volumeSlider');
+        volumeSlider.addEventListener('input', function() {
+            const volume = this.value;
+            // audioSource.setVolume(volume);
+            var gainNode = audioContext.createGain()
+            gainNode.gain.value = parseInt(volume) / 100 // 0.1 // 10 %
+            gainNode.connect(audioContext);
+
+        });
+
+        function captureAudioData() {
+
+
+            let data = new Uint8Array(analyser.frequencyBinCount);
+            analyser.getByteFrequencyData(data);
+
+            let bandSize = Math.floor(data.length / numBands);
+
+            clearNoteSpheres();
+
+            let bandWidth = audioContext.sampleRate / analyser.frequencyBinCount; // Adjust as necessary based on how you set up the Web Audio API.
+           
+            // console.log(bandWidth);
+
+            let peakVolume = 0;
+            let peakBand = null;
+            // console.log(numBands);
+            for (let i = 0; i < numBands; i++) {
+                // console.log("i");
+
+                let band = data.slice(i * bandSize, (i + 1) * bandSize);
+                let volume = getAverageVolume(band);
+                
+                if (volume > peakVolume) {
+                    peakVolume = volume;
+                    peakBand = band;
+                    peakBandIndex = i;  // Store the index of the peak band
+                    // console.log("peakBandIndex" + peakBandIndex);
+
+                }
+            }
+            // console.log("Peak band index:", peakBandIndex);
+            // console.log("Peak volume:", peakVolume);
+
+
+            if (peakBand && false) {
+
+                analyser.getFloatTimeDomainData( buf );
+                var ac = autoCorrelate( buf, audioContext.sampleRate );
+                pitch = ac;
+                var note =  noteFromPitch( pitch );
+                // // console.log(note);
+                // // var otherNote = detectNoteFromBand(peakBand, bandWidth);
+                // // console.log("Detected note for peak band:", note);
+
+                if (note && noteDisplayEnabled) {
+                    console.log("Peak note detected");
+                    console.log(peakBandIndex);
+                    let noteText = noteStrings[note%12];
+                    console.log(noteText);
+                    let noteSphere = createNoteSphere(noteText);
+                    noteSphere.position.copy(points[peakBandIndex].position);
+                    noteSphere.userData.type = 'noteSphere';  // Tagging the sphere so that we can easily remove it later
+                    noteSphere.scale.set(0.1, 0.1, 0.1);  // Scale down the sphere to make it smaller
+                    noteSphere.rotation.y = -Math.PI / 2;
+                    scene.add(noteSphere);
+                    // console.log("Added peak note sphere:", noteSphere);
+                }
+            }
+
+
+            for (let i = 0; i < numBands; i++) {
+                // TODO: this doesn't seem to be properly using the band frequency
+
+                let band = data.slice(i * bandSize, (i + 1) * bandSize);
+                let volume = getAverageVolume(band);
+                let volumeDisplay = document.getElementById('volume' + i);
+                volumeDisplay.textContent = ' ' + volume.toFixed(2) + ' / ' + thresholds[i];
+
+
+                if (volume >= thresholds[i]) {
+
+
+                    // TODO pull from active color range
+                    // increment, move to next range
+
+                    if(activeOffset > 5)
+                        activeOffset = 1; 
+
+                    let activeHueoffset = 20;
+                    if (activeOffset == 1)
+                        activeHueoffset = hueoffset1;
+                    if (activeOffset == 2)
+                        activeHueoffset = hueoffset2;
+                    if (activeOffset == 3)
+                        activeHueoffset = hueoffset3;
+                    if (activeOffset == 4)
+                        activeHueoffset = hueoffset4;
+                    if (activeOffset == 5)
+                        activeHueoffset = hueoffset5;
+                    console.log(activeHueoffset);
+                    let hue = (volume * volumemagnification) + activeHueoffset;
+                    activeOffset++; 
+
+
+                    // let hue = 10;
+                    if (hue > 360) hue -= 360;
+                    let color = new THREE.Color('hsl(' + hue + ', ' + saturation + '%, ' + brightness  + '%)');
+                    updateTargetColor(color);
+
+
+
+
+                    // console.log(band);
+
+
+                    // let detectedNote = detectNote(band);  // Implement detectNote() based on your frequency to note logic
+                    // if (detectedNote) {
+
+                    // }
+
+                    if(points[i]) points[i].material.color = color;
+
+                    volumeDisplay.style.color = '#00ff00'; // green
+                    if (lastPoints.length >= 3) {
+
+
+                        var geometry = createTriangleGeometry(lastPoints[0], lastPoints[1], lastPoints[2]);
+                        var material; 
+                        if(mixedElementActive)
+                            mixedModeCounter++;
+
+                        if(videoElementActive && (mixedModeCounter % 2 == 0 )) {
+                            videoTexture = getVideoFrameTexture();
+                             let opacitylevel=1;
+                             if (videoFullOpacity)
+                                opacitylevel = 1;
+                            else
+                               opacitylevel =  (12 / volume ) + .2;
+                             // TODO: hits infinity too often
+                            //  console.log(opacitylevel);
+                            if (colorShaderMode) {
+                                material = new THREE.ShaderMaterial(colorIsolationShader);
+
+                            } else {
+                                material = new THREE.MeshBasicMaterial({map:videoTexture, opacity: opacitylevel, transparent: true, side: THREE.DoubleSide});
+
+                            }
+                             material.needsUpdate = true;
+                        }
+                        else if (imageElementActive) {
+
+                            videoTexture = getNextImageTexture();
+                             material = new THREE.MeshBasicMaterial({map:videoTexture, opacity: 0.6, transparent: true, side: THREE.DoubleSide});
+                             material.needsUpdate = true;
+
+                        } else  {
+
+                            material = new THREE.MeshBasicMaterial({color: color, opacity: 0.6, transparent: true, side: THREE.DoubleSide});
+
+                        }
+
+                        var triangle = new THREE.Mesh(geometry, material);
+
+                
+                        triangle.castShadow = true;    // to cast shadows
+                        triangle.receiveShadow = true; // to receive shadows
+
+                        // const tetra = new THREE.TetrahedronGeometry(.5);
+
+
+                        scene.add(triangle); 
+                        if (innerTriangleActive)
+                        {
+                            var innerGeometry = createInnerTriangleGeometry(lastPoints[0], lastPoints[1], lastPoints[2]);
+                            var innerMaterial = new THREE.MeshBasicMaterial({color: "black", opacity: 0.5, transparent: false, side: THREE.DoubleSide});
+                            var innerTriangle = new THREE.Mesh(innerGeometry, innerMaterial);
+                            scene.add(innerTriangle); 
+
+                        }
+
+                        if (geometries.length > ACTIVE_GEOMETRIES_LIMIT) {
+
+                                geometries[0].geometry.geometry.dispose();
+                                geometries[0].geometry.material.dispose();
+                                scene.remove(geometries[0].geometry);
+                                geometries.shift();
+
+                        }
+
+                        geometries.push({geometry: triangle, age: 0});
+                        if (innerTriangleActive)
+                        {
+                            geometries.push({geometry: innerTriangle, age: 0});
+
+                        }
+
+                        lastPoints.shift();
+                    }
+
+                    lastPoints.push(points[i].position.clone());
+                } else {
+                    volumeDisplay.style.color = '#ff0000'; // red
+                }
+            }
+
+
+
+            for (let i = geometries.length - 1; i >= 0; i--) {
+                geometries[i].age++;
+                if (geometries[i].age > activegeometriesagedeath) {
+                    geometries[i].geometry.material.opacity -= activegeometriesopacityreduction;
+                    geometries[i].geometry.material.opacity -= activegeometriesopacityreduction;
+                    if (geometries[i].geometry.material.opacity <= 0) {
+                        scene.remove(geometries[i].geometry);
+                        geometries.splice(i, 1);
+                    }
+                }
+            }
+
+            if (midiData) {
+                let currentTime = Tone.Transport.seconds;
+                let activeNotes = [];
+
+                midiData.tracks.forEach((track, trackIndex) => {
+                    let sphere = points[trackIndex % numBands];
+
+                    track.notes.forEach(note => {
+                        if (currentTime >= note.time && currentTime < note.time + note.duration) {
+                            let noteSphere = createNoteSphere(note.name);
+                            let color = getColorForTrack(trackIndex);
+                            noteSphere.material.color.set(color);
+                            noteSphere.position.copy(sphere.position);
+                            noteSphere.userData.type = 'noteSphere';
+                            // Make spheres half as large
+                            noteSphere.scale.set(0.05, 0.05, 0.05); // Half the size of the original scale 0.1
+                            noteSphere.rotation.y = -Math.PI / 2;
+                            scene.add(noteSphere);
+                            activeNotes.push(noteSphere);
+                        }
+                    });
+                });
+
+                // Draw lines between active notes
+                if (activeNotes.length >= 2) {
+                    for (let i = 0; i < activeNotes.length - 1; i++) {
+                        for (let j = i + 1; j < activeNotes.length; j++) {
+                            let startPos = activeNotes[i].position;
+                            let endPos = activeNotes[j].position;
+                            let lineGeometry = new THREE.Geometry();
+                            lineGeometry.vertices.push(startPos, endPos);
+                            let meshLine = new MeshLine();
+                            meshLine.setGeometry(lineGeometry);
+
+                            let lineMaterial = new MeshLineMaterial({
+                                color: 0xffffff,
+                                lineWidth: 5  // This can be much thicker than standard lines
+                            });
+                            let line = new THREE.Mesh(meshLine.geometry, lineMaterial);
+                            scene.add(line);
+                        }
+                    }
+                }
+
+//     // Expire old geometries to keep only the most recent 15
+    geometries.forEach(obj => {
+        obj.age++;
+    });
+
+    // Filter out old geometries and remove them from the scene
+const maxAge = 1.1;  // Adjust as necessary for your application
+geometries = geometries.filter(obj => {
+    if (obj.age >= maxAge) {
+        scene.remove(obj.geometry);  // Remove the line from the scene
+        if (obj.geometry.geometry) {
+            obj.geometry.geometry.dispose();  // Dispose of the geometry
+        }
+        if (obj.geometry.material) {
+            obj.geometry.material.dispose();  // Dispose of the material
+        }
+        return false;
+    }
+    return true;
+});
+
+
+//     // Expire old notes
+    while (activeNotes.length > 15) {
+        let oldestNote = activeNotes.shift(); // Removes the oldest note if over 15
+        scene.remove(oldestNote);
+    }
+
+//     const sideLight = new THREE.DirectionalLight(0xffffff, 1.0);  // White light, full intensity
+
+// sideLight.position.set(10, 0, 0);  // Position to the side
+// scene.add(sideLight);
+
+// // Optionally add a slight tilt to direct the light downwards
+// sideLight.position.set(10, 5, 0);
+
+// // Enable shadows if not already enabled
+// renderer.shadowMap.enabled = true;
+// sideLight.castShadow = true;
+
+// // Set up shadow properties for better performance and quality
+// sideLight.shadow.mapSize.width = 512;  // Default is 512
+// sideLight.shadow.mapSize.height = 512;  // Default is 512
+// sideLight.shadow.camera.near = 0.5;  // Default is 0.5
+// sideLight.shadow.camera.far = 500;  // Default is 500
+
+// // Ensure your objects cast and receive shadows
+// activeNotes.forEach(noteSphere => {
+//     noteSphere.castShadow = true;
+//     noteSphere.receiveShadow = true;
+// });
+
+// // You may also want to adjust the material properties to enhance the interaction with light
+// activeNotes.forEach(noteSphere => {
+//     noteSphere.material = new THREE.MeshPhongMaterial({
+//         color: noteSphere.material.color,  // Keep the original color
+//         specular: 0x050505,
+//         shininess: 100
+//     });
+// });
+
+// // Adjust ambient light if the scene becomes too dark
+// const ambientLight = new THREE.AmbientLight(0x404040, 0.5);  // Soft white light
+// scene.add(ambientLight);
+
+}
+
+    
+    }
+
+        function updateTargetColor(updatedColor) {
+            colorIsolationShader.uniforms.targetColor.value.set(updatedColor.r, updatedColor.g, updatedColor.b);
+        }
+
+
+
+const K = 0.8; // Coupling strength
+
+
+function getNeighborsAtDistance(index, distance, totalOscillators) {
+    let neighbors = [];
+    const left = (index - distance + totalOscillators) % totalOscillators;
+    const right = (index + distance) % totalOscillators;
+    neighbors.push(left, right);
+    return neighbors;
+}
+
+function initKuramotoOscillators() {
+    oscillators = Array(numBands).fill().map((_, i) => ({
+        phase: Math.random() * 2 * Math.PI,
+        naturalFreq: Math.random() * 2 - 1,
+        position: new THREE.Vector3(),
+        smallWorldNeighbors: new Set()
+    }));
+
+    // Add small-world connections
+    oscillators.forEach((osc, i) => {
+        while(osc.smallWorldNeighbors.size < SMALL_WORLD_CONNECTIONS) {
+            const randomNeighbor = Math.floor(Math.random() * numBands);
+            if (randomNeighbor !== i) {
+                osc.smallWorldNeighbors.add(randomNeighbor);
+            }
+        }
+    });
+}
+
+function calculateCouplingTerm(oscillatorIndex) {
+    let couplingSum = 0;
+    const N = oscillators.length;
+    
+    // Regular neighbor coupling at different distances
+    for (let distance = 1; distance <= MAX_DISTANCE; distance++) {
+        const Ks = 1.0 / (distance * distance); // Coupling strength decreases with distance
+        const neighbors = getNeighborsAtDistance(oscillatorIndex, distance, N);
+        
+        neighbors.forEach(j => {
+            couplingSum += Ks * Math.sin(oscillators[j].phase - oscillators[oscillatorIndex].phase);
+        });
+    }
+
+    // Small-world coupling
+    const Ksw = 0.5; // Small-world coupling strength
+    oscillators[oscillatorIndex].smallWorldNeighbors.forEach(j => {
+        couplingSum += Ksw * Math.sin(oscillators[j].phase - oscillators[oscillatorIndex].phase);
+    });
+
+    return couplingSum / (2 * MAX_DISTANCE + SMALL_WORLD_CONNECTIONS); // Normalize by total connections
+}
+
+function updateOscillators() {
+    const dt = 0.01;
+    oscillators = oscillators.map((osc, i) => {
+        const couplingTerm = calculateCouplingTerm(i);
+        const dPhase = osc.naturalFreq + couplingTerm;
+        const newPhase = (osc.phase + dPhase * dt) % (2 * Math.PI);
+        
+        return {
+            ...osc,
+            phase: newPhase
+        };
+    });
+
+    // Update visualization
+    oscillators.forEach((osc, i) => {
+        if (!points[i]) return;
+        
+        const radius = 1;
+        const phi = osc.phase;
+        const theta = (i / numBands) * Math.PI * 2;
+        
+        const x = radius * Math.sin(phi) * Math.cos(theta);
+        const y = radius * Math.sin(phi) * Math.sin(theta);
+        const z = radius * Math.cos(phi);
+        
+        points[i].position.set(x, y, z);
+        
+        // Color based on phase coherence with neighbors
+        const coherence = Math.abs(calculateCouplingTerm(i));
+        const hue = (osc.phase / (2 * Math.PI)) * 360;
+        points[i].material.color = new THREE.Color(`hsl(${hue}, ${saturation}%, ${brightness}%)`);
+    });
+}
+
+
+function getColorForTrack(trackIndex) {
+    // Assign a unique color to each track based on its index
+    const colors = [0xff0000, 0x00ff00, 0x0000ff, 0xffff00, 0xff00ff, 0x00ffff];
+    return colors[trackIndex % colors.length];
+}
+
+        function animate() {
+            requestAnimationFrame(animate);
+
+		    updateOscillators();
+
+
+            // untoggle if to make fully deterministic
+            hueoffset += hueOffsetSpeed;
+
+            if(hueoffset > 360) {
+                hueoffset -= 360;
+            }
+
+
+
+            scene.rotation.x += X_ROTATION_SPEED; 
+            scene.rotation.y += Y_ROTATION_SPEED;
+
+            renderer.render(scene, camera);
+        }
+
+        let previousEnergies = []; // To store recent energy values
+        let ENERGY_HISTORY = 10;  // How many past energy values to store
+        let BEAT_THRESHOLD = 1.05; // To be adjusted
+        let beatDataArray;
+        let bufferLength;
+
+        let audioContext;
+        let biquadFilter;
+        let startButton = document.getElementById('startButton');
+        startButton.addEventListener('click', function() {
+            startButton.parentElement.removeChild(startButton);
+
+            navigator.mediaDevices.getUserMedia({ video: false, audio: true}).then(function(stream) {
+
+            //NOTE: this helped with some pitch detection but had side effects
+
+            // navigator.mediaDevices.getUserMedia({ video: false, audio: {
+            // "mandatory": {
+            //     "googEchoCancellation": "false",
+            //     "googAutoGainControl": "false",
+            //     "googNoiseSuppression": "false",
+            //     "googHighpassFilter": "false"
+            // }}}).then(function(stream) {
+                
+                audioContext = new AudioContext();
+                let source = audioContext.createMediaStreamSource(stream);
+                analyser = audioContext.createAnalyser();
+                analyser.fftSize = 2048 * 2;
+                source.connect(analyser);
+
+                //NOTE: not sure this is adding much value
+
+                biquadFilter = audioContext.createBiquadFilter();
+                biquadFilter.type = "lowpass";
+                biquadFilter.frequency.setValueAtTime(150, audioContext.currentTime); // Keeping frequencies below 150Hz
+                source.connect(biquadFilter);
+                biquadFilter.connect(analyser);
+                
+                bufferLength = analyser.frequencyBinCount;
+                beatDataArray = new Uint8Array(bufferLength);
+                animate();
+                captureInterval = setInterval(captureAudioData, CAPTURE_INTERVAL_MS);
+                MAX_SIZE = Math.max(4,Math.floor(audioContext.sampleRate/5000));	// corresponds to a 5kHz signal
+                // startPitchDetect();
+                // updatePitch();
+
+            });
+        });
+
+        
+        let masterInput = document.getElementById('master');
+        masterInput.value = startingVolumeThreshold;
+
+        let thresholdsDiv = document.getElementById('thresholds');
+        let startingVolumeThresholds = new Array(numBands).fill(startingVolumeThreshold);
+
+        for(let i = 0; i < numBands; i++){
+            let highEnd = 200; // maximum volume threshold for lowest frequency band
+            let lowEnd = 10;   // minimum volume threshold for highest frequency band
+            let range = highEnd - lowEnd;
+
+            let input = document.createElement('input');
+            input.type = 'range';
+            input.min = '0';
+            input.max = '255';
+            input.value = startingVolumeThreshold;
+            startingVolumeThresholds[i] = startingVolumeThreshold;
+            thresholds[i] =  startingVolumeThreshold;
+
+            // input.value = highEnd - Math.floor((i/numBands) * range);
+            // startingVolumeThresholds[i] = highEnd - Math.floor((i/numBands) * range);
+            input.id = 'threshold' + i;
+            input.oninput = function(){
+                thresholds[i] = this.value;  // Set the threshold for specific band
+                // Add this line to update the display text when the threshold changesf
+                // document.getElementById('volume' + i).textContent = 'v: ' + startingVolumeThresholds[i] + ' 0 / ' + startingVolumeThresholds[i];
+                document.getElementById('volume' + i).textContent = ' 0 / ' + thresholds[i];
+
+            };
+
+            let volumeDisplay = document.createElement('span');
+            volumeDisplay.id = 'volume' + i;
+            volumeDisplay.style.color = 'white';
+            volumeDisplay.textContent = "v: ";
+
+            thresholdsDiv.appendChild(document.createTextNode('Band ' + i + ': '));
+            thresholdsDiv.appendChild(input);
+            thresholdsDiv.appendChild(volumeDisplay);
+            thresholdsDiv.appendChild(document.createElement('br'));
+            document.getElementById('volume' + i).textContent = 'v: 0 / ' + thresholds[i];
+            document.getElementById('volume' + i).style = 'color:black';
+
+        }
+
+        let master = document.getElementById('master');
+        let lastMasterValue = startingVolumeThreshold;
+        master.oninput = function() {
+            let masterValue = this.value;
+            let delta = masterValue - lastMasterValue;
+            // startingVolumeThresholds = startingVolumeThresholds.map(() => masterValue);  // Set all thresholds to the master's value
+
+            for (let i = 0; i < numBands; i++) {
+                let input = document.getElementById('threshold' + i);
+                thresholds[i] =  parseInt(input.value) + delta;
+                input.value = parseInt(input.value) + delta;
+                document.getElementById('volume' + i).textContent = 'v: 0 / ' + input.value;
+            }
+
+            lastMasterValue = masterValue;
+        };
+
+        const audioQueue = [];
+        let audioSource;  // Keep track of the current audio source
+
+    document.getElementById('audioInput').addEventListener('change', async function(event) {
+
+        audioContext = new AudioContext();
+        analyser = audioContext.createAnalyser();
+        analyser.fftSize = 2048 * 2 * 2;
+
+        // Populate the audioQueue with the selected files
+        audioQueue.length = 0;  // Clear the queue
+        for (let file of event.target.files) {
+            console.log(file);
+            audioQueue.push(file);
+        }
+
+        playNext();
+
+    });
+
+
+    document.getElementById('back-1000ms').addEventListener('click', () => {
+    changePlaybackPosition(-1000);
+    });
+
+
+    document.getElementById('back-300ms').addEventListener('click', () => {
+    changePlaybackPosition(-300);
+    });
+
+    document.getElementById('back-200ms').addEventListener('click', () => {
+    changePlaybackPosition(-200);
+    });
+
+    document.getElementById('back-100ms').addEventListener('click', () => {
+    changePlaybackPosition(-100);
+    });
+
+    document.getElementById('forward-1000ms').addEventListener('click', () => {
+        changePlaybackPosition(1000);
+    });
+
+
+    document.getElementById('forward-10000ms').addEventListener('click', () => {
+        changePlaybackPosition(10000);
+    });
+
+
+    // XML color range extraction
+    document.getElementById('xmlInput').addEventListener('change', function(e) {
+      const file = e.target.files[0];
+      const reader = new FileReader();
+
+      reader.onload = function(e) {
+        const xmlContent = e.target.result;
+        const parser = new DOMParser();
+        const xmlDoc = parser.parseFromString(xmlContent, 'text/xml');
+
+        const colorChoices = xmlDoc.getElementsByTagName('Choice');
+        const colorRanges = [];
+
+        for (let i = 0; i < colorChoices.length; i++) {
+          const colorChoice = colorChoices[i];
+          const colorName = colorChoice.getAttribute('name');
+          const colorValue = colorChoice.getAttribute('value');
+
+          colorRanges.push(`${colorName}: ${colorValue}`);
+        }
+
+        document.getElementById('output').textContent = colorRanges.join('\n');
+        console.log(colorRanges);
+      };
+
+      reader.readAsText(file);
+    });
+
+
+
+    // function playSound(buffer) {
+    //     let source = audioContext.createBufferSource(); 
+    //     source.buffer = buffer;
+    //     source.connect(analyser); // Connect source to the analyser
+    //     source.connect(audioContext.destination); // Connect source to the speakers
+    //     source.start(0);
+    // }
+
+// SECTION: video
+
+        // for video render
+
+    // const allVideoQueues;s
+
+    function hide() {
+        document.getElementById("thresholds").style.display = "none";
+    }
+
+
+    </script>
+<script src="js/video_processor.js"></script>
+<script src="js/pitchdetect.js"></script>
+<script src="js/note_analyzer.js"></script>
+<script src="js/audio_controller.js"></script>
+<script src="js/sonic_geometries.js"></script>
+<script src="js/message_controller.js"></script>
+</body>
+</html>
