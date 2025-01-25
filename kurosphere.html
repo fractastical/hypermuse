@@ -167,6 +167,18 @@ button:hover {
             <label for="master">Equalizer Master Volume :</label>
             <input type="range" id="master" min="-100" max="355" value="150" />
           </div>
+
+          <div class="controls">
+    <label for="coupling1">Coupling (1): <span id="coupling1Value">-5.7</span></label>
+    <input type="range" id="coupling1" min="-20" max="20" step="0.1" value="-5.7"><br>
+    <label for="coupling2">Coupling (2): <span id="coupling2Value">-4.6</span></label>
+    <input type="range" id="coupling2" min="-20" max="20" step="0.1" value="-4.6"><br>
+    <label for="coupling3">Coupling (3): <span id="coupling3Value">-8.8</span></label>
+    <input type="range" id="coupling3" min="-20" max="20" step="0.1" value="-8.8"><br>
+    <label for="coupling4">Coupling (4+): <span id="coupling4Value">1.0</span></label>
+    <input type="range" id="coupling4" min="-20" max="20" step="0.1" value="1.0">
+</div>
+
         </div>
 
         <!-- <div id="advancedControls"></div> -->
@@ -214,7 +226,10 @@ button:hover {
 
 // Kuromoto specific
 
-        let oscillators = [];
+		let oscillators = [];
+		const GRID_SIZE = 7; // 7x7 grid
+		const NUM_OSCILLATORS = GRID_SIZE * GRID_SIZE;
+		const DEFAULT_COUPLINGS = [-5.7, -4.6, -8.8, 1.0];
 		const MAX_DISTANCE = 3; // Maximum neighbor distance
 		const SMALL_WORLD_CONNECTIONS = 2; // Number of random long-range connections per oscillator
 
@@ -262,26 +277,55 @@ button:hover {
         let lastPoints = [];
 
         //TODO: this function doesn't preoperly work when run repeat times (i.e. the points are evenly distributed over the surface of the sphere)
+
+        function initKuramotoOscillators() {
+    oscillators = [];
+    // Create grid of oscillators
+    for(let i = 0; i < NUM_OSCILLATORS; i++) {
+        const x = Math.floor(i / GRID_SIZE);
+        const y = i % GRID_SIZE;
+        
+        const neighbors = [
+            getNeighborsAtDistance(x, y, 1),
+            getNeighborsAtDistance(x, y, 2),
+            getNeighborsAtDistance(x, y, 3),
+            getNeighborsAtDistance(x, y, 4)
+        ];
+
+        oscillators.push({
+            phase: Math.random() * 2 * Math.PI,
+            naturalFreq: Math.random() * 2 - 1,
+            x: x,
+            y: y,
+            neighbors: neighbors,
+            coupling: [-5.7, -4.6, -8.8, 1.0] // Default coupling strengths
+        });
+    }
+
+    // Set up visualization points in grid
+    points = oscillators.map((osc, i) => {
+        const point = new THREE.Points(
+            new THREE.BufferGeometry().setFromPoints([new THREE.Vector3(0, 0, 0)]),
+            new THREE.PointsMaterial({color: 0xffffff, size: 0.05})
+        );
+        
+        const gridScale = 2.0;
+        const x = (osc.x - GRID_SIZE/2) * gridScale;
+        const y = (osc.y - GRID_SIZE/2) * gridScale;
+        point.position.set(x, y, 0);
+        
+        scene.add(point);
+        return point;
+    });
+}
+
 function initBands() {
-    // Initialize oscillators first
     oscillators = Array(numBands).fill().map((_, i) => ({
         phase: Math.random() * 2 * Math.PI,
         naturalFreq: Math.random() * 2 - 1,
-        smallWorldNeighbors: new Set(),
-        position: new THREE.Vector3()
+        coupling: [-5.7, -4.6, -8.8, 1.0]
     }));
 
-    // Add small-world connections
-    oscillators.forEach((osc, i) => {
-        while(osc.smallWorldNeighbors.size < SMALL_WORLD_CONNECTIONS) {
-            const randomNeighbor = Math.floor(Math.random() * numBands);
-            if (randomNeighbor !== i) {
-                osc.smallWorldNeighbors.add(randomNeighbor);
-            }
-        }
-    });
-
-    // Create visualization points
     points = oscillators.map((osc, i) => {
         const phi = osc.phase;
         const theta = (i / numBands) * Math.PI * 2;
@@ -299,7 +343,23 @@ function initBands() {
         scene.add(point);
         return point;
     });
+
+    // Assign neighbors based on distance on sphere
+    oscillators.forEach((osc, i) => {
+        osc.neighbors = [];
+        for(let dist = 1; dist <= 4; dist++) {
+            let neighborIndices = [];
+            for(let j = 0; j < numBands; j++) {
+                if(i !== j) {
+                    const dist = Math.abs(j - i);
+                    if(dist <= 4) neighborIndices.push(j);
+                }
+            }
+            osc.neighbors.push(neighborIndices);
+        }
+    });
 }
+		// initKuramotoOscillators();
 
         initBands();
 
@@ -680,32 +740,83 @@ geometries = geometries.filter(obj => {
 const K = 0.8; // Coupling strength
 
 
-function getNeighborsAtDistance(index, distance, totalOscillators) {
-    let neighbors = [];
-    const left = (index - distance + totalOscillators) % totalOscillators;
-    const right = (index + distance) % totalOscillators;
-    neighbors.push(left, right);
-    return neighbors;
-}
-
-function initKuramotoOscillators() {
-    oscillators = Array(numBands).fill().map((_, i) => ({
-        phase: Math.random() * 2 * Math.PI,
-        naturalFreq: Math.random() * 2 - 1,
-        position: new THREE.Vector3(),
-        smallWorldNeighbors: new Set()
-    }));
-
-    // Add small-world connections
-    oscillators.forEach((osc, i) => {
-        while(osc.smallWorldNeighbors.size < SMALL_WORLD_CONNECTIONS) {
-            const randomNeighbor = Math.floor(Math.random() * numBands);
-            if (randomNeighbor !== i) {
-                osc.smallWorldNeighbors.add(randomNeighbor);
+function getNeighborsAtDistance(x, y, distance) {
+    const neighbors = [];
+    
+    // Check all possible positions at given Manhattan distance
+    for(let dx = -distance; dx <= distance; dx++) {
+        for(let dy = -distance; dy <= distance; dy++) {
+            if(Math.abs(dx) + Math.abs(dy) === distance) {
+                const newX = x + dx;
+                const newY = y + dy;
+                if(newX >= 0 && newX < GRID_SIZE && newY >= 0 && newY < GRID_SIZE) {
+                    neighbors.push(newX * GRID_SIZE + newY);
+                }
             }
         }
+    }
+    return neighbors;
+}
+function initKuramotoOscillators() {
+    oscillators = [];
+    // Create grid of oscillators
+    for(let i = 0; i < NUM_OSCILLATORS; i++) {
+        const x = Math.floor(i / GRID_SIZE);
+        const y = i % GRID_SIZE;
+        
+        const neighbors = [
+            getNeighborsAtDistance(x, y, 1),
+            getNeighborsAtDistance(x, y, 2),
+            getNeighborsAtDistance(x, y, 3),
+            getNeighborsAtDistance(x, y, 4)
+        ];
+
+        oscillators.push({
+            phase: Math.random() * 2 * Math.PI,
+            naturalFreq: Math.random() * 2 - 1,
+            x: x,
+            y: y,
+            neighbors: neighbors,
+            coupling: [...DEFAULT_COUPLINGS] // Use default coupling values
+        });
+    }
+
+    // Create visualization points
+    points = oscillators.map((osc, i) => {
+        const point = new THREE.Points(
+            new THREE.BufferGeometry().setFromPoints([new THREE.Vector3(0, 0, 0)]),
+            new THREE.PointsMaterial({
+                color: 0xffffff, 
+                size: 0.05,
+                transparent: true,
+                opacity: 0.8
+            })
+        );
+        
+        const gridScale = 2.0;
+        const x = (osc.x - GRID_SIZE/2) * gridScale;
+        const y = (osc.y - GRID_SIZE/2) * gridScale;
+        point.position.set(x, y, 0);
+        
+        scene.add(point);
+        return point;
     });
 }
+
+
+function getSmallWorldNeighbors(index) {
+    const numConnections = 2;
+    const neighbors = new Set();
+    while(neighbors.size < numConnections) {
+        const randomNeighbor = Math.floor(Math.random() * NUM_OSCILLATORS);
+        if(randomNeighbor !== index) {
+            neighbors.add(randomNeighbor);
+        }
+    }
+    return Array.from(neighbors);
+}
+
+
 
 function calculateCouplingTerm(oscillatorIndex) {
     let couplingSum = 0;
@@ -732,39 +843,33 @@ function calculateCouplingTerm(oscillatorIndex) {
 
 function updateOscillators() {
     const dt = 0.01;
-    oscillators = oscillators.map((osc, i) => {
-        const couplingTerm = calculateCouplingTerm(i);
-        const dPhase = osc.naturalFreq + couplingTerm;
-        const newPhase = (osc.phase + dPhase * dt) % (2 * Math.PI);
-        
-        return {
-            ...osc,
-            phase: newPhase
-        };
-    });
-
-    // Update visualization
     oscillators.forEach((osc, i) => {
-        if (!points[i]) return;
+        let sumSin = 0;
+        osc.neighbors.forEach((neighborGroup, distIndex) => {
+            neighborGroup.forEach(j => {
+                // Stronger coupling for more movement
+                sumSin += osc.coupling[distIndex] * 2 * Math.sin(oscillators[j].phase - osc.phase);
+            });
+        });
+
+        // Add natural frequency oscillation
+        osc.phase = (osc.phase + (osc.naturalFreq * 0.5 + sumSin) * dt) % (2 * Math.PI);
         
-        const radius = 1;
-        const phi = osc.phase;
-        const theta = (i / numBands) * Math.PI * 2;
-        
-        const x = radius * Math.sin(phi) * Math.cos(theta);
-        const y = radius * Math.sin(phi) * Math.sin(theta);
-        const z = radius * Math.cos(phi);
-        
-        points[i].position.set(x, y, z);
-        
-        // Color based on phase coherence with neighbors
-        const coherence = Math.abs(calculateCouplingTerm(i));
-        const hue = (osc.phase / (2 * Math.PI)) * 360;
-        points[i].material.color = new THREE.Color(`hsl(${hue}, ${saturation}%, ${brightness}%)`);
+        if(points[i]) {
+            const radius = 1;
+            const phi = osc.phase;
+            const theta = (i / numBands) * Math.PI * 2;
+            
+            // More pronounced movement
+            points[i].position.x = radius * Math.sin(phi) * Math.cos(theta);
+            points[i].position.y = radius * Math.sin(phi) * Math.sin(theta);
+            points[i].position.z = radius * Math.cos(phi);
+            
+            const hue = (osc.phase / (2 * Math.PI)) * 360;
+            points[i].material.color.setHSL(hue/360, saturation/100, brightness/100);
+        }
     });
 }
-
-
 function getColorForTrack(trackIndex) {
     // Assign a unique color to each track based on its index
     const colors = [0xff0000, 0x00ff00, 0x0000ff, 0xffff00, 0xff00ff, 0x00ffff];
@@ -951,6 +1056,7 @@ function getColorForTrack(trackIndex) {
     });
 
 
+
     // XML color range extraction
     document.getElementById('xmlInput').addEventListener('change', function(e) {
       const file = e.target.files[0];
@@ -999,6 +1105,26 @@ function getColorForTrack(trackIndex) {
         document.getElementById("thresholds").style.display = "none";
     }
 
+function initCouplingControls() {
+    // Add coupling slider event listeners
+    ['coupling1', 'coupling2', 'coupling3', 'coupling4'].forEach(id => {
+        const slider = document.getElementById(id);
+        const valueDisplay = document.getElementById(id + 'Value');
+        if(slider && valueDisplay) {
+            slider.addEventListener('input', () => {
+                valueDisplay.textContent = slider.value;
+                oscillators.forEach(osc => {
+                    const groupIndex = parseInt(id.slice(-1)) - 1;
+                    if(osc.neighbors[groupIndex]) {
+                        osc.neighbors[groupIndex].k = Number(slider.value);
+                    }
+                });
+            });
+        }
+    });
+}
+
+document.addEventListener('DOMContentLoaded', initCouplingControls);
 
     </script>
 <script src="js/video_processor.js"></script>
