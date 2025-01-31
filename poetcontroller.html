@@ -1,0 +1,807 @@
+
+
+
+
+
+
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>Controller (for Audiosphere)</title>
+    <style>
+        
+    body { margin: 0; overflow: hidden; display: flex; background-color: #000000; color: #00ff00; font-family: 'Courier New', Courier, monospace; }
+
+    input {
+        padding:3px;
+        margin:3px;
+        size:10;
+    }
+
+    .input-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+        gap: 20px;
+        max-height: 90vh;
+        overflow-y: auto;
+        padding: 20px;
+        border-radius: 10px;
+        box-shadow: 0px 5px 15px rgba(0, 0, 0, 0.1);
+    }
+
+
+
+    .flash {
+        animation: flash .15s;
+    }
+
+    @keyframes flash {
+        50% {
+            background: green;
+        }
+        100% {
+            background: transparent;
+        }
+    }
+
+
+    </style>
+    <script src="js/threejs.org_build_three.js"></script>
+    <!-- <script src="js/cdn.jsdelivr.net_npm_@tonejs_midi.js"></script>
+    <script src="js/js/cdn.jsdelivr.net_npm_tone.js"></script> -->
+
+    <!-- <script src="https://unpkg.com/delaunator@3.0.2/delaunator.js"></script>
+    <script src="https://josephg.github.io/noisejs/perlin.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/dat-gui/0.7.3/dat.gui.min.js"></script> -->
+
+
+
+</head>
+<body>
+    <div id="thresholds" class="input-grid">
+     <!-- music add:  <input type="file" id="audioInput" multiple  accept="audio/*, .midi, .mid">
+     <input type="text" id="audiopop" value="pop"/>
+    video: <input type="file" id="videoInput" accept="video/*" multiple>
+     <input type="text" id="videopop" value="pop"/> -->
+
+    <!-- <audio id="audioElement" controls></audio> -->
+
+
+    <div class="input-group">
+        Loaded videos: <ienput  type="textarea"  id="loadedvideos" value=""/>
+    </div>
+
+    <div class="input-group">
+        Video change: <input  type="button"  id="videochange" value="change"/>
+    </div>
+    <div class="input-group">
+         Video loop change: <input  type="button"  id="videochangeloop" value="change"/>
+    </div>
+    <div class="input-group">    
+    Mode ("color","video","lines"): <input type="text" id="mode" value="color"/>
+    </div>
+    <div class="input-group">
+        Hue is a degree on the color wheel from 0 to 360. 0 is red, 120 is green, and 240 is blue.
+        Hueoffset1: <input type="text" id="hueoffset1" value="20"/>
+    </div>
+
+    <div class="input-group">
+    Hueoffset2: <input type="text" id="hueoffset2" value="20"/>
+    </div>
+
+    <div class="input-group">
+    Hueoffset3: <input type="text" id="hueoffset3" value="20"/>
+    </div>
+
+    <div class="input-group">
+    Hueoffset4: <input type="text" id="hueoffset4" value="20"/>
+    </div>
+
+    <div class="input-group">
+    Hueoffset5: <input type="text" id="hueoffset5" value="20"/>
+    </div>
+
+    <div class="input-group">
+    Active poem: <input type="text" id="poem" value="20"/>
+    </div>
+
+    <div class="input-group">
+    Xrotationspeed: <input type="text" id="xrotation" value="0.0001"/>
+    </div>
+    <div class="input-group">
+    Yrotationspeed: <input type="text" id="yrotation" value="0.0005"/>
+    </div>
+    <div class="input-group">
+    Saturation: <input type="text" id="saturation" value="100"/>
+     </div>
+    <div class="input-group">
+    Brightness: <input type="text" id="brightness" value="50"/>
+    </div>
+    <div class="input-group">
+        Volume magnifier: <input type="text" id="volumemagnification" value="1.4"/>
+    </div>
+    <div class="input-group">
+        Active Geometries limit: <input type="text" id="activegeometrieslimit" value="25"/>
+    </div>
+    <div class="input-group">
+        Active Geometries opacityreduction: <input type="text" id="activegeometriesopacityreduction" value="0.01"/>
+    </div>
+    <div class="input-group">
+        Active Geometries death speed: <input type="text" id="activegeometriesagedeath" value="10"/>
+    </div>
+    <div class="input-group">
+         Playback speed (1 is normal) <input type="text" id="playbackrate" value="1"/>
+     </div>
+     <div class="input-group">
+        render density (1 is normal) <input type="text" id="renderdensity" value="1"/>
+    </div>
+     <div class="input-group">
+        Pointlight position x <input type="text" id="pointlightx" value="5"/>
+    </div>
+    <div class="input-group">
+        y <input type="text" id="pointlighty" value="5"/>
+    </div>
+    <div class="input-group">
+         z <input type="text" id="pointlightz" value="5"/>
+    </div>
+    <div class="input-group">
+        intensity <input type="text" id="pointlightintensity" value="5"/>
+    </div>
+    <div class="input-group">
+         Camera position x <input type="text" id="cxposition" value="1"/>
+    </div>
+    <div class="input-group">
+        y <input type="text" id="cyposition" value="0"/>
+    </div>
+    <div class="input-group">
+        z <input type="text" id="czposition" value="0"/>
+    </div>
+    <div class="input-group">
+
+        history:  <textarea id="changelog"  rows="8" cols="30">
+            </textarea>
+     </div>
+     <div class="input-group">
+
+        active videos:  <textarea id="videoList"  rows="8" cols="30">
+            </textarea>
+     </div>
+
+    <!-- Number of frequency bands <input type="text" id="numbands" value="48"/>
+    holofan mode (0 is false 1 is true) <input type="text" id="holofanmode" value="0"/> -->
+
+    <!-- Hue cycle (changes how fast the hues change) <input type="text" id="hueoffsetspeed" value="0"/>
+
+    Refresh rate (changes how fast the audio signal updates ) <input type="text" id="refreshrate" value="0"/>
+
+    Base frequency (in Hz) <input type="text" id="baseFrequency" value="20"/>
+    Max frequency (in Hz) <input type="text" id="maxFrequency" value="20000"/> -->
+
+
+    <!-- image: <input type="file" id="folderInput" webkitdirectory directory multiple /> -->
+ <div class="input-group">
+        <div id="master-control">
+            <span>Master Volume Threshold: </span>
+            <input type="range" id="master" min="-100" max="355" value="150">
+            <br>
+        </div>    
+  </div>
+
+
+</div>
+
+<script>
+        let hueoffset = 20;
+        let volumeThreshold = 40;
+        let thresholds = Array(22).fill(40);
+        let freezeFrameEffectActive = true;
+        let flashClass = 'flash';
+        let numBands = 48;
+        let holographicFanMode = false;
+
+        let baseFrequency = 20; // Start from 20 Hz
+        let maxFrequency = 20000; // Up to 20 kHz
+        // let numBands = 22; // Number of frequency bands
+
+        let dodecahedronMaterial; 
+
+                // Now calculate the ratio between each band in a logarithmic scale
+        let ratio = Math.pow(maxFrequency / baseFrequency, 1.0 / (numBands - 1));
+
+
+
+        function createTriangleGeometry(p1, p2, p3) {
+                const geometry = new THREE.BufferGeometry();
+                
+                const vertices = new Float32Array([
+                    p1.x, p1.y, p1.z,
+                    p2.x, p2.y, p2.z,
+                    p3.x, p3.y, p3.z
+                ]);
+
+                const uvs = new Float32Array([
+                    0, 0,
+                    1, 0,
+                    0.5, 1
+                ]);
+
+                geometry.setAttribute('position', new THREE.BufferAttribute(vertices, 3));
+                geometry.setAttribute('uv', new THREE.BufferAttribute(uvs, 2));
+
+                return geometry;
+        }
+
+        function getAverageVolume(array) {
+            var values = 0;
+            var average;
+            var length = array.length;
+            for (var i = 0; i < length; i++) {
+                values += array[i];
+            }
+            average = values / length;
+            return average;
+        }
+
+        let hueOffsetSpeed = 0.5;
+
+        function animate() {
+            requestAnimationFrame(animate);
+
+            // untoggle for now so is fully deterministic
+            // hueoffset += hueOffsetSpeed;
+            if(hueoffset > 360) {
+                hueoffset -= 360;
+            }
+
+            let data = new Uint8Array(analyser.frequencyBinCount);
+            analyser.getByteFrequencyData(data);
+
+            let bandSize = Math.floor(data.length / numBands);
+            
+            for (let i = 0; i < numBands; i++) {
+                let band = data.slice(i * bandSize, (i + 1) * bandSize);
+                let volume = getAverageVolume(band);
+                
+            }
+            for (let i = 0; i < numBands; i++) {
+                let band = data.slice(i * bandSize, (i + 1) * bandSize);
+                let volume = getAverageVolume(band);
+                let volumeDisplay = document.getElementById('volume' + i);
+                volumeDisplay.textContent = 'v: ' + volume.toFixed(2) + ' / ' + volumeThresholds[i];
+
+
+                if (volume >= volumeThresholds[i]) {
+                    let hue = (volume * 1.4) + hueoffset;
+                    // let hue = 10;
+                    if (hue > 360) hue -= 360;
+                    let sat = 100;
+                    let lightness = 50;
+                    let color = new THREE.Color('hsl(' + hue + ', 100%, 50%)');
+
+                    if(points[i]) points[i].material.color = color;
+
+                    volumeDisplay.style.color = '#00ff00'; // green
+                    if (lastPoints.length >= 3) {
+
+
+                        var geometry = createTriangleGeometry(lastPoints[0], lastPoints[1], lastPoints[2]);
+                        var material; 
+                        if(videoElementActive) {
+                             var texture = getVideoFrameTexture();
+                             var opacitylevel =  (12 / volume ) + .2;
+                             // TODO: hits infinity too often
+                            //  console.log(opacitylevel);
+                             material = new THREE.MeshBasicMaterial({map:texture, opacity: opacitylevel, transparent: true, side: THREE.DoubleSide});
+                             material.needsUpdate = true;
+                        }
+                        else if (imageElementActive) {
+
+                            var texture = getNextImageTexture();
+                             material = new THREE.MeshBasicMaterial({map:texture, opacity: 0.6, transparent: true, side: THREE.DoubleSide});
+                             material.needsUpdate = true;
+
+                        } else 
+                            material = new THREE.MeshBasicMaterial({color: color, opacity: 0.6, transparent: true, side: THREE.DoubleSide});
+
+                        var triangle = new THREE.Mesh(geometry, material);
+
+
+                        scene.add(triangle);
+
+                        if (geometries.length > 50) {
+
+                                geometries[0].geometry.geometry.dispose();
+                                geometries[0].geometry.material.dispose();
+                                scene.remove(geometries[0].geometry);
+                                geometries.shift();
+
+                        }
+
+                        geometries.push({geometry: triangle, age: 0});
+
+                        lastPoints.shift();
+                    }
+
+                    lastPoints.push(points[i].position.clone());
+                } else {
+                    volumeDisplay.style.color = '#ff0000'; // red
+                }
+            }
+
+            // TODO: Fade out doesn't seem to be working properly for the video textures 
+            for (let i = geometries.length - 1; i >= 0; i--) {
+                geometries[i].age++;
+                if (geometries[i].age > 20) {
+                    geometries[i].geometry.material.opacity -= 0.01;
+                    if (geometries[i].geometry.material.opacity <= 0) {
+                        scene.remove(geometries[i].geometry);
+                        geometries.splice(i, 1);
+                    }
+                }
+            }
+
+            scene.rotation.x += 0.0001;
+            scene.rotation.y += 0.0005;
+
+            renderer.render(scene, camera);
+        }
+
+        // let startButton = document.getElementById('startButton');
+        // startButton.addEventListener('click', function() {
+        //     startButton.parentElement.removeChild(startButton);
+
+        //     navigator.mediaDevices.getUserMedia({ audio: true, video: false }).then(function(stream) {
+        //         let audioContext = new AudioContext();
+        //         let source = audioContext.createMediaStreamSource(stream);
+        //         analyser = audioContext.createAnalyser();
+        //         analyser.fftSize = 2048 * 2 * 2;
+        //         source.connect(analyser);
+        //         animate();
+        //     });
+        // });
+
+        let thresholdsDiv = document.getElementById('thresholds');
+        let volumeThresholds = new Array(numBands).fill(40);
+
+        for(let i = 0; i < numBands; i++){
+            let highEnd = 200; // maximum volume threshold for lowest frequency band
+            let lowEnd = 10;   // minimum volume threshold for highest frequency band
+            let range = highEnd - lowEnd;
+
+            let input = document.createElement('input');
+            input.type = 'range';
+            input.min = '0';
+            input.max = '255';
+            input.value = highEnd - Math.floor((i/numBands) * range);
+            volumeThresholds[i] = highEnd - Math.floor((i/numBands) * range);
+            input.id = 'threshold' + i;
+            input.oninput = function(){
+                volumeThresholds[i] = this.value;  // Set the threshold for specific band
+                // Add this line to update the display text when the threshold changesf
+                // document.getElementById('volume' + i).textContent = 'v: ' + volumeThresholds[i] + ' 0 / ' + volumeThresholds[i];
+                document.getElementById('volume' + i).textContent = 'v: 0 / ' + volumeThresholds[i];
+
+            };
+
+            let volumeDisplay = document.createElement('span');
+            volumeDisplay.id = 'volume' + i;
+            volumeDisplay.style.color = 'white';
+            volumeDisplay.textContent = "v: ";
+
+            let inputGroup = document.createElement('div');
+            inputGroup.className = "inputgroup";
+
+
+            thresholdsDiv.appendChild(inputGroup);
+
+            inputGroup.appendChild(document.createTextNode('Band ' + i + ': '));
+            inputGroup.appendChild(input);
+            inputGroup.appendChild(volumeDisplay);
+            inputGroup.appendChild(document.createElement('br'));
+            document.getElementById('volume' + i).textContent = 'v: 0 / ' + volumeThresholds[i];
+            document.getElementById('volume' + i).style = 'color:black';
+
+        }
+
+        let master = document.getElementById('master');
+        let lastMasterValue = 40;
+        master.oninput = function() {
+            let masterValue = this.value;
+            let delta = masterValue - lastMasterValue;
+            // volumeThresholds = volumeThresholds.map(() => masterValue);  // Set all thresholds to the master's value
+
+            for (let i = 0; i < numBands; i++) {
+                let input = document.getElementById('threshold' + i);
+                volumeThresholds[i] =  parseInt(input.value) + delta;
+                input.value = parseInt(input.value) + delta;
+                document.getElementById('volume' + i).textContent = 'v: 0 / ' + input.value;
+            }
+
+            lastMasterValue = masterValue;
+        };
+
+        var audioContext;
+        const audioQueue = [];
+
+
+
+
+
+
+    // function playSound(buffer) {
+    //     let source = audioContext.createBufferSource(); 
+    //     source.buffer = buffer;
+    //     source.connect(analyser); // Connect source to the analyser
+    //     source.connect(audioContext.destination); // Connect source to the speakers
+    //     source.start(0);
+    // }
+
+// SECTION: video
+
+        // for video render
+        const canvas = document.createElement('canvas');
+        const ctx = canvas.getContext('2d');
+        let videoElementActive = false;
+        let imageElementActive = false;
+
+    function captureFrame(videoElement) {
+        ctx.drawImage(videoElement, 0, 0, canvas.width, canvas.height);
+        return ctx.getImageData(0, 0, canvas.width, canvas.height);
+
+    }
+
+    function getVideoFrameTexture() {
+
+        // if(freezeFrameEffectActive)
+        //     videoElement.pause();
+
+
+        ctx.drawImage(videoElement, 0, 0, canvas.width, canvas.height);
+        let texture = new THREE.Texture(canvas);
+        texture.needsUpdate = true;
+
+        if (dodecahedronMaterial) {
+            dodecahedronMaterial.map = texture;
+            dodecahedronMaterial.needsUpdate = true;
+        }
+
+        videoElement.playbackRate = playbackrate;  // Ensure normal playback speed
+        videoElement.play();
+
+        if(freezeFrameEffectActive)
+             return texture;
+    }
+
+    const videoQueue = [];
+    const originalVideos = [];
+
+
+    // const sphereRadius = .1;  // Adjust as needed
+    // const sphereWidthDivisions = 32;
+    // const sphereHeightDivisions = 32;
+
+    // const sphereGeometry = new THREE.SphereGeometry(sphereRadius, sphereWidthDivisions, sphereHeightDivisions);
+    // const sphereMaterial = new THREE.MeshBasicMaterial({ color: "blue" });  // White color
+    // const sphere = new THREE.Mesh(sphereGeometry, sphereMaterial);
+    // sphere.position.set(0, 0, 0);
+    // scene.add(sphere);
+
+
+// document.getElementById('folderInput').addEventListener('change', function(event) {
+//     let files = event.target.files;
+//     for (let i = 0; i < files.length; i++) {
+//         if (files[i].type.startsWith('image/')) { // Ensure the file is an image
+//             let reader = new FileReader();
+//             reader.readAsDataURL(files[i]);
+//             reader.onload = function() {
+//                 let img = new Image();
+//                 img.src = reader.result;
+//                 loadedImages.push(img);
+//             };
+//         }
+//     }
+// });
+
+function getNextImageTexture() {
+    
+    if (loadedImages.length === 0) return null; // Handle the case when no images have been loaded
+    
+    // For sequential use:
+    let nextImage = loadedImages.shift();
+    loadedImages.push(nextImage); // Put the image at the end of the array to cycle through the images
+    
+    // Alternatively, for random use:
+    // let nextImage = loadedImages[Math.floor(Math.random() * loadedImages.length)];
+    
+    let textureCanvas = document.createElement('canvas');
+    textureCanvas.width = nextImage.width;
+    textureCanvas.height = nextImage.height;
+    let ctx = textureCanvas.getContext('2d');
+    ctx.drawImage(nextImage, 0, 0);
+
+    let texture = new THREE.Texture(textureCanvas);
+    texture.needsUpdate = true;
+
+    return texture;
+}
+
+let visualWindow;
+
+function openVisualWindow() {
+    visualWindow = window.open('poetsphere.html', '_blank');
+
+}
+
+function sendMessageToVisual(data) {
+    if (visualWindow) {
+        visualWindow.postMessage(data, '*'); // Use '*' to send to any origin, but be aware of potential security issues.
+    }
+}
+
+function sendMessage(name, value) {
+    // Handle the message sending here. For example:
+    if (visualWindow) {
+        visualWindow.postMessage({ name, value }, '*');
+    }
+    let val = document.getElementById("changelog").value;
+    document.getElementById("changelog").value = val + "{ timestamp:" + new Date().getTime() + ", name:" + name + ", value:" + value + "},"; 
+
+}
+
+
+// Get all input fields
+const inputs = document.querySelectorAll('input');
+
+// Loop through each input and attach the event listener
+inputs.forEach(input => {
+
+    if(input.type === 'button') {
+    input.addEventListener('click', function(event) {
+        flashElement(input);
+
+      // Handle button click
+      let id = event.target.id;
+      console.log("Button Clicked: " + id);
+      sendMessage(id, "change");
+    });
+  } else {
+
+    input.addEventListener('input', function(event) {
+        // Get the input's name and value
+        flashElement(input);
+
+
+        let id = event.target.id;
+
+        let value = event.target.value;
+
+        //TODO : does nothing might be power issue on APCmini 
+        // lightUpButton(64, 1);  // Lights up the first pad in green
+        // lightUpButton(65, 3);  // Lights up the second pad in red
+        // console.log("(not actually) light up");
+        console.log("id"+ id + "value" + value);
+        // Send the message
+        sendMessage(id, value);
+    });
+
+    }
+
+    input.addEventListener('animationend',function() {
+        this.classList.remove(flashClass);
+    });
+
+});
+
+let val = document.getElementById("changelog").value;
+document.getElementById("changelog").value = val + "{ timestamp:" + new Date().getTime() + ", name: start, value: start }"; 
+
+
+let apcMiniOutput;
+
+
+if (navigator.requestMIDIAccess) {
+    navigator.requestMIDIAccess({ sysex: true })
+        .then(onMIDISuccess, onMIDIFailure);
+} else {
+    console.warn("WebMIDI is not supported in this browser.");
+}
+
+function onMIDISuccess(midiAccess) {
+    // MIDI devices that send you data.
+    const inputs = midiAccess.inputs.values();
+
+    for (let input = inputs.next(); input && !input.done; input = inputs.next()) {
+        input.value.onmidimessage = onMIDIMessage;
+    }
+}
+
+function onMIDIFailure() {
+    console.warn("Could not access your MIDI devices.");
+}
+
+function onMIDIMessage(event) {
+    const [status, data1, data2] = event.data;
+    // console.log(event.data);
+
+    // Assuming note on/off messages (channel 1) for the APC Mini's buttons
+    if (status === 0x90 && data2 > 0) { // Note on message on channel 1
+        handleButtonPress(data1);
+    } else if (status === 0x80 || (status === 0x90 && data2 === 0)) { // Note off message or note on with velocity 0
+        handleButtonRelease(data1);
+    }  else if (status === 0xB0) {
+        handleFaderMove(data1, data2);
+    }
+
+    // Handle other MIDI messages, like CC for the faders, etc.
+}
+
+
+function handleFaderMove(controlNumber, value) {
+    
+    let newVal;
+
+    if (controlNumber === 48) { // eq master 
+        newVal = (parseInt(value) - 5) * 2;
+        sendMessage("master", newVal);
+        document.getElementById("master").value = newVal;
+
+    } else if (controlNumber === 49) { // hue
+
+        newVal = parseInt(value) * 2;
+        sendMessage("hueoffset", newVal);
+        document.getElementById("hueoffset").value = newVal;
+
+    } else if (controlNumber === 50) { //  
+
+        sendMessage("brightness", value);
+        document.getElementById("brightness").value = value;
+
+    } else if (controlNumber === 51) { //  
+
+        sendMessage("saturation", value);
+        document.getElementById("saturation").value = value;
+
+    } else if (controlNumber === 52) { //  
+
+        newVal =  (parseInt(value) - 50) / 1000;
+        sendMessage("xrotation", newVal);
+        document.getElementById("xrotation").value = newVal;
+
+    } else if (controlNumber === 53) { //  
+
+        newVal =  (parseInt(value) - 50) / 1000;
+        sendMessage("yrotation", newVal);
+        document.getElementById("yrotation").value = newVal;
+        
+    } else if (controlNumber === 54) { //  
+
+        sendMessage("activegeometrieslimit", value);
+        document.getElementById("activegeometrieslimit").value = value;
+
+    } else if (controlNumber === 55) { //  
+
+            sendMessage("pointlightintensity", value);
+            document.getElementById("pointlightintensity").value = value;
+
+        }
+
+
+
+}
+
+// TODO: we will switch this to mapping video loops
+
+function handleButtonPress(buttonId) {
+    // Here, you'll map the buttonId (which button on the APC Mini was pressed)
+    // to some action in your Three.js scene or other UI controls.
+    // For example:
+    console.log(buttonId)
+    let newVal;
+    let activeElement;
+    switch (buttonId) {
+        case 56: 
+                activeElement = document.getElementById("xrotation");
+                newVal = parseFloat(activeElement.value)-0.1;
+                sendMessage("xrotation", newVal);
+                activeElement.classList.add(flashClass);
+        case 57: 
+                activeElement = document.getElementById("xrotation");
+                newVal = parseFloat(activeElement.value)-0.01;
+                sendMessage("xrotation", newVal);
+                activeElement.classList.add(flashClass);
+        case 58: 
+                activeElement = document.getElementById("xrotation");
+                newVal = parseFloat(activeElement.value)-0.001;
+                sendMessage("xrotation", newVal);
+                activeElement.classList.add(flashClass);
+        case 59: 
+                activeElement = document.getElementById("xrotation");
+                newVal = parseFloat(activeElement.value)-0.0001;
+                sendMessage("xrotation", newVal);
+                activeElement.classList.add(flashClass);
+        case 60: 
+                activeElement = document.getElementById("xrotation");
+                newVal = parseFloat(activeElement.value)+0.0001;
+                sendMessage("xrotation", newVal);   
+                activeElement.classList.add(flashClass);
+        case 61: 
+                activeElement = document.getElementById("xrotation");
+                newVal = parseFloat(activeElement.value)+0.001;
+                sendMessage("xrotation", newVal);
+                activeElement.classList.add(flashClass);
+        case 62: 
+                activeElement = document.getElementById("xrotation");
+                newVal = parseFloat(activeElement.value)+0.01;
+                sendMessage("xrotation", newVal);
+                activeElement.classList.add(flashClass);
+
+        case 63: 
+                activeElement = document.getElementById("xrotation");
+                newVal = parseFloat(activeElement.value)+0.1;
+                sendMessage("xrotation", newVal);
+                activeElement.classList.add(flashClass);
+
+                // flash the input
+
+            // Handle first button press
+            // Perhaps toggle a light in your scene
+            break;
+        // ... handle other buttons
+    }
+}
+
+function handleButtonRelease(buttonId) {
+    // Handle the release of a button if necessary
+}
+
+
+function lightUpButton(buttonId, color) {
+    if (apcMiniOutput) {
+        apcMiniOutput.send([0x90, buttonId, color]);
+    }
+}
+
+function turnOffButtonLight(buttonId) {
+    if (apcMiniOutput) {
+        apcMiniOutput.send([0x80, buttonId, 0]);  // Note off message
+    }
+}
+
+function flashElement(element) {
+    element.classList.add('flash');
+    setTimeout(() => {
+        element.classList.remove('flash');
+    }, 300); // same duration as the CSS animation
+}
+
+
+
+// lightUpButton(64, 1);  // Lights up the first pad in green
+// lightUpButton(65, 3);  // Lights up the second pad in red
+
+
+
+// Example usage:
+openVisualWindow();
+// sendMessageToVisual({ type: "updateGeometry", payload: { /* your data here */ } });
+// sendMessageToVisual({ type: "playbackspeed", payload: {speed: 0.2 } });
+
+window.addEventListener('message', function(event) {
+
+    console.log("message received");
+
+    console.log(event.data);
+
+    if (event.data.name === "videolist") {
+
+            document.getElementById('videoList').value = event.data.value;
+
+    }
+
+
+});
+
+    </script>
+</body>
+</html>

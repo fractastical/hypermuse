@@ -117,6 +117,9 @@ textCanvas.height = 1024; // Adjust as needed
 var poemText = `
 Trinity. Star. Trinity.`;
 
+var poemText1 = `
+Trinity. Star. Trinity.`;
+
 var poemText2 = `The critical thought
 Is to say
 Of course, you
@@ -416,7 +419,7 @@ We are one`;
         
           <button id="startButton">Start</button>
           <button id="orbButton" onclick="renderTrinityOrb(5)">Trinity</button>
-          <button id="poemButton" onclick="processPoemText(poemText)">Poem</button>
+          <button id="poemButton" onclick="processPoemText(poemText)">Poem TST</button>
           <button id="poemButton2" onclick="processPoemText(poemText2)">Poem2</button>
           <button id="poemButton3" onclick="processPoemText(poemText3)">Poem3</button>
           <button id="poemButton4" onclick="processPoemText(poemText4)">Poem4</button>
@@ -427,12 +430,11 @@ We are one`;
           <button id="poemButton9" onclick="processPoemText(poemText9)">Poem9</button>
           <button id="poemButton10" onclick="processPoemText(poemText10)">Poem10</button>
           <button id="poemButton11" onclick="processPoemText(poemText11)">Poem11</button>
-
           <button id="poemButton12" onclick="processPoemText(poemText12)">Poem12</button>
 
           <button id="poemTextButton" onclick="startTextAnimation(2000)">Text</button>
 
-         
+
 
           <label for="speedRange">Adjust Speed:</label>
           <input type="range" id="speedRange" min="20" max="250" value="250">
@@ -640,6 +642,7 @@ We are one`;
         }
 
         function startTextAnimation(speed) {
+
             if (intervalHandle) clearInterval(intervalHandle);
             displaySpeed = speed;
             console.log("sta");
@@ -1159,9 +1162,11 @@ function readPoemAndDisplay(url) {
 
 let group = [];
 
-function processPoemText(poemText) {
-            const lines = poemText.split('\n').filter(line => line.trim() !== ''); // Split by new line and remove blank lines
+function processPoemText(currentPoemText) {
+             poemText = currentPoemText; 
+            const lines = currentPoemText.split('\n').filter(line => line.trim() !== ''); // Split by new line and remove blank lines
             const linesGroup = [];
+
 
             // Group lines into sets of nine, skipping blank lines
             for (let i = 0; i < lines.length; i++) {
@@ -1181,6 +1186,8 @@ function processPoemText(poemText) {
 
             // Pass the grouped lines to the setup function
             setupPoemScene(linesGroup);
+
+            startTextAnimation(2000);
         }
 
 document.getElementById('speedRange').addEventListener('input', function() {
