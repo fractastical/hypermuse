@@ -19,6 +19,12 @@
             height: 2000px;
             flex-grow: 1;
         }
+        /* Hypergraph iframe styling */
+        #hypergraphFrame {
+            flex-grow: 1;
+            border: none;
+            height: 100vh;
+        }
     </style>
     <!-- <script src="https://threejs.org/build/three.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@tonejs/midi"></script>
@@ -55,6 +61,8 @@
     </div>
     <button id="startButton">Start</button>
     <div id="container"></div>
+    <!-- Hypergraph 3-D iframe -->
+    <iframe id="hypergraphFrame" src="modules/met4hyper/index.html" title="Hypergraph" allow="fullscreen"></iframe>
     <div id="advancedControls">
         <!-- Hue increase <input id="hueincrease" value="0">
         X Rotation <input id="xrotation" value="0.001">
@@ -172,6 +180,7 @@
             }
 
             let data = new Uint8Array(analyser.frequencyBinCount);
+    let energyArray = []; // collect per-band energy for messaging
             analyser.getByteFrequencyData(data);
 
             let bandSize = Math.floor(data.length / numBands);
@@ -259,8 +268,17 @@
             scene.rotation.x += 0.0001;
             scene.rotation.y += 0.0005;
 
-            renderer.render(scene, camera);
-        }
+            // send audio metrics to hypergraph iframe
+    if (!window._hypergraphWnd) {
+        const iframeEl = document.getElementById('hypergraphFrame');
+        if (iframeEl) window._hypergraphWnd = iframeEl.contentWindow;
+    }
+    if (window._hypergraphWnd) {
+        window._hypergraphWnd.postMessage({ type: 'audio', energy: energyArray }, '*');
+    }
+
+    renderer.render(scene, camera);
+}
 
         let startButton = document.getElementById('startButton');
         startButton.addEventListener('click', function() {
