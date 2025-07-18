@@ -1,0 +1,13 @@
+{
+  "name": "audiosphere-tests",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "start": "npx http-server -c-1 -p 8080 .",
+    "test": "playwright test"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.44.0",
+    "http-server": "^14.1.1"
+  }
+}

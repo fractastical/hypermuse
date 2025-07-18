@@ -3,7 +3,7 @@
 
 
 
-# AudioSphere
+# Hypermuse
 
 Live Three.js music & VJ visualizer that maps real-time audio (or selected media files) onto geometries floating over a sphere. A built-in **hypergraph** view (via the `met4hyper` module) now reacts to the same beat.
 
