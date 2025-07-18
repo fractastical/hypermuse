@@ -3,7 +3,11 @@
 
 
 
-# getting started
+# AudioSphere
+
+Live Three.js music & VJ visualizer that maps real-time audio (or selected media files) onto geometries floating over a sphere. A built-in **hypergraph** view (via the `met4hyper` module) now reacts to the same beat.
+
+## Getting Started
 
 open up controller.html. visualizer will open up in separate tab. If desired you can display on a separate screen. Click play to start audio reactive version, otherwise pick a song with the picker. 
 
@@ -14,11 +18,11 @@ If using the onboard microphone it will often filter out any speaker output comi
 
 <img src="https://github.com/fractastical/sonicsourcecode/assets/589191/4326f557-a1d6-4310-a3bf-826be4644dac" width="500" />
 
-# how it works
+## How It Works
 
 Uses a spectrum analizer to break music into bands, isolate tones, and then make the music visible by assigning each tone to the vertice spread over the surface of a sphere. When tones are played the vertices are activated and resulting lines or polygons are displayed. 
 
-# why?
+## Why
 
 <img src="https://github.com/fractastical/sonicsourcecode/assets/589191/9fd329b2-dc12-4f12-94b9-3f2b7dfd4cd6" width="250" />
 
@@ -27,7 +31,7 @@ Looks cool during a performance. May also help you to play better music by *seei
 As used for projection during a set (https://instagram.com/rootflute) 
 
 
-# Included files and options
+## Included Files / Demo Modes
 
 ## videosphere
 
@@ -51,7 +55,7 @@ Sound bands are mapped as edges between vertices mapped over the surface of a sp
 
 <img src="https://github.com/fractastical/sonicsourcecode/assets/589191/2d287873-0ade-415d-84ba-769398e86445" width="200" height="200" />
 
-Sound reactive sides crolling sets of spheres mapped to low, mid, high bands displaying over a time series, allows you to dynamically set number of bands
+Sound reactive side-scrolling sets of spheres mapped to low, mid, high bands displaying over a time series, allows you to dynamically set number of bands
 
 ## staticsphere
 
