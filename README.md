@@ -35,6 +35,17 @@ Shared utility scripts:
 - `js/sonic_geometries.js` -> reusable geometry-building utilities.
 - `js/note_analyzer.js` -> note/frequency mapping and peak detection helpers.
 
+Layered simulation scaffold (new):
+
+- `js/layers/audio_engine.js` -> emits normalized audio frames (`low`, `mid`, `high`,
+  `beat`, `barPhase`) from analyser data.
+- `js/layers/sim_compositor.js` -> combines one or more simulation plugins into a
+  texture layer for Three.js materials.
+- `js/simulations/life_sim.js` -> first cellular plugin (Conway-style variant) with
+  audio-reactive speed/rules and beat-triggered spawning.
+- `js/simulations/kuramoto_sim.js` -> coupled-oscillator "communication" plugin
+  (Kuramoto-inspired local neighbor sync).
+
 ## Run locally
 
 Because browsers restrict file/media APIs on `file://`, run a local server.
@@ -75,6 +86,19 @@ Then open `http://localhost:8000/controller.html`.
 Frequency bands are mapped across a sphere using a golden-ratio-style angular step.
 When a band crosses its threshold, the corresponding point(s) activate and geometry
 is generated between active points, producing a live "music topology" effect.
+
+## Layered simulation mode
+
+`sonicsphere.html` now includes a first layered simulation pass:
+
+- Audio analysis -> `HypermuseAudioEngine`
+- Simulation plugin update -> `HypermuseLifeSimulationPlugin` +
+  `HypermuseKuramotoSimulationPlugin`
+- Texture composition -> `HypermuseSimulationCompositor`
+- Rendered as an additive "simulation shell" mesh in the scene
+
+This is intended as the base architecture for integrating Morpholib-style and other
+cellular systems with the same music sync pipeline.
 
 ## Notes
 
