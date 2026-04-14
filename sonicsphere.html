@@ -105,6 +105,7 @@ button:hover {
     <script src="js/layers/sim_compositor.js"></script>
     <script src="js/simulations/life_sim.js"></script>
     <script src="js/simulations/kuramoto_sim.js"></script>
+    <script src="js/simulations/molecule_graph_sim.js"></script>
 
 
 
@@ -125,6 +126,17 @@ button:hover {
             <label for="videoSetManifest">Video Set Manifest:</label>
             <input type="text" id="videoSetManifest" value="sets/bio1.json" />
             <button id="loadVideoSetButton">Load Set</button>
+          </div>
+          <div class="file-input-group">
+            <label for="effectTimelinePhases">Effect phases:</label>
+            <input type="text" id="effectTimelinePhases" value="life,kuramoto,molecule,stacked" />
+            <label for="effectTimelinePhaseSec">sec/phase:</label>
+            <input type="text" id="effectTimelinePhaseSec" value="16" />
+            <label>
+              <input type="checkbox" id="effectTimelineEnabled" checked />
+              timeline on
+            </label>
+            <button id="applyEffectTimelineButton">Apply FX Timeline</button>
           </div>
           <div class="file-input-group">
             <button id="startExportButton">Start Export</button>
@@ -175,11 +187,23 @@ button:hover {
         let simCompositor;
         let simulationShell;
         let lastSimulationTickMs = performance.now();
+        let effectTimelineStartMs = null;
+        let effectTimelineEnabled = true;
+        let lastAppliedEffectPhase = '';
+        let activeEffectProfile = 'life';
+        let simulationShellBaseOpacity = 0.24;
+        let effectTimelinePlan = [
+            { name: 'life', durationSec: 16 },
+            { name: 'kuramoto', durationSec: 16 },
+            { name: 'molecule', durationSec: 16 },
+            { name: 'stacked', durationSec: 16 }
+        ];
         let sceneRecorder = null;
         let sceneRecorderChunks = [];
         let sceneRecorderMimeType = '';
 
-        let captureInterval;
+        let captureInterval = null;
+        let animationStarted = false;
         const CAPTURE_INTERVAL_MS = 416.666666667 / 10;  // e.g., Capture every Xms 
 
         const scene = new THREE.Scene();
@@ -196,9 +220,44 @@ button:hover {
 
 
         let container = document.getElementById('container');
+        let demoMode = (new URLSearchParams(window.location.search)).get('demo') === '1';
 
-        //TODO: might want to revisit this and reset it if the window sie has
-        renderer.setSize(container.clientWidth, container.clientHeight);
+        function resizeRendererLayout() {
+            if (demoMode) {
+                renderer.setSize(window.innerWidth, window.innerHeight);
+                camera.aspect = window.innerWidth / window.innerHeight;
+            } else {
+                renderer.setSize(container.clientWidth, container.clientHeight);
+                camera.aspect = container.clientWidth / container.clientHeight;
+            }
+            camera.updateProjectionMatrix();
+        }
+
+        function enableDemoModeLayout() {
+            demoMode = true;
+            const thresholds = document.getElementById('thresholds');
+            const videoList = document.getElementById('videoList');
+            if (thresholds) {
+                thresholds.style.display = 'none';
+            }
+            if (videoList) {
+                videoList.style.display = 'none';
+            }
+            container.style.marginTop = '0';
+            container.style.height = '100vh';
+            container.style.width = '100vw';
+            resizeRendererLayout();
+        }
+
+        window.enableDemoModeLayout = enableDemoModeLayout;
+
+        if (demoMode) {
+            enableDemoModeLayout();
+        } else {
+            resizeRendererLayout();
+        }
+
+        window.addEventListener('resize', resizeRendererLayout);
         container.appendChild(renderer.domElement);
 
         function startSceneExportRecording() {
@@ -310,6 +369,11 @@ button:hover {
                 opacity: 0.55,
                 color: [255, 120, 220]
             });
+            const moleculePlugin = new HypermuseMoleculeGraphSimulationPlugin("molecule-primary");
+            simCompositor.registerPlugin(moleculePlugin, {
+                opacity: 0.5,
+                color: [120, 255, 160]
+            });
 
             const shellGeometry = new THREE.SphereGeometry(1.07, 48, 48);
             const shellMaterial = new THREE.MeshBasicMaterial({
@@ -322,6 +386,196 @@ button:hover {
             });
             simulationShell = new THREE.Mesh(shellGeometry, shellMaterial);
             scene.add(simulationShell);
+        }
+
+        function applyEffectProfile(profileName) {
+            if (!simCompositor) {
+                return;
+            }
+
+            if (profileName === 'life') {
+                activeEffectProfile = 'life';
+                simCompositor.setPluginOpacity('life-primary', 1.0);
+                simCompositor.setPluginOpacity('kuramoto-primary', 0.20);
+                simCompositor.setPluginOpacity('molecule-primary', 0.25);
+                innerTriangleActive = false;
+                hueOffsetSpeed = 0.0;
+                Y_ROTATION_SPEED = 0.0005;
+                X_ROTATION_SPEED = 0.0002;
+                saturation = 95;
+                brightness = 48;
+                simulationShellBaseOpacity = 0.2;
+            } else if (profileName === 'kuramoto') {
+                activeEffectProfile = 'kuramoto';
+                simCompositor.setPluginOpacity('life-primary', 0.25);
+                simCompositor.setPluginOpacity('kuramoto-primary', 1.0);
+                simCompositor.setPluginOpacity('molecule-primary', 0.30);
+                innerTriangleActive = false;
+                hueOffsetSpeed = 0.25;
+                Y_ROTATION_SPEED = 0.0012;
+                X_ROTATION_SPEED = 0.0004;
+                saturation = 100;
+                brightness = 52;
+                simulationShellBaseOpacity = 0.34;
+            } else if (profileName === 'molecule') {
+                activeEffectProfile = 'molecule';
+                simCompositor.setPluginOpacity('life-primary', 0.20);
+                simCompositor.setPluginOpacity('kuramoto-primary', 0.35);
+                simCompositor.setPluginOpacity('molecule-primary', 1.0);
+                innerTriangleActive = true;
+                hueOffsetSpeed = 0.12;
+                Y_ROTATION_SPEED = 0.0008;
+                X_ROTATION_SPEED = 0.0006;
+                saturation = 88;
+                brightness = 58;
+                simulationShellBaseOpacity = 0.45;
+            } else if (profileName === 'stacked') {
+                activeEffectProfile = 'stacked';
+                simCompositor.setPluginOpacity('life-primary', 0.75);
+                simCompositor.setPluginOpacity('kuramoto-primary', 0.75);
+                simCompositor.setPluginOpacity('molecule-primary', 0.75);
+                innerTriangleActive = true;
+                hueOffsetSpeed = 0.35;
+                Y_ROTATION_SPEED = 0.0014;
+                X_ROTATION_SPEED = 0.0008;
+                saturation = 100;
+                brightness = 55;
+                simulationShellBaseOpacity = 0.55;
+            }
+        }
+
+        function parsePhaseList(phaseListText, defaultDurationSec) {
+            const raw = String(phaseListText || '')
+                .split(',')
+                .map(value => value.trim())
+                .filter(Boolean);
+            const seen = new Set();
+            const plan = [];
+            for (const phase of raw) {
+                if (seen.has(phase)) {
+                    continue;
+                }
+                seen.add(phase);
+                plan.push({
+                    name: phase,
+                    durationSec: Math.max(1, defaultDurationSec)
+                });
+            }
+            return plan;
+        }
+
+        function setEffectTimelineConfig(config = {}, restart = true) {
+            if (typeof config.enabled === 'boolean') {
+                effectTimelineEnabled = config.enabled;
+            }
+
+            if (Array.isArray(config.phases) && config.phases.length > 0) {
+                const nextPlan = [];
+                for (const phaseEntry of config.phases) {
+                    if (typeof phaseEntry === 'string') {
+                        nextPlan.push({ name: phaseEntry, durationSec: 16 });
+                        continue;
+                    }
+                    if (!phaseEntry || !phaseEntry.name) {
+                        continue;
+                    }
+                    const durationSec = Number.isFinite(phaseEntry.durationSec)
+                        ? Math.max(1, phaseEntry.durationSec)
+                        : 16;
+                    nextPlan.push({
+                        name: String(phaseEntry.name),
+                        durationSec
+                    });
+                }
+                if (nextPlan.length > 0) {
+                    effectTimelinePlan = nextPlan;
+                }
+            } else if (typeof config.phaseList === 'string') {
+                const defaultDurationSec = Number.isFinite(config.phaseDurationSec)
+                    ? Math.max(1, config.phaseDurationSec)
+                    : 16;
+                const parsed = parsePhaseList(config.phaseList, defaultDurationSec);
+                if (parsed.length > 0) {
+                    effectTimelinePlan = parsed;
+                }
+            }
+
+            if (restart) {
+                effectTimelineStartMs = performance.now();
+                lastAppliedEffectPhase = '';
+            }
+            updateEffectTimelineControls();
+        }
+
+        function updateEffectTimelineControls() {
+            const enabledInput = document.getElementById('effectTimelineEnabled');
+            const phasesInput = document.getElementById('effectTimelinePhases');
+            const secInput = document.getElementById('effectTimelinePhaseSec');
+
+            if (enabledInput) {
+                enabledInput.checked = effectTimelineEnabled;
+            }
+            if (phasesInput) {
+                phasesInput.value = effectTimelinePlan.map(entry => entry.name).join(',');
+            }
+            if (secInput) {
+                const firstDuration = effectTimelinePlan.length > 0
+                    ? effectTimelinePlan[0].durationSec
+                    : 16;
+                secInput.value = String(firstDuration);
+            }
+        }
+
+        window.setEffectTimelineConfig = setEffectTimelineConfig;
+
+        function applyTimedEffects() {
+            if (!effectTimelineEnabled || effectTimelineStartMs === null || effectTimelinePlan.length === 0) {
+                return;
+            }
+
+            const elapsedSec = (performance.now() - effectTimelineStartMs) / 1000;
+            let cycleSec = 0;
+            for (const entry of effectTimelinePlan) {
+                cycleSec += Math.max(1, entry.durationSec);
+            }
+            const t = elapsedSec % cycleSec;
+            let cursor = 0;
+            let phase = effectTimelinePlan[0].name;
+            for (const entry of effectTimelinePlan) {
+                const d = Math.max(1, entry.durationSec);
+                if (t >= cursor && t < cursor + d) {
+                    phase = entry.name;
+                    break;
+                }
+                cursor += d;
+            }
+
+            if (phase !== lastAppliedEffectPhase) {
+                applyEffectProfile(phase);
+                lastAppliedEffectPhase = phase;
+            }
+        }
+
+        const applyEffectTimelineButton = document.getElementById('applyEffectTimelineButton');
+        if (applyEffectTimelineButton) {
+            applyEffectTimelineButton.addEventListener('click', function() {
+                const phasesInput = document.getElementById('effectTimelinePhases');
+                const secInput = document.getElementById('effectTimelinePhaseSec');
+                const enabledInput = document.getElementById('effectTimelineEnabled');
+                const phaseDurationSec = Math.max(1, parseInt(secInput.value || '16', 10));
+                setEffectTimelineConfig({
+                    enabled: !!(enabledInput && enabledInput.checked),
+                    phaseList: phasesInput ? phasesInput.value : 'life,kuramoto,molecule,stacked',
+                    phaseDurationSec
+                }, true);
+            });
+        }
+
+        const effectTimelineEnabledInput = document.getElementById('effectTimelineEnabled');
+        if (effectTimelineEnabledInput) {
+            effectTimelineEnabledInput.addEventListener('change', function() {
+                effectTimelineEnabled = !!effectTimelineEnabledInput.checked;
+            });
         }
 
         //TODO: this function doesn't preoperly work when run repeat times (i.e. the points are evenly distributed over the surface of the sphere)
@@ -365,6 +619,7 @@ button:hover {
 
         initBands();
         initSimulationLayers();
+        updateEffectTimelineControls();
 
 
         const volumeSlider = document.getElementById('volumeSlider');
@@ -392,7 +647,7 @@ button:hover {
                     simCompositor.update(dt, audioFrame);
                 }
                 if (simulationShell) {
-                    simulationShell.material.opacity = 0.1 + (audioFrame.energy * 0.55);
+                    simulationShell.material.opacity = Math.min(0.95, simulationShellBaseOpacity + (audioFrame.energy * 0.85));
                     simulationShell.rotation.y += 0.0015 + (audioFrame.mid * 0.01);
                     simulationShell.rotation.x += 0.0008 + (audioFrame.high * 0.004);
                 }
@@ -511,16 +766,53 @@ button:hover {
 
                         }
 
-                        var triangle = new THREE.Mesh(geometry, material);
+                        let createdGeometry = null;
+                        let createdObject = null;
 
-                
-                        triangle.castShadow = true;    // to cast shadows
-                        triangle.receiveShadow = true; // to receive shadows
+                        if (activeEffectProfile === 'kuramoto') {
+                            const lineGeometry = new THREE.BufferGeometry().setFromPoints([
+                                lastPoints[0], lastPoints[1], lastPoints[2], lastPoints[0]
+                            ]);
+                            const lineMaterial = new THREE.LineBasicMaterial({
+                                color: color,
+                                opacity: 0.95,
+                                transparent: true
+                            });
+                            createdGeometry = lineGeometry;
+                            createdObject = new THREE.Line(lineGeometry, lineMaterial);
+                        } else {
+                            if (activeEffectProfile === 'molecule' && simCompositor && simCompositor.texture) {
+                                material = new THREE.MeshBasicMaterial({
+                                    map: simCompositor.texture,
+                                    color: color,
+                                    opacity: 0.78,
+                                    transparent: true,
+                                    side: THREE.DoubleSide
+                                });
+                            } else if (activeEffectProfile === 'stacked') {
+                                material = new THREE.MeshBasicMaterial({
+                                    color: color,
+                                    opacity: 0.28,
+                                    transparent: true,
+                                    wireframe: false,
+                                    side: THREE.DoubleSide
+                                });
+                            } else {
+                                material = new THREE.MeshBasicMaterial({
+                                    color: color,
+                                    opacity: 0.55,
+                                    transparent: true,
+                                    side: THREE.DoubleSide
+                                });
+                            }
+                            const triangle = new THREE.Mesh(geometry, material);
+                            triangle.castShadow = true;
+                            triangle.receiveShadow = true;
+                            createdGeometry = geometry;
+                            createdObject = triangle;
+                        }
 
-                        // const tetra = new THREE.TetrahedronGeometry(.5);
-
-
-                        scene.add(triangle); 
+                        scene.add(createdObject); 
                         if (innerTriangleActive)
                         {
                             var innerGeometry = createInnerTriangleGeometry(lastPoints[0], lastPoints[1], lastPoints[2]);
@@ -539,7 +831,7 @@ button:hover {
 
                         }
 
-                        geometries.push({geometry: triangle, age: 0});
+                        geometries.push({geometry: createdObject, age: 0});
                         if (innerTriangleActive)
                         {
                             geometries.push({geometry: innerTriangle, age: 0});
@@ -569,6 +861,7 @@ button:hover {
 
         function animate() {
             requestAnimationFrame(animate);
+            applyTimedEffects();
 
             // untoggle if to make fully deterministic
             hueoffset += hueOffsetSpeed;
@@ -583,6 +876,20 @@ button:hover {
             scene.rotation.y += Y_ROTATION_SPEED;
 
             renderer.render(scene, camera);
+        }
+
+        function ensureVisualizerLoopsRunning() {
+            if (!animationStarted) {
+                animationStarted = true;
+                animate();
+            }
+            if (effectTimelineStartMs === null) {
+                effectTimelineStartMs = performance.now();
+            }
+            if (captureInterval) {
+                clearInterval(captureInterval);
+            }
+            captureInterval = setInterval(captureAudioData, CAPTURE_INTERVAL_MS);
         }
 
         let previousEnergies = []; // To store recent energy values
@@ -625,8 +932,7 @@ button:hover {
                 
                 bufferLength = analyser.frequencyBinCount;
                 beatDataArray = new Uint8Array(bufferLength);
-                animate();
-                captureInterval = setInterval(captureAudioData, CAPTURE_INTERVAL_MS);
+                ensureVisualizerLoopsRunning();
                 MAX_SIZE = Math.max(4,Math.floor(audioContext.sampleRate/5000));	// corresponds to a 5kHz signal
                 // startPitchDetect();
                 // updatePitch();
@@ -702,6 +1008,9 @@ button:hover {
     document.getElementById('audioInput').addEventListener('change', async function(event) {
 
         audioContext = new AudioContext();
+        if (audioContext.state === 'suspended') {
+            await audioContext.resume();
+        }
         analyser = audioContext.createAnalyser();
         analyser.fftSize = 2048 * 2 * 2;
 
@@ -713,6 +1022,8 @@ button:hover {
         }
 
         playNext();
+        ensureVisualizerLoopsRunning();
+        MAX_SIZE = Math.max(4, Math.floor(audioContext.sampleRate / 5000));
 
     });
 

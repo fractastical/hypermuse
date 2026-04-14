@@ -45,6 +45,8 @@ Layered simulation scaffold (new):
   audio-reactive speed/rules and beat-triggered spawning.
 - `js/simulations/kuramoto_sim.js` -> coupled-oscillator "communication" plugin
   (Kuramoto-inspired local neighbor sync).
+- `js/simulations/molecule_graph_sim.js` -> molecule communication graph plugin
+  (SDF atom/bond topology with audio-driven diffusion).
 
 ## Run locally
 
@@ -117,6 +119,31 @@ You can tune defaults when building:
 VJ_HOLD_MS=10000 VJ_TRANSITION_MS=1200 VJ_TRANSITION_TYPE=fade npm run build:vj-set
 ```
 
+Set manifests can also carry an effect schedule:
+
+```json
+{
+  "effectTimeline": {
+    "enabled": true,
+    "phases": [
+      { "name": "life", "durationSec": 16 },
+      { "name": "kuramoto", "durationSec": 16 },
+      { "name": "molecule", "durationSec": 16 },
+      { "name": "stacked", "durationSec": 16 }
+    ]
+  }
+}
+```
+
+When you click `Load Set`, this schedule is applied automatically.
+
+You can also edit timeline behavior live in `sonicsphere.html` controls:
+
+- `Effect phases` (comma-separated)
+- `sec/phase`
+- `timeline on`
+- `Apply FX Timeline`
+
 ## Sample video export
 
 Generate a short sample output recording:
@@ -149,12 +176,25 @@ is generated between active points, producing a live "music topology" effect.
 
 - Audio analysis -> `HypermuseAudioEngine`
 - Simulation plugin update -> `HypermuseLifeSimulationPlugin` +
-  `HypermuseKuramotoSimulationPlugin`
+  `HypermuseKuramotoSimulationPlugin` +
+  `HypermuseMoleculeGraphSimulationPlugin`
 - Texture composition -> `HypermuseSimulationCompositor`
 - Rendered as an additive "simulation shell" mesh in the scene
 
 This is intended as the base architecture for integrating Morpholib-style and other
 cellular systems with the same music sync pipeline.
+
+The molecule plugin directly adapts the `parseSDF` approach used in
+`fractastical/metajargon` and turns bonds into a communication network for signal
+propagation.
+
+`sonicsphere.html` also runs a timed effect scheduler (while audio is active), cycling
+through four profiles about every 16 seconds:
+
+- `life` -> Life-dominant cellular look
+- `kuramoto` -> oscillator-dominant sync look
+- `molecule` -> molecule-graph-dominant diffusion look
+- `stacked` -> all simulation layers combined
 
 ## Notes
 

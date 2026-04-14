@@ -192,6 +192,9 @@ urls = urls
     });
 
 queueVideoSet(urls, labels, transitions, defaultTransition);
+if (manifest && manifest.effectTimeline && window.setEffectTimelineConfig) {
+    window.setEffectTimelineConfig(manifest.effectTimeline, true);
+}
 return urls.length;
 }
 

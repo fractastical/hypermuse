@@ -1,8 +1,29 @@
 {
   "setName": "bio1",
   "sourceDirectory": "loops/bio1",
-  "generatedAt": "2026-04-14T15:45:44.081Z",
+  "generatedAt": "2026-04-14T17:40:08.616Z",
   "count": 0,
+  "effectTimeline": {
+    "enabled": true,
+    "phases": [
+      {
+        "name": "life",
+        "durationSec": 16
+      },
+      {
+        "name": "kuramoto",
+        "durationSec": 16
+      },
+      {
+        "name": "molecule",
+        "durationSec": 16
+      },
+      {
+        "name": "stacked",
+        "durationSec": 16
+      }
+    ]
+  },
   "defaultTransition": {
     "type": "fade",
     "durationMs": 900,

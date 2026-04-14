@@ -69,6 +69,15 @@ function main() {
     sourceDirectory: toPosix(INPUT_DIR),
     generatedAt: new Date().toISOString(),
     count: loops.length,
+    effectTimeline: {
+      enabled: true,
+      phases: [
+        { name: "life", durationSec: 16 },
+        { name: "kuramoto", durationSec: 16 },
+        { name: "molecule", durationSec: 16 },
+        { name: "stacked", durationSec: 16 }
+      ]
+    },
     defaultTransition: {
       type: DEFAULT_TRANSITION_TYPE,
       durationMs: DEFAULT_TRANSITION_MS,
