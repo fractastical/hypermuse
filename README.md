@@ -1,112 +1,88 @@
-
-
-
-
-
 # Hypermuse
 
-Live Three.js music & VJ visualizer that maps real-time audio (or selected media files) onto geometries floating over a sphere. A built-in **hypergraph** view (via the `met4hyper` module) now reacts to the same beat.
+Hypermuse is a browser-based audio and VJ visualization project built with Three.js.
+It turns audio energy into animated 3D geometry around a sphere and can map uploaded
+video frames onto those geometries for live performance visuals.
 
-## Getting Started
+## What the project does
 
-open up controller.html. visualizer will open up in separate tab. If desired you can display on a separate screen. Click play to start audio reactive version, otherwise pick a song with the picker. 
+- Analyzes incoming audio with the Web Audio API (`AnalyserNode`).
+- Splits the frequency spectrum into bands and tracks per-band energy.
+- Maps those bands to points distributed on a sphere.
+- Creates reactive shapes, lines, and polygons when band thresholds are exceeded.
+- Optionally textures geometry with video frames for VJ-style visuals.
+- Exposes many live controls (thresholds, hue, camera/light, rotation, density)
+  through a controller window.
 
-You can also pick videos to play over the surface area (i.e. similar to VJing)
+## How it is structured
 
-If using the onboard microphone it will often filter out any speaker output coming from the same device, so it is recommened to using the picker in this case or use external input. 
+The app is mostly multi-page HTML + inline script, with shared helpers in `js/`.
 
+- `controller.html` -> opens `sonicsphere.html` in a second window and sends control
+  updates with `postMessage`.
+- `sonicsphere.html` -> main audio-reactive sphere renderer.
+- `colorsphere.html` + `colorcontroller.html` -> color-focused variant.
+- `poetsphere.html` + `poetcontroller.html` -> poetry-related variant.
+- `polysphere.html`, `videosphere.html`, `venus.html`, `kurasphere.html` -> alternate
+  visualizer experiments.
+- `prototypes/` -> older or experimental variants.
 
-<img src="https://github.com/fractastical/sonicsourcecode/assets/589191/4326f557-a1d6-4310-a3bf-826be4644dac" width="500" />
+Shared utility scripts:
 
-## How It Works
+- `js/video_processor.js` -> video queueing, frame capture, texture updates.
+- `js/message_controller.js` -> message handling for live parameter changes.
+- `js/audio_controller.js` -> audio queue playback helpers and MIDI playback logic.
+- `js/sonic_geometries.js` -> reusable geometry-building utilities.
+- `js/note_analyzer.js` -> note/frequency mapping and peak detection helpers.
 
-Uses a spectrum analizer to break music into bands, isolate tones, and then make the music visible by assigning each tone to the vertice spread over the surface of a sphere. When tones are played the vertices are activated and resulting lines or polygons are displayed. 
+## Run locally
 
-## Why
+Because browsers restrict file/media APIs on `file://`, run a local server.
 
-<img src="https://github.com/fractastical/sonicsourcecode/assets/589191/9fd329b2-dc12-4f12-94b9-3f2b7dfd4cd6" width="250" />
+### Option 1: npm scripts
 
-Looks cool during a performance. May also help you to play better music by *seeing* the music. 
+```bash
+npm install
+npm start
+```
 
-As used for projection during a set (https://instagram.com/rootflute) 
+Then open:
 
+- `http://localhost:8080/controller.html` (main controller -> opens visualizer)
+- or `http://localhost:8080/colorcontroller.html`
+- or `http://localhost:8080/poetcontroller.html`
 
-## Included Files / Demo Modes
+### Option 2: Python server with CORS headers
 
-## videosphere
+```bash
+python3 pyserver.py
+```
 
-<img src="https://github.com/fractastical/sonicsourcecode/assets/589191/3b94708f-2f0a-40cd-89d1-2f8e859b6349" width="200" height="200" />
+Then open `http://localhost:8000/controller.html`.
 
-Live VJing software allowing frame by frame display of music hyper imposed around a sphere. 
+## Basic usage
 
-##  polysphere
+1. Open a controller page.
+2. Click `Start`.
+3. Load audio files (`audio/*`, `.mid`, `.midi`) and optional videos.
+4. Adjust threshold sliders and other controls to shape the reaction.
+5. Use keyboard shortcuts in visualizer pages:
+   - `h` toggle control panel
+   - `v` toggle video list panel (where supported)
 
-<img src="https://github.com/fractastical/sonicsourcecode/assets/589191/dfa2e145-26e9-43e6-8758-588dd2bee8df" width="200" height="200" />
+## Core visualization idea
 
-Sound reactive input signal is split into bands logarithmicly mapped to the vertices on a sphere, equalized manually and distributed into polygons. 
+Frequency bands are mapped across a sphere using a golden-ratio-style angular step.
+When a band crosses its threshold, the corresponding point(s) activate and geometry
+is generated between active points, producing a live "music topology" effect.
 
-##  nodesphere
+## Notes
 
-<img src="https://github.com/fractastical/sonicsourcecode/assets/589191/301f81b2-2ee1-4a05-9067-ec538fe68a69" width="200" height="200" />
+- This repo contains multiple experimental pages with overlapping logic.
+- Some scripts are in-progress or partially wired; `controller.html` +
+  `sonicsphere.html` is the primary path.
 
-Sound bands are mapped as edges between vertices mapped over the surface of a sphere. Allows dynamic hues.  
+## Related work
 
-##  dynamicsphere
-
-<img src="https://github.com/fractastical/sonicsourcecode/assets/589191/2d287873-0ade-415d-84ba-769398e86445" width="200" height="200" />
-
-Sound reactive side-scrolling sets of spheres mapped to low, mid, high bands displaying over a time series, allows you to dynamically set number of bands
-
-## staticsphere
-
-<img src="https://github.com/fractastical/sonicsourcecode/assets/589191/1d5cbfab-e8d1-461b-a2f7-209d5a95170d" width="200" height="200" />
-
-sound reactive sets of side scrolling spheres mapped to low, mid, high bands displaying over a time series
-
-
-# Mathematical Logic Behind Vertex Distribution
-
-## Band Frequency Calculation
-The frequency for each band (i) can be calculated using the formula:
-
-`bandFrequency = baseFrequency * ratio^i`
-
-Where:
-- `i` is the band number ranging from 0 to `(numBands - 1)`.
-- `baseFrequency` is the starting frequency.
-- `ratio` is the frequency multiplier factor.
-
-## Golden Ratio and Angle Increment
-The golden ratio (phi, φ) is defined as:
-
-`φ = (1 + √5) / 2`
-
-The angle increment based on the golden ratio is:
-
-`angleIncrement = 2π * φ`
-
-## 3D Point Computation
-For each band (i), a 3D point is calculated as follows:
-
-- Normalize the band index:
-`v = i / numBands`
-
-- Compute spherical coordinates:
-`ϕ = v * π`
-`θ = angleIncrement * i`
-
-- Convert spherical coordinates to Cartesian coordinates:
-`x = sin(ϕ) * cos(θ)`
-`y = sin(ϕ) * sin(θ)`
-`z = cos(ϕ)`
-
-## Point Creation
-A 3D point with coordinates (x, y, z) can be created and added to a scene. The creation of the point is more of a procedural step and does not have a direct mathematical representation.
-
-This mathematical logic is used to distribute vertices in a 3D space, which can be applied to various computer graphics and visualization tasks.
-
-
-
-See also the hypermusic repository for the theoertical background: https://github.com/fractastical/hypermusic
-
-
+The theoretical background is in the Hypermusic repository:
+[https://github.com/fractastical/hypermusic](https://github.com/fractastical/hypermusic)
