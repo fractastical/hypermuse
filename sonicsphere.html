@@ -121,6 +121,15 @@ button:hover {
             <label for="videoInput">Video:</label>
             <input type="file" id="videoInput" accept="video/*" multiple />
           </div>
+          <div class="file-input-group">
+            <label for="videoSetManifest">Video Set Manifest:</label>
+            <input type="text" id="videoSetManifest" value="sets/bio1.json" />
+            <button id="loadVideoSetButton">Load Set</button>
+          </div>
+          <div class="file-input-group">
+            <button id="startExportButton">Start Export</button>
+            <button id="stopExportButton">Stop Export</button>
+          </div>
           <button id="startButton">Start</button>
           <button id="beatButton" onclick="hide()">Hide ("h")</button>
           <video id="videoElement" class="hidden" autoplay muted></video>
@@ -166,6 +175,9 @@ button:hover {
         let simCompositor;
         let simulationShell;
         let lastSimulationTickMs = performance.now();
+        let sceneRecorder = null;
+        let sceneRecorderChunks = [];
+        let sceneRecorderMimeType = '';
 
         let captureInterval;
         const CAPTURE_INTERVAL_MS = 416.666666667 / 10;  // e.g., Capture every Xms 
@@ -188,6 +200,81 @@ button:hover {
         //TODO: might want to revisit this and reset it if the window sie has
         renderer.setSize(container.clientWidth, container.clientHeight);
         container.appendChild(renderer.domElement);
+
+        function startSceneExportRecording() {
+            if (sceneRecorder && sceneRecorder.state === 'recording') {
+                return false;
+            }
+            if (!renderer || !renderer.domElement || !renderer.domElement.captureStream) {
+                console.error('Capture stream is not available in this browser.');
+                return false;
+            }
+            sceneRecorderChunks = [];
+            const captureStream = renderer.domElement.captureStream(30);
+            const candidates = [
+                'video/webm;codecs=vp9',
+                'video/webm;codecs=vp8',
+                'video/webm'
+            ];
+            sceneRecorderMimeType = '';
+            for (const candidate of candidates) {
+                if (window.MediaRecorder && MediaRecorder.isTypeSupported(candidate)) {
+                    sceneRecorderMimeType = candidate;
+                    break;
+                }
+            }
+            sceneRecorder = sceneRecorderMimeType
+                ? new MediaRecorder(captureStream, { mimeType: sceneRecorderMimeType })
+                : new MediaRecorder(captureStream);
+            sceneRecorder.ondataavailable = function(event) {
+                if (event.data && event.data.size > 0) {
+                    sceneRecorderChunks.push(event.data);
+                }
+            };
+            sceneRecorder.start(250);
+            console.log('Scene export recording started');
+            return true;
+        }
+
+        function stopSceneExportRecording(filename = 'hypermuse-export.webm') {
+            if (!sceneRecorder || sceneRecorder.state !== 'recording') {
+                return Promise.resolve(false);
+            }
+            return new Promise(function(resolve) {
+                sceneRecorder.onstop = function() {
+                    const blobType = sceneRecorderMimeType || 'video/webm';
+                    const blob = new Blob(sceneRecorderChunks, { type: blobType });
+                    const url = URL.createObjectURL(blob);
+                    const anchor = document.createElement('a');
+                    anchor.href = url;
+                    anchor.download = filename;
+                    document.body.appendChild(anchor);
+                    anchor.click();
+                    document.body.removeChild(anchor);
+                    URL.revokeObjectURL(url);
+                    sceneRecorder = null;
+                    sceneRecorderChunks = [];
+                    resolve(true);
+                };
+                sceneRecorder.stop();
+            });
+        }
+
+        window.startSceneExportRecording = startSceneExportRecording;
+        window.stopSceneExportRecording = stopSceneExportRecording;
+
+        const startExportButton = document.getElementById('startExportButton');
+        const stopExportButton = document.getElementById('stopExportButton');
+        if (startExportButton) {
+            startExportButton.addEventListener('click', function() {
+                startSceneExportRecording();
+            });
+        }
+        if (stopExportButton) {
+            stopExportButton.addEventListener('click', function() {
+                stopSceneExportRecording();
+            });
+        }
 
         var analyser;
 

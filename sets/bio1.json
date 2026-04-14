@@ -1,0 +1,12 @@
+{
+  "setName": "bio1",
+  "sourceDirectory": "loops/bio1",
+  "generatedAt": "2026-04-14T15:45:44.081Z",
+  "count": 0,
+  "defaultTransition": {
+    "type": "fade",
+    "durationMs": 900,
+    "holdMs": 8000
+  },
+  "loops": []
+}

@@ -39,33 +39,178 @@ const originalVideos = [];
 const allVideoLoops = [];
 
 const videoElement = document.getElementById('videoElement');
+const supportedVideoExtensions = new Set([
+    '.mp4', '.mov', '.webm', '.m4v', '.avi', '.mkv'
+]);
+let currentSetEntries = [];
+let currentSetIndex = -1;
+let setAdvanceTimer = null;
+
+function clearVideoList() {
+const videoList = document.getElementById('videoListContents');
+if (videoList) {
+    videoList.innerHTML = '';
+}
+}
+
+function clearSetAdvanceTimer() {
+if (setAdvanceTimer !== null) {
+    clearTimeout(setAdvanceTimer);
+    setAdvanceTimer = null;
+}
+}
+
+function normalizeSetEntries(urls, labels = [], transitions = [], defaults = {}) {
+const entries = [];
+for (let i = 0; i < urls.length; i++) {
+    const url = urls[i];
+    if (!url) continue;
+    entries.push({
+        url,
+        label: labels[i] || url.split('/').pop(),
+        transition: {
+            type: (transitions[i] && transitions[i].type) || defaults.type || 'cut',
+            durationMs: (transitions[i] && transitions[i].durationMs) || defaults.durationMs || 700,
+            holdMs: (transitions[i] && transitions[i].holdMs) || defaults.holdMs || 8000
+        }
+    });
+}
+return entries;
+}
+
+function scheduleSetAdvance(entry) {
+clearSetAdvanceTimer();
+if (!entry || !entry.transition || !Number.isFinite(entry.transition.holdMs)) {
+    return;
+}
+if (entry.transition.holdMs <= 0) {
+    return;
+}
+setAdvanceTimer = setTimeout(function() {
+    playNextSetEntry();
+}, entry.transition.holdMs);
+}
+
+function applyTransitionAndPlay(entry) {
+if (!entry) {
+    return;
+}
+const transition = entry.transition || {};
+const transitionType = transition.type || 'cut';
+const durationMs = Math.max(0, parseInt(transition.durationMs || 0));
+
+if (transitionType === 'fade' && durationMs > 0) {
+    const half = Math.max(60, Math.floor(durationMs / 2));
+    videoElement.style.transition = `opacity ${half}ms linear`;
+    videoElement.style.opacity = '0';
+    setTimeout(function() {
+        videoElement.src = entry.url;
+        videoElement.playbackRate = playbackRate;
+        videoElement.play();
+        videoElement.style.opacity = '1';
+    }, half);
+} else {
+    videoElement.style.transition = '';
+    videoElement.style.opacity = '1';
+    videoElement.src = entry.url;
+    videoElement.playbackRate = playbackRate;
+    videoElement.play();
+}
+}
+
+function playSetEntryAt(index) {
+if (currentSetEntries.length === 0) {
+    return;
+}
+currentSetIndex = ((index % currentSetEntries.length) + currentSetEntries.length) % currentSetEntries.length;
+const entry = currentSetEntries[currentSetIndex];
+applyTransitionAndPlay(entry);
+scheduleSetAdvance(entry);
+videoElementActive = true;
+}
+
+function playNextSetEntry() {
+if (currentSetEntries.length === 0) {
+    return false;
+}
+playSetEntryAt(currentSetIndex + 1);
+return true;
+}
+
+function queueVideoSet(urls, labels = [], transitions = [], defaults = {}) {
+activeVideoQueue.length = 0;
+originalVideos.length = 0;
+clearVideoList();
+clearSetAdvanceTimer();
+
+for (let i = 0; i < urls.length; i++) {
+    const url = urls[i];
+    activeVideoQueue.push(url);
+    originalVideos.push(url);
+    const label = labels[i] || url.split('/').pop();
+    appendFilenameToList(label);
+}
+
+allVideoLoops.push([...originalVideos]);
+
+currentSetEntries = normalizeSetEntries(urls, labels, transitions, defaults);
+if (currentSetEntries.length > 0) {
+    playSetEntryAt(0);
+}
+}
+
+async function loadVideoSetManifest(manifestPath) {
+const response = await fetch(manifestPath, { cache: 'no-store' });
+if (!response.ok) {
+    throw new Error(`Could not load video set manifest: ${manifestPath}`);
+}
+const manifest = await response.json();
+
+let urls = [];
+let labels = [];
+let transitions = [];
+let defaultTransition = {};
+if (Array.isArray(manifest)) {
+    urls = manifest.slice();
+} else if (Array.isArray(manifest.loops)) {
+    defaultTransition = manifest.defaultTransition || {};
+    urls = manifest.loops.map(loop => typeof loop === 'string' ? loop : loop.url);
+    labels = manifest.loops.map(loop => typeof loop === 'string' ? loop : (loop.label || loop.url));
+    transitions = manifest.loops.map(loop => typeof loop === 'string' ? {} : (loop.transition || {}));
+} else {
+    throw new Error('Invalid manifest format. Expected array or { loops: [] }.');
+}
+
+urls = urls
+    .filter(Boolean)
+    .filter(url => {
+        const lowered = url.toLowerCase();
+        for (const ext of supportedVideoExtensions) {
+            if (lowered.endsWith(ext)) return true;
+        }
+        return false;
+    });
+
+queueVideoSet(urls, labels, transitions, defaultTransition);
+return urls.length;
+}
+
+window.loadVideoSetManifest = loadVideoSetManifest;
 
 document.getElementById('videoInput').addEventListener('change', function(event) {
 
 // if(activeVideoQueue.length > 0)
 //      allVideoQueues.push("video1", )
 
-activeVideoQueue.length = 0;
-originalVideos.length = 0;
-
-// Convert FileList to Array and add to activeVideoQueue
+const urls = [];
+const labels = [];
 for (let file of event.target.files) {
-    const url = URL.createObjectURL(file);
-    console.log(url);
-    activeVideoQueue.push(url);
-    originalVideos.push(url);
-    appendFilenameToList(file.name);
-
+    urls.push(URL.createObjectURL(file));
+    labels.push(file.name);
 }
+queueVideoSet(urls, labels, [], { type: 'cut', durationMs: 0, holdMs: 0 });
 
-allVideoLoops.push([...originalVideos]);
-
-// Play the first video
 if (activeVideoQueue.length > 0) {
-    videoElement.src = activeVideoQueue.shift();
-    videoElement.play();
-    videoElementActive = true;
-
     if (holographicFanMode) {
         const dodecahedronRadius = 0.15;
         const dodecahedronGeometry = new THREE.DodecahedronGeometry(dodecahedronRadius);
@@ -85,6 +230,20 @@ else {
     console.error('Video format not supported');
 }
 });
+
+const videoSetButton = document.getElementById('loadVideoSetButton');
+if (videoSetButton) {
+    videoSetButton.addEventListener('click', async function() {
+        const manifestInput = document.getElementById('videoSetManifest');
+        const manifestPath = manifestInput && manifestInput.value ? manifestInput.value : 'sets/bio1.json';
+        try {
+            const total = await loadVideoSetManifest(manifestPath);
+            console.log(`Loaded video set ${manifestPath} (${total} loops)`);
+        } catch (error) {
+            console.error(error);
+        }
+    });
+}
 
 function appendFilenameToList(filename) {
 const videoList = document.getElementById('videoListContents');
@@ -123,6 +282,10 @@ if (event.key === "v") {
 });
 
 videoElement.addEventListener('ended', function() {
+if (currentSetEntries.length > 0) {
+    playNextSetEntry();
+    return;
+}
 if (activeVideoQueue.length === 0) {
     // Repopulate activeVideoQueue with original video URLs
     activeVideoQueue.push(...originalVideos);

@@ -81,6 +81,62 @@ Then open `http://localhost:8000/controller.html`.
    - `h` toggle control panel
    - `v` toggle video list panel (where supported)
 
+## VJ set preload workflow
+
+To preload a folder of loops (for example `loops/bio1`) and reuse it as a startup set:
+
+1. Put your loops in `loops/bio1` (nested folders are supported).
+2. Build a manifest:
+
+```bash
+npm run build:vj-set
+```
+
+3. In `sonicsphere.html`, use `Video Set Manifest` (`sets/bio1.json`) and click
+   `Load Set`.
+
+The manifest can also be loaded automatically by the sample export script.
+
+Each loop entry includes transition controls:
+
+```json
+{
+  "url": "loops/bio1/clip01.mp4",
+  "label": "clip01.mp4",
+  "transition": {
+    "type": "fade",
+    "durationMs": 900,
+    "holdMs": 8000
+  }
+}
+```
+
+You can tune defaults when building:
+
+```bash
+VJ_HOLD_MS=10000 VJ_TRANSITION_MS=1200 VJ_TRANSITION_TYPE=fade npm run build:vj-set
+```
+
+## Sample video export
+
+Generate a short sample output recording:
+
+```bash
+npm run export:sample
+```
+
+By default it tries to preload `sets/bio1.json`, injects generated test audio, and
+writes `artifacts/sample-sonicsphere.webm`.
+
+To target a different set manifest:
+
+```bash
+VJ_SET_MANIFEST=sets/another-set.json npm run export:sample
+```
+
+You can also export directly from the UI using `Start Export` / `Stop Export` in
+`sonicsphere.html` (uses browser `MediaRecorder` from the render canvas).
+
 ## Core visualization idea
 
 Frequency bands are mapped across a sphere using a golden-ratio-style angular step.

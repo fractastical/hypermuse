@@ -4,7 +4,9 @@
   "private": true,
   "scripts": {
     "start": "npx http-server -c-1 -p 8080 .",
-    "test": "playwright test"
+    "test": "playwright test",
+    "build:vj-set": "node scripts/build-vj-set-manifest.mjs loops/bio1 sets/bio1.json",
+    "export:sample": "node scripts/generate-sample-video.mjs"
   },
   "devDependencies": {
     "@playwright/test": "^1.44.0",
