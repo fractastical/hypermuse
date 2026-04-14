@@ -101,6 +101,10 @@ button:hover {
     <script src="js/threejs.org_build_three.js"></script>
     <script src="js/cdn.jsdelivr.net_npm_@tonejs_midi.js"></script>
     <script src="js/cdn.jsdelivr.net_npm_tone.js"></script>
+    <script src="js/layers/audio_engine.js"></script>
+    <script src="js/layers/sim_compositor.js"></script>
+    <script src="js/simulations/life_sim.js"></script>
+    <script src="js/simulations/kuramoto_sim.js"></script>
 
 
 
@@ -158,6 +162,10 @@ button:hover {
         let saturation = 100;
         let brightness = 50; 
         let volumemagnification = 1.4; 
+        let layeredAudioEngine;
+        let simCompositor;
+        let simulationShell;
+        let lastSimulationTickMs = performance.now();
 
         let captureInterval;
         const CAPTURE_INTERVAL_MS = 416.666666667 / 10;  // e.g., Capture every Xms 
@@ -202,6 +210,33 @@ button:hover {
         let geometries = [];
         let lastPoints = [];
 
+        function initSimulationLayers() {
+            layeredAudioEngine = new HypermuseAudioEngine({ numBands: numBands });
+            simCompositor = new HypermuseSimulationCompositor({ width: 128, height: 128 });
+            const lifePlugin = new HypermuseLifeSimulationPlugin("life-primary");
+            simCompositor.registerPlugin(lifePlugin, {
+                opacity: 0.85,
+                color: [70, 180, 255]
+            });
+            const kuramotoPlugin = new HypermuseKuramotoSimulationPlugin("kuramoto-primary");
+            simCompositor.registerPlugin(kuramotoPlugin, {
+                opacity: 0.55,
+                color: [255, 120, 220]
+            });
+
+            const shellGeometry = new THREE.SphereGeometry(1.07, 48, 48);
+            const shellMaterial = new THREE.MeshBasicMaterial({
+                map: simCompositor.texture,
+                transparent: true,
+                opacity: 0.2,
+                blending: THREE.AdditiveBlending,
+                depthWrite: false,
+                side: THREE.DoubleSide
+            });
+            simulationShell = new THREE.Mesh(shellGeometry, shellMaterial);
+            scene.add(simulationShell);
+        }
+
         //TODO: this function doesn't preoperly work when run repeat times (i.e. the points are evenly distributed over the surface of the sphere)
         function initBands(){
 
@@ -242,6 +277,7 @@ button:hover {
         }
 
         initBands();
+        initSimulationLayers();
 
 
         const volumeSlider = document.getElementById('volumeSlider');
@@ -259,6 +295,21 @@ button:hover {
 
             let data = new Uint8Array(analyser.frequencyBinCount);
             analyser.getByteFrequencyData(data);
+            if (layeredAudioEngine) {
+                layeredAudioEngine.setNumBands(numBands);
+                const now = performance.now();
+                const dt = Math.max(0.001, (now - lastSimulationTickMs) / 1000);
+                lastSimulationTickMs = now;
+                const audioFrame = layeredAudioEngine.update(data, audioContext);
+                if (simCompositor) {
+                    simCompositor.update(dt, audioFrame);
+                }
+                if (simulationShell) {
+                    simulationShell.material.opacity = 0.1 + (audioFrame.energy * 0.55);
+                    simulationShell.rotation.y += 0.0015 + (audioFrame.mid * 0.01);
+                    simulationShell.rotation.x += 0.0008 + (audioFrame.high * 0.004);
+                }
+            }
 
             let bandSize = Math.floor(data.length / numBands);
 
