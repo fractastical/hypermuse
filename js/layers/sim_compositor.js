@@ -28,6 +28,19 @@
       });
     }
 
+    setPluginOpacity(pluginId, opacity) {
+      if (!pluginId || !Number.isFinite(opacity)) {
+        return;
+      }
+      const nextOpacity = Math.max(0, Math.min(1.5, opacity));
+      for (let i = 0; i < this.plugins.length; i++) {
+        const entry = this.plugins[i];
+        if (entry.plugin && entry.plugin.id === pluginId) {
+          entry.opacity = nextOpacity;
+        }
+      }
+    }
+
     update(dt, audioFrame) {
       if (this.plugins.length === 0) {
         return;
