@@ -129,14 +129,20 @@ button:hover {
           </div>
           <div class="file-input-group">
             <label for="effectTimelinePhases">Effect phases:</label>
-            <input type="text" id="effectTimelinePhases" value="life,kuramoto,molecule,stacked" />
+            <input type="text" id="effectTimelinePhases" value="classic,life,kuramoto,molecule,stacked" />
             <label for="effectTimelinePhaseSec">sec/phase:</label>
-            <input type="text" id="effectTimelinePhaseSec" value="16" />
+            <input type="text" id="effectTimelinePhaseSec" value="8" />
             <label>
               <input type="checkbox" id="effectTimelineEnabled" checked />
               timeline on
             </label>
             <button id="applyEffectTimelineButton">Apply FX Timeline</button>
+          </div>
+          <div class="file-input-group">
+            <label for="moleculeNameInput">Molecule (PubChem name):</label>
+            <input type="text" id="moleculeNameInput" value="caffeine" />
+            <button id="loadMoleculeButton">Load Molecule</button>
+            <span id="moleculeStatus">embedded water</span>
           </div>
           <div class="file-input-group">
             <button id="startExportButton">Start Export</button>
@@ -186,24 +192,31 @@ button:hover {
         let layeredAudioEngine;
         let simCompositor;
         let simulationShell;
+        let moleculeSimulationPlugin;
         let lastSimulationTickMs = performance.now();
         let effectTimelineStartMs = null;
         let effectTimelineEnabled = true;
         let lastAppliedEffectPhase = '';
-        let activeEffectProfile = 'life';
+        let activeEffectProfile = 'classic';
         let simulationShellBaseOpacity = 0.24;
+        let effectActivationFactor = 1.0;
         let effectTimelinePlan = [
-            { name: 'life', durationSec: 16 },
-            { name: 'kuramoto', durationSec: 16 },
-            { name: 'molecule', durationSec: 16 },
-            { name: 'stacked', durationSec: 16 }
+            { name: 'classic', durationSec: 8 },
+            { name: 'life', durationSec: 8 },
+            { name: 'kuramoto', durationSec: 8 },
+            { name: 'molecule', durationSec: 8 },
+            { name: 'stacked', durationSec: 8 }
         ];
         let sceneRecorder = null;
         let sceneRecorderChunks = [];
         let sceneRecorderMimeType = '';
+        let moleculeSequence = [];
+        let moleculeSequenceIndex = -1;
+        let moleculeCycleOnPhaseChange = false;
 
         let captureInterval = null;
         let animationStarted = false;
+        let visualWarmupUntilMs = 0;
         const CAPTURE_INTERVAL_MS = 416.666666667 / 10;  // e.g., Capture every Xms 
 
         const scene = new THREE.Scene();
@@ -235,18 +248,26 @@ button:hover {
 
         function enableDemoModeLayout() {
             demoMode = true;
+            document.body.style.display = 'block';
             const thresholds = document.getElementById('thresholds');
             const videoList = document.getElementById('videoList');
+            const appPanel = document.getElementById('app');
             if (thresholds) {
                 thresholds.style.display = 'none';
             }
             if (videoList) {
                 videoList.style.display = 'none';
             }
+            if (appPanel) {
+                appPanel.style.display = 'none';
+            }
             container.style.marginTop = '0';
             container.style.height = '100vh';
             container.style.width = '100vw';
+            container.style.display = 'block';
             resizeRendererLayout();
+            camera.position.set(0, 0, 2);
+            camera.lookAt(0, 0, 0);
         }
 
         window.enableDemoModeLayout = enableDemoModeLayout;
@@ -369,8 +390,8 @@ button:hover {
                 opacity: 0.55,
                 color: [255, 120, 220]
             });
-            const moleculePlugin = new HypermuseMoleculeGraphSimulationPlugin("molecule-primary");
-            simCompositor.registerPlugin(moleculePlugin, {
+            moleculeSimulationPlugin = new HypermuseMoleculeGraphSimulationPlugin("molecule-primary");
+            simCompositor.registerPlugin(moleculeSimulationPlugin, {
                 opacity: 0.5,
                 color: [120, 255, 160]
             });
@@ -388,12 +409,76 @@ button:hover {
             scene.add(simulationShell);
         }
 
+        function setMoleculeStatus(text) {
+            const status = document.getElementById('moleculeStatus');
+            if (status) {
+                status.textContent = text;
+            }
+        }
+
+        async function loadMoleculeByName(name) {
+            if (!moleculeSimulationPlugin) {
+                return;
+            }
+            const moleculeName = String(name || '').trim();
+            if (!moleculeName) {
+                return;
+            }
+            try {
+                setMoleculeStatus(`loading ${moleculeName}...`);
+                const result = await moleculeSimulationPlugin.loadFromPubChemName(moleculeName);
+                setMoleculeStatus(`${result.name}: ${result.atomCount} atoms / ${result.bondCount} bonds`);
+            } catch (error) {
+                console.error(error);
+                setMoleculeStatus(`fallback active (${error.message})`);
+            }
+        }
+
+        function setMoleculeSequence(names = [], options = {}) {
+            moleculeSequence = names
+                .map(name => String(name || '').trim())
+                .filter(Boolean);
+            moleculeCycleOnPhaseChange = !!options.cycleOnPhaseChange;
+            moleculeSequenceIndex = -1;
+            if (moleculeSequence.length > 0) {
+                const startIndex = Number.isFinite(options.startIndex)
+                    ? Math.max(0, Math.min(moleculeSequence.length - 1, options.startIndex))
+                    : 0;
+                moleculeSequenceIndex = startIndex;
+                loadMoleculeByName(moleculeSequence[moleculeSequenceIndex]);
+            }
+        }
+
+        async function advanceMoleculeSequence() {
+            if (moleculeSequence.length === 0) {
+                return;
+            }
+            moleculeSequenceIndex = (moleculeSequenceIndex + 1) % moleculeSequence.length;
+            await loadMoleculeByName(moleculeSequence[moleculeSequenceIndex]);
+        }
+
+        window.loadMoleculeGraphByName = loadMoleculeByName;
+        window.setMoleculeGraphSequence = setMoleculeSequence;
+
         function applyEffectProfile(profileName) {
             if (!simCompositor) {
                 return;
             }
 
-            if (profileName === 'life') {
+            if (profileName === 'classic') {
+                activeEffectProfile = 'classic';
+                simCompositor.setPluginOpacity('life-primary', 0.05);
+                simCompositor.setPluginOpacity('kuramoto-primary', 0.02);
+                simCompositor.setPluginOpacity('molecule-primary', 0.02);
+                innerTriangleActive = false;
+                hueOffsetSpeed = 0.0;
+                Y_ROTATION_SPEED = 0.0005;
+                X_ROTATION_SPEED = 0.0002;
+                saturation = 100;
+                brightness = 50;
+                simulationShellBaseOpacity = 0.05;
+                effectActivationFactor = 1.0;
+            } else if (profileName === 'life') {
                 activeEffectProfile = 'life';
                 simCompositor.setPluginOpacity('life-primary', 1.0);
                 simCompositor.setPluginOpacity('kuramoto-primary', 0.20);
@@ -404,7 +489,8 @@ button:hover {
                 X_ROTATION_SPEED = 0.0002;
                 saturation = 95;
                 brightness = 48;
-                simulationShellBaseOpacity = 0.2;
+                simulationShellBaseOpacity = 0.28;
+                effectActivationFactor = 0.78;
             } else if (profileName === 'kuramoto') {
                 activeEffectProfile = 'kuramoto';
                 simCompositor.setPluginOpacity('life-primary', 0.25);
@@ -417,6 +503,7 @@ button:hover {
                 saturation = 100;
                 brightness = 52;
                 simulationShellBaseOpacity = 0.34;
+                effectActivationFactor = 0.72;
             } else if (profileName === 'molecule') {
                 activeEffectProfile = 'molecule';
                 simCompositor.setPluginOpacity('life-primary', 0.20);
@@ -429,6 +516,7 @@ button:hover {
                 saturation = 88;
                 brightness = 58;
                 simulationShellBaseOpacity = 0.45;
+                effectActivationFactor = 0.52;
             } else if (profileName === 'stacked') {
                 activeEffectProfile = 'stacked';
                 simCompositor.setPluginOpacity('life-primary', 0.75);
@@ -441,6 +529,7 @@ button:hover {
                 saturation = 100;
                 brightness = 55;
                 simulationShellBaseOpacity = 0.55;
+                effectActivationFactor = 0.66;
             }
         }
 
@@ -553,6 +642,9 @@ button:hover {
             if (phase !== lastAppliedEffectPhase) {
                 applyEffectProfile(phase);
                 lastAppliedEffectPhase = phase;
+                if (moleculeCycleOnPhaseChange && moleculeSequence.length > 0) {
+                    advanceMoleculeSequence().catch((error) => console.error(error));
+                }
             }
         }
 
@@ -620,6 +712,18 @@ button:hover {
         initBands();
         initSimulationLayers();
         updateEffectTimelineControls();
+        if (moleculeSimulationPlugin && moleculeSimulationPlugin.getSummary) {
+            const summary = moleculeSimulationPlugin.getSummary();
+            setMoleculeStatus(`${summary.label}: ${summary.atomCount} atoms / ${summary.bondCount} bonds`);
+        }
+        const loadMoleculeButton = document.getElementById('loadMoleculeButton');
+        if (loadMoleculeButton) {
+            loadMoleculeButton.addEventListener('click', function() {
+                const moleculeNameInput = document.getElementById('moleculeNameInput');
+                const moleculeName = moleculeNameInput ? moleculeNameInput.value : '';
+                loadMoleculeByName(moleculeName);
+            });
+        }
 
 
         const volumeSlider = document.getElementById('volumeSlider');
@@ -637,6 +741,22 @@ button:hover {
 
             let data = new Uint8Array(analyser.frequencyBinCount);
             analyser.getByteFrequencyData(data);
+            const nowMs = performance.now();
+            let totalEnergy = 0;
+            for (let i = 0; i < data.length; i++) {
+                totalEnergy += data[i];
+            }
+            const inWarmup = nowMs < visualWarmupUntilMs;
+
+            // Startup fallback so first seconds are visibly active before decoded audio bins ramp up.
+            if (inWarmup && totalEnergy < 64) {
+                for (let i = 0; i < data.length; i++) {
+                    const osc1 = Math.sin((i * 0.085) + (nowMs / 240));
+                    const osc2 = Math.sin((i * 0.018) + (nowMs / 510));
+                    const v = 58 + (osc1 * 52) + (osc2 * 34);
+                    data[i] = Math.max(0, Math.min(255, Math.floor(v)));
+                }
+            }
             if (layeredAudioEngine) {
                 layeredAudioEngine.setNumBands(numBands);
                 const now = performance.now();
@@ -718,7 +838,8 @@ button:hover {
                 volumeDisplay.textContent = ' ' + volume.toFixed(2) + ' / ' + thresholds[i];
 
 
-                if (volume >= thresholds[i]) {
+                const warmupThresholdFactor = inWarmup ? 0.52 : 1.0;
+                if (volume >= (thresholds[i] * warmupThresholdFactor * effectActivationFactor)) {
 
 
                     let hue = (volume * volumemagnification) + hueoffset;
@@ -781,7 +902,9 @@ button:hover {
                             createdGeometry = lineGeometry;
                             createdObject = new THREE.Line(lineGeometry, lineMaterial);
                         } else {
-                            if (activeEffectProfile === 'molecule' && simCompositor && simCompositor.texture) {
+                            if (activeEffectProfile === 'classic') {
+                                material = material;
+                            } else if (activeEffectProfile === 'molecule' && simCompositor && simCompositor.texture) {
                                 material = new THREE.MeshBasicMaterial({
                                     map: simCompositor.texture,
                                     color: color,
@@ -789,6 +912,22 @@ button:hover {
                                     transparent: true,
                                     side: THREE.DoubleSide
                                 });
+                                const centroid = new THREE.Vector3()
+                                    .add(lastPoints[0])
+                                    .add(lastPoints[1])
+                                    .add(lastPoints[2])
+                                    .divideScalar(3);
+                                const bubbleRadius = 0.08 + (volume / 420);
+                                const bubbleGeometry = new THREE.SphereGeometry(bubbleRadius, 14, 14);
+                                const bubble = new THREE.Mesh(bubbleGeometry, material);
+                                bubble.position.copy(centroid);
+                                bubble.position.x += (Math.random() - 0.5) * 0.06;
+                                bubble.position.y += (Math.random() - 0.5) * 0.06;
+                                bubble.position.z += (Math.random() - 0.5) * 0.06;
+                                bubble.castShadow = true;
+                                bubble.receiveShadow = true;
+                                createdGeometry = bubbleGeometry;
+                                createdObject = bubble;
                             } else if (activeEffectProfile === 'stacked') {
                                 material = new THREE.MeshBasicMaterial({
                                     color: color,
@@ -805,11 +944,13 @@ button:hover {
                                     side: THREE.DoubleSide
                                 });
                             }
-                            const triangle = new THREE.Mesh(geometry, material);
-                            triangle.castShadow = true;
-                            triangle.receiveShadow = true;
-                            createdGeometry = geometry;
-                            createdObject = triangle;
+                            if (!createdObject) {
+                                const triangle = new THREE.Mesh(geometry, material);
+                                triangle.castShadow = true;
+                                triangle.receiveShadow = true;
+                                createdGeometry = geometry;
+                                createdObject = triangle;
+                            }
                         }
 
                         scene.add(createdObject); 
@@ -886,6 +1027,7 @@ button:hover {
             if (effectTimelineStartMs === null) {
                 effectTimelineStartMs = performance.now();
             }
+            visualWarmupUntilMs = performance.now() + 8000;
             if (captureInterval) {
                 clearInterval(captureInterval);
             }

@@ -15,6 +15,7 @@
       this.decay = 0.08;
       this.diffusion = 0.42;
       this.threshold = 0.2;
+      this.activeMoleculeLabel = "water (embedded)";
     }
 
     init(width, height) {
@@ -27,13 +28,42 @@
     loadFromSDF(sdfData) {
       const molecule = this.parseSDF(sdfData);
       if (!molecule || !Array.isArray(molecule.atoms) || molecule.atoms.length === 0) {
-        return;
+        return false;
       }
       this.molecule = molecule;
       this.buildGraph();
       this.atomSignals = new Float32Array(this.molecule.atoms.length);
       this.nextSignals = new Float32Array(this.molecule.atoms.length);
       this.atomUV = this.projectAtomsToUV(this.molecule.atoms);
+      return true;
+    }
+
+    async loadFromPubChemName(name) {
+      const query = String(name || "").trim();
+      if (!query) {
+        throw new Error("Molecule name cannot be empty.");
+      }
+      const sdfData = await this.fetchSDFByName(query);
+      const ok = this.loadFromSDF(sdfData);
+      if (!ok) {
+        throw new Error(`Could not parse SDF for molecule: ${query}`);
+      }
+      this.activeMoleculeLabel = query;
+      return {
+        name: query,
+        atomCount: this.molecule.atoms.length,
+        bondCount: this.molecule.bonds.length
+      };
+    }
+
+    async fetchSDFByName(name) {
+      const encoded = encodeURIComponent(name);
+      const url = `https://pubchem.ncbi.nlm.nih.gov/rest/pug/compound/name/${encoded}/record/SDF/?record_type=3d&response_type=display`;
+      const response = await fetch(url, { cache: "no-store" });
+      if (!response.ok) {
+        throw new Error(`PubChem request failed for "${name}" (${response.status})`);
+      }
+      return await response.text();
     }
 
     update(dt, audioFrame) {
@@ -224,6 +254,14 @@ M  END`;
 
     getState() {
       return this.state;
+    }
+
+    getSummary() {
+      return {
+        label: this.activeMoleculeLabel,
+        atomCount: this.molecule && this.molecule.atoms ? this.molecule.atoms.length : 0,
+        bondCount: this.molecule && this.molecule.bonds ? this.molecule.bonds.length : 0
+      };
     }
 
     dispose() {

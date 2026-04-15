@@ -46,7 +46,7 @@ Layered simulation scaffold (new):
 - `js/simulations/kuramoto_sim.js` -> coupled-oscillator "communication" plugin
   (Kuramoto-inspired local neighbor sync).
 - `js/simulations/molecule_graph_sim.js` -> molecule communication graph plugin
-  (SDF atom/bond topology with audio-driven diffusion).
+  (SDF atom/bond topology with audio-driven diffusion + PubChem fetch support).
 
 ## Run locally
 
@@ -113,10 +113,24 @@ Each loop entry includes transition controls:
 }
 ```
 
+Set-level playback can be `pingpong` (back-and-forth) or `loop`:
+
+```json
+{
+  "playbackMode": "pingpong"
+}
+```
+
 You can tune defaults when building:
 
 ```bash
 VJ_HOLD_MS=10000 VJ_TRANSITION_MS=1200 VJ_TRANSITION_TYPE=fade npm run build:vj-set
+```
+
+Useful set-build options:
+
+```bash
+VJ_MAX_LOOPS=20 VJ_PLAYBACK_MODE=pingpong npm run build:vj-set
 ```
 
 Set manifests can also carry an effect schedule:
@@ -126,6 +140,7 @@ Set manifests can also carry an effect schedule:
   "effectTimeline": {
     "enabled": true,
     "phases": [
+      { "name": "classic", "durationSec": 16 },
       { "name": "life", "durationSec": 16 },
       { "name": "kuramoto", "durationSec": 16 },
       { "name": "molecule", "durationSec": 16 },
@@ -137,12 +152,29 @@ Set manifests can also carry an effect schedule:
 
 When you click `Load Set`, this schedule is applied automatically.
 
+Set manifests can optionally specify a real molecule source:
+
+```json
+{
+  "moleculeGraph": {
+    "name": "caffeine",
+    "names": ["caffeine", "serotonin", "dopamine", "glucose"],
+    "cycleOnPhaseChange": true
+  }
+}
+```
+
+When present, the molecule source is loaded from PubChem automatically.
+If `names` is provided, the set can rotate through the list as phases change.
+
 You can also edit timeline behavior live in `sonicsphere.html` controls:
 
 - `Effect phases` (comma-separated)
 - `sec/phase`
 - `timeline on`
 - `Apply FX Timeline`
+
+`classic` preserves the original triangle/polygon visual style before layered variants.
 
 ## Sample video export
 
@@ -160,6 +192,18 @@ To target a different set manifest:
 ```bash
 VJ_SET_MANIFEST=sets/another-set.json npm run export:sample
 ```
+
+To force a specific real molecule during export:
+
+```bash
+MOLECULE_NAME=caffeine npm run export:sample
+```
+
+Exporter note:
+
+- If source is an audio file (`.wav`, `.mp3`, etc.), audio is muxed into the output video.
+- If source is MIDI (`.mid`/`.midi`), visuals still render, but export stays silent unless
+  you provide an audio render of that MIDI.
 
 You can also export directly from the UI using `Start Export` / `Stop Export` in
 `sonicsphere.html` (uses browser `MediaRecorder` from the render canvas).
@@ -187,6 +231,12 @@ cellular systems with the same music sync pipeline.
 The molecule plugin directly adapts the `parseSDF` approach used in
 `fractastical/metajargon` and turns bonds into a communication network for signal
 propagation.
+
+You can load real molecule data live from controls in `sonicsphere.html`:
+
+- `Molecule (PubChem name)` input (examples: `caffeine`, `serotonin`, `dopamine`)
+- `Load Molecule` button
+- status text showing loaded atom/bond counts
 
 `sonicsphere.html` also runs a timed effect scheduler (while audio is active), cycling
 through four profiles about every 16 seconds:

@@ -37,6 +37,7 @@ if(freezeFrameEffectActive)
 let activeVideoQueue = [];
 const originalVideos = [];
 const allVideoLoops = [];
+window.__hypermuseLoadedSetCount = 0;
 
 const videoElement = document.getElementById('videoElement');
 const supportedVideoExtensions = new Set([
@@ -45,6 +46,8 @@ const supportedVideoExtensions = new Set([
 let currentSetEntries = [];
 let currentSetIndex = -1;
 let setAdvanceTimer = null;
+let currentSetDirection = 1;
+let currentSetPlaybackMode = 'pingpong';
 
 function clearVideoList() {
 const videoList = document.getElementById('videoListContents');
@@ -91,6 +94,21 @@ setAdvanceTimer = setTimeout(function() {
 }, entry.transition.holdMs);
 }
 
+function setSetPlaybackTiming(holdMs, transitionMs) {
+const nextHoldMs = Math.max(250, parseInt(holdMs, 10));
+const nextTransitionMs = Math.max(0, parseInt(transitionMs, 10));
+for (let i = 0; i < currentSetEntries.length; i++) {
+    if (!currentSetEntries[i].transition) {
+        currentSetEntries[i].transition = { type: 'fade', durationMs: nextTransitionMs, holdMs: nextHoldMs };
+    }
+    currentSetEntries[i].transition.holdMs = nextHoldMs;
+    currentSetEntries[i].transition.durationMs = nextTransitionMs;
+}
+if (currentSetEntries.length > 0 && currentSetIndex >= 0) {
+    scheduleSetAdvance(currentSetEntries[currentSetIndex]);
+}
+}
+
 function applyTransitionAndPlay(entry) {
 if (!entry) {
     return;
@@ -133,7 +151,20 @@ function playNextSetEntry() {
 if (currentSetEntries.length === 0) {
     return false;
 }
-playSetEntryAt(currentSetIndex + 1);
+if (currentSetPlaybackMode === 'pingpong') {
+    if (currentSetEntries.length === 1) {
+        playSetEntryAt(0);
+        return true;
+    }
+    if (currentSetIndex >= currentSetEntries.length - 1) {
+        currentSetDirection = -1;
+    } else if (currentSetIndex <= 0) {
+        currentSetDirection = 1;
+    }
+    playSetEntryAt(currentSetIndex + currentSetDirection);
+} else {
+    playSetEntryAt(currentSetIndex + 1);
+}
 return true;
 }
 
@@ -142,6 +173,8 @@ activeVideoQueue.length = 0;
 originalVideos.length = 0;
 clearVideoList();
 clearSetAdvanceTimer();
+currentSetDirection = 1;
+currentSetPlaybackMode = defaults.playbackMode || 'pingpong';
 
 for (let i = 0; i < urls.length; i++) {
     const url = urls[i];
@@ -154,6 +187,7 @@ for (let i = 0; i < urls.length; i++) {
 allVideoLoops.push([...originalVideos]);
 
 currentSetEntries = normalizeSetEntries(urls, labels, transitions, defaults);
+window.__hypermuseLoadedSetCount = currentSetEntries.length;
 if (currentSetEntries.length > 0) {
     playSetEntryAt(0);
 }
@@ -174,6 +208,7 @@ if (Array.isArray(manifest)) {
     urls = manifest.slice();
 } else if (Array.isArray(manifest.loops)) {
     defaultTransition = manifest.defaultTransition || {};
+    defaultTransition.playbackMode = manifest.playbackMode || 'pingpong';
     urls = manifest.loops.map(loop => typeof loop === 'string' ? loop : loop.url);
     labels = manifest.loops.map(loop => typeof loop === 'string' ? loop : (loop.label || loop.url));
     transitions = manifest.loops.map(loop => typeof loop === 'string' ? {} : (loop.transition || {}));
@@ -195,10 +230,20 @@ queueVideoSet(urls, labels, transitions, defaultTransition);
 if (manifest && manifest.effectTimeline && window.setEffectTimelineConfig) {
     window.setEffectTimelineConfig(manifest.effectTimeline, true);
 }
+if (manifest && manifest.moleculeGraph) {
+    if (Array.isArray(manifest.moleculeGraph.names) && manifest.moleculeGraph.names.length > 0 && window.setMoleculeGraphSequence) {
+        window.setMoleculeGraphSequence(manifest.moleculeGraph.names, {
+            cycleOnPhaseChange: !!manifest.moleculeGraph.cycleOnPhaseChange
+        });
+    } else if (manifest.moleculeGraph.name && window.loadMoleculeGraphByName) {
+        window.loadMoleculeGraphByName(manifest.moleculeGraph.name);
+    }
+}
 return urls.length;
 }
 
 window.loadVideoSetManifest = loadVideoSetManifest;
+window.setSetPlaybackTiming = setSetPlaybackTiming;
 
 document.getElementById('videoInput').addEventListener('change', function(event) {
 
