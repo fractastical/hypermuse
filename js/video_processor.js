@@ -38,6 +38,7 @@ let activeVideoQueue = [];
 const originalVideos = [];
 const allVideoLoops = [];
 window.__hypermuseLoadedSetCount = 0;
+window.__hypermuseCurrentLoopLabel = "";
 
 const videoElement = document.getElementById('videoElement');
 const supportedVideoExtensions = new Set([
@@ -142,6 +143,7 @@ if (currentSetEntries.length === 0) {
 }
 currentSetIndex = ((index % currentSetEntries.length) + currentSetEntries.length) % currentSetEntries.length;
 const entry = currentSetEntries[currentSetIndex];
+window.__hypermuseCurrentLoopLabel = entry && entry.label ? entry.label : (entry && entry.url ? entry.url.split('/').pop() : "");
 applyTransitionAndPlay(entry);
 scheduleSetAdvance(entry);
 videoElementActive = true;
@@ -188,6 +190,7 @@ allVideoLoops.push([...originalVideos]);
 
 currentSetEntries = normalizeSetEntries(urls, labels, transitions, defaults);
 window.__hypermuseLoadedSetCount = currentSetEntries.length;
+window.__hypermuseCurrentLoopLabel = "";
 if (currentSetEntries.length > 0) {
     playSetEntryAt(0);
 }

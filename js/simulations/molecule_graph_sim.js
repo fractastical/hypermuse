@@ -16,6 +16,9 @@
       this.diffusion = 0.42;
       this.threshold = 0.2;
       this.activeMoleculeLabel = "water (embedded)";
+      this.driftU = 0;
+      this.driftV = 0;
+      this.motionPhase = 0;
     }
 
     init(width, height) {
@@ -77,6 +80,12 @@
 
       const dynamicDiffusion = this.diffusion + (mid * 0.25);
       const dynamicDecay = this.decay + (high * 0.08);
+      this.motionPhase += dt * (0.35 + (mid * 1.1));
+      this.driftU = (this.driftU + (dt * (0.02 + (low * 0.12)))) % 1;
+      this.driftV = (this.driftV + (dt * (0.01 + (high * 0.07)))) % 1;
+      if (beat) {
+        this.driftU = (this.driftU + 0.02) % 1;
+      }
 
       for (let i = 0; i < this.atomSignals.length; i++) {
         const neighbors = this.adjacency[i];
@@ -121,8 +130,9 @@
         if (signal < this.threshold) {
           continue;
         }
-        const u = this.atomUV[i].u;
-        const v = this.atomUV[i].v;
+        const shifted = this.getShiftedUV(i);
+        const u = shifted.u;
+        const v = shifted.v;
         const x = Math.max(0, Math.min(this.width - 1, Math.floor(u * (this.width - 1))));
         const y = Math.max(0, Math.min(this.height - 1, Math.floor(v * (this.height - 1))));
         this.state[(y * this.width) + x] = 1;
@@ -134,7 +144,7 @@
         }
         for (let n = 0; n < neighbors.length; n++) {
           const j = neighbors[n];
-          const other = this.atomUV[j];
+          const other = this.getShiftedUV(j);
           this.rasterizeLine(
             x,
             y,
@@ -143,6 +153,21 @@
           );
         }
       }
+    }
+
+    getShiftedUV(index) {
+      const base = this.atomUV[index];
+      if (!base) {
+        return { u: 0.5, v: 0.5 };
+      }
+      // Drift + subtle wobble creates visible "travel through space".
+      const wobbleU = Math.sin(this.motionPhase + (index * 0.17)) * 0.035;
+      const wobbleV = Math.cos(this.motionPhase * 0.8 + (index * 0.13)) * 0.03;
+      let u = base.u + this.driftU + wobbleU;
+      let v = base.v + this.driftV + wobbleV;
+      u = ((u % 1) + 1) % 1;
+      v = ((v % 1) + 1) % 1;
+      return { u, v };
     }
 
     rasterizeLine(x0, y0, x1, y1) {
@@ -264,6 +289,39 @@ M  END`;
       };
     }
 
+    getRenderData() {
+      if (!this.molecule || !this.atomUV || !this.atomSignals) {
+        return null;
+      }
+      const atoms = [];
+      for (let i = 0; i < this.atomUV.length; i++) {
+        const shifted = this.getShiftedUV(i);
+        atoms.push({
+          index: i,
+          u: shifted.u,
+          v: shifted.v,
+          signal: this.atomSignals[i] || 0
+        });
+      }
+      const bonds = [];
+      if (Array.isArray(this.molecule.bonds)) {
+        for (let i = 0; i < this.molecule.bonds.length; i++) {
+          const bond = this.molecule.bonds[i];
+          const a = (bond.atom1 || 0) - 1;
+          const b = (bond.atom2 || 0) - 1;
+          if (a >= 0 && b >= 0 && a < atoms.length && b < atoms.length) {
+            bonds.push({ a, b, bondType: bond.bondType || 1 });
+          }
+        }
+      }
+      return {
+        label: this.activeMoleculeLabel,
+        atoms,
+        bonds,
+        motionPhase: this.motionPhase
+      };
+    }
+
     dispose() {
       this.state = null;
       this.molecule = null;
@@ -271,6 +329,9 @@ M  END`;
       this.atomSignals = null;
       this.nextSignals = null;
       this.atomUV = [];
+      this.driftU = 0;
+      this.driftV = 0;
+      this.motionPhase = 0;
     }
   }
 

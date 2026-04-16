@@ -18,6 +18,12 @@ const AUTO_BUILD_SET_MANIFEST = process.env.AUTO_BUILD_SET_MANIFEST !== "0";
 const REQUIRE_SET_LOOPS = process.env.REQUIRE_SET_LOOPS === "1";
 const SET_HOLD_MS = Number.parseInt(process.env.SET_HOLD_MS || "2200", 10);
 const SET_TRANSITION_MS = Number.parseInt(process.env.SET_TRANSITION_MS || "450", 10);
+const VJ_SOURCE_DIRS = process.env.VJ_SOURCE_DIRS || "loops/bio1";
+const EFFECT_TIMELINE_PHASE_SEC = Number.parseInt(process.env.EFFECT_TIMELINE_PHASE_SEC || "3", 10);
+const EFFECT_TIMELINE_PHASES = (process.env.EFFECT_TIMELINE_PHASES || "classic,molecule,life,kuramoto,stacked")
+  .split(",")
+  .map((value) => value.trim())
+  .filter(Boolean);
 
 function ensureDir(dirPath) {
   fs.mkdirSync(dirPath, { recursive: true });
@@ -35,7 +41,7 @@ function rebuildSetManifestIfNeeded() {
   if (!fs.existsSync(scriptPath)) {
     return;
   }
-  spawnSync("node", [scriptPath, "loops/bio1", VJ_SET_MANIFEST], {
+  spawnSync("node", [scriptPath, VJ_SOURCE_DIRS, VJ_SET_MANIFEST], {
     cwd: PROJECT_ROOT,
     encoding: "utf8"
   });
@@ -236,6 +242,18 @@ async function runCapture() {
       window.setSetPlaybackTiming(holdMs, transitionMs);
     }
   }, { holdMs: SET_HOLD_MS, transitionMs: SET_TRANSITION_MS });
+
+  await page.evaluate(({ phaseSec, phaseNames }) => {
+    if (!window.setEffectTimelineConfig || !Array.isArray(phaseNames) || phaseNames.length === 0) {
+      return;
+    }
+    const durationSec = Math.max(1, Number.parseInt(phaseSec, 10) || 3);
+    const phases = phaseNames.map((name) => ({ name, durationSec }));
+    window.setEffectTimelineConfig({
+      enabled: true,
+      phases
+    }, true);
+  }, { phaseSec: EFFECT_TIMELINE_PHASE_SEC, phaseNames: EFFECT_TIMELINE_PHASES });
 
   if (MOLECULE_NAME) {
     await page.evaluate(async (moleculeName) => {

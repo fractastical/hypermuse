@@ -2,7 +2,7 @@ import fs from "node:fs";
 import path from "node:path";
 
 const PROJECT_ROOT = process.cwd();
-const INPUT_DIR = process.argv[2] || "loops/bio1";
+const INPUT_DIR_ARG = process.argv[2] || process.env.VJ_SOURCE_DIRS || "loops/bio1";
 const OUTPUT_FILE = process.argv[3] || "sets/bio1.json";
 const DEFAULT_HOLD_MS = Number.parseInt(process.env.VJ_HOLD_MS || "8000", 10);
 const DEFAULT_TRANSITION_MS = Number.parseInt(process.env.VJ_TRANSITION_MS || "900", 10);
@@ -51,13 +51,45 @@ function collectVideos(dirPath) {
   return files.sort((a, b) => a.localeCompare(b));
 }
 
+function parseInputDirs(inputArg) {
+  return String(inputArg || "")
+    .split(",")
+    .map((value) => value.trim())
+    .filter(Boolean);
+}
+
+function interleaveVideos(videoLists, maxCount) {
+  const queues = videoLists.map((list) => list.slice());
+  const merged = [];
+  while (merged.length < maxCount) {
+    let pushedInRound = false;
+    for (let i = 0; i < queues.length && merged.length < maxCount; i++) {
+      if (queues[i].length > 0) {
+        merged.push(queues[i].shift());
+        pushedInRound = true;
+      }
+    }
+    if (!pushedInRound) {
+      break;
+    }
+  }
+  return merged;
+}
+
 function main() {
-  const inputAbs = path.resolve(PROJECT_ROOT, INPUT_DIR);
+  const inputDirs = parseInputDirs(INPUT_DIR_ARG);
+  if (inputDirs.length === 0) {
+    throw new Error("No input loop directories provided.");
+  }
   const outputAbs = path.resolve(PROJECT_ROOT, OUTPUT_FILE);
   const outputDir = path.dirname(outputAbs);
   fs.mkdirSync(outputDir, { recursive: true });
 
-  const videos = collectVideos(inputAbs).slice(0, Math.max(1, DEFAULT_MAX_LOOPS));
+  const perDirectoryVideos = inputDirs.map((inputDir) => {
+    const inputAbs = path.resolve(PROJECT_ROOT, inputDir);
+    return collectVideos(inputAbs);
+  });
+  const videos = interleaveVideos(perDirectoryVideos, Math.max(1, DEFAULT_MAX_LOOPS));
   const loops = videos.map((absolutePath) => {
     const relative = path.relative(PROJECT_ROOT, absolutePath);
     return {
@@ -72,8 +104,9 @@ function main() {
   });
 
   const manifest = {
-    setName: path.basename(INPUT_DIR),
-    sourceDirectory: toPosix(INPUT_DIR),
+    setName: inputDirs.length === 1 ? path.basename(inputDirs[0]) : "mixed-loops",
+    sourceDirectory: toPosix(inputDirs[0]),
+    sourceDirectories: inputDirs.map((inputDir) => toPosix(inputDir)),
     generatedAt: new Date().toISOString(),
     count: loops.length,
     playbackMode: DEFAULT_PLAYBACK_MODE,

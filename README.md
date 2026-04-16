@@ -251,6 +251,7 @@ through four profiles about every 16 seconds:
 - This repo contains multiple experimental pages with overlapping logic.
 - Some scripts are in-progress or partially wired; `controller.html` +
   `sonicsphere.html` is the primary path.
+- Live control mapping doc: `LIVE_CONTROLS_MIXER.md`
 
 ## Related work
 

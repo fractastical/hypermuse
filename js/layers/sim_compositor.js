@@ -41,6 +41,23 @@
       }
     }
 
+    setPluginColor(pluginId, color) {
+      if (!pluginId || !Array.isArray(color) || color.length < 3) {
+        return;
+      }
+      const nextColor = [
+        Math.max(0, Math.min(255, Math.floor(color[0]))),
+        Math.max(0, Math.min(255, Math.floor(color[1]))),
+        Math.max(0, Math.min(255, Math.floor(color[2])))
+      ];
+      for (let i = 0; i < this.plugins.length; i++) {
+        const entry = this.plugins[i];
+        if (entry.plugin && entry.plugin.id === pluginId) {
+          entry.color = nextColor;
+        }
+      }
+    }
+
     update(dt, audioFrame) {
       if (this.plugins.length === 0) {
         return;
@@ -75,10 +92,12 @@
       const high = audioFrame ? audioFrame.high : 0;
       const beatBoost = audioFrame && audioFrame.beat ? 0.35 : 0;
 
-      const colorR = Math.min(255, Math.floor(entry.color[0] + (high * 120)));
-      const colorG = Math.min(255, Math.floor(entry.color[1] + (mid * 90)));
-      const colorB = Math.min(255, Math.floor(entry.color[2] + (low * 80)));
-      const alpha = Math.min(255, Math.floor((150 + (beatBoost * 255)) * entry.opacity));
+      const spectralMix = Math.min(1, (low * 0.4) + (mid * 0.35) + (high * 0.25));
+      const whiteBoost = Math.floor((beatBoost * 120) + (spectralMix * 36));
+      const colorR = Math.min(255, Math.floor((entry.color[0] * 0.82) + (high * 64) + whiteBoost));
+      const colorG = Math.min(255, Math.floor((entry.color[1] * 0.9) + (mid * 90) + whiteBoost));
+      const colorB = Math.min(255, Math.floor((entry.color[2] * 0.75) + (low * 44) + Math.floor(whiteBoost * 0.7)));
+      const alpha = Math.min(255, Math.floor((165 + (beatBoost * 255)) * entry.opacity));
 
       for (let i = 0; i < state.length; i++) {
         if (state[i] !== 1) {

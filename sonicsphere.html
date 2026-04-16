@@ -192,7 +192,11 @@ button:hover {
         let layeredAudioEngine;
         let simCompositor;
         let simulationShell;
+        let lifeSideSphere;
+        let kuramotoSideSphere;
+        let moleculeSideSphere;
         let moleculeSimulationPlugin;
+        let concurrentSideEffects = true;
         let lastSimulationTickMs = performance.now();
         let effectTimelineStartMs = null;
         let effectTimelineEnabled = true;
@@ -213,6 +217,14 @@ button:hover {
         let moleculeSequence = [];
         let moleculeSequenceIndex = -1;
         let moleculeCycleOnPhaseChange = false;
+        let effectOverlayElement = null;
+        let moleculeRenderGroup;
+        let moleculeAtomGeometry;
+        let moleculeAtomMaterial;
+        let moleculeAtomMeshes = [];
+        let moleculeBondLines;
+        let moleculeBondMaterial;
+        let moleculeAssemblyProgress = 0;
 
         let captureInterval = null;
         let animationStarted = false;
@@ -222,6 +234,9 @@ button:hover {
         const scene = new THREE.Scene();
         const camera = new THREE.PerspectiveCamera(75, window.innerWidth/window.innerHeight, 0.1, 100);
         camera.position.z = 2;
+        const DEMO_CAMERA_Z = 2.7;
+        const DEMO_CAMERA_Y = -0.12;
+        const DEMO_VISUAL_OFFSET_X = -0.32;
         const renderer = new THREE.WebGLRenderer({ antialias: true });
         renderer.setPixelRatio(window.devicePixelRatio * 5); // x times the normal resolution
 
@@ -239,9 +254,13 @@ button:hover {
             if (demoMode) {
                 renderer.setSize(window.innerWidth, window.innerHeight);
                 camera.aspect = window.innerWidth / window.innerHeight;
+                camera.position.set(0, DEMO_CAMERA_Y, DEMO_CAMERA_Z);
+                camera.lookAt(0, 0, 0);
+                scene.position.set(DEMO_VISUAL_OFFSET_X, 0, 0);
             } else {
                 renderer.setSize(container.clientWidth, container.clientHeight);
                 camera.aspect = container.clientWidth / container.clientHeight;
+                scene.position.set(0, 0, 0);
             }
             camera.updateProjectionMatrix();
         }
@@ -265,9 +284,11 @@ button:hover {
             container.style.height = '100vh';
             container.style.width = '100vw';
             container.style.display = 'block';
+            renderer.domElement.style.position = 'fixed';
+            renderer.domElement.style.left = '0';
+            renderer.domElement.style.top = '0';
             resizeRendererLayout();
-            camera.position.set(0, 0, 2);
-            camera.lookAt(0, 0, 0);
+            updateEffectOverlay();
         }
 
         window.enableDemoModeLayout = enableDemoModeLayout;
@@ -280,6 +301,7 @@ button:hover {
 
         window.addEventListener('resize', resizeRendererLayout);
         container.appendChild(renderer.domElement);
+        initEffectOverlay();
 
         function startSceneExportRecording() {
             if (sceneRecorder && sceneRecorder.state === 'recording') {
@@ -372,10 +394,195 @@ button:hover {
         let ratio = Math.pow(maxFrequency / baseFrequency, 1.0 / (numBands - 1));
        
        
-        let points = [];
+        let bandPoints = [];
+        let lowBandCutoff = Math.floor(numBands / 3);
+        let midBandCutoff = Math.floor((numBands * 2) / 3);
         let lines = [];
         let geometries = [];
-        let lastPoints = [];
+        let laneLastPoints = { high: [], mid: [], low: [] };
+        let laneBaseSpheres = [];
+        const HIGH_LANE_CENTER_X = -1.15;
+        const MID_LANE_CENTER_X = 0.0;
+        const LOW_LANE_CENTER_X = 1.15;
+        const LANE_RADIUS = 0.48;
+        const SIDE_SPHERE_RADIUS = 0.34;
+        const SIDE_SPHERE_Z = -0.28;
+        const SIDE_SPHERE_Y = -0.86;
+        const SIDE_SPHERE_X_SPREAD = 0.92;
+        const MOLECULE_SIDE_SPHERE_X = 0.0;
+        const MOLECULE_SIDE_SPHERE_Y = -1.14;
+
+        function initMoleculeOverlay() {
+            moleculeRenderGroup = new THREE.Group();
+            moleculeRenderGroup.visible = false;
+            moleculeRenderGroup.position.set(0, 0, 0.25);
+            moleculeRenderGroup.scale.set(1.35, 1.35, 1.35);
+
+            moleculeAtomGeometry = new THREE.SphereGeometry(0.08, 12, 12);
+            moleculeAtomMaterial = new THREE.MeshBasicMaterial({
+                color: 0xe8fff3,
+                transparent: true,
+                opacity: 0.94
+            });
+
+            const bondGeometry = new THREE.BufferGeometry();
+            moleculeBondMaterial = new THREE.LineBasicMaterial({
+                color: 0xbfffd8,
+                transparent: true,
+                opacity: 0.66,
+                depthTest: false
+            });
+            moleculeBondLines = new THREE.LineSegments(bondGeometry, moleculeBondMaterial);
+            moleculeRenderGroup.add(moleculeBondLines);
+            scene.add(moleculeRenderGroup);
+        }
+
+        function ensureMoleculeAtomMeshes(count) {
+            const targetCount = Math.max(0, count);
+            while (moleculeAtomMeshes.length < targetCount) {
+                const mesh = new THREE.Mesh(moleculeAtomGeometry, moleculeAtomMaterial.clone());
+                mesh.visible = false;
+                mesh.userData.scatter = new THREE.Vector3(
+                    (Math.random() - 0.5) * 2.3,
+                    (Math.random() - 0.5) * 2.3,
+                    (Math.random() - 0.5) * 2.3
+                );
+                moleculeRenderGroup.add(mesh);
+                moleculeAtomMeshes.push(mesh);
+            }
+            for (let i = 0; i < moleculeAtomMeshes.length; i++) {
+                moleculeAtomMeshes[i].visible = i < targetCount;
+            }
+        }
+
+        function updateMoleculeOverlay(audioFrame) {
+            if (!moleculeRenderGroup || !moleculeSimulationPlugin || !moleculeSimulationPlugin.getRenderData) {
+                return;
+            }
+            const visible = activeEffectProfile === 'molecule' || activeEffectProfile === 'stacked';
+            moleculeRenderGroup.visible = visible;
+            if (!visible) {
+                return;
+            }
+
+            const renderData = moleculeSimulationPlugin.getRenderData();
+            if (!renderData || !Array.isArray(renderData.atoms) || renderData.atoms.length === 0) {
+                return;
+            }
+
+            ensureMoleculeAtomMeshes(renderData.atoms.length);
+
+            const activeSignals = new Array(renderData.atoms.length).fill(0);
+            const atomPositions = new Array(renderData.atoms.length);
+            const low = audioFrame ? (audioFrame.low || 0) : 0;
+            const mid = audioFrame ? (audioFrame.mid || 0) : 0;
+            const high = audioFrame ? (audioFrame.high || 0) : 0;
+            const beatBoost = audioFrame && audioFrame.beat ? 0.18 : 0;
+            const desiredAssembly = activeEffectProfile === 'molecule'
+                ? (0.72 + (mid * 0.22) + beatBoost)
+                : (0.45 + (mid * 0.18));
+            moleculeAssemblyProgress += (desiredAssembly - moleculeAssemblyProgress) * 0.08;
+            moleculeAssemblyProgress = Math.max(0.15, Math.min(0.98, moleculeAssemblyProgress));
+
+            for (let i = 0; i < renderData.atoms.length; i++) {
+                const atom = renderData.atoms[i];
+                const signal = Math.max(0, atom.signal || 0);
+                activeSignals[i] = signal;
+                const mesh = moleculeAtomMeshes[i];
+                if (!mesh) {
+                    continue;
+                }
+                const scatter = mesh.userData.scatter || new THREE.Vector3(0, 0, 0);
+                const target = new THREE.Vector3(
+                    (atom.u - 0.5) * 1.1,
+                    (0.5 - atom.v) * 1.1,
+                    ((signal * 0.55) - 0.12) + (Math.sin((renderData.motionPhase || 0) + (i * 0.35)) * 0.08)
+                );
+                const current = scatter.clone().multiplyScalar(1 - moleculeAssemblyProgress)
+                    .add(target.multiplyScalar(moleculeAssemblyProgress));
+                mesh.position.lerp(current, 0.32);
+                const atomScale = 0.08 + (signal * 0.18) + beatBoost;
+                mesh.scale.set(atomScale, atomScale, atomScale);
+                mesh.material.opacity = Math.min(1, 0.52 + (signal * 0.6) + beatBoost);
+                const hue = (130 + (high * 40) + (signal * 50)) % 360;
+                mesh.material.color.set(`hsl(${hue}, 90%, ${58 + (signal * 22)}%)`);
+                atomPositions[i] = mesh.position.clone();
+            }
+
+            const bondPositions = [];
+            if (Array.isArray(renderData.bonds)) {
+                for (let i = 0; i < renderData.bonds.length; i++) {
+                    const bond = renderData.bonds[i];
+                    const a = renderData.atoms[bond.a];
+                    const b = renderData.atoms[bond.b];
+                    if (!a || !b) {
+                        continue;
+                    }
+                    const signal = Math.max(activeSignals[bond.a] || 0, activeSignals[bond.b] || 0);
+                    if (signal < 0.03 || !atomPositions[bond.a] || !atomPositions[bond.b]) {
+                        continue;
+                    }
+                    bondPositions.push(
+                        atomPositions[bond.a].x, atomPositions[bond.a].y, atomPositions[bond.a].z,
+                        atomPositions[bond.b].x, atomPositions[bond.b].y, atomPositions[bond.b].z
+                    );
+                }
+            }
+
+            moleculeBondLines.geometry.setAttribute(
+                'position',
+                new THREE.Float32BufferAttribute(bondPositions, 3)
+            );
+            moleculeBondLines.geometry.computeBoundingSphere();
+
+            moleculeBondMaterial.opacity = Math.min(1, 0.3 + (moleculeAssemblyProgress * 0.45) + (low * 0.3) + beatBoost);
+            moleculeRenderGroup.rotation.z += 0.0012 + (high * 0.01);
+            moleculeRenderGroup.rotation.y = Math.sin((performance.now() / 1200)) * 0.12;
+        }
+
+        function initEffectOverlay() {
+            effectOverlayElement = document.createElement('div');
+            effectOverlayElement.id = 'effectOverlay';
+            effectOverlayElement.style.position = 'fixed';
+            effectOverlayElement.style.left = '50%';
+            effectOverlayElement.style.bottom = '14px';
+            effectOverlayElement.style.transform = 'translateX(-50%)';
+            effectOverlayElement.style.padding = '6px 12px';
+            effectOverlayElement.style.borderRadius = '6px';
+            effectOverlayElement.style.background = 'rgba(0,0,0,0.36)';
+            effectOverlayElement.style.color = '#e7fff0';
+            effectOverlayElement.style.fontFamily = 'monospace';
+            effectOverlayElement.style.fontSize = '14px';
+            effectOverlayElement.style.letterSpacing = '0.4px';
+            effectOverlayElement.style.zIndex = '9999';
+            effectOverlayElement.style.pointerEvents = 'none';
+            document.body.appendChild(effectOverlayElement);
+            updateEffectOverlay();
+        }
+
+        function updateEffectOverlay() {
+            if (!effectOverlayElement) {
+                return;
+            }
+            effectOverlayElement.style.display = demoMode ? 'block' : 'none';
+            const phase = String(activeEffectProfile || 'classic').toUpperCase();
+            let details = `Effect: ${phase} | Lanes: HIGH MID LOW`;
+            if (activeEffectProfile === 'classic') {
+                const currentLoopLabel = window.__hypermuseCurrentLoopLabel
+                    ? String(window.__hypermuseCurrentLoopLabel).trim()
+                    : '';
+                if (currentLoopLabel) {
+                    details += ` | Loop: ${currentLoopLabel}`;
+                }
+            }
+            if ((activeEffectProfile === 'molecule' || activeEffectProfile === 'stacked') && moleculeSimulationPlugin && moleculeSimulationPlugin.getSummary) {
+                const summary = moleculeSimulationPlugin.getSummary();
+                if (summary && summary.label) {
+                    details += ` | Molecule: ${summary.label}`;
+                }
+            }
+            effectOverlayElement.textContent = details;
+        }
 
         function initSimulationLayers() {
             layeredAudioEngine = new HypermuseAudioEngine({ numBands: numBands });
@@ -407,6 +614,94 @@ button:hover {
             });
             simulationShell = new THREE.Mesh(shellGeometry, shellMaterial);
             scene.add(simulationShell);
+
+            const sideGeometry = new THREE.SphereGeometry(SIDE_SPHERE_RADIUS, 42, 42);
+            const lifeMaterial = new THREE.MeshBasicMaterial({
+                map: simCompositor.texture,
+                color: 0xb8ffd2,
+                transparent: true,
+                opacity: 0.55,
+                blending: THREE.AdditiveBlending,
+                depthWrite: false,
+                side: THREE.DoubleSide
+            });
+            const kuramotoMaterial = new THREE.MeshBasicMaterial({
+                map: simCompositor.texture,
+                color: 0x8ef2ff,
+                transparent: true,
+                opacity: 0.62,
+                blending: THREE.AdditiveBlending,
+                depthWrite: false,
+                side: THREE.DoubleSide
+            });
+            const moleculeMaterial = new THREE.MeshBasicMaterial({
+                map: simCompositor.texture,
+                color: 0xe7fff2,
+                transparent: true,
+                opacity: 0.62,
+                blending: THREE.AdditiveBlending,
+                depthWrite: false,
+                side: THREE.DoubleSide
+            });
+
+            lifeSideSphere = new THREE.Mesh(sideGeometry, lifeMaterial);
+            lifeSideSphere.position.set(-SIDE_SPHERE_X_SPREAD, SIDE_SPHERE_Y, SIDE_SPHERE_Z);
+            lifeSideSphere.visible = false;
+            scene.add(lifeSideSphere);
+
+            kuramotoSideSphere = new THREE.Mesh(sideGeometry, kuramotoMaterial);
+            kuramotoSideSphere.position.set(SIDE_SPHERE_X_SPREAD, SIDE_SPHERE_Y, SIDE_SPHERE_Z);
+            kuramotoSideSphere.visible = false;
+            scene.add(kuramotoSideSphere);
+
+            moleculeSideSphere = new THREE.Mesh(sideGeometry, moleculeMaterial);
+            moleculeSideSphere.position.set(MOLECULE_SIDE_SPHERE_X, MOLECULE_SIDE_SPHERE_Y, SIDE_SPHERE_Z + 0.08);
+            moleculeSideSphere.visible = false;
+            scene.add(moleculeSideSphere);
+            initMoleculeOverlay();
+        }
+
+        function updateSimulationStage() {
+            if (!simulationShell) {
+                return;
+            }
+            const isClassic = activeEffectProfile === 'classic';
+            const isLife = activeEffectProfile === 'life';
+            const isKuramoto = activeEffectProfile === 'kuramoto';
+            const isMolecule = activeEffectProfile === 'molecule';
+            const isStacked = activeEffectProfile === 'stacked';
+
+            simulationShell.visible = isClassic;
+            if (lifeSideSphere) {
+                lifeSideSphere.visible = concurrentSideEffects ? !isClassic : (isLife || isStacked);
+                lifeSideSphere.material.opacity = isLife ? 0.82 : (isStacked ? 0.7 : 0.34);
+            }
+            if (kuramotoSideSphere) {
+                kuramotoSideSphere.visible = concurrentSideEffects ? !isClassic : (isKuramoto || isStacked);
+                kuramotoSideSphere.material.opacity = isKuramoto ? 0.86 : (isStacked ? 0.72 : 0.36);
+            }
+            if (moleculeSideSphere) {
+                moleculeSideSphere.visible = concurrentSideEffects
+                    ? (!isClassic && !isMolecule)
+                    : isStacked;
+                moleculeSideSphere.material.opacity = isStacked ? 0.62 : 0.28;
+            }
+
+            if (moleculeRenderGroup) {
+                if (isMolecule) {
+                    moleculeRenderGroup.position.set(MOLECULE_SIDE_SPHERE_X, MOLECULE_SIDE_SPHERE_Y, SIDE_SPHERE_Z + 0.16);
+                    moleculeRenderGroup.scale.set(0.65, 0.65, 0.65);
+                } else if (isStacked) {
+                    moleculeRenderGroup.position.set(MOLECULE_SIDE_SPHERE_X, MOLECULE_SIDE_SPHERE_Y - 0.03, SIDE_SPHERE_Z + 0.13);
+                    moleculeRenderGroup.scale.set(0.52, 0.52, 0.52);
+                } else if (concurrentSideEffects && !isClassic) {
+                    moleculeRenderGroup.position.set(MOLECULE_SIDE_SPHERE_X, MOLECULE_SIDE_SPHERE_Y - 0.04, SIDE_SPHERE_Z + 0.12);
+                    moleculeRenderGroup.scale.set(0.42, 0.42, 0.42);
+                } else {
+                    moleculeRenderGroup.position.set(0, 0, 0.28);
+                    moleculeRenderGroup.scale.set(1.0, 1.0, 1.0);
+                }
+            }
         }
 
         function setMoleculeStatus(text) {
@@ -428,9 +723,11 @@ button:hover {
                 setMoleculeStatus(`loading ${moleculeName}...`);
                 const result = await moleculeSimulationPlugin.loadFromPubChemName(moleculeName);
                 setMoleculeStatus(`${result.name}: ${result.atomCount} atoms / ${result.bondCount} bonds`);
+                updateEffectOverlay();
             } catch (error) {
                 console.error(error);
                 setMoleculeStatus(`fallback active (${error.message})`);
+                updateEffectOverlay();
             }
         }
 
@@ -470,6 +767,9 @@ button:hover {
                 simCompositor.setPluginOpacity('life-primary', 0.05);
                 simCompositor.setPluginOpacity('kuramoto-primary', 0.02);
                 simCompositor.setPluginOpacity('molecule-primary', 0.02);
+                simCompositor.setPluginColor('life-primary', [140, 255, 168]);
+                simCompositor.setPluginColor('kuramoto-primary', [110, 220, 140]);
+                simCompositor.setPluginColor('molecule-primary', [230, 255, 236]);
                 innerTriangleActive = false;
                 hueOffsetSpeed = 0.0;
                 Y_ROTATION_SPEED = 0.0005;
@@ -483,6 +783,9 @@ button:hover {
                 simCompositor.setPluginOpacity('life-primary', 1.0);
                 simCompositor.setPluginOpacity('kuramoto-primary', 0.20);
                 simCompositor.setPluginOpacity('molecule-primary', 0.25);
+                simCompositor.setPluginColor('life-primary', [110, 255, 150]);
+                simCompositor.setPluginColor('kuramoto-primary', [78, 210, 122]);
+                simCompositor.setPluginColor('molecule-primary', [220, 255, 228]);
                 innerTriangleActive = false;
                 hueOffsetSpeed = 0.0;
                 Y_ROTATION_SPEED = 0.0005;
@@ -496,19 +799,25 @@ button:hover {
                 simCompositor.setPluginOpacity('life-primary', 0.25);
                 simCompositor.setPluginOpacity('kuramoto-primary', 1.0);
                 simCompositor.setPluginOpacity('molecule-primary', 0.30);
+                simCompositor.setPluginColor('life-primary', [80, 255, 170]);
+                simCompositor.setPluginColor('kuramoto-primary', [78, 232, 255]);
+                simCompositor.setPluginColor('molecule-primary', [255, 132, 242]);
                 innerTriangleActive = false;
-                hueOffsetSpeed = 0.25;
-                Y_ROTATION_SPEED = 0.0012;
+                hueOffsetSpeed = 0.55;
+                Y_ROTATION_SPEED = 0.0015;
                 X_ROTATION_SPEED = 0.0004;
                 saturation = 100;
-                brightness = 52;
-                simulationShellBaseOpacity = 0.34;
+                brightness = 62;
+                simulationShellBaseOpacity = 0.42;
                 effectActivationFactor = 0.72;
             } else if (profileName === 'molecule') {
                 activeEffectProfile = 'molecule';
                 simCompositor.setPluginOpacity('life-primary', 0.20);
                 simCompositor.setPluginOpacity('kuramoto-primary', 0.35);
                 simCompositor.setPluginOpacity('molecule-primary', 1.0);
+                simCompositor.setPluginColor('life-primary', [120, 235, 150]);
+                simCompositor.setPluginColor('kuramoto-primary', [135, 245, 178]);
+                simCompositor.setPluginColor('molecule-primary', [245, 255, 246]);
                 innerTriangleActive = true;
                 hueOffsetSpeed = 0.12;
                 Y_ROTATION_SPEED = 0.0008;
@@ -522,6 +831,9 @@ button:hover {
                 simCompositor.setPluginOpacity('life-primary', 0.75);
                 simCompositor.setPluginOpacity('kuramoto-primary', 0.75);
                 simCompositor.setPluginOpacity('molecule-primary', 0.75);
+                simCompositor.setPluginColor('life-primary', [120, 250, 158]);
+                simCompositor.setPluginColor('kuramoto-primary', [108, 245, 184]);
+                simCompositor.setPluginColor('molecule-primary', [245, 255, 248]);
                 innerTriangleActive = true;
                 hueOffsetSpeed = 0.35;
                 Y_ROTATION_SPEED = 0.0014;
@@ -531,6 +843,8 @@ button:hover {
                 simulationShellBaseOpacity = 0.55;
                 effectActivationFactor = 0.66;
             }
+            updateSimulationStage();
+            updateEffectOverlay();
         }
 
         function parsePhaseList(phaseListText, defaultDurationSec) {
@@ -670,48 +984,122 @@ button:hover {
             });
         }
 
-        //TODO: this function doesn't preoperly work when run repeat times (i.e. the points are evenly distributed over the surface of the sphere)
-        function initBands(){
-
-        // Now we can get the frequency for each band
-        for (let i = 0; i < numBands; i++) {
-        let bandFrequency = baseFrequency * Math.pow(ratio, i);
-        console.log('Band ' + i + ' frequency: ' + bandFrequency + ' Hz');
+        function getLaneKeyForBandIndex(bandIndex) {
+            if (bandIndex >= midBandCutoff) {
+                return 'high';
+            }
+            if (bandIndex >= lowBandCutoff) {
+                return 'mid';
+            }
+            return 'low';
         }
 
-        
+        // Build three lane spheres in spatial order:
+        // left = HIGH, middle = MID, right = LOW.
+        function initBands(){
+            lowBandCutoff = Math.max(1, Math.floor(numBands / 3));
+            midBandCutoff = Math.max(lowBandCutoff + 1, Math.floor((numBands * 2) / 3));
+            midBandCutoff = Math.min(numBands - 1, midBandCutoff);
+            bandPoints = new Array(numBands);
+            laneLastPoints.high = [];
+            laneLastPoints.mid = [];
+            laneLastPoints.low = [];
 
-        let goldenRatio = (1 + Math.sqrt(5)) / 2;
-        let angleIncrement = Math.PI * 2 * goldenRatio;
+            for (const sphere of laneBaseSpheres) {
+                scene.remove(sphere);
+                if (sphere.geometry) sphere.geometry.dispose();
+                if (sphere.material) sphere.material.dispose();
+            }
+            laneBaseSpheres = [];
 
+            function buildLanePoints(indices, centerX) {
+                const goldenRatio = (1 + Math.sqrt(5)) / 2;
+                const angleIncrement = Math.PI * 2 * goldenRatio;
+                const count = Math.max(1, indices.length);
+                for (let localIndex = 0; localIndex < indices.length; localIndex++) {
+                    const bandIndex = indices[localIndex];
+                    const v = localIndex / count;
+                    const phi = v * Math.PI;
+                    const theta = angleIncrement * localIndex;
+                    const x = centerX + (LANE_RADIUS * Math.sin(phi) * Math.cos(theta));
+                    const y = LANE_RADIUS * Math.sin(phi) * Math.sin(theta);
+                    const z = LANE_RADIUS * Math.cos(phi);
 
-            for (let i = 0; i < numBands; i++) {
-                let v = i / numBands;
-                let phi = v * Math.PI;
-                let theta = angleIncrement * i;
-
-                let x = Math.sin(phi) * Math.cos(theta);
-                let y = Math.sin(phi) * Math.sin(theta);
-                let z = Math.cos(phi);
-
-                x = isNaN(x) ? 0 : x;
-                y = isNaN(y) ? 0 : y;
-                z = isNaN(z) ? 0 : z;
-
-                let point = new THREE.Points(new THREE.BufferGeometry().setFromPoints([new THREE.Vector3(0, 0, 0)]), new THREE.PointsMaterial({color: 0xffffff, size: 0.01}));
-                point.position.set(x, y, z);
-                points.push(point);
-                // scene.add(point);
-
-
+                    const point = new THREE.Points(
+                        new THREE.BufferGeometry().setFromPoints([new THREE.Vector3(0, 0, 0)]),
+                        new THREE.PointsMaterial({ color: 0xffffff, size: 0.01 })
+                    );
+                    point.position.set(
+                        isNaN(x) ? centerX : x,
+                        isNaN(y) ? 0 : y,
+                        isNaN(z) ? 0 : z
+                    );
+                    bandPoints[bandIndex] = point;
+                }
             }
 
+            const lowIndices = [];
+            const midIndices = [];
+            const highIndices = [];
+            for (let i = 0; i < numBands; i++) {
+                const laneKey = getLaneKeyForBandIndex(i);
+                if (laneKey === 'high') {
+                    highIndices.push(i);
+                } else if (laneKey === 'mid') {
+                    midIndices.push(i);
+                } else {
+                    lowIndices.push(i);
+                }
+            }
 
+            buildLanePoints(highIndices, HIGH_LANE_CENTER_X);
+            buildLanePoints(midIndices, MID_LANE_CENTER_X);
+            buildLanePoints(lowIndices, LOW_LANE_CENTER_X);
+
+            const highShell = new THREE.Mesh(
+                new THREE.SphereGeometry(LANE_RADIUS * 1.02, 22, 22),
+                new THREE.MeshBasicMaterial({
+                    color: 0x9affcc,
+                    wireframe: true,
+                    transparent: true,
+                    opacity: 0.26
+                })
+            );
+            highShell.position.set(HIGH_LANE_CENTER_X, 0, 0);
+
+            const midShell = new THREE.Mesh(
+                new THREE.SphereGeometry(LANE_RADIUS * 1.02, 22, 22),
+                new THREE.MeshBasicMaterial({
+                    color: 0xb8ffe0,
+                    wireframe: true,
+                    transparent: true,
+                    opacity: 0.24
+                })
+            );
+            midShell.position.set(MID_LANE_CENTER_X, 0, 0);
+
+            const lowShell = new THREE.Mesh(
+                new THREE.SphereGeometry(LANE_RADIUS * 1.02, 22, 22),
+                new THREE.MeshBasicMaterial({
+                    color: 0x86f7b7,
+                    wireframe: true,
+                    transparent: true,
+                    opacity: 0.26
+                })
+            );
+            lowShell.position.set(LOW_LANE_CENTER_X, 0, 0);
+
+            laneBaseSpheres.push(highShell, midShell, lowShell);
+            scene.add(highShell);
+            scene.add(midShell);
+            scene.add(lowShell);
         }
 
         initBands();
         initSimulationLayers();
+        updateSimulationStage();
         updateEffectTimelineControls();
+        startAnimationLoop();
         if (moleculeSimulationPlugin && moleculeSimulationPlugin.getSummary) {
             const summary = moleculeSimulationPlugin.getSummary();
             setMoleculeStatus(`${summary.label}: ${summary.atomCount} atoms / ${summary.bondCount} bonds`);
@@ -766,11 +1154,26 @@ button:hover {
                 if (simCompositor) {
                     simCompositor.update(dt, audioFrame);
                 }
+                updateMoleculeOverlay(audioFrame);
                 if (simulationShell) {
                     simulationShell.material.opacity = Math.min(0.95, simulationShellBaseOpacity + (audioFrame.energy * 0.85));
                     simulationShell.rotation.y += 0.0015 + (audioFrame.mid * 0.01);
                     simulationShell.rotation.x += 0.0008 + (audioFrame.high * 0.004);
                 }
+                if (lifeSideSphere && lifeSideSphere.visible) {
+                    lifeSideSphere.rotation.y += 0.001 + (audioFrame.low * 0.01);
+                    lifeSideSphere.rotation.x += 0.0006 + (audioFrame.mid * 0.004);
+                }
+                if (kuramotoSideSphere && kuramotoSideSphere.visible) {
+                    kuramotoSideSphere.rotation.y += 0.0018 + (audioFrame.mid * 0.016);
+                    kuramotoSideSphere.rotation.z += 0.0007 + (audioFrame.high * 0.006);
+                }
+                if (moleculeSideSphere && moleculeSideSphere.visible) {
+                    moleculeSideSphere.rotation.y += 0.0012 + (audioFrame.high * 0.01);
+                    moleculeSideSphere.rotation.x += 0.0005 + (audioFrame.low * 0.004);
+                }
+                // Keep side effects live simultaneously while preserving phase emphasis.
+                updateSimulationStage();
             }
 
             let bandSize = Math.floor(data.length / numBands);
@@ -818,7 +1221,9 @@ button:hover {
                     let noteText = noteStrings[note%12];
                     console.log(noteText);
                     let noteSphere = createNoteSphere(noteText);
-                    noteSphere.position.copy(points[peakBandIndex].position);
+                    if (bandPoints[peakBandIndex]) {
+                        noteSphere.position.copy(bandPoints[peakBandIndex].position);
+                    }
                     noteSphere.userData.type = 'noteSphere';  // Tagging the sphere so that we can easily remove it later
                     noteSphere.scale.set(0.1, 0.1, 0.1);  // Scale down the sphere to make it smaller
                     noteSphere.rotation.y = -Math.PI / 2;
@@ -842,10 +1247,19 @@ button:hover {
                 if (volume >= (thresholds[i] * warmupThresholdFactor * effectActivationFactor)) {
 
 
-                    let hue = (volume * volumemagnification) + hueoffset;
-                    // let hue = 10;
-                    if (hue > 360) hue -= 360;
-                    let color = new THREE.Color('hsl(' + hue + ', ' + saturation + '%, ' + brightness  + '%)');
+                    let color;
+                    if (activeEffectProfile === 'kuramoto') {
+                        const laneKeyForColor = getLaneKeyForBandIndex(i);
+                        const laneBaseHue = laneKeyForColor === 'high' ? 292 : (laneKeyForColor === 'mid' ? 196 : 126);
+                        const hueDrift = ((nowMs * 0.03) + (i * 5.5) + (volume * 0.42)) % 360;
+                        const hue = (laneBaseHue + (hueDrift * 0.35)) % 360;
+                        const lightness = Math.min(78, 50 + (volume * 0.16));
+                        color = new THREE.Color('hsl(' + hue + ', 98%, ' + lightness + '%)');
+                    } else {
+                        let hue = (volume * volumemagnification) + hueoffset;
+                        if (hue > 360) hue -= 360;
+                        color = new THREE.Color('hsl(' + hue + ', ' + saturation + '%, ' + brightness  + '%)');
+                    }
                    
                     // console.log(band);
 
@@ -855,13 +1269,15 @@ button:hover {
 
                     // }
 
-                    if(points[i]) points[i].material.color = color;
+                    if (bandPoints[i]) bandPoints[i].material.color = color;
 
                     volumeDisplay.style.color = '#00ff00'; // green
-                    if (lastPoints.length >= 3) {
+                    const laneKey = getLaneKeyForBandIndex(i);
+                    const currentLaneLastPoints = laneLastPoints[laneKey];
+                    if (currentLaneLastPoints.length >= 3) {
 
 
-                        var geometry = createTriangleGeometry(lastPoints[0], lastPoints[1], lastPoints[2]);
+                        var geometry = createTriangleGeometry(currentLaneLastPoints[0], currentLaneLastPoints[1], currentLaneLastPoints[2]);
                         var material; 
                         if(videoElementActive) {
                              var texture = getVideoFrameTexture();
@@ -892,7 +1308,7 @@ button:hover {
 
                         if (activeEffectProfile === 'kuramoto') {
                             const lineGeometry = new THREE.BufferGeometry().setFromPoints([
-                                lastPoints[0], lastPoints[1], lastPoints[2], lastPoints[0]
+                                currentLaneLastPoints[0], currentLaneLastPoints[1], currentLaneLastPoints[2], currentLaneLastPoints[0]
                             ]);
                             const lineMaterial = new THREE.LineBasicMaterial({
                                 color: color,
@@ -902,9 +1318,7 @@ button:hover {
                             createdGeometry = lineGeometry;
                             createdObject = new THREE.Line(lineGeometry, lineMaterial);
                         } else {
-                            if (activeEffectProfile === 'classic') {
-                                material = material;
-                            } else if (activeEffectProfile === 'molecule' && simCompositor && simCompositor.texture) {
+                            if (activeEffectProfile === 'molecule' && simCompositor && simCompositor.texture) {
                                 material = new THREE.MeshBasicMaterial({
                                     map: simCompositor.texture,
                                     color: color,
@@ -913,9 +1327,9 @@ button:hover {
                                     side: THREE.DoubleSide
                                 });
                                 const centroid = new THREE.Vector3()
-                                    .add(lastPoints[0])
-                                    .add(lastPoints[1])
-                                    .add(lastPoints[2])
+                                    .add(currentLaneLastPoints[0])
+                                    .add(currentLaneLastPoints[1])
+                                    .add(currentLaneLastPoints[2])
                                     .divideScalar(3);
                                 const bubbleRadius = 0.08 + (volume / 420);
                                 const bubbleGeometry = new THREE.SphereGeometry(bubbleRadius, 14, 14);
@@ -928,23 +1342,7 @@ button:hover {
                                 bubble.receiveShadow = true;
                                 createdGeometry = bubbleGeometry;
                                 createdObject = bubble;
-                            } else if (activeEffectProfile === 'stacked') {
-                                material = new THREE.MeshBasicMaterial({
-                                    color: color,
-                                    opacity: 0.28,
-                                    transparent: true,
-                                    wireframe: false,
-                                    side: THREE.DoubleSide
-                                });
-                            } else {
-                                material = new THREE.MeshBasicMaterial({
-                                    color: color,
-                                    opacity: 0.55,
-                                    transparent: true,
-                                    side: THREE.DoubleSide
-                                });
-                            }
-                            if (!createdObject) {
+                            } else if (activeEffectProfile === 'classic') {
                                 const triangle = new THREE.Mesh(geometry, material);
                                 triangle.castShadow = true;
                                 triangle.receiveShadow = true;
@@ -953,10 +1351,12 @@ button:hover {
                             }
                         }
 
-                        scene.add(createdObject); 
-                        if (innerTriangleActive)
+                        if (createdObject) {
+                            scene.add(createdObject);
+                        }
+                        if (innerTriangleActive && activeEffectProfile === 'classic' && createdObject)
                         {
-                            var innerGeometry = createInnerTriangleGeometry(lastPoints[0], lastPoints[1], lastPoints[2]);
+                            var innerGeometry = createInnerTriangleGeometry(currentLaneLastPoints[0], currentLaneLastPoints[1], currentLaneLastPoints[2]);
                             var innerMaterial = new THREE.MeshBasicMaterial({color: "black", opacity: 0.5, transparent: false, side: THREE.DoubleSide});
                             var innerTriangle = new THREE.Mesh(innerGeometry, innerMaterial);
                             scene.add(innerTriangle); 
@@ -972,17 +1372,21 @@ button:hover {
 
                         }
 
-                        geometries.push({geometry: createdObject, age: 0});
-                        if (innerTriangleActive)
+                        if (createdObject) {
+                            geometries.push({geometry: createdObject, age: 0});
+                        }
+                        if (innerTriangleActive && activeEffectProfile === 'classic' && createdObject)
                         {
                             geometries.push({geometry: innerTriangle, age: 0});
 
                         }
 
-                        lastPoints.shift();
+                        currentLaneLastPoints.shift();
                     }
 
-                    lastPoints.push(points[i].position.clone());
+                    if (bandPoints[i]) {
+                        currentLaneLastPoints.push(bandPoints[i].position.clone());
+                    }
                 } else {
                     volumeDisplay.style.color = '#ff0000'; // red
                 }
@@ -1017,17 +1421,25 @@ button:hover {
             scene.rotation.y += Y_ROTATION_SPEED;
 
             renderer.render(scene, camera);
+            updateEffectOverlay();
         }
 
-        function ensureVisualizerLoopsRunning() {
+        function startAnimationLoop() {
             if (!animationStarted) {
                 animationStarted = true;
                 animate();
             }
+        }
+
+        function ensureVisualizerLoopsRunning() {
+            startAnimationLoop();
             if (effectTimelineStartMs === null) {
                 effectTimelineStartMs = performance.now();
             }
             visualWarmupUntilMs = performance.now() + 8000;
+            if (!analyser || !audioContext) {
+                return;
+            }
             if (captureInterval) {
                 clearInterval(captureInterval);
             }
