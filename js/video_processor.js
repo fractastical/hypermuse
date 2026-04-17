@@ -234,6 +234,9 @@ if (manifest && manifest.effectTimeline && window.setEffectTimelineConfig) {
     window.setEffectTimelineConfig(manifest.effectTimeline, true);
 }
 if (manifest && manifest.moleculeGraph) {
+    if (manifest.moleculeGraph.renderMode && window.setMoleculeRenderMode) {
+        window.setMoleculeRenderMode(manifest.moleculeGraph.renderMode);
+    }
     if (Array.isArray(manifest.moleculeGraph.names) && manifest.moleculeGraph.names.length > 0 && window.setMoleculeGraphSequence) {
         window.setMoleculeGraphSequence(manifest.moleculeGraph.names, {
             cycleOnPhaseChange: !!manifest.moleculeGraph.cycleOnPhaseChange

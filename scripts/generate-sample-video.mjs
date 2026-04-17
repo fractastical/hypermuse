@@ -24,6 +24,9 @@ const EFFECT_TIMELINE_PHASES = (process.env.EFFECT_TIMELINE_PHASES || "classic,m
   .split(",")
   .map((value) => value.trim())
   .filter(Boolean);
+const EXPORT_PROFILE = String(process.env.EXPORT_PROFILE || "hd").trim().toLowerCase();
+const EXPORT_WIDTH = Number.parseInt(process.env.EXPORT_WIDTH || "0", 10);
+const EXPORT_HEIGHT = Number.parseInt(process.env.EXPORT_HEIGHT || "0", 10);
 
 function ensureDir(dirPath) {
   fs.mkdirSync(dirPath, { recursive: true });
@@ -66,6 +69,17 @@ function getManifestLoopCount() {
 function isMidiFile(filePath) {
   const ext = path.extname(filePath).toLowerCase();
   return ext === ".mid" || ext === ".midi";
+}
+
+function resolveExportSize() {
+  if (Number.isFinite(EXPORT_WIDTH) && Number.isFinite(EXPORT_HEIGHT) && EXPORT_WIDTH > 0 && EXPORT_HEIGHT > 0) {
+    return { width: EXPORT_WIDTH, height: EXPORT_HEIGHT, profile: "custom" };
+  }
+  if (EXPORT_PROFILE === "wall_13x9" || EXPORT_PROFILE === "13x9") {
+    // Exact 13:9 frame.
+    return { width: 1872, height: 1296, profile: "wall_13x9" };
+  }
+  return { width: 1920, height: 1080, profile: "hd" };
 }
 
 function muxAudio(videoPath, audioPath, outputPath) {
@@ -184,6 +198,8 @@ function createTestToneWav({
 async function runCapture() {
   ensureDir(ARTIFACTS_DIR);
   ensureDir(VIDEO_DIR);
+  const exportSize = resolveExportSize();
+  console.log(`Export frame: ${exportSize.width}x${exportSize.height} (${exportSize.profile})`);
   rebuildSetManifestIfNeeded();
   const manifestLoopCount = getManifestLoopCount();
   if (REQUIRE_SET_LOOPS && manifestLoopCount === 0) {
@@ -208,10 +224,10 @@ async function runCapture() {
   });
 
   const context = await browser.newContext({
-    viewport: { width: 1920, height: 1080 },
+    viewport: { width: exportSize.width, height: exportSize.height },
     recordVideo: {
       dir: VIDEO_DIR,
-      size: { width: 1920, height: 1080 }
+      size: { width: exportSize.width, height: exportSize.height }
     }
   });
 

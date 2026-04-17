@@ -4,7 +4,7 @@
   "sourceDirectories": [
     "loops/bio1"
   ],
-  "generatedAt": "2026-04-17T15:21:11.186Z",
+  "generatedAt": "2026-04-17T17:44:34.120Z",
   "count": 20,
   "playbackMode": "pingpong",
   "moleculeGraph": {
@@ -15,6 +15,7 @@
       "dopamine",
       "glucose"
     ],
+    "renderMode": "coherent",
     "cycleOnPhaseChange": true
   },
   "effectTimeline": {

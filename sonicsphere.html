@@ -141,6 +141,11 @@ button:hover {
           <div class="file-input-group">
             <label for="moleculeNameInput">Molecule (PubChem name):</label>
             <input type="text" id="moleculeNameInput" value="caffeine" />
+            <label for="moleculeRenderMode">Molecule viz:</label>
+            <select id="moleculeRenderMode">
+              <option value="coherent" selected>coherent</option>
+              <option value="expressive">expressive</option>
+            </select>
             <button id="loadMoleculeButton">Load Molecule</button>
             <span id="moleculeStatus">embedded water</span>
           </div>
@@ -228,6 +233,7 @@ button:hover {
         let moleculeBondMaterial;
         let moleculeInterBondLines;
         let moleculeInterBondMaterial;
+        let moleculeRenderMode = 'coherent';
 
         let captureInterval = null;
         let animationStarted = false;
@@ -239,7 +245,7 @@ button:hover {
         camera.position.z = 2;
         const DEMO_CAMERA_Z = 2.7;
         const DEMO_CAMERA_Y = -0.12;
-        const DEMO_VISUAL_OFFSET_X = -0.32;
+        const DEMO_VISUAL_OFFSET_X = 0.0;
         const renderer = new THREE.WebGLRenderer({ antialias: true });
         renderer.setPixelRatio(window.devicePixelRatio * 5); // x times the normal resolution
 
@@ -557,6 +563,58 @@ button:hover {
             }
             const meanSignal = totalSignal / Math.max(1, atomCount);
 
+            if (moleculeRenderMode === 'coherent') {
+                const nowMs = performance.now();
+                const atomWorldPositions = new Array(atomCount);
+                const fixedScale = 1.05;
+                for (let atomIndex = 0; atomIndex < atomCount; atomIndex++) {
+                    const mesh = moleculeAtomMeshes[atomIndex];
+                    if (!mesh) continue;
+                    const base = moleculeBaseAtomPositions[atomIndex] || new THREE.Vector3();
+                    const atomSignal = activeSignals[atomIndex] || 0;
+                    const targetPos = base.clone().multiplyScalar(fixedScale);
+                    targetPos.z += Math.sin((nowMs * 0.001) + (atomIndex * 0.32)) * (0.01 + (atomSignal * 0.012));
+                    mesh.position.lerp(targetPos, 0.35);
+                    atomWorldPositions[atomIndex] = mesh.position.clone();
+                    const atomSize = 0.075 + (atomSignal * 0.06) + beatBoost;
+                    mesh.scale.set(atomSize, atomSize, atomSize);
+                    mesh.material.opacity = Math.min(1, 0.62 + (atomSignal * 0.32) + beatBoost);
+                    mesh.material.color.setHex(getElementColor(renderData.atoms[atomIndex].symbol));
+                }
+
+                const bondPositions = [];
+                if (Array.isArray(renderData.bonds)) {
+                    for (let i = 0; i < renderData.bonds.length; i++) {
+                        const bond = renderData.bonds[i];
+                        const signal = Math.max(activeSignals[bond.a] || 0, activeSignals[bond.b] || 0);
+                        if (!atomWorldPositions[bond.a] || !atomWorldPositions[bond.b]) {
+                            continue;
+                        }
+                        bondPositions.push(
+                            atomWorldPositions[bond.a].x, atomWorldPositions[bond.a].y, atomWorldPositions[bond.a].z,
+                            atomWorldPositions[bond.b].x, atomWorldPositions[bond.b].y, atomWorldPositions[bond.b].z
+                        );
+                    }
+                }
+                moleculeBondLines.geometry.setAttribute(
+                    'position',
+                    new THREE.Float32BufferAttribute(bondPositions, 3)
+                );
+                moleculeBondLines.geometry.computeBoundingSphere();
+                moleculeInterBondLines.geometry.setAttribute(
+                    'position',
+                    new THREE.Float32BufferAttribute([], 3)
+                );
+                moleculeInterBondLines.geometry.computeBoundingSphere();
+
+                moleculeBondMaterial.opacity = Math.min(1, 0.52 + (meanSignal * 0.38) + (low * 0.24) + beatBoost);
+                moleculeInterBondMaterial.opacity = 0;
+                moleculeRenderGroup.rotation.y += 0.0008 + (mid * 0.0022);
+                moleculeRenderGroup.rotation.x = Math.sin(nowMs / 2600) * 0.04;
+                moleculeRenderGroup.rotation.z = Math.cos(nowMs / 3200) * 0.03;
+                return;
+            }
+
             const now = performance.now();
             const ringRadius = (activeEffectProfile === 'molecule' ? 0.58 : 0.46) + (low * 0.08);
             const moleculeScale = 0.95 + (mid * 0.22) + beatBoost;
@@ -685,6 +743,7 @@ button:hover {
                 if (summary && summary.label) {
                     details += ` | Molecule: ${summary.label}`;
                 }
+                details += ` | MolViz: ${String(moleculeRenderMode || 'coherent').toUpperCase()}`;
             }
             effectOverlayElement.textContent = details;
         }
@@ -816,6 +875,12 @@ button:hover {
             }
         }
 
+        function setMoleculeRenderMode(mode) {
+            const normalized = String(mode || '').trim().toLowerCase();
+            moleculeRenderMode = normalized === 'expressive' ? 'expressive' : 'coherent';
+            updateEffectOverlay();
+        }
+
         async function loadMoleculeByName(name) {
             if (!moleculeSimulationPlugin) {
                 return;
@@ -861,6 +926,7 @@ button:hover {
 
         window.loadMoleculeGraphByName = loadMoleculeByName;
         window.setMoleculeGraphSequence = setMoleculeSequence;
+        window.setMoleculeRenderMode = setMoleculeRenderMode;
 
         function applyEffectProfile(profileName) {
             if (!simCompositor) {
@@ -1215,6 +1281,13 @@ button:hover {
                 const moleculeNameInput = document.getElementById('moleculeNameInput');
                 const moleculeName = moleculeNameInput ? moleculeNameInput.value : '';
                 loadMoleculeByName(moleculeName);
+            });
+        }
+        const moleculeRenderModeSelect = document.getElementById('moleculeRenderMode');
+        if (moleculeRenderModeSelect) {
+            setMoleculeRenderMode(moleculeRenderModeSelect.value);
+            moleculeRenderModeSelect.addEventListener('change', function() {
+                setMoleculeRenderMode(moleculeRenderModeSelect.value);
             });
         }
 

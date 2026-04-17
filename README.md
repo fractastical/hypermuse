@@ -199,6 +199,18 @@ To force a specific real molecule during export:
 MOLECULE_NAME=caffeine npm run export:sample
 ```
 
+For the 6.5ft x 4.5ft wall target (13:9 aspect ratio), use the dedicated preset:
+
+```bash
+npm run export:sample:13x9
+```
+
+Or override with explicit frame size:
+
+```bash
+EXPORT_WIDTH=1872 EXPORT_HEIGHT=1296 npm run export:sample
+```
+
 Exporter note:
 
 - If source is an audio file (`.wav`, `.mp3`, etc.), audio is muxed into the output video.

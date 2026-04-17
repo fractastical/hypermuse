@@ -2,3 +2,6 @@ creds.js
 images
 node_modules/
 loops/
+artifacts/*.webm
+artifacts/*.mp4
+artifacts/videos/*.webm

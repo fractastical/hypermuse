@@ -8,8 +8,10 @@ const DEFAULT_HOLD_MS = Number.parseInt(process.env.VJ_HOLD_MS || "8000", 10);
 const DEFAULT_TRANSITION_MS = Number.parseInt(process.env.VJ_TRANSITION_MS || "900", 10);
 const DEFAULT_TRANSITION_TYPE = process.env.VJ_TRANSITION_TYPE || "fade";
 const DEFAULT_MOLECULE_NAME = process.env.VJ_MOLECULE_NAME || "caffeine";
+const DEFAULT_MOLECULE_RENDER_MODE = process.env.VJ_MOLECULE_RENDER_MODE || "coherent";
 const DEFAULT_PLAYBACK_MODE = process.env.VJ_PLAYBACK_MODE || "pingpong";
 const DEFAULT_MAX_LOOPS = Number.parseInt(process.env.VJ_MAX_LOOPS || "20", 10);
+const DEFAULT_INCLUDE_REGEX = process.env.VJ_INCLUDE_REGEX || "";
 const DEFAULT_MOLECULE_NAMES = (process.env.VJ_MOLECULE_NAMES || "caffeine,serotonin,dopamine,glucose")
   .split(",")
   .map((value) => value.trim())
@@ -76,6 +78,21 @@ function interleaveVideos(videoLists, maxCount) {
   return merged;
 }
 
+function filterVideosByPattern(videos) {
+  const pattern = String(DEFAULT_INCLUDE_REGEX || "").trim();
+  if (!pattern) {
+    return videos;
+  }
+  let includeRegex = null;
+  try {
+    includeRegex = new RegExp(pattern, "i");
+  } catch (error) {
+    console.warn(`Invalid VJ_INCLUDE_REGEX "${pattern}", skipping filter.`);
+    return videos;
+  }
+  return videos.filter((videoPath) => includeRegex.test(path.basename(videoPath)));
+}
+
 function main() {
   const inputDirs = parseInputDirs(INPUT_DIR_ARG);
   if (inputDirs.length === 0) {
@@ -87,7 +104,7 @@ function main() {
 
   const perDirectoryVideos = inputDirs.map((inputDir) => {
     const inputAbs = path.resolve(PROJECT_ROOT, inputDir);
-    return collectVideos(inputAbs);
+    return filterVideosByPattern(collectVideos(inputAbs));
   });
   const videos = interleaveVideos(perDirectoryVideos, Math.max(1, DEFAULT_MAX_LOOPS));
   const loops = videos.map((absolutePath) => {
@@ -113,6 +130,7 @@ function main() {
     moleculeGraph: {
       name: DEFAULT_MOLECULE_NAME,
       names: DEFAULT_MOLECULE_NAMES,
+      renderMode: DEFAULT_MOLECULE_RENDER_MODE,
       cycleOnPhaseChange: true
     },
     effectTimeline: {
