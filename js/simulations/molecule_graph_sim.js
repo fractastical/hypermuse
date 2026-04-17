@@ -296,10 +296,15 @@ M  END`;
       const atoms = [];
       for (let i = 0; i < this.atomUV.length; i++) {
         const shifted = this.getShiftedUV(i);
+        const base = this.atomUV[i] || { u: 0.5, v: 0.5 };
+        const sourceAtom = this.molecule.atoms && this.molecule.atoms[i] ? this.molecule.atoms[i] : null;
         atoms.push({
           index: i,
           u: shifted.u,
           v: shifted.v,
+          baseU: base.u,
+          baseV: base.v,
+          symbol: sourceAtom && sourceAtom.symbol ? sourceAtom.symbol : "C",
           signal: this.atomSignals[i] || 0
         });
       }

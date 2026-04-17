@@ -222,9 +222,12 @@ button:hover {
         let moleculeAtomGeometry;
         let moleculeAtomMaterial;
         let moleculeAtomMeshes = [];
+        let moleculeBaseAtomPositions = [];
+        let moleculeLastAtomCount = 0;
         let moleculeBondLines;
         let moleculeBondMaterial;
-        let moleculeAssemblyProgress = 0;
+        let moleculeInterBondLines;
+        let moleculeInterBondMaterial;
 
         let captureInterval = null;
         let animationStarted = false;
@@ -401,6 +404,7 @@ button:hover {
         let geometries = [];
         let laneLastPoints = { high: [], mid: [], low: [] };
         let laneBaseSpheres = [];
+        let lastClassicPolygonMs = 0;
         const HIGH_LANE_CENTER_X = -1.15;
         const MID_LANE_CENTER_X = 0.0;
         const LOW_LANE_CENTER_X = 1.15;
@@ -411,6 +415,27 @@ button:hover {
         const SIDE_SPHERE_X_SPREAD = 0.92;
         const MOLECULE_SIDE_SPHERE_X = 0.0;
         const MOLECULE_SIDE_SPHERE_Y = -1.14;
+        const MOLECULE_CLUSTER_COUNT = 6;
+
+        function updateLaneShellOpacity(nowMs = performance.now()) {
+            if (!laneBaseSpheres || laneBaseSpheres.length === 0) {
+                return;
+            }
+            const classicRecentlyActive = (nowMs - lastClassicPolygonMs) < 1400;
+            let targetOpacity = 0.018;
+            if (activeEffectProfile === 'classic') {
+                targetOpacity = classicRecentlyActive ? 0.14 : 0.04;
+            } else if (activeEffectProfile === 'stacked') {
+                targetOpacity = 0.026;
+            }
+            for (let i = 0; i < laneBaseSpheres.length; i++) {
+                const material = laneBaseSpheres[i].material;
+                if (!material) {
+                    continue;
+                }
+                material.opacity += (targetOpacity - material.opacity) * 0.08;
+            }
+        }
 
         function initMoleculeOverlay() {
             moleculeRenderGroup = new THREE.Group();
@@ -434,19 +459,58 @@ button:hover {
             });
             moleculeBondLines = new THREE.LineSegments(bondGeometry, moleculeBondMaterial);
             moleculeRenderGroup.add(moleculeBondLines);
+
+            const interBondGeometry = new THREE.BufferGeometry();
+            moleculeInterBondMaterial = new THREE.LineBasicMaterial({
+                color: 0xe8ffd6,
+                transparent: true,
+                opacity: 0.45,
+                depthTest: false
+            });
+            moleculeInterBondLines = new THREE.LineSegments(interBondGeometry, moleculeInterBondMaterial);
+            moleculeRenderGroup.add(moleculeInterBondLines);
             scene.add(moleculeRenderGroup);
         }
 
-        function ensureMoleculeAtomMeshes(count) {
-            const targetCount = Math.max(0, count);
+        function getElementColor(symbol) {
+            const key = String(symbol || '').trim().toUpperCase();
+            if (key === 'H') return 0xf1fff7;
+            if (key === 'O') return 0x9cf7ff;
+            if (key === 'N') return 0x87b7ff;
+            if (key === 'S') return 0xffeb8a;
+            if (key === 'P') return 0xffb97f;
+            return 0xbfffd8; // Carbon/default
+        }
+
+        function rebuildMoleculeBaseLayout(renderData) {
+            const local = [];
+            const atomCount = renderData.atoms.length;
+            for (let i = 0; i < atomCount; i++) {
+                const atom = renderData.atoms[i];
+                const u = Number.isFinite(atom.baseU) ? atom.baseU : atom.u;
+                const v = Number.isFinite(atom.baseV) ? atom.baseV : atom.v;
+                const x = (u - 0.5) * 1.1;
+                const y = (0.5 - v) * 1.1;
+                const z = (Math.sin((i * 1.27) + 0.8) * 0.12);
+                local.push(new THREE.Vector3(x, y, z));
+            }
+            const center = new THREE.Vector3();
+            for (let i = 0; i < local.length; i++) {
+                center.add(local[i]);
+            }
+            center.divideScalar(Math.max(1, local.length));
+            for (let i = 0; i < local.length; i++) {
+                local[i].sub(center).multiplyScalar(0.58);
+            }
+            moleculeBaseAtomPositions = local;
+            moleculeLastAtomCount = atomCount;
+        }
+
+        function ensureMoleculeAtomMeshes(perMoleculeAtomCount, clusterCount) {
+            const targetCount = Math.max(0, perMoleculeAtomCount * clusterCount);
             while (moleculeAtomMeshes.length < targetCount) {
                 const mesh = new THREE.Mesh(moleculeAtomGeometry, moleculeAtomMaterial.clone());
                 mesh.visible = false;
-                mesh.userData.scatter = new THREE.Vector3(
-                    (Math.random() - 0.5) * 2.3,
-                    (Math.random() - 0.5) * 2.3,
-                    (Math.random() - 0.5) * 2.3
-                );
                 moleculeRenderGroup.add(mesh);
                 moleculeAtomMeshes.push(mesh);
             }
@@ -470,62 +534,87 @@ button:hover {
                 return;
             }
 
-            ensureMoleculeAtomMeshes(renderData.atoms.length);
+            const atomCount = renderData.atoms.length;
+            if (moleculeLastAtomCount !== atomCount || moleculeBaseAtomPositions.length !== atomCount) {
+                rebuildMoleculeBaseLayout(renderData);
+            }
 
-            const activeSignals = new Array(renderData.atoms.length).fill(0);
-            const atomPositions = new Array(renderData.atoms.length);
+            const clusterCount = activeEffectProfile === 'molecule' ? MOLECULE_CLUSTER_COUNT : Math.max(3, MOLECULE_CLUSTER_COUNT - 2);
+            ensureMoleculeAtomMeshes(atomCount, clusterCount);
+
+            const activeSignals = new Array(atomCount).fill(0);
             const low = audioFrame ? (audioFrame.low || 0) : 0;
             const mid = audioFrame ? (audioFrame.mid || 0) : 0;
             const high = audioFrame ? (audioFrame.high || 0) : 0;
-            const beatBoost = audioFrame && audioFrame.beat ? 0.18 : 0;
-            const desiredAssembly = activeEffectProfile === 'molecule'
-                ? (0.72 + (mid * 0.22) + beatBoost)
-                : (0.45 + (mid * 0.18));
-            moleculeAssemblyProgress += (desiredAssembly - moleculeAssemblyProgress) * 0.08;
-            moleculeAssemblyProgress = Math.max(0.15, Math.min(0.98, moleculeAssemblyProgress));
+            const beatBoost = audioFrame && audioFrame.beat ? 0.14 : 0;
+            let totalSignal = 0;
 
-            for (let i = 0; i < renderData.atoms.length; i++) {
+            for (let i = 0; i < atomCount; i++) {
                 const atom = renderData.atoms[i];
                 const signal = Math.max(0, atom.signal || 0);
                 activeSignals[i] = signal;
-                const mesh = moleculeAtomMeshes[i];
-                if (!mesh) {
-                    continue;
-                }
-                const scatter = mesh.userData.scatter || new THREE.Vector3(0, 0, 0);
-                const target = new THREE.Vector3(
-                    (atom.u - 0.5) * 1.1,
-                    (0.5 - atom.v) * 1.1,
-                    ((signal * 0.55) - 0.12) + (Math.sin((renderData.motionPhase || 0) + (i * 0.35)) * 0.08)
+                totalSignal += signal;
+            }
+            const meanSignal = totalSignal / Math.max(1, atomCount);
+
+            const now = performance.now();
+            const ringRadius = (activeEffectProfile === 'molecule' ? 0.58 : 0.46) + (low * 0.08);
+            const moleculeScale = 0.95 + (mid * 0.22) + beatBoost;
+            const clusterCenters = [];
+            const atomWorldPositions = Array.from({ length: clusterCount }, () => new Array(atomCount));
+
+            for (let clusterIndex = 0; clusterIndex < clusterCount; clusterIndex++) {
+                const phase = (now * 0.00034) + ((clusterIndex / clusterCount) * Math.PI * 2);
+                const sampledSignal = activeSignals[clusterIndex % atomCount] || meanSignal;
+                const localRadius = ringRadius + (sampledSignal * 0.11);
+                const center = new THREE.Vector3(
+                    Math.cos(phase) * localRadius,
+                    (Math.sin((phase * 1.2) + 0.4) * 0.15) + (sampledSignal * 0.08),
+                    Math.sin(phase) * 0.22
                 );
-                const current = scatter.clone().multiplyScalar(1 - moleculeAssemblyProgress)
-                    .add(target.multiplyScalar(moleculeAssemblyProgress));
-                mesh.position.lerp(current, 0.32);
-                const atomScale = 0.08 + (signal * 0.18) + beatBoost;
-                mesh.scale.set(atomScale, atomScale, atomScale);
-                mesh.material.opacity = Math.min(1, 0.52 + (signal * 0.6) + beatBoost);
-                const hue = (130 + (high * 40) + (signal * 50)) % 360;
-                mesh.material.color.set(`hsl(${hue}, 90%, ${58 + (signal * 22)}%)`);
-                atomPositions[i] = mesh.position.clone();
+                clusterCenters.push(center);
+
+                const rotation = phase + (sampledSignal * 0.7);
+                const cosR = Math.cos(rotation);
+                const sinR = Math.sin(rotation);
+                for (let atomIndex = 0; atomIndex < atomCount; atomIndex++) {
+                    const meshIndex = (clusterIndex * atomCount) + atomIndex;
+                    const mesh = moleculeAtomMeshes[meshIndex];
+                    if (!mesh) continue;
+                    const base = moleculeBaseAtomPositions[atomIndex] || new THREE.Vector3();
+                    const rotatedX = (base.x * cosR) - (base.y * sinR);
+                    const rotatedY = (base.x * sinR) + (base.y * cosR);
+                    const rotatedZ = base.z;
+                    const targetPos = new THREE.Vector3(
+                        center.x + (rotatedX * moleculeScale),
+                        center.y + (rotatedY * moleculeScale),
+                        center.z + (rotatedZ * moleculeScale)
+                    );
+                    mesh.position.lerp(targetPos, 0.45);
+                    atomWorldPositions[clusterIndex][atomIndex] = mesh.position.clone();
+                    const atomSignal = activeSignals[atomIndex] || 0;
+                    const atomSize = 0.07 + (atomSignal * 0.1) + beatBoost;
+                    mesh.scale.set(atomSize, atomSize, atomSize);
+                    mesh.material.opacity = Math.min(1, 0.5 + (atomSignal * 0.42) + beatBoost);
+                    mesh.material.color.setHex(getElementColor(renderData.atoms[atomIndex].symbol));
+                }
             }
 
             const bondPositions = [];
             if (Array.isArray(renderData.bonds)) {
-                for (let i = 0; i < renderData.bonds.length; i++) {
-                    const bond = renderData.bonds[i];
-                    const a = renderData.atoms[bond.a];
-                    const b = renderData.atoms[bond.b];
-                    if (!a || !b) {
-                        continue;
+                for (let clusterIndex = 0; clusterIndex < clusterCount; clusterIndex++) {
+                    const clusterAtoms = atomWorldPositions[clusterIndex];
+                    for (let i = 0; i < renderData.bonds.length; i++) {
+                        const bond = renderData.bonds[i];
+                        const signal = Math.max(activeSignals[bond.a] || 0, activeSignals[bond.b] || 0);
+                        if (signal < 0.02 || !clusterAtoms[bond.a] || !clusterAtoms[bond.b]) {
+                            continue;
+                        }
+                        bondPositions.push(
+                            clusterAtoms[bond.a].x, clusterAtoms[bond.a].y, clusterAtoms[bond.a].z,
+                            clusterAtoms[bond.b].x, clusterAtoms[bond.b].y, clusterAtoms[bond.b].z
+                        );
                     }
-                    const signal = Math.max(activeSignals[bond.a] || 0, activeSignals[bond.b] || 0);
-                    if (signal < 0.03 || !atomPositions[bond.a] || !atomPositions[bond.b]) {
-                        continue;
-                    }
-                    bondPositions.push(
-                        atomPositions[bond.a].x, atomPositions[bond.a].y, atomPositions[bond.a].z,
-                        atomPositions[bond.b].x, atomPositions[bond.b].y, atomPositions[bond.b].z
-                    );
                 }
             }
 
@@ -535,7 +624,23 @@ button:hover {
             );
             moleculeBondLines.geometry.computeBoundingSphere();
 
-            moleculeBondMaterial.opacity = Math.min(1, 0.3 + (moleculeAssemblyProgress * 0.45) + (low * 0.3) + beatBoost);
+            const interBondPositions = [];
+            for (let i = 0; i < clusterCenters.length; i++) {
+                const current = clusterCenters[i];
+                const next = clusterCenters[(i + 1) % clusterCenters.length];
+                interBondPositions.push(
+                    current.x, current.y, current.z,
+                    next.x, next.y, next.z
+                );
+            }
+            moleculeInterBondLines.geometry.setAttribute(
+                'position',
+                new THREE.Float32BufferAttribute(interBondPositions, 3)
+            );
+            moleculeInterBondLines.geometry.computeBoundingSphere();
+
+            moleculeBondMaterial.opacity = Math.min(1, 0.38 + (meanSignal * 0.45) + (low * 0.2) + beatBoost);
+            moleculeInterBondMaterial.opacity = Math.min(0.85, 0.24 + (mid * 0.45) + (beatBoost * 0.7));
             moleculeRenderGroup.rotation.z += 0.0012 + (high * 0.01);
             moleculeRenderGroup.rotation.y = Math.sin((performance.now() / 1200)) * 0.12;
         }
@@ -1062,7 +1167,7 @@ button:hover {
                     color: 0x9affcc,
                     wireframe: true,
                     transparent: true,
-                    opacity: 0.26
+                    opacity: 0.12
                 })
             );
             highShell.position.set(HIGH_LANE_CENTER_X, 0, 0);
@@ -1073,7 +1178,7 @@ button:hover {
                     color: 0xb8ffe0,
                     wireframe: true,
                     transparent: true,
-                    opacity: 0.24
+                    opacity: 0.11
                 })
             );
             midShell.position.set(MID_LANE_CENTER_X, 0, 0);
@@ -1084,7 +1189,7 @@ button:hover {
                     color: 0x86f7b7,
                     wireframe: true,
                     transparent: true,
-                    opacity: 0.26
+                    opacity: 0.12
                 })
             );
             lowShell.position.set(LOW_LANE_CENTER_X, 0, 0);
@@ -1348,6 +1453,7 @@ button:hover {
                                 triangle.receiveShadow = true;
                                 createdGeometry = geometry;
                                 createdObject = triangle;
+                                lastClassicPolygonMs = performance.now();
                             }
                         }
 
@@ -1419,6 +1525,7 @@ button:hover {
 
             scene.rotation.x += X_ROTATION_SPEED; 
             scene.rotation.y += Y_ROTATION_SPEED;
+            updateLaneShellOpacity();
 
             renderer.render(scene, camera);
             updateEffectOverlay();
