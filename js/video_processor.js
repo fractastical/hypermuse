@@ -245,6 +245,11 @@ if (manifest && manifest.moleculeGraph) {
         window.loadMoleculeGraphByName(manifest.moleculeGraph.name);
     }
 }
+if (manifest && manifest.simulationPresets) {
+    if (manifest.simulationPresets.grayScott && window.setGrayScottPreset) {
+        window.setGrayScottPreset(manifest.simulationPresets.grayScott);
+    }
+}
 return urls.length;
 }
 

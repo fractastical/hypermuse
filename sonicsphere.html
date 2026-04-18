@@ -105,6 +105,8 @@ button:hover {
     <script src="js/layers/sim_compositor.js"></script>
     <script src="js/simulations/life_sim.js"></script>
     <script src="js/simulations/kuramoto_sim.js"></script>
+    <script src="js/simulations/gray_scott_sim.js"></script>
+    <script src="js/simulations/physarum_sim.js"></script>
     <script src="js/simulations/molecule_graph_sim.js"></script>
 
 
@@ -129,9 +131,9 @@ button:hover {
           </div>
           <div class="file-input-group">
             <label for="effectTimelinePhases">Effect phases:</label>
-            <input type="text" id="effectTimelinePhases" value="classic,life,kuramoto,molecule,stacked" />
+            <input type="text" id="effectTimelinePhases" value="classic,life,classic,kuramoto,classic,gray-scott,classic,physarum,classic,molecule,classic,stacked" />
             <label for="effectTimelinePhaseSec">sec/phase:</label>
-            <input type="text" id="effectTimelinePhaseSec" value="8" />
+            <input type="text" id="effectTimelinePhaseSec" value="16" />
             <label>
               <input type="checkbox" id="effectTimelineEnabled" checked />
               timeline on
@@ -148,6 +150,18 @@ button:hover {
             </select>
             <button id="loadMoleculeButton">Load Molecule</button>
             <span id="moleculeStatus">embedded water</span>
+          </div>
+          <div class="file-input-group">
+            <label for="backdropOpacityInput">Backdrop opacity:</label>
+            <input type="range" id="backdropOpacityInput" min="0" max="1.4" step="0.01" value="1" />
+            <label for="backdropBlendMode">blend:</label>
+            <select id="backdropBlendMode">
+              <option value="additive" selected>additive</option>
+              <option value="normal">normal</option>
+              <option value="screen">screen</option>
+            </select>
+            <label for="backdropScrollSpeed">scroll:</label>
+            <input type="range" id="backdropScrollSpeed" min="0" max="0.08" step="0.001" value="0.012" />
           </div>
           <div class="file-input-group">
             <button id="startExportButton">Start Export</button>
@@ -180,14 +194,14 @@ button:hover {
         let freezeFrameEffectActive = true;
         let X_ROTATION_SPEED = 0;
         let Y_ROTATION_SPEED = 0;
-        let ACTIVE_GEOMETRIES_LIMIT = 7;
+        let ACTIVE_GEOMETRIES_LIMIT = 16;
         let FORCE_EQUILATERAL = false;
         let innerTriangleActive = false;
         let innerTriangleOffset = 0.005;
         let merkabaMode = false;
         let noteDisplayEnabled= false;
         let peakBandIndex;
-        let playbackRate= 1.0;
+        let playbackRate= 0.5;
         let videoFullOpacity = true;
 
         let REFRESH_SPEED = 3;
@@ -197,24 +211,44 @@ button:hover {
         let layeredAudioEngine;
         let simCompositor;
         let simulationShell;
+        let simulationBackdropScene;
+        let simulationBackdropCamera;
+        let simulationBackdropQuad;
+        let simulationBackdropMaterial;
+        let simulationBackdropBaseOpacity = 0.18;
+        let backdropOpacityMultiplier = 1.0;
+        let backdropBlendMode = 'additive';
+        let backdropScrollSpeed = 0.012;
+        let lastBackdropTickMs = performance.now();
         let lifeSideSphere;
         let kuramotoSideSphere;
         let moleculeSideSphere;
         let moleculeSimulationPlugin;
+        let grayScottPrimaryPlugin;
+        let grayScottAltPlugin;
+        let grayScottPresetName = 'nexus';
         let concurrentSideEffects = true;
         let lastSimulationTickMs = performance.now();
         let effectTimelineStartMs = null;
         let effectTimelineEnabled = true;
         let lastAppliedEffectPhase = '';
         let activeEffectProfile = 'classic';
+        const VALID_EFFECT_PROFILES = new Set(['classic', 'life', 'kuramoto', 'gray-scott', 'physarum', 'molecule', 'stacked']);
         let simulationShellBaseOpacity = 0.24;
         let effectActivationFactor = 1.0;
         let effectTimelinePlan = [
-            { name: 'classic', durationSec: 8 },
-            { name: 'life', durationSec: 8 },
-            { name: 'kuramoto', durationSec: 8 },
-            { name: 'molecule', durationSec: 8 },
-            { name: 'stacked', durationSec: 8 }
+            { name: 'classic', durationSec: 16 },
+            { name: 'life', durationSec: 16 },
+            { name: 'classic', durationSec: 16 },
+            { name: 'kuramoto', durationSec: 16 },
+            { name: 'classic', durationSec: 16 },
+            { name: 'gray-scott', durationSec: 16 },
+            { name: 'classic', durationSec: 16 },
+            { name: 'physarum', durationSec: 16 },
+            { name: 'classic', durationSec: 16 },
+            { name: 'molecule', durationSec: 16 },
+            { name: 'classic', durationSec: 16 },
+            { name: 'stacked', durationSec: 16 }
         ];
         let sceneRecorder = null;
         let sceneRecorderChunks = [];
@@ -238,16 +272,19 @@ button:hover {
         let captureInterval = null;
         let animationStarted = false;
         let visualWarmupUntilMs = 0;
-        const CAPTURE_INTERVAL_MS = 416.666666667 / 10;  // e.g., Capture every Xms 
+        const CAPTURE_INTERVAL_MS = 416.666666667 / 10;
+        const POLYGON_SPAWN_INTERVAL_MS = 140;
+        const lastLanePolygonSpawnMs = { high: 0, mid: 0, low: 0 };
 
         const scene = new THREE.Scene();
         const camera = new THREE.PerspectiveCamera(75, window.innerWidth/window.innerHeight, 0.1, 100);
         camera.position.z = 2;
-        const DEMO_CAMERA_Z = 2.7;
-        const DEMO_CAMERA_Y = -0.12;
-        const DEMO_VISUAL_OFFSET_X = 0.0;
+        const DEMO_CAMERA_Z = 2.45;
+        const DEMO_CAMERA_Y = 0.0;
+        const DEMO_VISUAL_OFFSET_X = -0.733;
         const renderer = new THREE.WebGLRenderer({ antialias: true });
         renderer.setPixelRatio(window.devicePixelRatio * 5); // x times the normal resolution
+        renderer.autoClear = false;
 
         renderer.shadowMap.enabled = true;
         const pointLight = new THREE.PointLight(0xffffff, 1, 100);
@@ -411,17 +448,35 @@ button:hover {
         let laneLastPoints = { high: [], mid: [], low: [] };
         let laneBaseSpheres = [];
         let lastClassicPolygonMs = 0;
-        const HIGH_LANE_CENTER_X = -1.15;
+        const HIGH_LANE_CENTER_X = -1.05;
         const MID_LANE_CENTER_X = 0.0;
-        const LOW_LANE_CENTER_X = 1.15;
-        const LANE_RADIUS = 0.48;
-        const SIDE_SPHERE_RADIUS = 0.34;
+        const LOW_LANE_CENTER_X = 1.05;
+        const LANE_RADIUS = 0.784;
+        const SIDE_SPHERE_RADIUS = 0.588;
         const SIDE_SPHERE_Z = -0.28;
-        const SIDE_SPHERE_Y = -0.86;
-        const SIDE_SPHERE_X_SPREAD = 0.92;
+        const SIDE_SPHERE_Y = -0.74;
+        const SIDE_SPHERE_X_SPREAD = 1.18;
         const MOLECULE_SIDE_SPHERE_X = 0.0;
-        const MOLECULE_SIDE_SPHERE_Y = -1.14;
+        const MOLECULE_SIDE_SPHERE_Y = -1.02;
         const MOLECULE_CLUSTER_COUNT = 6;
+
+        function clearTransientGeometries() {
+            for (let i = 0; i < geometries.length; i++) {
+                const entry = geometries[i];
+                if (!entry || !entry.geometry) {
+                    continue;
+                }
+                const object = entry.geometry;
+                scene.remove(object);
+                if (object.geometry && typeof object.geometry.dispose === 'function') {
+                    object.geometry.dispose();
+                }
+                if (object.material && typeof object.material.dispose === 'function') {
+                    object.material.dispose();
+                }
+            }
+            geometries = [];
+        }
 
         function updateLaneShellOpacity(nowMs = performance.now()) {
             if (!laneBaseSpheres || laneBaseSpheres.length === 0) {
@@ -447,7 +502,7 @@ button:hover {
             moleculeRenderGroup = new THREE.Group();
             moleculeRenderGroup.visible = false;
             moleculeRenderGroup.position.set(0, 0, 0.25);
-            moleculeRenderGroup.scale.set(1.35, 1.35, 1.35);
+            moleculeRenderGroup.scale.set(1.45, 1.45, 1.45);
 
             moleculeAtomGeometry = new THREE.SphereGeometry(0.08, 12, 12);
             moleculeAtomMaterial = new THREE.MeshBasicMaterial({
@@ -460,8 +515,9 @@ button:hover {
             moleculeBondMaterial = new THREE.LineBasicMaterial({
                 color: 0xbfffd8,
                 transparent: true,
-                opacity: 0.66,
-                depthTest: false
+                opacity: 0.78,
+                depthTest: false,
+                blending: THREE.AdditiveBlending
             });
             moleculeBondLines = new THREE.LineSegments(bondGeometry, moleculeBondMaterial);
             moleculeRenderGroup.add(moleculeBondLines);
@@ -470,8 +526,9 @@ button:hover {
             moleculeInterBondMaterial = new THREE.LineBasicMaterial({
                 color: 0xe8ffd6,
                 transparent: true,
-                opacity: 0.45,
-                depthTest: false
+                opacity: 0.58,
+                depthTest: false,
+                blending: THREE.AdditiveBlending
             });
             moleculeInterBondLines = new THREE.LineSegments(interBondGeometry, moleculeInterBondMaterial);
             moleculeRenderGroup.add(moleculeInterBondLines);
@@ -480,12 +537,33 @@ button:hover {
 
         function getElementColor(symbol) {
             const key = String(symbol || '').trim().toUpperCase();
-            if (key === 'H') return 0xf1fff7;
-            if (key === 'O') return 0x9cf7ff;
-            if (key === 'N') return 0x87b7ff;
-            if (key === 'S') return 0xffeb8a;
-            if (key === 'P') return 0xffb97f;
-            return 0xbfffd8; // Carbon/default
+            // Bright CPK-style palette tuned for stage visibility.
+            const elementPalette = {
+                H: 0xf6fbff,
+                C: 0x8fa3b3,
+                N: 0x5f8dff,
+                O: 0xff4f5e,
+                S: 0xffde5a,
+                P: 0xffa54f,
+                F: 0xa8ff8e,
+                CL: 0x6ff06f,
+                BR: 0xd58946,
+                I: 0xa673ff,
+                NA: 0x7ec1ff,
+                K: 0xb88cff,
+                CA: 0x90f0c8,
+                MG: 0x8ef2cf,
+                FE: 0xff9c72,
+                ZN: 0x9ed5ff
+            };
+            return elementPalette[key] || elementPalette.C;
+        }
+
+        function setAtomVisual(mesh, symbol, atomSignal, beatBoost) {
+            const atomColor = new THREE.Color(getElementColor(symbol));
+            const luminanceBoost = Math.min(0.42, (atomSignal * 0.2) + (beatBoost * 1.1));
+            atomColor.lerp(new THREE.Color(0xffffff), luminanceBoost);
+            mesh.material.color.copy(atomColor);
         }
 
         function rebuildMoleculeBaseLayout(renderData) {
@@ -579,7 +657,7 @@ button:hover {
                     const atomSize = 0.075 + (atomSignal * 0.06) + beatBoost;
                     mesh.scale.set(atomSize, atomSize, atomSize);
                     mesh.material.opacity = Math.min(1, 0.62 + (atomSignal * 0.32) + beatBoost);
-                    mesh.material.color.setHex(getElementColor(renderData.atoms[atomIndex].symbol));
+                    setAtomVisual(mesh, renderData.atoms[atomIndex].symbol, atomSignal, beatBoost);
                 }
 
                 const bondPositions = [];
@@ -607,7 +685,7 @@ button:hover {
                 );
                 moleculeInterBondLines.geometry.computeBoundingSphere();
 
-                moleculeBondMaterial.opacity = Math.min(1, 0.52 + (meanSignal * 0.38) + (low * 0.24) + beatBoost);
+                moleculeBondMaterial.opacity = Math.min(1, 0.7 + (meanSignal * 0.22) + (low * 0.15) + beatBoost);
                 moleculeInterBondMaterial.opacity = 0;
                 moleculeRenderGroup.rotation.y += 0.0008 + (mid * 0.0022);
                 moleculeRenderGroup.rotation.x = Math.sin(nowMs / 2600) * 0.04;
@@ -654,7 +732,7 @@ button:hover {
                     const atomSize = 0.07 + (atomSignal * 0.1) + beatBoost;
                     mesh.scale.set(atomSize, atomSize, atomSize);
                     mesh.material.opacity = Math.min(1, 0.5 + (atomSignal * 0.42) + beatBoost);
-                    mesh.material.color.setHex(getElementColor(renderData.atoms[atomIndex].symbol));
+                    setAtomVisual(mesh, renderData.atoms[atomIndex].symbol, atomSignal, beatBoost);
                 }
             }
 
@@ -697,8 +775,8 @@ button:hover {
             );
             moleculeInterBondLines.geometry.computeBoundingSphere();
 
-            moleculeBondMaterial.opacity = Math.min(1, 0.38 + (meanSignal * 0.45) + (low * 0.2) + beatBoost);
-            moleculeInterBondMaterial.opacity = Math.min(0.85, 0.24 + (mid * 0.45) + (beatBoost * 0.7));
+            moleculeBondMaterial.opacity = Math.min(1, 0.62 + (meanSignal * 0.3) + (low * 0.2) + beatBoost);
+            moleculeInterBondMaterial.opacity = Math.min(1, 0.46 + (mid * 0.35) + beatBoost);
             moleculeRenderGroup.rotation.z += 0.0012 + (high * 0.01);
             moleculeRenderGroup.rotation.y = Math.sin((performance.now() / 1200)) * 0.12;
         }
@@ -738,6 +816,9 @@ button:hover {
                     details += ` | Loop: ${currentLoopLabel}`;
                 }
             }
+            if (activeEffectProfile === 'gray-scott') {
+                details += ` | GS Preset: ${String(grayScottPresetName || 'nexus').toUpperCase()}`;
+            }
             if ((activeEffectProfile === 'molecule' || activeEffectProfile === 'stacked') && moleculeSimulationPlugin && moleculeSimulationPlugin.getSummary) {
                 const summary = moleculeSimulationPlugin.getSummary();
                 if (summary && summary.label) {
@@ -761,11 +842,27 @@ button:hover {
                 opacity: 0.55,
                 color: [255, 120, 220]
             });
+            grayScottPrimaryPlugin = new HypermuseGrayScottSimulationPlugin("gray-scott-primary");
+            simCompositor.registerPlugin(grayScottPrimaryPlugin, {
+                opacity: 0.48,
+                color: [196, 255, 210]
+            });
+            grayScottAltPlugin = new HypermuseGrayScottSimulationPlugin("gray-scott-alt");
+            simCompositor.registerPlugin(grayScottAltPlugin, {
+                opacity: 0.42,
+                color: [150, 235, 255]
+            });
+            const physarumPlugin = new HypermusePhysarumSimulationPlugin("physarum-primary");
+            simCompositor.registerPlugin(physarumPlugin, {
+                opacity: 0.44,
+                color: [160, 255, 190]
+            });
             moleculeSimulationPlugin = new HypermuseMoleculeGraphSimulationPlugin("molecule-primary");
             simCompositor.registerPlugin(moleculeSimulationPlugin, {
                 opacity: 0.5,
                 color: [120, 255, 160]
             });
+            initSimulationBackdrop();
 
             const shellGeometry = new THREE.SphereGeometry(1.07, 48, 48);
             const shellMaterial = new THREE.MeshBasicMaterial({
@@ -823,7 +920,72 @@ button:hover {
             moleculeSideSphere.visible = false;
             scene.add(moleculeSideSphere);
             initMoleculeOverlay();
+            setGrayScottPreset(grayScottPresetName);
         }
+
+        function initSimulationBackdrop() {
+            simulationBackdropScene = new THREE.Scene();
+            simulationBackdropCamera = new THREE.OrthographicCamera(-1, 1, 1, -1, 0, 1);
+            if (simCompositor && simCompositor.texture) {
+                simCompositor.texture.wrapS = THREE.RepeatWrapping;
+                simCompositor.texture.wrapT = THREE.RepeatWrapping;
+            }
+            simulationBackdropMaterial = new THREE.MeshBasicMaterial({
+                map: simCompositor ? simCompositor.texture : null,
+                transparent: true,
+                opacity: simulationBackdropBaseOpacity,
+                blending: THREE.AdditiveBlending,
+                depthTest: false,
+                depthWrite: false
+            });
+            const quadGeometry = new THREE.PlaneGeometry(2, 2);
+            simulationBackdropQuad = new THREE.Mesh(quadGeometry, simulationBackdropMaterial);
+            simulationBackdropScene.add(simulationBackdropQuad);
+            applyBackdropStyle();
+        }
+
+        function getBackdropBlendConstant(mode) {
+            if (mode === 'normal') {
+                return THREE.NormalBlending;
+            }
+            if (mode === 'screen') {
+                return THREE.CustomBlending;
+            }
+            return THREE.AdditiveBlending;
+        }
+
+        function applyBackdropStyle() {
+            if (!simulationBackdropMaterial) {
+                return;
+            }
+            const mode = String(backdropBlendMode || 'additive').toLowerCase();
+            simulationBackdropMaterial.blending = getBackdropBlendConstant(mode);
+            if (mode === 'screen') {
+                simulationBackdropMaterial.blendSrc = THREE.OneFactor;
+                simulationBackdropMaterial.blendDst = THREE.OneMinusSrcColorFactor;
+                simulationBackdropMaterial.blendEquation = THREE.AddEquation;
+            } else {
+                simulationBackdropMaterial.blendSrc = null;
+                simulationBackdropMaterial.blendDst = null;
+                simulationBackdropMaterial.blendEquation = null;
+            }
+            simulationBackdropMaterial.needsUpdate = true;
+        }
+
+        function setBackdropConfig(config = {}) {
+            if (Number.isFinite(config.opacity)) {
+                backdropOpacityMultiplier = Math.max(0, Math.min(2, config.opacity));
+            }
+            if (typeof config.blendMode === 'string') {
+                const mode = String(config.blendMode).trim().toLowerCase();
+                backdropBlendMode = (mode === 'normal' || mode === 'screen' || mode === 'additive') ? mode : 'additive';
+            }
+            if (Number.isFinite(config.scrollSpeed)) {
+                backdropScrollSpeed = Math.max(0, Math.min(0.2, config.scrollSpeed));
+            }
+            applyBackdropStyle();
+        }
+        window.setBackdropConfig = setBackdropConfig;
 
         function updateSimulationStage() {
             if (!simulationShell) {
@@ -832,21 +994,40 @@ button:hover {
             const isClassic = activeEffectProfile === 'classic';
             const isLife = activeEffectProfile === 'life';
             const isKuramoto = activeEffectProfile === 'kuramoto';
+            const isGrayScott = activeEffectProfile === 'gray-scott';
+            const isPhysarum = activeEffectProfile === 'physarum';
             const isMolecule = activeEffectProfile === 'molecule';
             const isStacked = activeEffectProfile === 'stacked';
+            const isSecondaryCellular = isGrayScott || isPhysarum;
 
-            simulationShell.visible = isClassic;
+            simulationShell.visible = true;
             if (lifeSideSphere) {
                 lifeSideSphere.visible = concurrentSideEffects ? !isClassic : (isLife || isStacked);
-                lifeSideSphere.material.opacity = isLife ? 0.82 : (isStacked ? 0.7 : 0.34);
+                if (isLife) {
+                    lifeSideSphere.material.opacity = 0.82;
+                } else if (isGrayScott) {
+                    lifeSideSphere.material.opacity = 0.8;
+                } else if (isStacked) {
+                    lifeSideSphere.material.opacity = 0.7;
+                } else {
+                    lifeSideSphere.material.opacity = 0.34;
+                }
             }
             if (kuramotoSideSphere) {
                 kuramotoSideSphere.visible = concurrentSideEffects ? !isClassic : (isKuramoto || isStacked);
-                kuramotoSideSphere.material.opacity = isKuramoto ? 0.86 : (isStacked ? 0.72 : 0.36);
+                if (isKuramoto) {
+                    kuramotoSideSphere.material.opacity = 0.86;
+                } else if (isPhysarum) {
+                    kuramotoSideSphere.material.opacity = 0.84;
+                } else if (isStacked) {
+                    kuramotoSideSphere.material.opacity = 0.72;
+                } else {
+                    kuramotoSideSphere.material.opacity = 0.36;
+                }
             }
             if (moleculeSideSphere) {
                 moleculeSideSphere.visible = concurrentSideEffects
-                    ? (!isClassic && !isMolecule)
+                    ? (!isClassic && !isMolecule && !isSecondaryCellular)
                     : isStacked;
                 moleculeSideSphere.material.opacity = isStacked ? 0.62 : 0.28;
             }
@@ -854,13 +1035,13 @@ button:hover {
             if (moleculeRenderGroup) {
                 if (isMolecule) {
                     moleculeRenderGroup.position.set(MOLECULE_SIDE_SPHERE_X, MOLECULE_SIDE_SPHERE_Y, SIDE_SPHERE_Z + 0.16);
-                    moleculeRenderGroup.scale.set(0.65, 0.65, 0.65);
+                    moleculeRenderGroup.scale.set(0.78, 0.78, 0.78);
                 } else if (isStacked) {
                     moleculeRenderGroup.position.set(MOLECULE_SIDE_SPHERE_X, MOLECULE_SIDE_SPHERE_Y - 0.03, SIDE_SPHERE_Z + 0.13);
-                    moleculeRenderGroup.scale.set(0.52, 0.52, 0.52);
+                    moleculeRenderGroup.scale.set(0.62, 0.62, 0.62);
                 } else if (concurrentSideEffects && !isClassic) {
                     moleculeRenderGroup.position.set(MOLECULE_SIDE_SPHERE_X, MOLECULE_SIDE_SPHERE_Y - 0.04, SIDE_SPHERE_Z + 0.12);
-                    moleculeRenderGroup.scale.set(0.42, 0.42, 0.42);
+                    moleculeRenderGroup.scale.set(0.5, 0.5, 0.5);
                 } else {
                     moleculeRenderGroup.position.set(0, 0, 0.28);
                     moleculeRenderGroup.scale.set(1.0, 1.0, 1.0);
@@ -928,18 +1109,58 @@ button:hover {
         window.setMoleculeGraphSequence = setMoleculeSequence;
         window.setMoleculeRenderMode = setMoleculeRenderMode;
 
+        function setGrayScottPreset(presetName) {
+            const normalized = String(presetName || '').trim().toLowerCase();
+            const chosen = normalized || 'nexus';
+            grayScottPresetName = chosen;
+            if (grayScottPrimaryPlugin && typeof grayScottPrimaryPlugin.applyPreset === 'function') {
+                grayScottPrimaryPlugin.applyPreset(chosen);
+            }
+            if (grayScottAltPlugin && typeof grayScottAltPlugin.applyPreset === 'function') {
+                grayScottAltPlugin.applyPreset(chosen);
+                // Keep the alt layer as a nearby sibling variation.
+                if (typeof grayScottAltPlugin.configure === 'function') {
+                    grayScottAltPlugin.configure({
+                        diffusionU: grayScottAltPlugin.diffusionU * 0.94,
+                        diffusionV: grayScottAltPlugin.diffusionV * 0.94,
+                        feedBase: grayScottAltPlugin.feedBase * 0.84,
+                        killBase: grayScottAltPlugin.killBase * 0.88,
+                        vThreshold: Math.max(0.14, grayScottAltPlugin.vThreshold - 0.03)
+                    });
+                }
+            }
+            updateEffectOverlay();
+        }
+        window.setGrayScottPreset = setGrayScottPreset;
+
+        function normalizeEffectProfileName(name) {
+            const normalized = String(name || '').trim().toLowerCase();
+            return VALID_EFFECT_PROFILES.has(normalized) ? normalized : 'classic';
+        }
+
         function applyEffectProfile(profileName) {
             if (!simCompositor) {
                 return;
             }
+            const normalizedProfile = normalizeEffectProfileName(profileName);
+            if (normalizedProfile !== activeEffectProfile) {
+                // Prevent long-lived transient geometry from dominating after phase transitions.
+                clearTransientGeometries();
+            }
 
-            if (profileName === 'classic') {
+            if (normalizedProfile === 'classic') {
                 activeEffectProfile = 'classic';
                 simCompositor.setPluginOpacity('life-primary', 0.05);
                 simCompositor.setPluginOpacity('kuramoto-primary', 0.02);
+                simCompositor.setPluginOpacity('gray-scott-primary', 0.02);
+                simCompositor.setPluginOpacity('gray-scott-alt', 0.02);
+                simCompositor.setPluginOpacity('physarum-primary', 0.02);
                 simCompositor.setPluginOpacity('molecule-primary', 0.02);
                 simCompositor.setPluginColor('life-primary', [140, 255, 168]);
                 simCompositor.setPluginColor('kuramoto-primary', [110, 220, 140]);
+                simCompositor.setPluginColor('gray-scott-primary', [185, 255, 210]);
+                simCompositor.setPluginColor('gray-scott-alt', [160, 238, 255]);
+                simCompositor.setPluginColor('physarum-primary', [146, 255, 195]);
                 simCompositor.setPluginColor('molecule-primary', [230, 255, 236]);
                 innerTriangleActive = false;
                 hueOffsetSpeed = 0.0;
@@ -949,13 +1170,20 @@ button:hover {
                 brightness = 50;
                 simulationShellBaseOpacity = 0.05;
                 effectActivationFactor = 1.0;
-            } else if (profileName === 'life') {
+                simulationBackdropBaseOpacity = 0.14;
+            } else if (normalizedProfile === 'life') {
                 activeEffectProfile = 'life';
                 simCompositor.setPluginOpacity('life-primary', 1.0);
                 simCompositor.setPluginOpacity('kuramoto-primary', 0.20);
+                simCompositor.setPluginOpacity('gray-scott-primary', 0.34);
+                simCompositor.setPluginOpacity('gray-scott-alt', 0.28);
+                simCompositor.setPluginOpacity('physarum-primary', 0.28);
                 simCompositor.setPluginOpacity('molecule-primary', 0.25);
                 simCompositor.setPluginColor('life-primary', [110, 255, 150]);
                 simCompositor.setPluginColor('kuramoto-primary', [78, 210, 122]);
+                simCompositor.setPluginColor('gray-scott-primary', [164, 255, 188]);
+                simCompositor.setPluginColor('gray-scott-alt', [148, 230, 255]);
+                simCompositor.setPluginColor('physarum-primary', [154, 250, 176]);
                 simCompositor.setPluginColor('molecule-primary', [220, 255, 228]);
                 innerTriangleActive = false;
                 hueOffsetSpeed = 0.0;
@@ -965,13 +1193,20 @@ button:hover {
                 brightness = 48;
                 simulationShellBaseOpacity = 0.28;
                 effectActivationFactor = 0.78;
-            } else if (profileName === 'kuramoto') {
+                simulationBackdropBaseOpacity = 0.24;
+            } else if (normalizedProfile === 'kuramoto') {
                 activeEffectProfile = 'kuramoto';
                 simCompositor.setPluginOpacity('life-primary', 0.25);
                 simCompositor.setPluginOpacity('kuramoto-primary', 1.0);
+                simCompositor.setPluginOpacity('gray-scott-primary', 0.24);
+                simCompositor.setPluginOpacity('gray-scott-alt', 0.2);
+                simCompositor.setPluginOpacity('physarum-primary', 0.4);
                 simCompositor.setPluginOpacity('molecule-primary', 0.30);
                 simCompositor.setPluginColor('life-primary', [80, 255, 170]);
                 simCompositor.setPluginColor('kuramoto-primary', [78, 232, 255]);
+                simCompositor.setPluginColor('gray-scott-primary', [176, 255, 208]);
+                simCompositor.setPluginColor('gray-scott-alt', [128, 232, 255]);
+                simCompositor.setPluginColor('physarum-primary', [126, 255, 204]);
                 simCompositor.setPluginColor('molecule-primary', [255, 132, 242]);
                 innerTriangleActive = false;
                 hueOffsetSpeed = 0.55;
@@ -981,13 +1216,66 @@ button:hover {
                 brightness = 62;
                 simulationShellBaseOpacity = 0.42;
                 effectActivationFactor = 0.72;
-            } else if (profileName === 'molecule') {
+                simulationBackdropBaseOpacity = 0.28;
+            } else if (normalizedProfile === 'gray-scott') {
+                activeEffectProfile = 'gray-scott';
+                simCompositor.setPluginOpacity('life-primary', 0.35);
+                simCompositor.setPluginOpacity('kuramoto-primary', 0.22);
+                simCompositor.setPluginOpacity('gray-scott-primary', 1.0);
+                simCompositor.setPluginOpacity('gray-scott-alt', 0.95);
+                simCompositor.setPluginOpacity('physarum-primary', 0.35);
+                simCompositor.setPluginOpacity('molecule-primary', 0.2);
+                simCompositor.setPluginColor('life-primary', [98, 255, 146]);
+                simCompositor.setPluginColor('kuramoto-primary', [145, 245, 176]);
+                simCompositor.setPluginColor('gray-scott-primary', [226, 255, 238]);
+                simCompositor.setPluginColor('gray-scott-alt', [165, 236, 255]);
+                simCompositor.setPluginColor('physarum-primary', [140, 255, 188]);
+                simCompositor.setPluginColor('molecule-primary', [218, 255, 230]);
+                innerTriangleActive = false;
+                hueOffsetSpeed = 0.2;
+                Y_ROTATION_SPEED = 0.0009;
+                X_ROTATION_SPEED = 0.0003;
+                saturation = 95;
+                brightness = 56;
+                simulationShellBaseOpacity = 0.4;
+                effectActivationFactor = 0.7;
+                simulationBackdropBaseOpacity = 0.44;
+            } else if (normalizedProfile === 'physarum') {
+                activeEffectProfile = 'physarum';
+                simCompositor.setPluginOpacity('life-primary', 0.26);
+                simCompositor.setPluginOpacity('kuramoto-primary', 0.42);
+                simCompositor.setPluginOpacity('gray-scott-primary', 0.32);
+                simCompositor.setPluginOpacity('gray-scott-alt', 0.24);
+                simCompositor.setPluginOpacity('physarum-primary', 1.0);
+                simCompositor.setPluginOpacity('molecule-primary', 0.22);
+                simCompositor.setPluginColor('life-primary', [106, 248, 162]);
+                simCompositor.setPluginColor('kuramoto-primary', [128, 255, 206]);
+                simCompositor.setPluginColor('gray-scott-primary', [178, 255, 212]);
+                simCompositor.setPluginColor('gray-scott-alt', [150, 232, 255]);
+                simCompositor.setPluginColor('physarum-primary', [234, 255, 242]);
+                simCompositor.setPluginColor('molecule-primary', [206, 255, 224]);
+                innerTriangleActive = false;
+                hueOffsetSpeed = 0.46;
+                Y_ROTATION_SPEED = 0.0011;
+                X_ROTATION_SPEED = 0.0005;
+                saturation = 98;
+                brightness = 60;
+                simulationShellBaseOpacity = 0.44;
+                effectActivationFactor = 0.74;
+                simulationBackdropBaseOpacity = 0.34;
+            } else if (normalizedProfile === 'molecule') {
                 activeEffectProfile = 'molecule';
                 simCompositor.setPluginOpacity('life-primary', 0.20);
                 simCompositor.setPluginOpacity('kuramoto-primary', 0.35);
+                simCompositor.setPluginOpacity('gray-scott-primary', 0.18);
+                simCompositor.setPluginOpacity('gray-scott-alt', 0.14);
+                simCompositor.setPluginOpacity('physarum-primary', 0.22);
                 simCompositor.setPluginOpacity('molecule-primary', 1.0);
                 simCompositor.setPluginColor('life-primary', [120, 235, 150]);
                 simCompositor.setPluginColor('kuramoto-primary', [135, 245, 178]);
+                simCompositor.setPluginColor('gray-scott-primary', [200, 248, 216]);
+                simCompositor.setPluginColor('gray-scott-alt', [168, 232, 250]);
+                simCompositor.setPluginColor('physarum-primary', [188, 252, 210]);
                 simCompositor.setPluginColor('molecule-primary', [245, 255, 246]);
                 innerTriangleActive = true;
                 hueOffsetSpeed = 0.12;
@@ -997,13 +1285,20 @@ button:hover {
                 brightness = 58;
                 simulationShellBaseOpacity = 0.45;
                 effectActivationFactor = 0.52;
-            } else if (profileName === 'stacked') {
+                simulationBackdropBaseOpacity = 0.22;
+            } else if (normalizedProfile === 'stacked') {
                 activeEffectProfile = 'stacked';
                 simCompositor.setPluginOpacity('life-primary', 0.75);
                 simCompositor.setPluginOpacity('kuramoto-primary', 0.75);
+                simCompositor.setPluginOpacity('gray-scott-primary', 0.75);
+                simCompositor.setPluginOpacity('gray-scott-alt', 0.72);
+                simCompositor.setPluginOpacity('physarum-primary', 0.75);
                 simCompositor.setPluginOpacity('molecule-primary', 0.75);
                 simCompositor.setPluginColor('life-primary', [120, 250, 158]);
                 simCompositor.setPluginColor('kuramoto-primary', [108, 245, 184]);
+                simCompositor.setPluginColor('gray-scott-primary', [206, 255, 222]);
+                simCompositor.setPluginColor('gray-scott-alt', [172, 240, 255]);
+                simCompositor.setPluginColor('physarum-primary', [198, 255, 220]);
                 simCompositor.setPluginColor('molecule-primary', [245, 255, 248]);
                 innerTriangleActive = true;
                 hueOffsetSpeed = 0.35;
@@ -1013,6 +1308,7 @@ button:hover {
                 brightness = 55;
                 simulationShellBaseOpacity = 0.55;
                 effectActivationFactor = 0.66;
+                simulationBackdropBaseOpacity = 0.32;
             }
             updateSimulationStage();
             updateEffectOverlay();
@@ -1023,19 +1319,57 @@ button:hover {
                 .split(',')
                 .map(value => value.trim())
                 .filter(Boolean);
-            const seen = new Set();
             const plan = [];
             for (const phase of raw) {
-                if (seen.has(phase)) {
-                    continue;
-                }
-                seen.add(phase);
+                const normalizedName = normalizeEffectProfileName(phase);
                 plan.push({
-                    name: phase,
+                    name: normalizedName,
                     durationSec: Math.max(1, defaultDurationSec)
                 });
             }
             return plan;
+        }
+
+        function enforceClassicBetweenEffects(plan = []) {
+            if (!Array.isArray(plan) || plan.length === 0) {
+                return [];
+            }
+            let classicDurationSec = 16;
+            for (const entry of plan) {
+                if (String(entry.name || '').trim().toLowerCase() === 'classic') {
+                    classicDurationSec = Math.max(1, Number(entry.durationSec) || classicDurationSec);
+                    break;
+                }
+            }
+            const expanded = [];
+            for (let i = 0; i < plan.length; i++) {
+                const current = plan[i];
+                const next = plan[i + 1];
+                const currentName = String(current.name || '').trim();
+                if (!currentName) {
+                    continue;
+                }
+                expanded.push({
+                    name: currentName,
+                    durationSec: Math.max(1, Number(current.durationSec) || 16)
+                });
+                if (!next) {
+                    continue;
+                }
+                const nextName = String(next.name || '').trim();
+                if (!nextName) {
+                    continue;
+                }
+                const currentIsClassic = currentName.toLowerCase() === 'classic';
+                const nextIsClassic = nextName.toLowerCase() === 'classic';
+                if (!currentIsClassic && !nextIsClassic) {
+                    expanded.push({
+                        name: 'classic',
+                        durationSec: classicDurationSec
+                    });
+                }
+            }
+            return expanded;
         }
 
         function setEffectTimelineConfig(config = {}, restart = true) {
@@ -1056,13 +1390,14 @@ button:hover {
                     const durationSec = Number.isFinite(phaseEntry.durationSec)
                         ? Math.max(1, phaseEntry.durationSec)
                         : 16;
+                    const normalizedName = normalizeEffectProfileName(phaseEntry.name);
                     nextPlan.push({
-                        name: String(phaseEntry.name),
+                        name: normalizedName,
                         durationSec
                     });
                 }
                 if (nextPlan.length > 0) {
-                    effectTimelinePlan = nextPlan;
+                    effectTimelinePlan = enforceClassicBetweenEffects(nextPlan);
                 }
             } else if (typeof config.phaseList === 'string') {
                 const defaultDurationSec = Number.isFinite(config.phaseDurationSec)
@@ -1070,7 +1405,7 @@ button:hover {
                     : 16;
                 const parsed = parsePhaseList(config.phaseList, defaultDurationSec);
                 if (parsed.length > 0) {
-                    effectTimelinePlan = parsed;
+                    effectTimelinePlan = enforceClassicBetweenEffects(parsed);
                 }
             }
 
@@ -1109,14 +1444,23 @@ button:hover {
 
             const elapsedSec = (performance.now() - effectTimelineStartMs) / 1000;
             let cycleSec = 0;
+            const validPlan = [];
             for (const entry of effectTimelinePlan) {
-                cycleSec += Math.max(1, entry.durationSec);
+                const name = normalizeEffectProfileName(entry && entry.name);
+                const durationSec = Number.isFinite(entry && entry.durationSec)
+                    ? Math.max(1, entry.durationSec)
+                    : 1;
+                validPlan.push({ name, durationSec });
+                cycleSec += durationSec;
+            }
+            if (cycleSec <= 0 || validPlan.length === 0) {
+                return;
             }
             const t = elapsedSec % cycleSec;
             let cursor = 0;
-            let phase = effectTimelinePlan[0].name;
-            for (const entry of effectTimelinePlan) {
-                const d = Math.max(1, entry.durationSec);
+            let phase = validPlan[0].name;
+            for (const entry of validPlan) {
+                const d = entry.durationSec;
                 if (t >= cursor && t < cursor + d) {
                     phase = entry.name;
                     break;
@@ -1142,7 +1486,7 @@ button:hover {
                 const phaseDurationSec = Math.max(1, parseInt(secInput.value || '16', 10));
                 setEffectTimelineConfig({
                     enabled: !!(enabledInput && enabledInput.checked),
-                    phaseList: phasesInput ? phasesInput.value : 'life,kuramoto,molecule,stacked',
+                    phaseList: phasesInput ? phasesInput.value : 'classic,life,classic,kuramoto,classic,gray-scott,classic,physarum,classic,molecule,classic,stacked',
                     phaseDurationSec
                 }, true);
             });
@@ -1332,9 +1676,16 @@ button:hover {
                 if (simCompositor) {
                     simCompositor.update(dt, audioFrame);
                 }
+                if (simulationBackdropMaterial) {
+                    simulationBackdropMaterial.opacity = Math.min(
+                        0.75,
+                        Math.max(0.03, (simulationBackdropBaseOpacity + (audioFrame.energy * 0.18)) * backdropOpacityMultiplier)
+                    );
+                }
                 updateMoleculeOverlay(audioFrame);
                 if (simulationShell) {
-                    simulationShell.material.opacity = Math.min(0.95, simulationShellBaseOpacity + (audioFrame.energy * 0.85));
+                    // Keep this as a subtle background sphere carrying simulation texture.
+                    simulationShell.material.opacity = Math.min(0.28, (simulationShellBaseOpacity * 0.22) + (audioFrame.energy * 0.12));
                     simulationShell.rotation.y += 0.0015 + (audioFrame.mid * 0.01);
                     simulationShell.rotation.x += 0.0008 + (audioFrame.high * 0.004);
                 }
@@ -1452,7 +1803,8 @@ button:hover {
                     volumeDisplay.style.color = '#00ff00'; // green
                     const laneKey = getLaneKeyForBandIndex(i);
                     const currentLaneLastPoints = laneLastPoints[laneKey];
-                    if (currentLaneLastPoints.length >= 3) {
+                    const canSpawnPolygon = (nowMs - (lastLanePolygonSpawnMs[laneKey] || 0)) >= POLYGON_SPAWN_INTERVAL_MS;
+                    if (currentLaneLastPoints.length >= 3 && canSpawnPolygon) {
 
 
                         var geometry = createTriangleGeometry(currentLaneLastPoints[0], currentLaneLastPoints[1], currentLaneLastPoints[2]);
@@ -1490,8 +1842,10 @@ button:hover {
                             ]);
                             const lineMaterial = new THREE.LineBasicMaterial({
                                 color: color,
-                                opacity: 0.95,
-                                transparent: true
+                                opacity: 1.0,
+                                transparent: true,
+                                depthTest: false,
+                                blending: THREE.AdditiveBlending
                             });
                             createdGeometry = lineGeometry;
                             createdObject = new THREE.Line(lineGeometry, lineMaterial);
@@ -1532,6 +1886,7 @@ button:hover {
 
                         if (createdObject) {
                             scene.add(createdObject);
+                            lastLanePolygonSpawnMs[laneKey] = nowMs;
                         }
                         if (innerTriangleActive && activeEffectProfile === 'classic' && createdObject)
                         {
@@ -1560,6 +1915,8 @@ button:hover {
 
                         }
 
+                    }
+                    if (currentLaneLastPoints.length >= 3) {
                         currentLaneLastPoints.shift();
                     }
 
@@ -1574,9 +1931,17 @@ button:hover {
             for (let i = geometries.length - 1; i >= 0; i--) {
                 geometries[i].age++;
                 if (geometries[i].age > 20) {
-                    geometries[i].geometry.material.opacity -= 0.01;
+                    const material = geometries[i].geometry.material;
+                    const isLineLike = geometries[i].geometry instanceof THREE.Line || geometries[i].geometry instanceof THREE.LineSegments;
+                    material.opacity -= isLineLike ? 0.006 : 0.005;
                     if (geometries[i].geometry.material.opacity <= 0) {
                         scene.remove(geometries[i].geometry);
+                        if (geometries[i].geometry.geometry && typeof geometries[i].geometry.geometry.dispose === 'function') {
+                            geometries[i].geometry.geometry.dispose();
+                        }
+                        if (geometries[i].geometry.material && typeof geometries[i].geometry.material.dispose === 'function') {
+                            geometries[i].geometry.material.dispose();
+                        }
                         geometries.splice(i, 1);
                     }
                 }
@@ -1599,7 +1964,22 @@ button:hover {
             scene.rotation.x += X_ROTATION_SPEED; 
             scene.rotation.y += Y_ROTATION_SPEED;
             updateLaneShellOpacity();
+            if (simCompositor && simCompositor.texture) {
+                const now = performance.now();
+                const dt = Math.min(0.08, Math.max(0.001, (now - lastBackdropTickMs) / 1000));
+                lastBackdropTickMs = now;
+                const drift = backdropScrollSpeed * dt;
+                if (drift > 0) {
+                    simCompositor.texture.offset.x = (simCompositor.texture.offset.x + drift) % 1;
+                    simCompositor.texture.offset.y = (simCompositor.texture.offset.y + (drift * 0.55)) % 1;
+                    simCompositor.texture.needsUpdate = true;
+                }
+            }
 
+            renderer.clear();
+            if (simulationBackdropScene && simulationBackdropCamera && simulationBackdropMaterial && simulationBackdropMaterial.opacity > 0.001) {
+                renderer.render(simulationBackdropScene, simulationBackdropCamera);
+            }
             renderer.render(scene, camera);
             updateEffectOverlay();
         }

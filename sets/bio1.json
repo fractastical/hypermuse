@@ -4,7 +4,7 @@
   "sourceDirectories": [
     "loops/bio1"
   ],
-  "generatedAt": "2026-04-17T17:44:34.120Z",
+  "generatedAt": "2026-04-18T17:50:05.353Z",
   "count": 20,
   "playbackMode": "pingpong",
   "moleculeGraph": {
@@ -18,28 +18,59 @@
     "renderMode": "coherent",
     "cycleOnPhaseChange": true
   },
+  "simulationPresets": {
+    "grayScott": "nexus"
+  },
   "effectTimeline": {
     "enabled": true,
     "phases": [
       {
         "name": "classic",
-        "durationSec": 8
+        "durationSec": 16
       },
       {
         "name": "life",
-        "durationSec": 8
+        "durationSec": 16
+      },
+      {
+        "name": "classic",
+        "durationSec": 16
       },
       {
         "name": "kuramoto",
-        "durationSec": 8
+        "durationSec": 16
+      },
+      {
+        "name": "classic",
+        "durationSec": 16
+      },
+      {
+        "name": "gray-scott",
+        "durationSec": 16
+      },
+      {
+        "name": "classic",
+        "durationSec": 16
+      },
+      {
+        "name": "physarum",
+        "durationSec": 16
+      },
+      {
+        "name": "classic",
+        "durationSec": 16
       },
       {
         "name": "molecule",
-        "durationSec": 8
+        "durationSec": 16
+      },
+      {
+        "name": "classic",
+        "durationSec": 16
       },
       {
         "name": "stacked",
-        "durationSec": 8
+        "durationSec": 16
       }
     ]
   },

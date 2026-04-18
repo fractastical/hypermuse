@@ -12,6 +12,8 @@ const DEFAULT_MOLECULE_RENDER_MODE = process.env.VJ_MOLECULE_RENDER_MODE || "coh
 const DEFAULT_PLAYBACK_MODE = process.env.VJ_PLAYBACK_MODE || "pingpong";
 const DEFAULT_MAX_LOOPS = Number.parseInt(process.env.VJ_MAX_LOOPS || "20", 10);
 const DEFAULT_INCLUDE_REGEX = process.env.VJ_INCLUDE_REGEX || "";
+const DEFAULT_GRAY_SCOTT_PRESET = process.env.VJ_GRAY_SCOTT_PRESET || "nexus";
+const DEFAULT_EFFECT_PHASE_SPEC = process.env.VJ_EFFECT_PHASES || "classic:16,life:16,classic:16,kuramoto:16,classic:16,gray-scott:16,classic:16,physarum:16,classic:16,molecule:16,classic:16,stacked:16";
 const DEFAULT_MOLECULE_NAMES = (process.env.VJ_MOLECULE_NAMES || "caffeine,serotonin,dopamine,glucose")
   .split(",")
   .map((value) => value.trim())
@@ -93,6 +95,40 @@ function filterVideosByPattern(videos) {
   return videos.filter((videoPath) => includeRegex.test(path.basename(videoPath)));
 }
 
+function parseEffectPhases(spec) {
+  const raw = String(spec || "")
+    .split(",")
+    .map((item) => item.trim())
+    .filter(Boolean);
+  const phases = [];
+  for (const token of raw) {
+    const [nameRaw, durationRaw] = token.split(":");
+    const name = String(nameRaw || "").trim().toLowerCase();
+    if (!name) {
+      continue;
+    }
+    const durationSec = Math.max(1, Number.parseInt(String(durationRaw || "16").trim(), 10) || 16);
+    phases.push({ name, durationSec });
+  }
+  if (phases.length > 0) {
+    return phases;
+  }
+  return [
+    { name: "classic", durationSec: 16 },
+    { name: "life", durationSec: 16 },
+    { name: "classic", durationSec: 16 },
+    { name: "kuramoto", durationSec: 16 },
+    { name: "classic", durationSec: 16 },
+    { name: "gray-scott", durationSec: 16 },
+    { name: "classic", durationSec: 16 },
+    { name: "physarum", durationSec: 16 },
+    { name: "classic", durationSec: 16 },
+    { name: "molecule", durationSec: 16 },
+    { name: "classic", durationSec: 16 },
+    { name: "stacked", durationSec: 16 }
+  ];
+}
+
 function main() {
   const inputDirs = parseInputDirs(INPUT_DIR_ARG);
   if (inputDirs.length === 0) {
@@ -133,15 +169,12 @@ function main() {
       renderMode: DEFAULT_MOLECULE_RENDER_MODE,
       cycleOnPhaseChange: true
     },
+    simulationPresets: {
+      grayScott: DEFAULT_GRAY_SCOTT_PRESET
+    },
     effectTimeline: {
       enabled: true,
-      phases: [
-        { name: "classic", durationSec: 8 },
-        { name: "life", durationSec: 8 },
-        { name: "kuramoto", durationSec: 8 },
-        { name: "molecule", durationSec: 8 },
-        { name: "stacked", durationSec: 8 }
-      ]
+      phases: parseEffectPhases(DEFAULT_EFFECT_PHASE_SPEC)
     },
     defaultTransition: {
       type: DEFAULT_TRANSITION_TYPE,
