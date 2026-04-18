@@ -18,6 +18,29 @@
       this.feedBase = 0.034;
       this.killBase = 0.062;
       this.vThreshold = 0.24;
+      this.presetName = "nexus";
+    }
+
+    applyPreset(name) {
+      const preset = HypermuseGrayScottSimulationPlugin.PRESETS[String(name || "").trim().toLowerCase()];
+      if (!preset) {
+        return false;
+      }
+      this.presetName = String(name || "").trim().toLowerCase();
+      this.diffusionU = preset.diffusionU;
+      this.diffusionV = preset.diffusionV;
+      this.feedBase = preset.feedBase;
+      this.killBase = preset.killBase;
+      this.vThreshold = preset.vThreshold;
+      return true;
+    }
+
+    configure(params = {}) {
+      if (Number.isFinite(params.diffusionU)) this.diffusionU = params.diffusionU;
+      if (Number.isFinite(params.diffusionV)) this.diffusionV = params.diffusionV;
+      if (Number.isFinite(params.feedBase)) this.feedBase = params.feedBase;
+      if (Number.isFinite(params.killBase)) this.killBase = params.killBase;
+      if (Number.isFinite(params.vThreshold)) this.vThreshold = params.vThreshold;
     }
 
     init(width, height) {
@@ -171,6 +194,13 @@
       this.state = null;
     }
   }
+
+  HypermuseGrayScottSimulationPlugin.PRESETS = {
+    nexus: { diffusionU: 0.16, diffusionV: 0.08, feedBase: 0.034, killBase: 0.062, vThreshold: 0.24 },
+    coral: { diffusionU: 0.162, diffusionV: 0.082, feedBase: 0.03, killBase: 0.058, vThreshold: 0.22 },
+    mitosis: { diffusionU: 0.157, diffusionV: 0.079, feedBase: 0.038, killBase: 0.066, vThreshold: 0.25 },
+    veins: { diffusionU: 0.148, diffusionV: 0.074, feedBase: 0.026, killBase: 0.054, vThreshold: 0.2 }
+  };
 
   window.HypermuseGrayScottSimulationPlugin = HypermuseGrayScottSimulationPlugin;
 })();
