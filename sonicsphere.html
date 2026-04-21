@@ -103,6 +103,7 @@ button:hover {
     <script src="js/cdn.jsdelivr.net_npm_tone.js"></script>
     <script src="js/layers/audio_engine.js"></script>
     <script src="js/layers/sim_compositor.js"></script>
+    <script src="infinitestreams/p5_background_engine.js"></script>
     <script src="js/simulations/life_sim.js"></script>
     <script src="js/simulations/kuramoto_sim.js"></script>
     <script src="js/simulations/gray_scott_sim.js"></script>
@@ -130,8 +131,8 @@ button:hover {
             <button id="loadVideoSetButton">Load Set</button>
           </div>
           <div class="file-input-group">
-            <label for="effectTimelinePhases">Effect phases:</label>
-            <input type="text" id="effectTimelinePhases" value="classic,life,classic,kuramoto,classic,gray-scott,classic,physarum,classic,molecule,classic,stacked" />
+            <label for="effectTimelinePhases">Effect phases (override):</label>
+            <input type="text" id="effectTimelinePhases" value="" placeholder="setlist-driven by default; optional override" />
             <label for="effectTimelinePhaseSec">sec/phase:</label>
             <input type="text" id="effectTimelinePhaseSec" value="16" />
             <label>
@@ -154,6 +155,38 @@ button:hover {
           <div class="file-input-group">
             <label for="backdropOpacityInput">Backdrop opacity:</label>
             <input type="range" id="backdropOpacityInput" min="0" max="1.4" step="0.01" value="1" />
+            <label for="backdropScriptSelect">bg script:</label>
+            <select id="backdropScriptSelect">
+              <option value="infinitestreams/src/sketches/yuruyurau/dots">yuruyurau/dots</option>
+              <option value="infinitestreams/src/sketches/yuruyurau/waves">yuruyurau/waves</option>
+              <option value="infinitestreams/src/sketches/yuruyurau/magnets">yuruyurau/magnets</option>
+              <option value="infinitestreams/src/sketches/yuruyurau/orbits">yuruyurau/orbits</option>
+              <option value="infinitestreams/src/sketches/yuruyurau/shear">yuruyurau/shear</option>
+              <option value="infinitestreams/src/sketches/yuruyurau/pulse">yuruyurau/pulse</option>
+              <option value="infinitestreams/src/sketches/yuruyurau/flow1" selected>yuruyurau/flow1</option>
+              <option value="infinitestreams/src/sketches/yuruyurau/flow2">yuruyurau/flow2</option>
+              <option value="infinitestreams/src/sketches/snow/lines">snow/lines</option>
+              <option value="infinitestreams/src/sketches/snow/grid">snow/grid</option>
+              <option value="infinitestreams/src/sketches/snow/spiral">snow/spiral</option>
+              <option value="infinitestreams/src/sketches/snow/spiralLines">snow/spiralLines</option>
+              <option value="infinitestreams/src/sketches/snow/rotatingPattern">snow/rotatingPattern</option>
+              <option value="infinitestreams/src/sketches/snow/rotatingBlobs">snow/rotatingBlobs</option>
+              <option value="infinitestreams/src/sketches/snow/rotatingRects">snow/rotatingRects</option>
+              <option value="infinitestreams/src/sketches/snow/rotatingSquares">snow/rotatingSquares</option>
+              <option value="infinitestreams/src/sketches/snow/rotatingStars">snow/rotatingStars</option>
+              <option value="infinitestreams/src/sketches/snow/noiseColumns">snow/noiseColumns</option>
+              <option value="infinitestreams/src/sketches/snow/noiseBlobs">snow/noiseBlobs</option>
+              <option value="infinitestreams/src/sketches/snow/noiseCircles">snow/noiseCircles</option>
+              <option value="infinitestreams/src/sketches/snow/noiseCircles4">snow/noiseCircles4</option>
+              <option value="infinitestreams/src/sketches/snow/noiseCircles5">snow/noiseCircles5</option>
+              <option value="infinitestreams/src/sketches/snow/pieArcs">snow/pieArcs</option>
+              <option value="infinitestreams/src/sketches/snow/pieArcs3">snow/pieArcs3</option>
+              <option value="infinitestreams/src/sketches/snow/circles">snow/circles</option>
+              <option value="infinitestreams/src/sketches/snow/colorLines">snow/colorLines</option>
+              <option value="infinitestreams/src/sketches/snow/morphingShapes">snow/morphingShapes</option>
+              <option value="infinitestreams/src/sketches/snow/musicalExplosions">snow/musicalExplosions</option>
+              <option value="infinitestreams/src/sketches/snow/waveEllipses">snow/waveEllipses</option>
+            </select>
             <label for="backdropBlendMode">blend:</label>
             <select id="backdropBlendMode">
               <option value="additive" selected>additive</option>
@@ -162,6 +195,18 @@ button:hover {
             </select>
             <label for="backdropScrollSpeed">scroll:</label>
             <input type="range" id="backdropScrollSpeed" min="0" max="0.08" step="0.001" value="0.012" />
+            <label>
+              <input type="checkbox" id="backdropTileEnabled" checked />
+              tile p5
+            </label>
+            <label for="backdropTileCount">tiles:</label>
+            <input type="range" id="backdropTileCount" min="1" max="5" step="0.1" value="2.6" />
+            <label>
+              <input type="checkbox" id="fullScreenVideoBgToggle" />
+              full-screen VJ bg
+            </label>
+            <label for="fullScreenVideoBgOpacity">video opacity:</label>
+            <input type="range" id="fullScreenVideoBgOpacity" min="0" max="1" step="0.01" value="0.9" />
           </div>
           <div class="file-input-group">
             <button id="startExportButton">Start Export</button>
@@ -216,9 +261,55 @@ button:hover {
         let simulationBackdropQuad;
         let simulationBackdropMaterial;
         let simulationBackdropBaseOpacity = 0.18;
+        let videoBackdropScene;
+        let videoBackdropCamera;
+        let videoBackdropQuad;
+        let videoBackdropMaterial;
+        let videoBackdropTexture;
+        let fullScreenVideoBgEnabled = false;
+        let fullScreenVideoBgOpacity = 0.9;
+        let backgroundEngine;
+        let backgroundBackdropQuad;
+        let backgroundBackdropMaterial;
+        let backgroundScriptId = 'infinitestreams/src/sketches/yuruyurau/flow1';
+        let backgroundScriptSequence = [
+            'infinitestreams/src/sketches/yuruyurau/dots',
+            'infinitestreams/src/sketches/yuruyurau/waves',
+            'infinitestreams/src/sketches/yuruyurau/magnets',
+            'infinitestreams/src/sketches/yuruyurau/orbits',
+            'infinitestreams/src/sketches/yuruyurau/shear',
+            'infinitestreams/src/sketches/yuruyurau/pulse',
+            'infinitestreams/src/sketches/yuruyurau/flow1',
+            'infinitestreams/src/sketches/yuruyurau/flow2',
+            'infinitestreams/src/sketches/snow/lines',
+            'infinitestreams/src/sketches/snow/grid',
+            'infinitestreams/src/sketches/snow/spiral',
+            'infinitestreams/src/sketches/snow/spiralLines',
+            'infinitestreams/src/sketches/snow/rotatingPattern',
+            'infinitestreams/src/sketches/snow/rotatingBlobs',
+            'infinitestreams/src/sketches/snow/rotatingRects',
+            'infinitestreams/src/sketches/snow/rotatingSquares',
+            'infinitestreams/src/sketches/snow/rotatingStars',
+            'infinitestreams/src/sketches/snow/noiseColumns',
+            'infinitestreams/src/sketches/snow/noiseBlobs',
+            'infinitestreams/src/sketches/snow/noiseCircles',
+            'infinitestreams/src/sketches/snow/noiseCircles4',
+            'infinitestreams/src/sketches/snow/noiseCircles5',
+            'infinitestreams/src/sketches/snow/pieArcs',
+            'infinitestreams/src/sketches/snow/pieArcs3',
+            'infinitestreams/src/sketches/snow/circles',
+            'infinitestreams/src/sketches/snow/colorLines',
+            'infinitestreams/src/sketches/snow/morphingShapes',
+            'infinitestreams/src/sketches/snow/musicalExplosions',
+            'infinitestreams/src/sketches/snow/waveEllipses'
+        ];
+        let backgroundScriptSequenceIndex = 0;
+        let backgroundCycleOnPhaseChange = true;
         let backdropOpacityMultiplier = 1.0;
         let backdropBlendMode = 'additive';
         let backdropScrollSpeed = 0.012;
+        let backdropTileEnabled = true;
+        let backdropTileCount = 2.6;
         let lastBackdropTickMs = performance.now();
         let lifeSideSphere;
         let kuramotoSideSphere;
@@ -272,8 +363,8 @@ button:hover {
         let captureInterval = null;
         let animationStarted = false;
         let visualWarmupUntilMs = 0;
-        const CAPTURE_INTERVAL_MS = 416.666666667 / 10;
-        const POLYGON_SPAWN_INTERVAL_MS = 140;
+        const CAPTURE_INTERVAL_MS = 16.667;
+        const POLYGON_SPAWN_INTERVAL_MS = 70;
         const lastLanePolygonSpawnMs = { high: 0, mid: 0, low: 0 };
 
         const scene = new THREE.Scene();
@@ -309,6 +400,7 @@ button:hover {
                 scene.position.set(0, 0, 0);
             }
             camera.updateProjectionMatrix();
+            updateVideoBackdropFit();
         }
 
         function enableDemoModeLayout() {
@@ -819,6 +911,10 @@ button:hover {
             if (activeEffectProfile === 'gray-scott') {
                 details += ` | GS Preset: ${String(grayScottPresetName || 'nexus').toUpperCase()}`;
             }
+            details += ` | BG: ${String(backgroundScriptId || 'none').toUpperCase()}`;
+            if (fullScreenVideoBgEnabled) {
+                details += ` | VJ VIDEO BG`;
+            }
             if ((activeEffectProfile === 'molecule' || activeEffectProfile === 'stacked') && moleculeSimulationPlugin && moleculeSimulationPlugin.getSummary) {
                 const summary = moleculeSimulationPlugin.getSummary();
                 if (summary && summary.label) {
@@ -832,6 +928,10 @@ button:hover {
         function initSimulationLayers() {
             layeredAudioEngine = new HypermuseAudioEngine({ numBands: numBands });
             simCompositor = new HypermuseSimulationCompositor({ width: 128, height: 128 });
+            // Use 500x500 logical canvas for closer parity with original infinitestreams formulas.
+            // Then tile that texture to fill the screen.
+            backgroundEngine = new HypermuseP5BackgroundEngine({ width: 500, height: 500, pointScale: 0.28 });
+            backgroundEngine.setScript(backgroundScriptId);
             const lifePlugin = new HypermuseLifeSimulationPlugin("life-primary");
             simCompositor.registerPlugin(lifePlugin, {
                 opacity: 0.85,
@@ -939,9 +1039,69 @@ button:hover {
                 depthWrite: false
             });
             const quadGeometry = new THREE.PlaneGeometry(2, 2);
+            backgroundBackdropMaterial = new THREE.MeshBasicMaterial({
+                map: backgroundEngine ? backgroundEngine.texture : null,
+                transparent: true,
+                opacity: 0.18,
+                blending: THREE.NormalBlending,
+                depthTest: false,
+                depthWrite: false
+            });
+            backgroundBackdropQuad = new THREE.Mesh(quadGeometry, backgroundBackdropMaterial);
+            backgroundBackdropQuad.position.z = -0.01;
+            simulationBackdropScene.add(backgroundBackdropQuad);
             simulationBackdropQuad = new THREE.Mesh(quadGeometry, simulationBackdropMaterial);
+            simulationBackdropQuad.position.z = 0.02;
             simulationBackdropScene.add(simulationBackdropQuad);
             applyBackdropStyle();
+        }
+
+        function initVideoBackdropLayer() {
+            const sourceVideo = document.getElementById('videoElement');
+            if (!sourceVideo) {
+                return;
+            }
+            videoBackdropScene = new THREE.Scene();
+            videoBackdropCamera = new THREE.OrthographicCamera(-1, 1, 1, -1, 0, 1);
+            videoBackdropTexture = new THREE.VideoTexture(sourceVideo);
+            videoBackdropTexture.minFilter = THREE.LinearFilter;
+            videoBackdropTexture.magFilter = THREE.LinearFilter;
+            videoBackdropTexture.format = THREE.RGBAFormat;
+            videoBackdropMaterial = new THREE.MeshBasicMaterial({
+                map: videoBackdropTexture,
+                transparent: true,
+                opacity: fullScreenVideoBgOpacity,
+                blending: THREE.NormalBlending,
+                depthTest: false,
+                depthWrite: false
+            });
+            const quadGeometry = new THREE.PlaneGeometry(2, 2);
+            videoBackdropQuad = new THREE.Mesh(quadGeometry, videoBackdropMaterial);
+            videoBackdropScene.add(videoBackdropQuad);
+            sourceVideo.addEventListener('loadedmetadata', updateVideoBackdropFit);
+            sourceVideo.addEventListener('resize', updateVideoBackdropFit);
+            updateVideoBackdropFit();
+        }
+
+        function updateVideoBackdropFit() {
+            if (!videoBackdropQuad) {
+                return;
+            }
+            const sourceVideo = document.getElementById('videoElement');
+            if (!sourceVideo) {
+                return;
+            }
+            const vw = Math.max(1, sourceVideo.videoWidth || sourceVideo.clientWidth || 1);
+            const vh = Math.max(1, sourceVideo.videoHeight || sourceVideo.clientHeight || 1);
+            const viewportWidth = demoMode ? window.innerWidth : Math.max(1, container.clientWidth || window.innerWidth || 1);
+            const viewportHeight = demoMode ? window.innerHeight : Math.max(1, container.clientHeight || window.innerHeight || 1);
+            const videoAspect = vw / vh;
+            const viewportAspect = viewportWidth / viewportHeight;
+            if (videoAspect > viewportAspect) {
+                videoBackdropQuad.scale.set(videoAspect / viewportAspect, 1, 1);
+            } else {
+                videoBackdropQuad.scale.set(1, viewportAspect / videoAspect, 1);
+            }
         }
 
         function getBackdropBlendConstant(mode) {
@@ -954,22 +1114,38 @@ button:hover {
             return THREE.AdditiveBlending;
         }
 
+        function applyBackdropTiling() {
+            const texture = backgroundEngine ? backgroundEngine.texture : null;
+            if (!texture) {
+                return;
+            }
+            texture.wrapS = THREE.RepeatWrapping;
+            texture.wrapT = THREE.RepeatWrapping;
+            const tile = backdropTileEnabled ? Math.max(1, Math.min(8, backdropTileCount)) : 1;
+            texture.repeat.set(tile, tile);
+            texture.needsUpdate = true;
+        }
+
         function applyBackdropStyle() {
-            if (!simulationBackdropMaterial) {
+            if (!simulationBackdropMaterial && !backgroundBackdropMaterial) {
                 return;
             }
             const mode = String(backdropBlendMode || 'additive').toLowerCase();
-            simulationBackdropMaterial.blending = getBackdropBlendConstant(mode);
-            if (mode === 'screen') {
-                simulationBackdropMaterial.blendSrc = THREE.OneFactor;
-                simulationBackdropMaterial.blendDst = THREE.OneMinusSrcColorFactor;
-                simulationBackdropMaterial.blendEquation = THREE.AddEquation;
-            } else {
-                simulationBackdropMaterial.blendSrc = null;
-                simulationBackdropMaterial.blendDst = null;
-                simulationBackdropMaterial.blendEquation = null;
+            const mats = [simulationBackdropMaterial, backgroundBackdropMaterial].filter(Boolean);
+            for (const material of mats) {
+                material.blending = getBackdropBlendConstant(mode);
+                if (mode === 'screen') {
+                    material.blendSrc = THREE.OneFactor;
+                    material.blendDst = THREE.OneMinusSrcColorFactor;
+                    material.blendEquation = THREE.AddEquation;
+                } else {
+                    material.blendSrc = THREE.SrcAlphaFactor;
+                    material.blendDst = THREE.OneMinusSrcAlphaFactor;
+                    material.blendEquation = THREE.AddEquation;
+                }
+                material.needsUpdate = true;
             }
-            simulationBackdropMaterial.needsUpdate = true;
+            applyBackdropTiling();
         }
 
         function setBackdropConfig(config = {}) {
@@ -983,9 +1159,99 @@ button:hover {
             if (Number.isFinite(config.scrollSpeed)) {
                 backdropScrollSpeed = Math.max(0, Math.min(0.2, config.scrollSpeed));
             }
+            if (typeof config.tileEnabled === 'boolean') {
+                backdropTileEnabled = config.tileEnabled;
+            }
+            if (Number.isFinite(config.tileCount)) {
+                backdropTileCount = Math.max(1, Math.min(8, config.tileCount));
+            }
+            if (Array.isArray(config.scripts)) {
+                const normalizedScripts = config.scripts
+                    .map((value) => String(value || '').trim())
+                    .filter(Boolean);
+                if (normalizedScripts.length > 0) {
+                    backgroundScriptSequence = normalizedScripts;
+                    const currentIdx = backgroundScriptSequence.indexOf(backgroundScriptId);
+                    backgroundScriptSequenceIndex = currentIdx >= 0 ? currentIdx : 0;
+                }
+            }
+            if (typeof config.cycleOnPhaseChange === 'boolean') {
+                backgroundCycleOnPhaseChange = config.cycleOnPhaseChange;
+            }
+            if (typeof config.script === 'string' && backgroundEngine) {
+                const scriptId = String(config.script).trim();
+                if (scriptId && backgroundEngine.setScript(scriptId)) {
+                    backgroundScriptId = scriptId;
+                    const seqIdx = backgroundScriptSequence.indexOf(backgroundScriptId);
+                    if (seqIdx >= 0) {
+                        backgroundScriptSequenceIndex = seqIdx;
+                    }
+                }
+            }
+            const backdropScriptSelect = document.getElementById('backdropScriptSelect');
+            if (backdropScriptSelect && backgroundScriptId) {
+                backdropScriptSelect.value = backgroundScriptId;
+            }
+            const tileEnabledInput = document.getElementById('backdropTileEnabled');
+            if (tileEnabledInput) {
+                tileEnabledInput.checked = backdropTileEnabled;
+            }
+            const tileCountInput = document.getElementById('backdropTileCount');
+            if (tileCountInput) {
+                tileCountInput.value = String(backdropTileCount);
+            }
             applyBackdropStyle();
+            updateEffectOverlay();
         }
         window.setBackdropConfig = setBackdropConfig;
+
+        function setVideoBackgroundConfig(config = {}) {
+            if (typeof config.enabled === 'boolean') {
+                fullScreenVideoBgEnabled = config.enabled;
+            }
+            if (Number.isFinite(config.opacity)) {
+                fullScreenVideoBgOpacity = Math.max(0, Math.min(1, config.opacity));
+            }
+            if (videoBackdropMaterial) {
+                videoBackdropMaterial.opacity = fullScreenVideoBgOpacity;
+                videoBackdropMaterial.needsUpdate = true;
+            }
+            const toggle = document.getElementById('fullScreenVideoBgToggle');
+            if (toggle) {
+                toggle.checked = fullScreenVideoBgEnabled;
+            }
+            const opacityInput = document.getElementById('fullScreenVideoBgOpacity');
+            if (opacityInput) {
+                opacityInput.value = String(fullScreenVideoBgOpacity);
+            }
+            updateEffectOverlay();
+        }
+        window.setVideoBackgroundConfig = setVideoBackgroundConfig;
+
+        function advanceBackgroundScriptSequence() {
+            if (!backgroundEngine || !Array.isArray(backgroundScriptSequence) || backgroundScriptSequence.length === 0) {
+                return;
+            }
+            backgroundScriptSequenceIndex = (backgroundScriptSequenceIndex + 1) % backgroundScriptSequence.length;
+            const nextScript = backgroundScriptSequence[backgroundScriptSequenceIndex];
+            if (nextScript && backgroundEngine.setScript(nextScript)) {
+                backgroundScriptId = nextScript;
+            }
+            const backdropScriptSelect = document.getElementById('backdropScriptSelect');
+            if (backdropScriptSelect) {
+                backdropScriptSelect.value = backgroundScriptId;
+            }
+            updateEffectOverlay();
+        }
+        window.setBackgroundScriptSequence = function(scripts = [], options = {}) {
+            setBackdropConfig({
+                scripts,
+                cycleOnPhaseChange: options.cycleOnPhaseChange
+            });
+            if (typeof options.startScript === 'string') {
+                setBackdropConfig({ script: options.startScript });
+            }
+        };
 
         function updateSimulationStage() {
             if (!simulationShell) {
@@ -1474,6 +1740,9 @@ button:hover {
                 if (moleculeCycleOnPhaseChange && moleculeSequence.length > 0) {
                     advanceMoleculeSequence().catch((error) => console.error(error));
                 }
+                if (backgroundCycleOnPhaseChange) {
+                    advanceBackgroundScriptSequence();
+                }
             }
         }
 
@@ -1484,9 +1753,10 @@ button:hover {
                 const secInput = document.getElementById('effectTimelinePhaseSec');
                 const enabledInput = document.getElementById('effectTimelineEnabled');
                 const phaseDurationSec = Math.max(1, parseInt(secInput.value || '16', 10));
+                const fallbackPhaseList = effectTimelinePlan.map(entry => entry.name).join(',');
                 setEffectTimelineConfig({
                     enabled: !!(enabledInput && enabledInput.checked),
-                    phaseList: phasesInput ? phasesInput.value : 'classic,life,classic,kuramoto,classic,gray-scott,classic,physarum,classic,molecule,classic,stacked',
+                    phaseList: phasesInput && phasesInput.value ? phasesInput.value : fallbackPhaseList,
                     phaseDurationSec
                 }, true);
             });
@@ -1612,6 +1882,7 @@ button:hover {
 
         initBands();
         initSimulationLayers();
+        initVideoBackdropLayer();
         updateSimulationStage();
         updateEffectTimelineControls();
         startAnimationLoop();
@@ -1634,6 +1905,66 @@ button:hover {
                 setMoleculeRenderMode(moleculeRenderModeSelect.value);
             });
         }
+        const backdropOpacityInput = document.getElementById('backdropOpacityInput');
+        if (backdropOpacityInput) {
+            backdropOpacityInput.addEventListener('input', function() {
+                setBackdropConfig({ opacity: parseFloat(backdropOpacityInput.value) });
+            });
+        }
+        const backdropScriptSelect = document.getElementById('backdropScriptSelect');
+        if (backdropScriptSelect) {
+            backdropScriptSelect.addEventListener('change', function() {
+                setBackdropConfig({ script: backdropScriptSelect.value });
+            });
+        }
+        const backdropBlendModeSelect = document.getElementById('backdropBlendMode');
+        if (backdropBlendModeSelect) {
+            backdropBlendModeSelect.addEventListener('change', function() {
+                setBackdropConfig({ blendMode: backdropBlendModeSelect.value });
+            });
+        }
+        const backdropScrollSpeedInput = document.getElementById('backdropScrollSpeed');
+        if (backdropScrollSpeedInput) {
+            backdropScrollSpeedInput.addEventListener('input', function() {
+                setBackdropConfig({ scrollSpeed: parseFloat(backdropScrollSpeedInput.value) });
+            });
+        }
+        const backdropTileEnabledInput = document.getElementById('backdropTileEnabled');
+        if (backdropTileEnabledInput) {
+            backdropTileEnabledInput.addEventListener('change', function() {
+                setBackdropConfig({ tileEnabled: !!backdropTileEnabledInput.checked });
+            });
+        }
+        const backdropTileCountInput = document.getElementById('backdropTileCount');
+        if (backdropTileCountInput) {
+            backdropTileCountInput.addEventListener('input', function() {
+                setBackdropConfig({ tileCount: parseFloat(backdropTileCountInput.value) });
+            });
+        }
+        const fullScreenVideoBgToggle = document.getElementById('fullScreenVideoBgToggle');
+        if (fullScreenVideoBgToggle) {
+            fullScreenVideoBgToggle.addEventListener('change', function() {
+                setVideoBackgroundConfig({ enabled: !!fullScreenVideoBgToggle.checked });
+            });
+        }
+        const fullScreenVideoBgOpacityInput = document.getElementById('fullScreenVideoBgOpacity');
+        if (fullScreenVideoBgOpacityInput) {
+            fullScreenVideoBgOpacityInput.addEventListener('input', function() {
+                setVideoBackgroundConfig({ opacity: parseFloat(fullScreenVideoBgOpacityInput.value) });
+            });
+        }
+        setBackdropConfig({
+            script: backdropScriptSelect ? backdropScriptSelect.value : backgroundScriptId,
+            blendMode: backdropBlendModeSelect ? backdropBlendModeSelect.value : backdropBlendMode,
+            opacity: backdropOpacityInput ? parseFloat(backdropOpacityInput.value) : backdropOpacityMultiplier,
+            scrollSpeed: backdropScrollSpeedInput ? parseFloat(backdropScrollSpeedInput.value) : backdropScrollSpeed,
+            tileEnabled: backdropTileEnabledInput ? !!backdropTileEnabledInput.checked : backdropTileEnabled,
+            tileCount: backdropTileCountInput ? parseFloat(backdropTileCountInput.value) : backdropTileCount
+        });
+        setVideoBackgroundConfig({
+            enabled: fullScreenVideoBgToggle ? !!fullScreenVideoBgToggle.checked : false,
+            opacity: fullScreenVideoBgOpacityInput ? parseFloat(fullScreenVideoBgOpacityInput.value) : fullScreenVideoBgOpacity
+        });
 
 
         const volumeSlider = document.getElementById('volumeSlider');
@@ -1676,11 +2007,19 @@ button:hover {
                 if (simCompositor) {
                     simCompositor.update(dt, audioFrame);
                 }
+                if (backgroundEngine) {
+                    backgroundEngine.update(dt, audioFrame);
+                }
                 if (simulationBackdropMaterial) {
                     simulationBackdropMaterial.opacity = Math.min(
                         0.75,
                         Math.max(0.03, (simulationBackdropBaseOpacity + (audioFrame.energy * 0.18)) * backdropOpacityMultiplier)
                     );
+                }
+                if (backgroundBackdropMaterial) {
+                    const faintBase = 0.09 + (audioFrame.low * 0.16);
+                    const faintScale = Math.max(0, Math.min(1.25, backdropOpacityMultiplier));
+                    backgroundBackdropMaterial.opacity = Math.min(0.42, faintBase * faintScale);
                 }
                 updateMoleculeOverlay(audioFrame);
                 if (simulationShell) {
@@ -1977,6 +2316,10 @@ button:hover {
             }
 
             renderer.clear();
+            if (fullScreenVideoBgEnabled && videoBackdropScene && videoBackdropCamera && videoBackdropMaterial && videoElementActive) {
+                videoBackdropMaterial.opacity = fullScreenVideoBgOpacity;
+                renderer.render(videoBackdropScene, videoBackdropCamera);
+            }
             if (simulationBackdropScene && simulationBackdropCamera && simulationBackdropMaterial && simulationBackdropMaterial.opacity > 0.001) {
                 renderer.render(simulationBackdropScene, simulationBackdropCamera);
             }

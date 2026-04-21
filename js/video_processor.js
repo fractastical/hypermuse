@@ -250,6 +250,28 @@ if (manifest && manifest.simulationPresets) {
         window.setGrayScottPreset(manifest.simulationPresets.grayScott);
     }
 }
+if (manifest && manifest.backgrounds && window.setBackdropConfig) {
+    window.setBackdropConfig({
+        script: manifest.backgrounds.script,
+        scripts: manifest.backgrounds.scripts,
+        opacity: manifest.backgrounds.opacity,
+        blendMode: manifest.backgrounds.blendMode,
+        scrollSpeed: manifest.backgrounds.scrollSpeed,
+        cycleOnPhaseChange: manifest.backgrounds.cycleOnPhaseChange
+    });
+    if (Array.isArray(manifest.backgrounds.scripts) && manifest.backgrounds.scripts.length > 0 && window.setBackgroundScriptSequence) {
+        window.setBackgroundScriptSequence(manifest.backgrounds.scripts, {
+            cycleOnPhaseChange: !!manifest.backgrounds.cycleOnPhaseChange,
+            startScript: manifest.backgrounds.script
+        });
+    }
+}
+if (manifest && manifest.videoBackground && window.setVideoBackgroundConfig) {
+    window.setVideoBackgroundConfig({
+        enabled: !!manifest.videoBackground.enabled,
+        opacity: manifest.videoBackground.opacity
+    });
+}
 return urls.length;
 }
 

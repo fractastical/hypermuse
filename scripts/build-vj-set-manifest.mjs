@@ -14,6 +14,16 @@ const DEFAULT_MAX_LOOPS = Number.parseInt(process.env.VJ_MAX_LOOPS || "20", 10);
 const DEFAULT_INCLUDE_REGEX = process.env.VJ_INCLUDE_REGEX || "";
 const DEFAULT_GRAY_SCOTT_PRESET = process.env.VJ_GRAY_SCOTT_PRESET || "nexus";
 const DEFAULT_EFFECT_PHASE_SPEC = process.env.VJ_EFFECT_PHASES || "classic:16,life:16,classic:16,kuramoto:16,classic:16,gray-scott:16,classic:16,physarum:16,classic:16,molecule:16,classic:16,stacked:16";
+const DEFAULT_BACKGROUND_SCRIPT = process.env.VJ_BACKGROUND_SCRIPT || "infinitestreams/src/sketches/yuruyurau/flow1";
+const DEFAULT_BACKGROUND_SCRIPTS = (process.env.VJ_BACKGROUND_SCRIPTS || "infinitestreams/src/sketches/yuruyurau/dots,infinitestreams/src/sketches/yuruyurau/waves,infinitestreams/src/sketches/yuruyurau/magnets,infinitestreams/src/sketches/yuruyurau/orbits,infinitestreams/src/sketches/yuruyurau/shear,infinitestreams/src/sketches/yuruyurau/pulse,infinitestreams/src/sketches/yuruyurau/flow1,infinitestreams/src/sketches/yuruyurau/flow2,infinitestreams/src/sketches/snow/lines,infinitestreams/src/sketches/snow/grid,infinitestreams/src/sketches/snow/spiral,infinitestreams/src/sketches/snow/spiralLines,infinitestreams/src/sketches/snow/rotatingPattern,infinitestreams/src/sketches/snow/rotatingBlobs,infinitestreams/src/sketches/snow/rotatingRects,infinitestreams/src/sketches/snow/rotatingSquares,infinitestreams/src/sketches/snow/rotatingStars,infinitestreams/src/sketches/snow/noiseColumns,infinitestreams/src/sketches/snow/noiseBlobs,infinitestreams/src/sketches/snow/noiseCircles,infinitestreams/src/sketches/snow/noiseCircles4,infinitestreams/src/sketches/snow/noiseCircles5,infinitestreams/src/sketches/snow/pieArcs,infinitestreams/src/sketches/snow/pieArcs3,infinitestreams/src/sketches/snow/circles,infinitestreams/src/sketches/snow/colorLines,infinitestreams/src/sketches/snow/morphingShapes,infinitestreams/src/sketches/snow/musicalExplosions,infinitestreams/src/sketches/snow/waveEllipses")
+  .split(",")
+  .map((value) => value.trim())
+  .filter(Boolean);
+const DEFAULT_BACKGROUND_BLEND = process.env.VJ_BACKGROUND_BLEND || "additive";
+const DEFAULT_BACKGROUND_OPACITY = Number.parseFloat(process.env.VJ_BACKGROUND_OPACITY || "1.0");
+const DEFAULT_BACKGROUND_SCROLL = Number.parseFloat(process.env.VJ_BACKGROUND_SCROLL || "0.012");
+const DEFAULT_VIDEO_BACKGROUND_ENABLED = ["1", "true", "yes", "on"].includes(String(process.env.VJ_VIDEO_BACKGROUND_ENABLED || "").toLowerCase());
+const DEFAULT_VIDEO_BACKGROUND_OPACITY = Number.parseFloat(process.env.VJ_VIDEO_BACKGROUND_OPACITY || "0.9");
 const DEFAULT_MOLECULE_NAMES = (process.env.VJ_MOLECULE_NAMES || "caffeine,serotonin,dopamine,glucose")
   .split(",")
   .map((value) => value.trim())
@@ -171,6 +181,18 @@ function main() {
     },
     simulationPresets: {
       grayScott: DEFAULT_GRAY_SCOTT_PRESET
+    },
+    backgrounds: {
+      script: DEFAULT_BACKGROUND_SCRIPT,
+      scripts: DEFAULT_BACKGROUND_SCRIPTS,
+      cycleOnPhaseChange: true,
+      blendMode: DEFAULT_BACKGROUND_BLEND,
+      opacity: Number.isFinite(DEFAULT_BACKGROUND_OPACITY) ? DEFAULT_BACKGROUND_OPACITY : 1.0,
+      scrollSpeed: Number.isFinite(DEFAULT_BACKGROUND_SCROLL) ? DEFAULT_BACKGROUND_SCROLL : 0.012
+    },
+    videoBackground: {
+      enabled: DEFAULT_VIDEO_BACKGROUND_ENABLED,
+      opacity: Number.isFinite(DEFAULT_VIDEO_BACKGROUND_OPACITY) ? DEFAULT_VIDEO_BACKGROUND_OPACITY : 0.9
     },
     effectTimeline: {
       enabled: true,

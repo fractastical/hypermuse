@@ -4,9 +4,9 @@
   "sourceDirectories": [
     "loops/bio1"
   ],
-  "generatedAt": "2026-04-18T17:50:05.353Z",
+  "generatedAt": "2026-04-20T17:01:20.991Z",
   "count": 20,
-  "playbackMode": "pingpong",
+  "playbackMode": "loop",
   "moleculeGraph": {
     "name": "caffeine",
     "names": [
@@ -20,6 +20,48 @@
   },
   "simulationPresets": {
     "grayScott": "nexus"
+  },
+  "backgrounds": {
+    "script": "infinitestreams/src/sketches/yuruyurau/flow1",
+    "scripts": [
+      "infinitestreams/src/sketches/yuruyurau/dots",
+      "infinitestreams/src/sketches/yuruyurau/waves",
+      "infinitestreams/src/sketches/yuruyurau/magnets",
+      "infinitestreams/src/sketches/yuruyurau/orbits",
+      "infinitestreams/src/sketches/yuruyurau/shear",
+      "infinitestreams/src/sketches/yuruyurau/pulse",
+      "infinitestreams/src/sketches/yuruyurau/flow1",
+      "infinitestreams/src/sketches/yuruyurau/flow2",
+      "infinitestreams/src/sketches/snow/lines",
+      "infinitestreams/src/sketches/snow/grid",
+      "infinitestreams/src/sketches/snow/spiral",
+      "infinitestreams/src/sketches/snow/spiralLines",
+      "infinitestreams/src/sketches/snow/rotatingPattern",
+      "infinitestreams/src/sketches/snow/rotatingBlobs",
+      "infinitestreams/src/sketches/snow/rotatingRects",
+      "infinitestreams/src/sketches/snow/rotatingSquares",
+      "infinitestreams/src/sketches/snow/rotatingStars",
+      "infinitestreams/src/sketches/snow/noiseColumns",
+      "infinitestreams/src/sketches/snow/noiseBlobs",
+      "infinitestreams/src/sketches/snow/noiseCircles",
+      "infinitestreams/src/sketches/snow/noiseCircles4",
+      "infinitestreams/src/sketches/snow/noiseCircles5",
+      "infinitestreams/src/sketches/snow/pieArcs",
+      "infinitestreams/src/sketches/snow/pieArcs3",
+      "infinitestreams/src/sketches/snow/circles",
+      "infinitestreams/src/sketches/snow/colorLines",
+      "infinitestreams/src/sketches/snow/morphingShapes",
+      "infinitestreams/src/sketches/snow/musicalExplosions",
+      "infinitestreams/src/sketches/snow/waveEllipses"
+    ],
+    "cycleOnPhaseChange": true,
+    "blendMode": "additive",
+    "opacity": 1,
+    "scrollSpeed": 0.012
+  },
+  "videoBackground": {
+    "enabled": false,
+    "opacity": 0.9
   },
   "effectTimeline": {
     "enabled": true,
