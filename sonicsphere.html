@@ -133,6 +133,19 @@ button:hover {
             <label for="videoSetPreset">Set preset:</label>
             <select id="videoSetPreset"></select>
             <button id="loadVideoSetPresetButton">Load Preset</button>
+            <label for="renderAspectPreset">Aspect:</label>
+            <select id="renderAspectPreset">
+              <option value="auto" selected>auto (window)</option>
+              <option value="16:9">16:9</option>
+              <option value="13:9">13:9</option>
+              <option value="1:1">1:1</option>
+              <option value="9:16">9:16</option>
+            </select>
+            <label for="videoBackdropFitMode">fit:</label>
+            <select id="videoBackdropFitMode">
+              <option value="cover" selected>cover (crop/fill)</option>
+              <option value="contain">contain (no crop)</option>
+            </select>
             <label>
               <input type="checkbox" id="basicVideoModeToggle" />
               basic mode (videos only)
@@ -317,6 +330,8 @@ button:hover {
         let videoBackdropMaterial;
         let videoBackdropTexture;
         let videoBackdropCrop = null;
+        let videoBackdropFitMode = 'cover';
+        let renderAspectPreset = 'auto';
         let fullScreenVideoBgEnabled = false;
         let fullScreenVideoBgOpacity = 0.9;
         let fibonacciMosaicEnabled = false;
@@ -542,6 +557,50 @@ button:hover {
         let demoMode = demoBootSearch.get('demo') === '1';
         /** Hide bottom debug ticker in demo (e.g. Playwright exports: ?demo=1&hideoverlay=1). */
         const hideDemoFxOverlay = demoBootSearch.get('hideoverlay') === '1';
+        const requestedAspectPreset = String(demoBootSearch.get('aspect') || 'auto').trim();
+        const requestedVideoFit = String(demoBootSearch.get('videofit') || '').trim();
+
+        function resolveAspectRatioPreset(preset) {
+            const normalized = String(preset || 'auto').trim().toLowerCase();
+            if (normalized === '16:9' || normalized === '16x9') return 16 / 9;
+            if (normalized === '13:9' || normalized === '13x9') return 13 / 9;
+            if (normalized === '1:1' || normalized === '1x1' || normalized === 'square') return 1;
+            if (normalized === '9:16' || normalized === '9x16') return 9 / 16;
+            return null;
+        }
+
+        function setRenderAspectPreset(preset = 'auto') {
+            const normalized = String(preset || 'auto').trim().toLowerCase();
+            if (normalized === '16x9') {
+                renderAspectPreset = '16:9';
+            } else if (normalized === '13x9') {
+                renderAspectPreset = '13:9';
+            } else if (normalized === '1x1' || normalized === 'square') {
+                renderAspectPreset = '1:1';
+            } else if (normalized === '9x16') {
+                renderAspectPreset = '9:16';
+            } else {
+                renderAspectPreset = normalized === 'auto' ? 'auto' : 'auto';
+            }
+            const select = document.getElementById('renderAspectPreset');
+            if (select) {
+                select.value = renderAspectPreset;
+            }
+            resizeRendererLayout();
+        }
+
+        function setVideoBackdropFitMode(mode = 'cover') {
+            const normalized = String(mode || 'cover').trim().toLowerCase();
+            videoBackdropFitMode = normalized === 'contain' ? 'contain' : 'cover';
+            const select = document.getElementById('videoBackdropFitMode');
+            if (select) {
+                select.value = videoBackdropFitMode;
+            }
+            updateVideoBackdropFit();
+        }
+
+        window.setRenderAspectPreset = setRenderAspectPreset;
+        window.setVideoBackdropFitMode = setVideoBackdropFitMode;
 
         function resizeRendererLayout() {
             if (demoMode) {
@@ -551,8 +610,27 @@ button:hover {
                 camera.lookAt(0, 0, 0);
                 scene.position.set(DEMO_VISUAL_OFFSET_X, 0, 0);
             } else {
-                renderer.setSize(container.clientWidth, container.clientHeight);
-                camera.aspect = container.clientWidth / container.clientHeight;
+                const targetAspect = resolveAspectRatioPreset(renderAspectPreset);
+                if (targetAspect) {
+                    let nextWidth = Math.max(640, Math.floor(window.innerWidth * 0.96));
+                    let nextHeight = Math.max(360, Math.floor(nextWidth / targetAspect));
+                    const maxHeight = Math.max(360, Math.floor(window.innerHeight * 0.88));
+                    if (nextHeight > maxHeight) {
+                        nextHeight = maxHeight;
+                        nextWidth = Math.max(640, Math.floor(nextHeight * targetAspect));
+                    }
+                    container.style.width = `${nextWidth}px`;
+                    container.style.height = `${nextHeight}px`;
+                    container.style.margin = '0 auto';
+                } else {
+                    container.style.width = '';
+                    container.style.height = '';
+                    container.style.margin = '';
+                }
+                const viewportWidth = Math.max(1, container.clientWidth || window.innerWidth || 1);
+                const viewportHeight = Math.max(1, container.clientHeight || window.innerHeight || 1);
+                renderer.setSize(viewportWidth, viewportHeight);
+                camera.aspect = viewportWidth / viewportHeight;
                 scene.position.set(0, 0, 0);
             }
             camera.updateProjectionMatrix();
@@ -1711,10 +1789,18 @@ button:hover {
             const viewportHeight = demoMode ? window.innerHeight : Math.max(1, container.clientHeight || window.innerHeight || 1);
             const videoAspect = vw / vh;
             const viewportAspect = viewportWidth / viewportHeight;
-            if (videoAspect > viewportAspect) {
-                videoBackdropQuad.scale.set(videoAspect / viewportAspect, 1, 1);
+            if (videoBackdropFitMode === 'contain') {
+                if (videoAspect > viewportAspect) {
+                    videoBackdropQuad.scale.set(1, viewportAspect / videoAspect, 1);
+                } else {
+                    videoBackdropQuad.scale.set(videoAspect / viewportAspect, 1, 1);
+                }
             } else {
-                videoBackdropQuad.scale.set(1, viewportAspect / videoAspect, 1);
+                if (videoAspect > viewportAspect) {
+                    videoBackdropQuad.scale.set(videoAspect / viewportAspect, 1, 1);
+                } else {
+                    videoBackdropQuad.scale.set(1, viewportAspect / videoAspect, 1);
+                }
             }
             if (videoBackdropTexture) {
                 const crop = videoBackdropCrop;
@@ -3233,6 +3319,18 @@ button:hover {
                 setBasicVideoMode(!!basicVideoModeToggle.checked);
             });
         }
+        const renderAspectPresetSelect = document.getElementById('renderAspectPreset');
+        if (renderAspectPresetSelect) {
+            renderAspectPresetSelect.addEventListener('change', function() {
+                setRenderAspectPreset(renderAspectPresetSelect.value);
+            });
+        }
+        const videoBackdropFitModeSelect = document.getElementById('videoBackdropFitMode');
+        if (videoBackdropFitModeSelect) {
+            videoBackdropFitModeSelect.addEventListener('change', function() {
+                setVideoBackdropFitMode(videoBackdropFitModeSelect.value);
+            });
+        }
         setBackdropConfig({
             script: backdropScriptSelect ? backdropScriptSelect.value : backgroundScriptId,
             blendMode: backdropBlendModeSelect ? backdropBlendModeSelect.value : backdropBlendMode,
@@ -3256,6 +3354,8 @@ button:hover {
             opacity: infinitestreamsEmbedOpacityInput ? parseFloat(infinitestreamsEmbedOpacityInput.value) : infinitestreamsEmbedOpacity,
             url: infinitestreamsEmbedUrlInput ? infinitestreamsEmbedUrlInput.value : infinitestreamsEmbedUrl
         });
+        setRenderAspectPreset(requestedAspectPreset || 'auto');
+        setVideoBackdropFitMode(requestedVideoFit || (videoBackdropFitModeSelect ? videoBackdropFitModeSelect.value : 'cover'));
 
         document.addEventListener('keydown', function(event) {
             if (event.defaultPrevented || event.repeat) {

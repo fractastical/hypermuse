@@ -1,0 +1,261 @@
+{
+  "setName": "cells2",
+  "sourceDirectory": "loops/cells2",
+  "sourceDirectories": [
+    "loops/cells2"
+  ],
+  "generatedAt": "2026-05-08T01:34:57.254Z",
+  "count": 15,
+  "playbackMode": "pingpong",
+  "moleculeGraph": {
+    "name": "caffeine",
+    "names": [
+      "caffeine",
+      "serotonin",
+      "dopamine",
+      "glucose"
+    ],
+    "renderMode": "coherent",
+    "cycleOnPhaseChange": true
+  },
+  "simulationPresets": {
+    "grayScott": "nexus"
+  },
+  "backgrounds": {
+    "script": "infinitestreams/src/sketches/yuruyurau/flow1",
+    "scripts": [
+      "infinitestreams/src/sketches/yuruyurau/dots",
+      "infinitestreams/src/sketches/yuruyurau/waves",
+      "infinitestreams/src/sketches/yuruyurau/magnets",
+      "infinitestreams/src/sketches/yuruyurau/orbits",
+      "infinitestreams/src/sketches/yuruyurau/shear",
+      "infinitestreams/src/sketches/yuruyurau/pulse",
+      "infinitestreams/src/sketches/yuruyurau/flow1",
+      "infinitestreams/src/sketches/yuruyurau/flow2",
+      "infinitestreams/src/sketches/snow/lines",
+      "infinitestreams/src/sketches/snow/grid",
+      "infinitestreams/src/sketches/snow/spiral",
+      "infinitestreams/src/sketches/snow/spiralLines",
+      "infinitestreams/src/sketches/snow/rotatingPattern",
+      "infinitestreams/src/sketches/snow/rotatingBlobs",
+      "infinitestreams/src/sketches/snow/rotatingRects",
+      "infinitestreams/src/sketches/snow/rotatingSquares",
+      "infinitestreams/src/sketches/snow/rotatingStars",
+      "infinitestreams/src/sketches/snow/noiseColumns",
+      "infinitestreams/src/sketches/snow/noiseBlobs",
+      "infinitestreams/src/sketches/snow/noiseCircles",
+      "infinitestreams/src/sketches/snow/noiseCircles4",
+      "infinitestreams/src/sketches/snow/noiseCircles5",
+      "infinitestreams/src/sketches/snow/pieArcs",
+      "infinitestreams/src/sketches/snow/pieArcs3",
+      "infinitestreams/src/sketches/snow/circles",
+      "infinitestreams/src/sketches/snow/colorLines",
+      "infinitestreams/src/sketches/snow/morphingShapes",
+      "infinitestreams/src/sketches/snow/musicalExplosions",
+      "infinitestreams/src/sketches/snow/waveEllipses"
+    ],
+    "cycleOnPhaseChange": true,
+    "blendMode": "additive",
+    "opacity": 1,
+    "scrollSpeed": 0.012
+  },
+  "videoBackground": {
+    "enabled": false,
+    "opacity": 0.9
+  },
+  "effectTimeline": {
+    "enabled": true,
+    "phases": [
+      {
+        "name": "classic",
+        "durationSec": 16
+      },
+      {
+        "name": "life",
+        "durationSec": 16
+      },
+      {
+        "name": "classic",
+        "durationSec": 16
+      },
+      {
+        "name": "kuramoto",
+        "durationSec": 16
+      },
+      {
+        "name": "classic",
+        "durationSec": 16
+      },
+      {
+        "name": "gray-scott",
+        "durationSec": 16
+      },
+      {
+        "name": "classic",
+        "durationSec": 16
+      },
+      {
+        "name": "physarum",
+        "durationSec": 16
+      },
+      {
+        "name": "classic",
+        "durationSec": 16
+      },
+      {
+        "name": "molecule",
+        "durationSec": 16
+      },
+      {
+        "name": "classic",
+        "durationSec": 16
+      },
+      {
+        "name": "stacked",
+        "durationSec": 16
+      }
+    ]
+  },
+  "defaultTransition": {
+    "type": "fade",
+    "durationMs": 900,
+    "holdMs": 8000
+  },
+  "loops": [
+    {
+      "url": "loops/cells2/large-numbers-of-cells-gather-together-2026-01-28-03-23-59-utc.mov",
+      "label": "large-numbers-of-cells-gather-together-2026-01-28-03-23-59-utc.mov",
+      "transition": {
+        "type": "fade",
+        "durationMs": 900,
+        "holdMs": 8000
+      }
+    },
+    {
+      "url": "loops/cells2/microscopic-sample-spinal-cord-cell-ts-200x-magnif-2025-12-17-05-34-16-utc.mov",
+      "label": "microscopic-sample-spinal-cord-cell-ts-200x-magnif-2025-12-17-05-34-16-utc.mov",
+      "transition": {
+        "type": "fade",
+        "durationMs": 900,
+        "holdMs": 8000
+      }
+    },
+    {
+      "url": "loops/cells2/microscopic-view-of-cells-and-particles-in-motion-2026-02-13-21-04-43-utc.mp4",
+      "label": "microscopic-view-of-cells-and-particles-in-motion-2026-02-13-21-04-43-utc.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 900,
+        "holdMs": 8000
+      }
+    },
+    {
+      "url": "loops/cells2/molecular-binding-on-cellular-membrane-surface-2026-04-13-00-47-52-utc.mp4",
+      "label": "molecular-binding-on-cellular-membrane-surface-2026-04-13-00-47-52-utc.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 900,
+        "holdMs": 8000
+      }
+    },
+    {
+      "url": "loops/cells2/output_video 2_1.mp4",
+      "label": "output_video 2_1.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 900,
+        "holdMs": 8000
+      }
+    },
+    {
+      "url": "loops/cells2/vecteezy_abnormal-cancer-cell-with-long-slender-tendrils_75741038.mp4",
+      "label": "vecteezy_abnormal-cancer-cell-with-long-slender-tendrils_75741038.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 900,
+        "holdMs": 8000
+      }
+    },
+    {
+      "url": "loops/cells2/vecteezy_ai-generated-3d-illustration-of-human-blood-cells-in-color_42474251.mp4",
+      "label": "vecteezy_ai-generated-3d-illustration-of-human-blood-cells-in-color_42474251.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 900,
+        "holdMs": 8000
+      }
+    },
+    {
+      "url": "loops/cells2/vecteezy_cell-division-effect-on-blur-background_3145462.mp4",
+      "label": "vecteezy_cell-division-effect-on-blur-background_3145462.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 900,
+        "holdMs": 8000
+      }
+    },
+    {
+      "url": "loops/cells2/vecteezy_intricate-view-of-a-living-cell-s-inner-world_50600544.mp4",
+      "label": "vecteezy_intricate-view-of-a-living-cell-s-inner-world_50600544.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 900,
+        "holdMs": 8000
+      }
+    },
+    {
+      "url": "loops/cells2/vecteezy_liquid-sphere-green-sparkling-energy-rotates-inside-the_55353522.mp4",
+      "label": "vecteezy_liquid-sphere-green-sparkling-energy-rotates-inside-the_55353522.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 900,
+        "holdMs": 8000
+      }
+    },
+    {
+      "url": "loops/cells2/vecteezy_microscopic-world-of-cells-scientific-illustration-of_72642324.mp4",
+      "label": "vecteezy_microscopic-world-of-cells-scientific-illustration-of_72642324.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 900,
+        "holdMs": 8000
+      }
+    },
+    {
+      "url": "loops/cells2/vecteezy_scene-presents-dynamic-array-of-spherical-and-ring-shaped_72165849.mp4",
+      "label": "vecteezy_scene-presents-dynamic-array-of-spherical-and-ring-shaped_72165849.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 900,
+        "holdMs": 8000
+      }
+    },
+    {
+      "url": "loops/cells2/vecteezy_the-purple-glowing-energy-spheres-divide-like-cells-in-a_59486657.mp4",
+      "label": "vecteezy_the-purple-glowing-energy-spheres-divide-like-cells-in-a_59486657.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 900,
+        "holdMs": 8000
+      }
+    },
+    {
+      "url": "loops/cells2/vertical-conceptual-animation-of-the-biological-ce-2026-01-28-05-10-46-utc.mp4",
+      "label": "vertical-conceptual-animation-of-the-biological-ce-2026-01-28-05-10-46-utc.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 900,
+        "holdMs": 8000
+      }
+    },
+    {
+      "url": "loops/cells2/vibrant-cell-structure-with-colorful-organelles-an-2026-03-12-02-01-33-utc.mp4",
+      "label": "vibrant-cell-structure-with-colorful-organelles-an-2026-03-12-02-01-33-utc.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 900,
+        "holdMs": 8000
+      }
+    }
+  ]
+}
