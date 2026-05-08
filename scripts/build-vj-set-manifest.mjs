@@ -12,6 +12,7 @@ const DEFAULT_MOLECULE_RENDER_MODE = process.env.VJ_MOLECULE_RENDER_MODE || "coh
 const DEFAULT_PLAYBACK_MODE = process.env.VJ_PLAYBACK_MODE || "pingpong";
 const DEFAULT_MAX_LOOPS = Number.parseInt(process.env.VJ_MAX_LOOPS || "20", 10);
 const DEFAULT_INCLUDE_REGEX = process.env.VJ_INCLUDE_REGEX || "";
+const DEFAULT_EXCLUDE_REGEX = process.env.VJ_EXCLUDE_REGEX || "turing_patterns_loop30\\.mp4";
 const DEFAULT_GRAY_SCOTT_PRESET = process.env.VJ_GRAY_SCOTT_PRESET || "nexus";
 const DEFAULT_EFFECT_PHASE_SPEC = process.env.VJ_EFFECT_PHASES || "classic:16,life:16,classic:16,kuramoto:16,classic:16,gray-scott:16,classic:16,physarum:16,classic:16,molecule:16,classic:16,stacked:16";
 const DEFAULT_BACKGROUND_SCRIPT = process.env.VJ_BACKGROUND_SCRIPT || "infinitestreams/src/sketches/yuruyurau/flow1";
@@ -91,18 +92,29 @@ function interleaveVideos(videoLists, maxCount) {
 }
 
 function filterVideosByPattern(videos) {
-  const pattern = String(DEFAULT_INCLUDE_REGEX || "").trim();
-  if (!pattern) {
-    return videos;
+  let filtered = videos.slice();
+
+  const excludePattern = String(DEFAULT_EXCLUDE_REGEX || "").trim();
+  if (excludePattern) {
+    try {
+      const excludeRegex = new RegExp(excludePattern, "i");
+      filtered = filtered.filter((videoPath) => !excludeRegex.test(videoPath));
+    } catch {
+      console.warn(`Invalid VJ_EXCLUDE_REGEX "${excludePattern}", skipping exclusion filter.`);
+    }
   }
-  let includeRegex = null;
+
+  const includePattern = String(DEFAULT_INCLUDE_REGEX || "").trim();
+  if (!includePattern) {
+    return filtered;
+  }
   try {
-    includeRegex = new RegExp(pattern, "i");
-  } catch (error) {
-    console.warn(`Invalid VJ_INCLUDE_REGEX "${pattern}", skipping filter.`);
-    return videos;
+    const includeRegex = new RegExp(includePattern, "i");
+    return filtered.filter((videoPath) => includeRegex.test(path.basename(videoPath)));
+  } catch {
+    console.warn(`Invalid VJ_INCLUDE_REGEX "${includePattern}", skipping include filter.`);
+    return filtered;
   }
-  return videos.filter((videoPath) => includeRegex.test(path.basename(videoPath)));
 }
 
 function parseEffectPhases(spec) {

@@ -1,0 +1,49 @@
+{
+  "setName": "cells1+cells2 autoplay",
+  "sourceDirectories": [
+    "loops/cells1",
+    "loops/cells2"
+  ],
+  "playbackMode": "pingpong",
+  "videoBackground": {
+    "enabled": true,
+    "opacity": 1
+  },
+  "defaultTransition": {
+    "type": "fade",
+    "durationMs": 900,
+    "holdMs": 9000
+  },
+  "loops": [
+    { "url": "loops/cells1/14726771_1920_1080_30fps.mp4", "label": "cells1/14726771" },
+    { "url": "loops/cells1/14852548_1920_1080_30fps.mp4", "label": "cells1/14852548" },
+    { "url": "loops/cells1/15006604_1920_1080_30fps.mp4", "label": "cells1/15006604" },
+    { "url": "loops/cells1/15285614_1920_1080_30fps.mp4", "label": "cells1/15285614" },
+    { "url": "loops/cells1/3191573-uhd_3840_2160_25fps.mp4", "label": "cells1/3191573-uhd" },
+    { "url": "loops/cells1/8739082-uhd_1920_1440_18fps.mp4", "label": "cells1/8739082-uhd" },
+    { "url": "loops/cells1/AETHER 002.mp4", "label": "cells1/AETHER 002" },
+    { "url": "loops/cells1/bio-cell-animation-2026-01-28-04-15-42-utc.mp4", "label": "cells1/bio-cell-animation" },
+    { "url": "loops/cells1/cell-division-cellular-therapy-2026-01-28-05-03-42-utc.mp4", "label": "cells1/cell-division-cellular-therapy" },
+    { "url": "loops/cells1/cell-division-loop-background-2026-01-28-02-43-48-utc.mov", "label": "cells1/cell-division-loop-background" },
+    { "url": "loops/cells1/cell-reproduction-2026-01-28-04-16-06-utc.mp4", "label": "cells1/cell-reproduction" },
+    { "url": "loops/cells1/fluorescently-labeled-cells-under-a-microscope-2026-03-18-17-50-52-utc.mp4", "label": "cells1/fluorescently-labeled-cells" },
+    { "url": "loops/cells1/human-eukaryotic-cell-structure-2026-01-28-02-58-49-utc.mp4", "label": "cells1/human-eukaryotic-cell" },
+    { "url": "loops/cells1/infected-cell-attack-healthy-cell-2026-02-18-09-40-51-utc.mov", "label": "cells1/infected-cell-attack" },
+    { "url": "loops/cells1/is.mp4", "label": "cells1/is" },
+    { "url": "loops/cells2/large-numbers-of-cells-gather-together-2026-01-28-03-23-59-utc.mov", "label": "cells2/large-numbers-of-cells" },
+    { "url": "loops/cells2/microscopic-sample-spinal-cord-cell-ts-200x-magnif-2025-12-17-05-34-16-utc.mov", "label": "cells2/microscopic-spinal-cord" },
+    { "url": "loops/cells2/microscopic-view-of-cells-and-particles-in-motion-2026-02-13-21-04-43-utc.mp4", "label": "cells2/microscopic-particles" },
+    { "url": "loops/cells2/molecular-binding-on-cellular-membrane-surface-2026-04-13-00-47-52-utc.mp4", "label": "cells2/molecular-binding" },
+    { "url": "loops/cells2/output_video 2_1.mp4", "label": "cells2/output_video 2_1" },
+    { "url": "loops/cells2/vecteezy_abnormal-cancer-cell-with-long-slender-tendrils_75741038.mp4", "label": "cells2/abnormal-cancer-cell" },
+    { "url": "loops/cells2/vecteezy_ai-generated-3d-illustration-of-human-blood-cells-in-color_42474251.mp4", "label": "cells2/3d-blood-cells-color" },
+    { "url": "loops/cells2/vecteezy_cell-division-effect-on-blur-background_3145462.mp4", "label": "cells2/cell-division-blur" },
+    { "url": "loops/cells2/vecteezy_intricate-view-of-a-living-cell-s-inner-world_50600544.mp4", "label": "cells2/intricate-living-cell" },
+    { "url": "loops/cells2/vecteezy_liquid-sphere-green-sparkling-energy-rotates-inside-the_55353522.mp4", "label": "cells2/liquid-sphere-green" },
+    { "url": "loops/cells2/vecteezy_microscopic-world-of-cells-scientific-illustration-of_72642324.mp4", "label": "cells2/microscopic-world" },
+    { "url": "loops/cells2/vecteezy_scene-presents-dynamic-array-of-spherical-and-ring-shaped_72165849.mp4", "label": "cells2/dynamic-spheres-rings" },
+    { "url": "loops/cells2/vecteezy_the-purple-glowing-energy-spheres-divide-like-cells-in-a_59486657.mp4", "label": "cells2/purple-glowing-spheres" },
+    { "url": "loops/cells2/vertical-conceptual-animation-of-the-biological-ce-2026-01-28-05-10-46-utc.mp4", "label": "cells2/vertical-biological" },
+    { "url": "loops/cells2/vibrant-cell-structure-with-colorful-organelles-an-2026-03-12-02-01-33-utc.mp4", "label": "cells2/vibrant-organelles" }
+  ]
+}

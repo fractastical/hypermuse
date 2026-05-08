@@ -1,0 +1,233 @@
+{
+  "setName": "cells1",
+  "sourceDirectory": "loops/cells1",
+  "sourceDirectories": [
+    "loops/cells1"
+  ],
+  "generatedAt": "2026-05-08T01:54:25.345Z",
+  "count": 15,
+  "playbackMode": "pingpong",
+  "moleculeGraph": {
+    "name": "caffeine",
+    "names": [
+      "caffeine",
+      "serotonin",
+      "dopamine",
+      "glucose"
+    ],
+    "renderMode": "coherent",
+    "cycleOnPhaseChange": true
+  },
+  "simulationPresets": {
+    "grayScott": "nexus"
+  },
+  "backgrounds": {
+    "script": "infinitestreams/src/sketches/yuruyurau/flow1",
+    "scripts": [
+      "infinitestreams/src/sketches/yuruyurau/dots",
+      "infinitestreams/src/sketches/yuruyurau/waves",
+      "infinitestreams/src/sketches/yuruyurau/magnets",
+      "infinitestreams/src/sketches/yuruyurau/orbits",
+      "infinitestreams/src/sketches/yuruyurau/shear",
+      "infinitestreams/src/sketches/yuruyurau/pulse",
+      "infinitestreams/src/sketches/yuruyurau/flow1",
+      "infinitestreams/src/sketches/yuruyurau/flow2",
+      "infinitestreams/src/sketches/snow/lines",
+      "infinitestreams/src/sketches/snow/grid",
+      "infinitestreams/src/sketches/snow/spiral",
+      "infinitestreams/src/sketches/snow/spiralLines",
+      "infinitestreams/src/sketches/snow/rotatingPattern",
+      "infinitestreams/src/sketches/snow/rotatingBlobs",
+      "infinitestreams/src/sketches/snow/rotatingRects",
+      "infinitestreams/src/sketches/snow/rotatingSquares",
+      "infinitestreams/src/sketches/snow/rotatingStars",
+      "infinitestreams/src/sketches/snow/noiseColumns",
+      "infinitestreams/src/sketches/snow/noiseBlobs",
+      "infinitestreams/src/sketches/snow/noiseCircles",
+      "infinitestreams/src/sketches/snow/noiseCircles4",
+      "infinitestreams/src/sketches/snow/noiseCircles5",
+      "infinitestreams/src/sketches/snow/pieArcs",
+      "infinitestreams/src/sketches/snow/pieArcs3",
+      "infinitestreams/src/sketches/snow/circles",
+      "infinitestreams/src/sketches/snow/colorLines",
+      "infinitestreams/src/sketches/snow/morphingShapes",
+      "infinitestreams/src/sketches/snow/musicalExplosions",
+      "infinitestreams/src/sketches/snow/waveEllipses"
+    ],
+    "cycleOnPhaseChange": true,
+    "blendMode": "additive",
+    "opacity": 1,
+    "scrollSpeed": 0.012
+  },
+  "videoBackground": {
+    "enabled": false,
+    "opacity": 0.9
+  },
+  "effectTimeline": {
+    "enabled": true,
+    "phases": [
+      {
+        "name": "classic",
+        "durationSec": 12
+      },
+      {
+        "name": "gray-scott",
+        "durationSec": 20
+      },
+      {
+        "name": "classic",
+        "durationSec": 12
+      },
+      {
+        "name": "gray-scott",
+        "durationSec": 20
+      },
+      {
+        "name": "physarum",
+        "durationSec": 12
+      }
+    ]
+  },
+  "defaultTransition": {
+    "type": "fade",
+    "durationMs": 900,
+    "holdMs": 8000
+  },
+  "loops": [
+    {
+      "url": "loops/cells1/14726771_1920_1080_30fps.mp4",
+      "label": "14726771_1920_1080_30fps.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 900,
+        "holdMs": 8000
+      }
+    },
+    {
+      "url": "loops/cells1/14852548_1920_1080_30fps.mp4",
+      "label": "14852548_1920_1080_30fps.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 900,
+        "holdMs": 8000
+      }
+    },
+    {
+      "url": "loops/cells1/15006604_1920_1080_30fps.mp4",
+      "label": "15006604_1920_1080_30fps.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 900,
+        "holdMs": 8000
+      }
+    },
+    {
+      "url": "loops/cells1/15285614_1920_1080_30fps.mp4",
+      "label": "15285614_1920_1080_30fps.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 900,
+        "holdMs": 8000
+      }
+    },
+    {
+      "url": "loops/cells1/3191573-uhd_3840_2160_25fps.mp4",
+      "label": "3191573-uhd_3840_2160_25fps.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 900,
+        "holdMs": 8000
+      }
+    },
+    {
+      "url": "loops/cells1/8739082-uhd_1920_1440_18fps.mp4",
+      "label": "8739082-uhd_1920_1440_18fps.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 900,
+        "holdMs": 8000
+      }
+    },
+    {
+      "url": "loops/cells1/AETHER 002.mp4",
+      "label": "AETHER 002.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 900,
+        "holdMs": 8000
+      }
+    },
+    {
+      "url": "loops/cells1/bio-cell-animation-2026-01-28-04-15-42-utc.mp4",
+      "label": "bio-cell-animation-2026-01-28-04-15-42-utc.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 900,
+        "holdMs": 8000
+      }
+    },
+    {
+      "url": "loops/cells1/cell-division-cellular-therapy-2026-01-28-05-03-42-utc.mp4",
+      "label": "cell-division-cellular-therapy-2026-01-28-05-03-42-utc.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 900,
+        "holdMs": 8000
+      }
+    },
+    {
+      "url": "loops/cells1/cell-division-loop-background-2026-01-28-02-43-48-utc.mov",
+      "label": "cell-division-loop-background-2026-01-28-02-43-48-utc.mov",
+      "transition": {
+        "type": "fade",
+        "durationMs": 900,
+        "holdMs": 8000
+      }
+    },
+    {
+      "url": "loops/cells1/cell-reproduction-2026-01-28-04-16-06-utc.mp4",
+      "label": "cell-reproduction-2026-01-28-04-16-06-utc.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 900,
+        "holdMs": 8000
+      }
+    },
+    {
+      "url": "loops/cells1/fluorescently-labeled-cells-under-a-microscope-2026-03-18-17-50-52-utc.mp4",
+      "label": "fluorescently-labeled-cells-under-a-microscope-2026-03-18-17-50-52-utc.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 900,
+        "holdMs": 8000
+      }
+    },
+    {
+      "url": "loops/cells1/human-eukaryotic-cell-structure-2026-01-28-02-58-49-utc.mp4",
+      "label": "human-eukaryotic-cell-structure-2026-01-28-02-58-49-utc.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 900,
+        "holdMs": 8000
+      }
+    },
+    {
+      "url": "loops/cells1/infected-cell-attack-healthy-cell-2026-02-18-09-40-51-utc.mov",
+      "label": "infected-cell-attack-healthy-cell-2026-02-18-09-40-51-utc.mov",
+      "transition": {
+        "type": "fade",
+        "durationMs": 900,
+        "holdMs": 8000
+      }
+    },
+    {
+      "url": "loops/cells1/is.mp4",
+      "label": "is.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 900,
+        "holdMs": 8000
+      }
+    }
+  ]
+}

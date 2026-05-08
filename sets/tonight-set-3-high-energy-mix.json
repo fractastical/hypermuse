@@ -10,7 +10,7 @@
     "loops/morpholib"
   ],
   "generatedAt": "2026-05-08T00:11:32.625Z",
-  "count": 407,
+  "count": 404,
   "playbackMode": "loop",
   "effectTimeline": {
     "enabled": true,
@@ -282,16 +282,6 @@
       }
     },
     {
-      "url": "loops/morpholib/turing_patterns_loop30.mp4",
-      "label": "turing_patterns_loop30.mp4",
-      "transition": {
-        "type": "fade",
-        "durationMs": 650,
-        "holdMs": 8200,
-        "holdLastFrameOnClipEnd": true
-      }
-    },
-    {
       "url": "loops/highdef/A tardigrade moving around a volvox algae colony 2025 Small Worl.mp4",
       "label": "A tardigrade moving around a volvox algae colony 2025 Small Worl.mp4",
       "transition": {
@@ -1772,16 +1762,6 @@
       }
     },
     {
-      "url": "loops/morpholib/turing_patterns_loop30.mp4",
-      "label": "turing_patterns_loop30.mp4",
-      "transition": {
-        "type": "fade",
-        "durationMs": 650,
-        "holdMs": 8200,
-        "holdLastFrameOnClipEnd": true
-      }
-    },
-    {
       "url": "loops/highdef/A tardigrade moving around a volvox algae colony 2025 Small Worl.mp4",
       "label": "A tardigrade moving around a volvox algae colony 2025 Small Worl.mp4",
       "transition": {
@@ -3254,16 +3234,6 @@
     {
       "url": "loops/Artbeats-TimelapsePlants/TP104.mp4",
       "label": "TP104.mp4",
-      "transition": {
-        "type": "fade",
-        "durationMs": 650,
-        "holdMs": 8200,
-        "holdLastFrameOnClipEnd": true
-      }
-    },
-    {
-      "url": "loops/morpholib/turing_patterns_loop30.mp4",
-      "label": "turing_patterns_loop30.mp4",
       "transition": {
         "type": "fade",
         "durationMs": 650,

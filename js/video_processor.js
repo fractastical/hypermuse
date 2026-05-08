@@ -1,9 +1,20 @@
 
 const canvas = document.createElement('canvas');
 const ctx = canvas.getContext('2d');
-let videoElementActive = false;
-let imageElementActive = false;
-let mixedElementActive = false;
+// Use `var` so these are properties of the global object and visible from
+// the sonicsphere.html inline render loop (which runs before this external
+// script finishes loading on a cold cache). Switching from `let` to `var`
+// also avoids the SyntaxError "Identifier 'X' has already been declared"
+// that fires when the inline script declares them too.
+if (typeof window.videoElementActive === 'undefined') {
+    window.videoElementActive = false;
+}
+if (typeof window.imageElementActive === 'undefined') {
+    window.imageElementActive = false;
+}
+if (typeof window.mixedElementActive === 'undefined') {
+    window.mixedElementActive = false;
+}
 
 function captureFrame(videoElement) {
 ctx.drawImage(videoElement, 0, 0, canvas.width, canvas.height);
@@ -63,6 +74,246 @@ const clipVisitByUrl = new Map();
 const loopPreferenceByUrl = new Map();
 const recentLoopHistory = [];
 const RECENT_LOOP_HISTORY_MAX = 48;
+/** First-level folder under {@code folderLoopRoot}: e.g. loops/cells1 (or loops/__root__ for files sitting directly under the root) */
+const loopFolderGroupEnabledMap = new Map();
+const loopFolderGroupLabelsMap = new Map();
+const FOLDER_GROUP_ROOT_PLACEHOLDER = '__root__';
+
+function normalizeUrlPathSegments(url) {
+    let s = String(url || '').trim().replace(/\\/g, '/');
+    if (!s) {
+        return [];
+    }
+    if (/^[a-zA-Z][a-zA-Z0-9+.-]*:\/\//.test(s)) {
+        try {
+            const u = new URL(s);
+            s = u.pathname || '';
+        } catch (_) {
+            return [];
+        }
+    }
+    const q = s.indexOf('?');
+    if (q >= 0) {
+        s = s.slice(0, q);
+    }
+    const h = s.indexOf('#');
+    if (h >= 0) {
+        s = s.slice(0, h);
+    }
+    while (s.startsWith('/')) {
+        s = s.slice(1);
+    }
+    return s.split('/').filter(Boolean);
+}
+
+/**
+ * Find root folder segment (e.g. loops) anywhere in the path; group id is root/firstSubfolder.
+ * Files directly under root (e.g. loops/clip.mp4) use root/__root__.
+ */
+function deriveFolderLoopGroupId(url, rootToken) {
+    const rootWant = String(rootToken || '').trim();
+    if (!rootWant) {
+        return null;
+    }
+    const segs = normalizeUrlPathSegments(url);
+    if (segs.length < 2) {
+        return null;
+    }
+    const rootLower = rootWant.toLowerCase();
+    const idx = segs.findIndex((seg) => String(seg).toLowerCase() === rootLower);
+    if (idx < 0) {
+        return null;
+    }
+    const rootSeg = segs[idx];
+    if (idx + 1 >= segs.length) {
+        return null;
+    }
+    if (idx + 2 >= segs.length) {
+        return `${rootSeg}/${FOLDER_GROUP_ROOT_PLACEHOLDER}`;
+    }
+    return `${rootSeg}/${segs[idx + 1]}`;
+}
+
+/**
+ * When manifest omits folderLoopRoot, pick the most common first path segment (e.g. loops)
+ * so folder toggles work for any tree without hand-editing JSON.
+ */
+function inferFolderLoopRootFromUrls(urls) {
+    if (!Array.isArray(urls) || urls.length === 0) {
+        return '';
+    }
+    const counts = new Map();
+    for (let u = 0; u < urls.length; u++) {
+        const segs = normalizeUrlPathSegments(urls[u]);
+        if (segs.length < 2) {
+            continue;
+        }
+        const head = segs[0];
+        counts.set(head, (counts.get(head) || 0) + 1);
+    }
+    let best = '';
+    let bestN = 0;
+    const need = Math.max(2, Math.ceil(urls.length * 0.45));
+    counts.forEach((n, seg) => {
+        if (n > bestN && n >= need) {
+            bestN = n;
+            best = seg;
+        }
+    });
+    return best;
+}
+
+function resetFolderLoopGroupsState() {
+    loopFolderGroupEnabledMap.clear();
+    loopFolderGroupLabelsMap.clear();
+}
+
+function syncFolderLoopGroupsFromEntries(entries, manifestExtras = {}) {
+    resetFolderLoopGroupsState();
+    const presetLabels = manifestExtras.loopGroupLabels && typeof manifestExtras.loopGroupLabels === 'object'
+        ? manifestExtras.loopGroupLabels
+        : {};
+
+    Object.keys(presetLabels).forEach((idKey) => {
+        if (!presetLabels[idKey]) {
+            return;
+        }
+        const key = String(idKey).trim();
+        if (!key) {
+            return;
+        }
+        loopFolderGroupLabelsMap.set(key, String(presetLabels[idKey]));
+        loopFolderGroupEnabledMap.set(key, true);
+    });
+
+    entries.forEach((entry) => {
+        const gid = entry && entry.loopGroupId ? String(entry.loopGroupId).trim() : '';
+        if (!gid) {
+            return;
+        }
+        const basename = gid.split('/').filter(Boolean).pop() || gid;
+        const hinted = entry.loopGroupLabel && String(entry.loopGroupLabel).trim();
+        const preset = presetLabels[gid] ? String(presetLabels[gid]) : '';
+        let label = hinted || preset || loopFolderGroupLabelsMap.get(gid) || basename;
+        if (basename === FOLDER_GROUP_ROOT_PLACEHOLDER) {
+            label = hinted || preset || loopFolderGroupLabelsMap.get(gid) || defaultLabelForSyntheticRootGroup(gid);
+        }
+
+        loopFolderGroupLabelsMap.set(gid, label);
+        if (!loopFolderGroupEnabledMap.has(gid)) {
+            loopFolderGroupEnabledMap.set(gid, true);
+        }
+    });
+}
+
+function defaultLabelForSyntheticRootGroup(groupId) {
+    const parts = String(groupId || '').split('/').filter(Boolean);
+    const top = parts[0] || 'folder';
+    return `${top} (root files)`;
+}
+
+function firstEligibleEntryIndex() {
+if (currentSetEntries.length === 0) {
+    return -1;
+}
+for (let i = 0; i < currentSetEntries.length; i++) {
+    if (isSetEntryEligible(currentSetEntries[i])) {
+        return i;
+    }
+}
+return -1;
+}
+
+function isLoopFolderGroupEntryEnabled(entry) {
+if (!entry || !entry.loopGroupId) {
+    return true;
+}
+const gid = String(entry.loopGroupId).trim();
+if (!gid) {
+    return true;
+}
+const flag = loopFolderGroupEnabledMap.get(gid);
+if (flag === undefined) {
+    return true;
+}
+return !!flag;
+}
+
+function skipPlaybackIfDisabledGroupBlocked() {
+if (currentSetEntries.length === 0 || currentSetIndex < 0) {
+    return;
+}
+const entry = currentSetEntries[currentSetIndex];
+if (!entry || isSetEntryEligible(entry)) {
+    return;
+}
+playNextSetEntry();
+}
+
+window.setLoopGroupEnabled = function(groupId, enabled) {
+const key = String(groupId || '').trim();
+if (!key || !loopFolderGroupEnabledMap.has(key)) {
+    return false;
+}
+loopFolderGroupEnabledMap.set(key, !!enabled);
+skipPlaybackIfDisabledGroupBlocked();
+return true;
+};
+
+window.applyLoopGroupToggleMap = function(map) {
+if (!map || typeof map !== 'object') {
+    return 0;
+}
+let changed = 0;
+Object.keys(map).forEach((idRaw) => {
+    const key = String(idRaw).trim();
+    if (!key || !loopFolderGroupEnabledMap.has(key)) {
+        return;
+    }
+    const val = !!map[idRaw];
+    loopFolderGroupEnabledMap.set(key, val);
+    changed += 1;
+});
+skipPlaybackIfDisabledGroupBlocked();
+return changed;
+};
+
+window.getLoopGroupsSnapshot = function() {
+const counts = {};
+currentSetEntries.forEach((entry) => {
+    if (!entry || !entry.loopGroupId) {
+        return;
+    }
+    const gid = String(entry.loopGroupId).trim();
+    counts[gid] = (counts[gid] || 0) + 1;
+});
+
+const ids = [];
+loopFolderGroupEnabledMap.forEach((_flag, gid) => {
+    ids.push(gid);
+});
+
+ids.sort((a, b) => String(loopFolderGroupLabelsMap.get(a) || a).localeCompare(
+    String(loopFolderGroupLabelsMap.get(b) || b),
+    undefined,
+    { sensitivity: 'base' }
+));
+
+const currentIdx = typeof currentSetIndex === 'number' ? currentSetIndex : -1;
+let currentGroupId = null;
+if (currentIdx >= 0 && currentIdx < currentSetEntries.length) {
+    const cur = currentSetEntries[currentIdx];
+    currentGroupId = cur && cur.loopGroupId ? String(cur.loopGroupId).trim() : null;
+}
+
+return ids.map((id) => ({
+    id,
+    label: loopFolderGroupLabelsMap.get(id) || id.split('/').filter(Boolean).pop() || id,
+    enabled: loopFolderGroupEnabledMap.get(id) !== false,
+    clipCount: counts[id] || 0,
+    isCurrent: !!(currentGroupId && currentGroupId === id)
+}));
+};
 const sampleSetPresets = [
     { id: 'bio1', label: 'Bio 1 (default)', manifest: 'sets/bio1.json' },
     { id: 'tonight1', label: 'Sample 1h — Betse + cells', manifest: 'sets/tonight-set-1-betse-cells.json' },
@@ -137,7 +388,14 @@ if (Number.isFinite(config.holdMaxExtraMs)) {
 }
 }
 
-function normalizeSetEntries(urls, labels = [], transitions = [], defaults = {}) {
+function normalizeSetEntries(urls, labels = [], transitions = [], defaults = {}, manifestMeta = {}) {
+const overlayById = manifestMeta.loopGroupLabels && typeof manifestMeta.loopGroupLabels === 'object'
+    ? manifestMeta.loopGroupLabels
+    : null;
+const groupIds = Array.isArray(manifestMeta.groupIds) ? manifestMeta.groupIds : [];
+const rowGroupLabels = Array.isArray(manifestMeta.loopGroupRowLabels)
+    ? manifestMeta.loopGroupRowLabels
+    : [];
 const entries = [];
 for (let i = 0; i < urls.length; i++) {
     const url = urls[i];
@@ -145,6 +403,22 @@ for (let i = 0; i < urls.length; i++) {
     const sourceTransition = transitions[i] || {};
     const clipStartSec = Number.isFinite(sourceTransition.clipStartSec) ? Math.max(0, sourceTransition.clipStartSec) : null;
     const clipEndSec = Number.isFinite(sourceTransition.clipEndSec) ? Math.max(0, sourceTransition.clipEndSec) : null;
+    let loopGroupRaw = '';
+    if (groupIds.length > i && groupIds[i] != null) {
+        loopGroupRaw = String(groupIds[i]);
+    }
+    const loopGroupId = loopGroupRaw.trim() || null;
+    let loopGroupRowLabel = null;
+    if (rowGroupLabels.length > i && rowGroupLabels[i] != null && String(rowGroupLabels[i]).trim()) {
+        loopGroupRowLabel = String(rowGroupLabels[i]).trim();
+    }
+    let loopGroupLabel = null;
+    if (overlayById && loopGroupId && typeof overlayById[loopGroupId] === 'string' && overlayById[loopGroupId].trim()) {
+        loopGroupLabel = overlayById[loopGroupId].trim();
+    } else if (loopGroupRowLabel) {
+        loopGroupLabel = loopGroupRowLabel;
+    }
+
     entries.push({
         url,
         label: labels[i] || url.split('/').pop(),
@@ -156,7 +430,9 @@ for (let i = 0; i < urls.length; i++) {
             clipEndSec,
             crop: sourceTransition.crop || null,
             holdLastFrameOnClipEnd: sourceTransition.holdLastFrameOnClipEnd !== false
-        }
+        },
+        loopGroupId,
+        loopGroupLabel
     });
 }
 return entries;
@@ -357,7 +633,7 @@ videoElementActive = true;
 
 function isSetEntryEligible(entry) {
 if (!entry || !entry.url) return false;
-return loopPreferenceByUrl.get(entry.url) !== 'dislike';
+return loopPreferenceByUrl.get(entry.url) !== 'dislike' && isLoopFolderGroupEntryEnabled(entry);
 }
 
 function applyLoopPreferenceForUrl(url, preference) {
@@ -409,9 +685,10 @@ if (currentSetEntries.length === 0) {
     return false;
 }
 let candidate = getNextSetIndexCandidate();
-const maxAttempts = Math.max(1, currentSetEntries.length * 2);
+const sweep = Math.max(1, currentSetEntries.length);
+const maxAttempts = Math.min(sweep * 8, 512);
 for (let attempt = 0; attempt < maxAttempts; attempt++) {
-    const normalized = ((candidate % currentSetEntries.length) + currentSetEntries.length) % currentSetEntries.length;
+    const normalized = ((candidate % sweep) + sweep) % sweep;
     const entry = currentSetEntries[normalized];
     if (isSetEntryEligible(entry)) {
         playSetEntryAt(normalized);
@@ -454,7 +731,7 @@ if (videoElement && (videoElement.currentSrc || videoElement.src)) {
 return false;
 }
 
-function queueVideoSet(urls, labels = [], transitions = [], defaults = {}) {
+function queueVideoSet(urls, labels = [], transitions = [], defaults = {}, manifestMeta = {}) {
 activeVideoQueue.length = 0;
 originalVideos.length = 0;
 allVideoLoops.length = 0;
@@ -476,15 +753,19 @@ for (let i = 0; i < urls.length; i++) {
 
 allVideoLoops.push([...originalVideos]);
 
-currentSetEntries = normalizeSetEntries(urls, labels, transitions, defaults);
+currentSetEntries = normalizeSetEntries(urls, labels, transitions, defaults, manifestMeta);
+syncFolderLoopGroupsFromEntries(currentSetEntries, {
+    loopGroupLabels: manifestMeta.loopGroupLabels
+});
 clipVisitByUrl.clear();
 loopPreferenceByUrl.clear();
 recentLoopHistory.length = 0;
 window.__hypermuseLoadedSetCount = currentSetEntries.length;
 window.__hypermuseCurrentLoopLabel = "";
 window.__hypermuseSetUrls = currentSetEntries.map((entry) => entry.url).filter(Boolean);
-if (currentSetEntries.length > 0) {
-    playSetEntryAt(0);
+const startIdx = firstEligibleEntryIndex();
+if (startIdx >= 0) {
+    playSetEntryAt(startIdx);
 }
 }
 
@@ -495,33 +776,117 @@ if (!response.ok) {
 }
 const manifest = await response.json();
 
-let urls = [];
-let labels = [];
-let transitions = [];
 let defaultTransition = {};
+const presetLoopGroupLabels = manifest.loopGroupLabels && typeof manifest.loopGroupLabels === 'object'
+    ? manifest.loopGroupLabels
+    : {};
+
+const folderLoopRoot = manifest && typeof manifest.folderLoopRoot === 'string' && manifest.folderLoopRoot.trim()
+    ? manifest.folderLoopRoot.trim()
+    : '';
+
+const manifestMeta = {
+    groupIds: [],
+    loopGroupLabels: presetLoopGroupLabels,
+    loopGroupRowLabels: []
+};
+
+const rowsRaw = [];
+
 if (Array.isArray(manifest)) {
-    urls = manifest.slice();
+    manifest.forEach((loopItem) => {
+        const url = typeof loopItem === 'string'
+            ? String(loopItem).trim()
+            : (loopItem && loopItem.url ? String(loopItem.url).trim() : '');
+        if (!url) {
+            return;
+        }
+        const obj = typeof loopItem === 'object' && loopItem !== null ? loopItem : null;
+        const label = obj && obj.label ? String(obj.label).trim()
+            : (url.split('/') || []).pop();
+        const transition = obj && obj.transition && typeof obj.transition === 'object' ? obj.transition : {};
+        rowsRaw.push({
+            url,
+            label,
+            transition
+        });
+    });
 } else if (Array.isArray(manifest.loops)) {
     defaultTransition = manifest.defaultTransition || {};
     defaultTransition.playbackMode = manifest.playbackMode || 'pingpong';
-    urls = manifest.loops.map(loop => typeof loop === 'string' ? loop : loop.url);
-    labels = manifest.loops.map(loop => typeof loop === 'string' ? loop : (loop.label || loop.url));
-    transitions = manifest.loops.map(loop => typeof loop === 'string' ? {} : (loop.transition || {}));
+    manifest.loops.forEach((loopItem) => {
+        const obj = typeof loopItem === 'object' && loopItem !== null ? loopItem : null;
+        const url = obj && obj.url != null
+            ? String(obj.url).trim()
+            : (typeof loopItem === 'string' ? String(loopItem).trim() : '');
+        if (!url) {
+            return;
+        }
+
+        let explicitGroupId = '';
+        if (obj) {
+            explicitGroupId = String(obj.loopGroup || obj.folderLoop || obj.group || obj.groupId || obj.loop_folder || '').trim();
+        }
+
+        let rowGroupDisplayLabel = '';
+        if (obj) {
+            const maybeLabel = obj.loopGroupLabel || obj.folderLabel || obj.folder_label;
+            rowGroupDisplayLabel = maybeLabel != null ? String(maybeLabel).trim() : '';
+        }
+
+        const label = obj && obj.label ? String(obj.label).trim()
+            : (url.split('/') || []).pop();
+        const transition = obj && obj.transition && typeof obj.transition === 'object' ? obj.transition : {};
+
+        let loopGroupDerived = '';
+        if (!explicitGroupId && folderLoopRoot) {
+            const derivedId = deriveFolderLoopGroupId(url, folderLoopRoot);
+            if (derivedId) {
+                loopGroupDerived = derivedId;
+            }
+        }
+
+        const groupIdMerged = explicitGroupId || loopGroupDerived || '';
+
+        rowsRaw.push({
+            url,
+            label,
+            transition,
+            groupId: groupIdMerged,
+            loopGroupRowLabel: rowGroupDisplayLabel
+        });
+    });
 } else {
     throw new Error('Invalid manifest format. Expected array or { loops: [] }.');
 }
 
-urls = urls
-    .filter(Boolean)
-    .filter(url => {
-        const lowered = url.toLowerCase();
-        for (const ext of supportedVideoExtensions) {
-            if (lowered.endsWith(ext)) return true;
+const filteredRows = [];
+for (let r = 0; r < rowsRaw.length; r++) {
+    const row = rowsRaw[r];
+    if (!row || !row.url) {
+        continue;
+    }
+    const lowered = row.url.toLowerCase();
+    let okExt = false;
+    for (const ext of supportedVideoExtensions) {
+        if (lowered.endsWith(ext)) {
+            okExt = true;
+            break;
         }
-        return false;
-    });
+    }
+    if (!okExt) {
+        continue;
+    }
+    filteredRows.push(row);
+}
 
-queueVideoSet(urls, labels, transitions, defaultTransition);
+const urls = filteredRows.map((row) => row.url);
+const labels = filteredRows.map((row) => row.label);
+const transitions = filteredRows.map((row) => row.transition);
+manifestMeta.groupIds = filteredRows.map((row) => row.groupId || '');
+manifestMeta.loopGroupRowLabels = filteredRows.map((row) => row.loopGroupRowLabel || '');
+
+queueVideoSet(urls, labels, transitions, defaultTransition, manifestMeta);
 if (manifest && manifest.effectTimeline && window.setEffectTimelineConfig) {
     window.setEffectTimelineConfig(manifest.effectTimeline, true);
 }

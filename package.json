@@ -5,6 +5,8 @@
   "scripts": {
     "start": "npx http-server -c-1 -p 8080 .",
     "test": "playwright test",
+    "test:smoke": "node scripts/test-basic-functionality.mjs",
+    "test:smoke:headed": "SMOKE_HEADLESS=0 node scripts/test-basic-functionality.mjs",
     "build:vj-set": "node scripts/build-vj-set-manifest.mjs loops/bio1 sets/bio1.json",
     "export:sample": "EXPORT_VIDEO_REEL=1 node scripts/generate-sample-video.mjs",
     "export:sample:5m": "EXPORT_VIDEO_REEL=1 CAPTURE_MS=300000 OUTPUT_VIDEO=artifacts/sample-sonicsphere-5m.webm node scripts/generate-sample-video.mjs",
@@ -25,6 +27,7 @@
     "build:cell:loops": "node scripts/build-cell-image-color-loops.mjs",
     "build:betse:loops": "node scripts/build-betse-loops.mjs",
     "build:setlists:creative": "node scripts/build-creative-setlists.mjs",
+    "build:set:folder-groups": "node scripts/build-folder-subloops-manifest.mjs",
     "export:set:videos": "node scripts/export-set-manifest-videos.mjs",
     "export:feature:tour": "node scripts/generate-feature-tour-video.mjs",
     "build:color:dataset": "node scripts/build-color-dataset.mjs",

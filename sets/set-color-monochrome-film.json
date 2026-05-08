@@ -1,7 +1,7 @@
 {
   "setName": "set-color-monochrome-film",
   "sourceDirectory": "loops",
-  "generatedAt": "2026-05-08T01:13:02.495Z",
+  "generatedAt": "2026-05-08T02:20:53.314Z",
   "count": 407,
   "playbackMode": "loop",
   "setNotes": "Monochrome keyed clips: gray, black, white (and composites) from color tags.",
@@ -151,16 +151,6 @@
       }
     },
     {
-      "url": "loops/reactions/cell-image-library/3ed6f7529ea7-hue-loop.mp4",
-      "label": "3ed6f7529ea7-hue-loop.mp4",
-      "transition": {
-        "type": "fade",
-        "durationMs": 650,
-        "holdMs": 8200,
-        "holdLastFrameOnClipEnd": true
-      }
-    },
-    {
       "url": "loops/Artbeats-TimelapseFlowers3/TF312.mp4",
       "label": "TF312.mp4",
       "transition": {
@@ -233,66 +223,6 @@
     {
       "url": "loops/Artbeats.Alien.Atmospheres/Mattes/AM120M.mp4",
       "label": "AM120M.mp4",
-      "transition": {
-        "type": "fade",
-        "durationMs": 650,
-        "holdMs": 8200,
-        "holdLastFrameOnClipEnd": true
-      }
-    },
-    {
-      "url": "loops/clarafi/AETHER 002.mp4",
-      "label": "AETHER 002.mp4",
-      "transition": {
-        "type": "fade",
-        "durationMs": 650,
-        "holdMs": 8200,
-        "holdLastFrameOnClipEnd": true
-      }
-    },
-    {
-      "url": "loops/clarafi/Alzheimer's Enigma.mp4",
-      "label": "Alzheimer's Enigma.mp4",
-      "transition": {
-        "type": "fade",
-        "durationMs": 650,
-        "holdMs": 8200,
-        "holdLastFrameOnClipEnd": true
-      }
-    },
-    {
-      "url": "loops/clarafi/Kinesin Walking Narrated Version for Garland.mp4",
-      "label": "Kinesin Walking Narrated Version for Garland.mp4",
-      "transition": {
-        "type": "fade",
-        "durationMs": 650,
-        "holdMs": 8200,
-        "holdLastFrameOnClipEnd": true
-      }
-    },
-    {
-      "url": "loops/clarafi/Muscle Myosin.mp4",
-      "label": "Muscle Myosin.mp4",
-      "transition": {
-        "type": "fade",
-        "durationMs": 650,
-        "holdMs": 8200,
-        "holdLastFrameOnClipEnd": true
-      }
-    },
-    {
-      "url": "loops/clarafi/Si(111) Surface 7&times;7 Reconstruction.mp4",
-      "label": "Si(111) Surface 7&times;7 Reconstruction.mp4",
-      "transition": {
-        "type": "fade",
-        "durationMs": 650,
-        "holdMs": 8200,
-        "holdLastFrameOnClipEnd": true
-      }
-    },
-    {
-      "url": "loops/clarafi/hemoglobin1c.mov",
-      "label": "hemoglobin1c.mov",
       "transition": {
         "type": "fade",
         "durationMs": 650,
@@ -801,48 +731,8 @@
       }
     },
     {
-      "url": "loops/clarafi/274880032.mp4",
-      "label": "274880032.mp4",
-      "transition": {
-        "type": "fade",
-        "durationMs": 650,
-        "holdMs": 8200,
-        "holdLastFrameOnClipEnd": true
-      }
-    },
-    {
       "url": "loops/highdef/Oligodendrocyte precursor cell in the spinal cord of a zebrafish.mp4",
       "label": "Oligodendrocyte precursor cell in the spinal cord of a zebrafish.mp4",
-      "transition": {
-        "type": "fade",
-        "durationMs": 650,
-        "holdMs": 8200,
-        "holdLastFrameOnClipEnd": true
-      }
-    },
-    {
-      "url": "loops/reactions/cell-image-library/9e4a91e86967-hue-loop.mp4",
-      "label": "9e4a91e86967-hue-loop.mp4",
-      "transition": {
-        "type": "fade",
-        "durationMs": 650,
-        "holdMs": 8200,
-        "holdLastFrameOnClipEnd": true
-      }
-    },
-    {
-      "url": "loops/reactions/cell-image-library/bb2d08e011cc-hue-loop.mp4",
-      "label": "bb2d08e011cc-hue-loop.mp4",
-      "transition": {
-        "type": "fade",
-        "durationMs": 650,
-        "holdMs": 8200,
-        "holdLastFrameOnClipEnd": true
-      }
-    },
-    {
-      "url": "loops/clarafi/274971978.mp4",
-      "label": "274971978.mp4",
       "transition": {
         "type": "fade",
         "durationMs": 650,
@@ -1321,16 +1211,6 @@
       }
     },
     {
-      "url": "loops/reactions/cell-image-library/3ed6f7529ea7-hue-loop.mp4",
-      "label": "3ed6f7529ea7-hue-loop.mp4",
-      "transition": {
-        "type": "fade",
-        "durationMs": 650,
-        "holdMs": 8200,
-        "holdLastFrameOnClipEnd": true
-      }
-    },
-    {
       "url": "loops/Artbeats-TimelapseFlowers3/TF312.mp4",
       "label": "TF312.mp4",
       "transition": {
@@ -1403,66 +1283,6 @@
     {
       "url": "loops/Artbeats.Alien.Atmospheres/Mattes/AM120M.mp4",
       "label": "AM120M.mp4",
-      "transition": {
-        "type": "fade",
-        "durationMs": 650,
-        "holdMs": 8200,
-        "holdLastFrameOnClipEnd": true
-      }
-    },
-    {
-      "url": "loops/clarafi/AETHER 002.mp4",
-      "label": "AETHER 002.mp4",
-      "transition": {
-        "type": "fade",
-        "durationMs": 650,
-        "holdMs": 8200,
-        "holdLastFrameOnClipEnd": true
-      }
-    },
-    {
-      "url": "loops/clarafi/Alzheimer's Enigma.mp4",
-      "label": "Alzheimer's Enigma.mp4",
-      "transition": {
-        "type": "fade",
-        "durationMs": 650,
-        "holdMs": 8200,
-        "holdLastFrameOnClipEnd": true
-      }
-    },
-    {
-      "url": "loops/clarafi/Kinesin Walking Narrated Version for Garland.mp4",
-      "label": "Kinesin Walking Narrated Version for Garland.mp4",
-      "transition": {
-        "type": "fade",
-        "durationMs": 650,
-        "holdMs": 8200,
-        "holdLastFrameOnClipEnd": true
-      }
-    },
-    {
-      "url": "loops/clarafi/Muscle Myosin.mp4",
-      "label": "Muscle Myosin.mp4",
-      "transition": {
-        "type": "fade",
-        "durationMs": 650,
-        "holdMs": 8200,
-        "holdLastFrameOnClipEnd": true
-      }
-    },
-    {
-      "url": "loops/clarafi/Si(111) Surface 7&times;7 Reconstruction.mp4",
-      "label": "Si(111) Surface 7&times;7 Reconstruction.mp4",
-      "transition": {
-        "type": "fade",
-        "durationMs": 650,
-        "holdMs": 8200,
-        "holdLastFrameOnClipEnd": true
-      }
-    },
-    {
-      "url": "loops/clarafi/hemoglobin1c.mov",
-      "label": "hemoglobin1c.mov",
       "transition": {
         "type": "fade",
         "durationMs": 650,
@@ -1971,48 +1791,8 @@
       }
     },
     {
-      "url": "loops/clarafi/274880032.mp4",
-      "label": "274880032.mp4",
-      "transition": {
-        "type": "fade",
-        "durationMs": 650,
-        "holdMs": 8200,
-        "holdLastFrameOnClipEnd": true
-      }
-    },
-    {
       "url": "loops/highdef/Oligodendrocyte precursor cell in the spinal cord of a zebrafish.mp4",
       "label": "Oligodendrocyte precursor cell in the spinal cord of a zebrafish.mp4",
-      "transition": {
-        "type": "fade",
-        "durationMs": 650,
-        "holdMs": 8200,
-        "holdLastFrameOnClipEnd": true
-      }
-    },
-    {
-      "url": "loops/reactions/cell-image-library/9e4a91e86967-hue-loop.mp4",
-      "label": "9e4a91e86967-hue-loop.mp4",
-      "transition": {
-        "type": "fade",
-        "durationMs": 650,
-        "holdMs": 8200,
-        "holdLastFrameOnClipEnd": true
-      }
-    },
-    {
-      "url": "loops/reactions/cell-image-library/bb2d08e011cc-hue-loop.mp4",
-      "label": "bb2d08e011cc-hue-loop.mp4",
-      "transition": {
-        "type": "fade",
-        "durationMs": 650,
-        "holdMs": 8200,
-        "holdLastFrameOnClipEnd": true
-      }
-    },
-    {
-      "url": "loops/clarafi/274971978.mp4",
-      "label": "274971978.mp4",
       "transition": {
         "type": "fade",
         "durationMs": 650,
@@ -2491,16 +2271,6 @@
       }
     },
     {
-      "url": "loops/reactions/cell-image-library/3ed6f7529ea7-hue-loop.mp4",
-      "label": "3ed6f7529ea7-hue-loop.mp4",
-      "transition": {
-        "type": "fade",
-        "durationMs": 650,
-        "holdMs": 8200,
-        "holdLastFrameOnClipEnd": true
-      }
-    },
-    {
       "url": "loops/Artbeats-TimelapseFlowers3/TF312.mp4",
       "label": "TF312.mp4",
       "transition": {
@@ -2573,66 +2343,6 @@
     {
       "url": "loops/Artbeats.Alien.Atmospheres/Mattes/AM120M.mp4",
       "label": "AM120M.mp4",
-      "transition": {
-        "type": "fade",
-        "durationMs": 650,
-        "holdMs": 8200,
-        "holdLastFrameOnClipEnd": true
-      }
-    },
-    {
-      "url": "loops/clarafi/AETHER 002.mp4",
-      "label": "AETHER 002.mp4",
-      "transition": {
-        "type": "fade",
-        "durationMs": 650,
-        "holdMs": 8200,
-        "holdLastFrameOnClipEnd": true
-      }
-    },
-    {
-      "url": "loops/clarafi/Alzheimer's Enigma.mp4",
-      "label": "Alzheimer's Enigma.mp4",
-      "transition": {
-        "type": "fade",
-        "durationMs": 650,
-        "holdMs": 8200,
-        "holdLastFrameOnClipEnd": true
-      }
-    },
-    {
-      "url": "loops/clarafi/Kinesin Walking Narrated Version for Garland.mp4",
-      "label": "Kinesin Walking Narrated Version for Garland.mp4",
-      "transition": {
-        "type": "fade",
-        "durationMs": 650,
-        "holdMs": 8200,
-        "holdLastFrameOnClipEnd": true
-      }
-    },
-    {
-      "url": "loops/clarafi/Muscle Myosin.mp4",
-      "label": "Muscle Myosin.mp4",
-      "transition": {
-        "type": "fade",
-        "durationMs": 650,
-        "holdMs": 8200,
-        "holdLastFrameOnClipEnd": true
-      }
-    },
-    {
-      "url": "loops/clarafi/Si(111) Surface 7&times;7 Reconstruction.mp4",
-      "label": "Si(111) Surface 7&times;7 Reconstruction.mp4",
-      "transition": {
-        "type": "fade",
-        "durationMs": 650,
-        "holdMs": 8200,
-        "holdLastFrameOnClipEnd": true
-      }
-    },
-    {
-      "url": "loops/clarafi/hemoglobin1c.mov",
-      "label": "hemoglobin1c.mov",
       "transition": {
         "type": "fade",
         "durationMs": 650,
@@ -3141,48 +2851,8 @@
       }
     },
     {
-      "url": "loops/clarafi/274880032.mp4",
-      "label": "274880032.mp4",
-      "transition": {
-        "type": "fade",
-        "durationMs": 650,
-        "holdMs": 8200,
-        "holdLastFrameOnClipEnd": true
-      }
-    },
-    {
       "url": "loops/highdef/Oligodendrocyte precursor cell in the spinal cord of a zebrafish.mp4",
       "label": "Oligodendrocyte precursor cell in the spinal cord of a zebrafish.mp4",
-      "transition": {
-        "type": "fade",
-        "durationMs": 650,
-        "holdMs": 8200,
-        "holdLastFrameOnClipEnd": true
-      }
-    },
-    {
-      "url": "loops/reactions/cell-image-library/9e4a91e86967-hue-loop.mp4",
-      "label": "9e4a91e86967-hue-loop.mp4",
-      "transition": {
-        "type": "fade",
-        "durationMs": 650,
-        "holdMs": 8200,
-        "holdLastFrameOnClipEnd": true
-      }
-    },
-    {
-      "url": "loops/reactions/cell-image-library/bb2d08e011cc-hue-loop.mp4",
-      "label": "bb2d08e011cc-hue-loop.mp4",
-      "transition": {
-        "type": "fade",
-        "durationMs": 650,
-        "holdMs": 8200,
-        "holdLastFrameOnClipEnd": true
-      }
-    },
-    {
-      "url": "loops/clarafi/274971978.mp4",
-      "label": "274971978.mp4",
       "transition": {
         "type": "fade",
         "durationMs": 650,
@@ -3661,16 +3331,6 @@
       }
     },
     {
-      "url": "loops/reactions/cell-image-library/3ed6f7529ea7-hue-loop.mp4",
-      "label": "3ed6f7529ea7-hue-loop.mp4",
-      "transition": {
-        "type": "fade",
-        "durationMs": 650,
-        "holdMs": 8200,
-        "holdLastFrameOnClipEnd": true
-      }
-    },
-    {
       "url": "loops/Artbeats-TimelapseFlowers3/TF312.mp4",
       "label": "TF312.mp4",
       "transition": {
@@ -3743,66 +3403,6 @@
     {
       "url": "loops/Artbeats.Alien.Atmospheres/Mattes/AM120M.mp4",
       "label": "AM120M.mp4",
-      "transition": {
-        "type": "fade",
-        "durationMs": 650,
-        "holdMs": 8200,
-        "holdLastFrameOnClipEnd": true
-      }
-    },
-    {
-      "url": "loops/clarafi/AETHER 002.mp4",
-      "label": "AETHER 002.mp4",
-      "transition": {
-        "type": "fade",
-        "durationMs": 650,
-        "holdMs": 8200,
-        "holdLastFrameOnClipEnd": true
-      }
-    },
-    {
-      "url": "loops/clarafi/Alzheimer's Enigma.mp4",
-      "label": "Alzheimer's Enigma.mp4",
-      "transition": {
-        "type": "fade",
-        "durationMs": 650,
-        "holdMs": 8200,
-        "holdLastFrameOnClipEnd": true
-      }
-    },
-    {
-      "url": "loops/clarafi/Kinesin Walking Narrated Version for Garland.mp4",
-      "label": "Kinesin Walking Narrated Version for Garland.mp4",
-      "transition": {
-        "type": "fade",
-        "durationMs": 650,
-        "holdMs": 8200,
-        "holdLastFrameOnClipEnd": true
-      }
-    },
-    {
-      "url": "loops/clarafi/Muscle Myosin.mp4",
-      "label": "Muscle Myosin.mp4",
-      "transition": {
-        "type": "fade",
-        "durationMs": 650,
-        "holdMs": 8200,
-        "holdLastFrameOnClipEnd": true
-      }
-    },
-    {
-      "url": "loops/clarafi/Si(111) Surface 7&times;7 Reconstruction.mp4",
-      "label": "Si(111) Surface 7&times;7 Reconstruction.mp4",
-      "transition": {
-        "type": "fade",
-        "durationMs": 650,
-        "holdMs": 8200,
-        "holdLastFrameOnClipEnd": true
-      }
-    },
-    {
-      "url": "loops/clarafi/hemoglobin1c.mov",
-      "label": "hemoglobin1c.mov",
       "transition": {
         "type": "fade",
         "durationMs": 650,
@@ -4103,6 +3703,406 @@
     {
       "url": "loops/Artbeats-TimelapsePlants/TP122.mp4",
       "label": "TP122.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats-TimelapsePlants/TP123.mp4",
+      "label": "TP123.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats-WaterEffects2/Clips/WE205.mp4",
+      "label": "WE205.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats-WaterEffects2/Clips/WE206.mp4",
+      "label": "WE206.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats-WaterEffects2/Clips/WE207.mp4",
+      "label": "WE207.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats-WaterEffects2/Clips/WE208.mp4",
+      "label": "WE208.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats-WaterEffects2/Clips/WE211.mp4",
+      "label": "WE211.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats-WaterEffects2/Clips/WE212.mp4",
+      "label": "WE212.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats-WaterEffects2/Clips/WE213.mp4",
+      "label": "WE213.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats-WaterEffects2/Clips/WE214.mp4",
+      "label": "WE214.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats-WaterEffects2/Clips/WE215.mp4",
+      "label": "WE215.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats-WaterEffects2/Clips/WE216.mp4",
+      "label": "WE216.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats-WaterEffects2/Clips/WE217.mp4",
+      "label": "WE217.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats-WaterEffects2/Clips/WE219.mp4",
+      "label": "WE219.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats-WaterEffects2/Clips/WE220.mp4",
+      "label": "WE220.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats-WaterEffects2/Mattes/WE205M.mp4",
+      "label": "WE205M.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats-WaterEffects2/Mattes/WE212M.mp4",
+      "label": "WE212M.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats-WaterEffects2/Mattes/WE213M.mp4",
+      "label": "WE213M.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats-WaterEffects2/Mattes/WE215M.mp4",
+      "label": "WE215M.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats-WaterEffects2/Mattes/WE216M.mp4",
+      "label": "WE216M.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats-WaterEffects2/Mattes/WE217M.mp4",
+      "label": "WE217M.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/highdef/Oligodendrocyte precursor cell in the spinal cord of a zebrafish.mp4",
+      "label": "Oligodendrocyte precursor cell in the spinal cord of a zebrafish.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/reactions/betse/01-betse-data-yaml-geo-lattice-lattice.mp4",
+      "label": "01-betse-data-yaml-geo-lattice-lattice.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/reactions/betse/02-betse-data-yaml-geo-embryo-neurula-connected.mp4",
+      "label": "02-betse-data-yaml-geo-embryo-neurula-connected.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/reactions/betse/03-betse-data-yaml-geo-planaria-o-gutmask.mp4",
+      "label": "03-betse-data-yaml-geo-planaria-o-gutmask.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/reactions/betse/04-betse-data-yaml-geo-planaria-o-boundarymask.mp4",
+      "label": "04-betse-data-yaml-geo-planaria-o-boundarymask.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/reactions/betse/05-betse-data-yaml-geo-lattice-holes.mp4",
+      "label": "05-betse-data-yaml-geo-lattice-holes.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/reactions/betse/06-betse-data-yaml-geo-worm-2h-gradient.mp4",
+      "label": "06-betse-data-yaml-geo-worm-2h-gradient.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/reactions/betse/07-betse-data-yaml-geo-worm-3cutsb.mp4",
+      "label": "07-betse-data-yaml-geo-worm-3cutsb.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/reactions/betse/08-betse-data-yaml-geo-worm-1h-gradient-linear.mp4",
+      "label": "08-betse-data-yaml-geo-worm-1h-gradient-linear.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/reactions/betse/09-betse-data-yaml-geo-worm-1h-gradient.mp4",
+      "label": "09-betse-data-yaml-geo-worm-1h-gradient.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/reactions/betse/10-doc-yaml-paper-2018-pbmb-patterns-geo-1h2-1h-gradient.mp4",
+      "label": "10-doc-yaml-paper-2018-pbmb-patterns-geo-1h2-1h-gradient.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/reactions/betse/11-betse-data-yaml-geo-worm-2h-gradient-asym.mp4",
+      "label": "11-betse-data-yaml-geo-worm-2h-gradient-asym.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/reactions/betse/12-betse-data-yaml-geo-worm-1h-gradient-neural.mp4",
+      "label": "12-betse-data-yaml-geo-worm-1h-gradient-neural.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/reactions/betse/13-betse-data-yaml-geo-worm-2h-gradient-neural.mp4",
+      "label": "13-betse-data-yaml-geo-worm-2h-gradient-neural.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/reactions/betse/14-betse-data-yaml-geo-embryo-neurula-mesoderm.mp4",
+      "label": "14-betse-data-yaml-geo-embryo-neurula-mesoderm.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/reactions/betse/15-betse-data-yaml-geo-embryo-neurula-epidermis.mp4",
+      "label": "15-betse-data-yaml-geo-embryo-neurula-epidermis.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/reactions/betse/16-betse-data-yaml-geo-worm-2h-gradient-linear.mp4",
+      "label": "16-betse-data-yaml-geo-worm-2h-gradient-linear.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/reactions/betse/17-betse-data-yaml-geo-worm-werner-gradient.mp4",
+      "label": "17-betse-data-yaml-geo-worm-werner-gradient.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/reactions/betse/18-betse-data-yaml-geo-cyst-thick-side-ring.mp4",
+      "label": "18-betse-data-yaml-geo-cyst-thick-side-ring.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/reactions/betse/19-betse-data-yaml-geo-snake-body.mp4",
+      "label": "19-betse-data-yaml-geo-snake-body.mp4",
       "transition": {
         "type": "fade",
         "durationMs": 650,

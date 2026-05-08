@@ -128,6 +128,44 @@
     }
 
 
+
+    .folder-loop-groups {
+        margin-top: 8px;
+        max-height: 220px;
+        overflow-y: auto;
+        padding: 8px;
+        border-radius: 8px;
+        border: 1px solid rgba(118, 230, 255, 0.28);
+        background: rgba(4, 10, 28, 0.65);
+        font-size: 11px;
+        line-height: 1.35;
+    }
+
+    .folder-loop-groups.empty {
+        color: rgba(207, 233, 255, 0.55);
+        font-style: italic;
+    }
+
+    .folder-loop-groups label.loop-row {
+        display: grid;
+        grid-template-columns: 22px minmax(0, 1fr) auto auto;
+        align-items: baseline;
+        gap: 8px;
+        padding: 4px 0;
+        border-bottom: 1px solid rgba(88, 246, 255, 0.12);
+    }
+
+    .folder-loop-groups span.loop-name {
+        color: var(--accent);
+        font-weight: 600;
+        word-break: break-all;
+    }
+
+    .folder-loop-groups span.loop-meta {
+        color: rgba(207, 233, 255, 0.55);
+        font-size: 10px;
+    }
+
     </style>
     <script src="js/threejs.org_build_three.js"></script>
     <!-- <script src="js/cdn.jsdelivr.net_npm_@tonejs_midi.js"></script>
@@ -146,6 +184,42 @@
         Visualizer URL:
         <input type="text" id="visualUrl" size="80" value="sonicsphere.html?demo=1&fullscreen=1&hideoverlay=1&basicvideo=1&fullbg=1&aspect=16x9&videofit=cover&set=sets/set-live-default-all-loops.json"/>
         <input type="button" id="openVisualButton" value="open/reopen visual"/>
+    </div>
+    <div class="input-group">
+        Presets:
+        <input type="button" id="presetCells12AutoplayButton" value="cells1+cells2 autoplay (with logo)"/>
+        <input type="button" id="presetCells12NoLogoButton" value="cells1+cells2 autoplay (no logo)"/>
+    </div>
+    <div class="input-group">
+        SynBioBeta Logo:
+        <input type="button" id="logoShowButton" value="show logo"/>
+        <input type="button" id="logoHideButton" value="hide logo"/>
+        position:
+        <select id="logoPositionSelect">
+            <option value="top">top</option>
+            <option value="center">center</option>
+            <option value="bottom">bottom</option>
+        </select>
+        opacity <input type="text" id="logoOpacityInput" value="0.92" size="4"/>
+    </div>
+    <div class="input-group">
+        Triangle (mosaic) vids:
+        <input type="button" id="triangleOnButton" value="triangle on"/>
+        <input type="button" id="triangleFxButton" value="triangle + fx"/>
+        <input type="button" id="triangleOffButton" value="triangle off"/>
+    </div>
+    <div class="input-group">
+        Folder loops (playlist):
+        <div class="muted" style="font-size:11px;color:rgba(207,233,255,0.62);margin:4px 0 8px;line-height:1.4;">
+          One row per immediate subfolder of <code>loops/</code> when the manifest has <code>"folderLoopRoot":"loops"</code>
+          or per-clip <code>loopGroup</code>. Tick to include that folder's clips in auto-advance; untick to skip.
+        </div>
+        <div id="folderLoopGroupsHost" class="folder-loop-groups empty"></div>
+        <div style="display:flex;flex-wrap:wrap;gap:8px;margin-top:8px;">
+          <input type="button" id="loopGroupsRefreshButton" value="refresh folder list"/>
+          <input type="button" id="loopGroupsEnableAllButton" value="enable all folders"/>
+          <input type="button" id="loopGroupsDisableAllButton" value="disable all folders"/>
+        </div>
     </div>
     <div class="input-group">
         Bridge:
@@ -699,7 +773,7 @@ function getVisualUrlFromUi() {
 
 function openVisualWindow() {
     visualWindow = window.open(getVisualUrlFromUi(), '_blank');
-
+    restartLoopGroupsPoller();
 }
 
 function sendMessageToVisual(data) {
@@ -716,6 +790,78 @@ function sendMessage(name, value) {
     let val = document.getElementById("changelog").value;
     document.getElementById("changelog").value = val + "{ timestamp:" + new Date().getTime() + ", name:" + name + ", value:" + value + "},"; 
 
+}
+
+
+
+
+let __vjLoopGroupsLast = [];
+let __loopGroupsPollTimer = null;
+
+function restartLoopGroupsPoller() {
+    if (__loopGroupsPollTimer) {
+        clearInterval(__loopGroupsPollTimer);
+        __loopGroupsPollTimer = null;
+    }
+    const tick = function() {
+        if (!visualWindow || visualWindow.closed) {
+            clearInterval(__loopGroupsPollTimer);
+            __loopGroupsPollTimer = null;
+            return;
+        }
+        sendMessageToVisual({ type: 'vj', requestLoopGroups: true });
+    };
+    tick();
+    __loopGroupsPollTimer = setInterval(tick, 2200);
+}
+
+function renderFolderLoopGroupPanel(groups) {
+    __vjLoopGroupsLast = Array.isArray(groups) ? groups.slice() : [];
+    const host = document.getElementById('folderLoopGroupsHost');
+    if (!host) return;
+    host.classList.toggle('empty', __vjLoopGroupsLast.length === 0);
+    if (__vjLoopGroupsLast.length === 0) {
+        host.textContent = "No folder-loop groups loaded yet — open the visual and load a manifest with folderLoopRoot or loopGroup.";
+        return;
+    }
+    host.innerHTML = '';
+    __vjLoopGroupsLast.slice().sort(function(a, b) {
+        return String(a.label || a.id).localeCompare(String(b.label || b.id), undefined, {
+            sensitivity: 'base'
+        });
+    }).forEach(function(groupRow) {
+        const gid = groupRow.id;
+        if (!gid) return;
+        const originalIndex = __vjLoopGroupsLast.findIndex(function(g) {
+            return g && g.id === gid;
+        });
+        const label = document.createElement('label');
+        label.className = 'loop-row';
+
+        const input = document.createElement('input');
+        input.type = 'checkbox';
+        input.className = 'folder-loop-enable';
+        input.checked = !!groupRow.enabled;
+        input.dataset.loopIndex = String(originalIndex >= 0 ? originalIndex : 0);
+        label.appendChild(input);
+
+        const name = document.createElement('span');
+        name.className = 'loop-name';
+        name.textContent = groupRow.label || gid;
+        label.appendChild(name);
+
+        const meta = document.createElement('span');
+        meta.className = 'loop-meta';
+        meta.textContent = String(groupRow.clipCount || 0) + ' clips';
+        label.appendChild(meta);
+
+        const active = document.createElement('span');
+        active.className = 'loop-meta';
+        active.textContent = groupRow.isCurrent ? '\u25b8 live' : '';
+        label.appendChild(active);
+
+        host.appendChild(label);
+    });
 }
 
 
@@ -741,7 +887,19 @@ inputs.forEach(input => {
         input.id === 'likeRecentLoopButton' ||
         input.id === 'dislikeRecentLoopButton' ||
         input.id === 'clipDriftOnButton' ||
-        input.id === 'clipDriftOffButton') {
+        input.id === 'clipDriftOffButton' ||
+        input.id === 'presetCells12AutoplayButton' ||
+        input.id === 'presetCells12NoLogoButton' ||
+        input.id === 'logoShowButton' ||
+        input.id === 'logoHideButton' ||
+        input.id === 'logoPositionSelect' ||
+        input.id === 'logoOpacityInput' ||
+        input.id === 'triangleOnButton' ||
+        input.id === 'triangleFxButton' ||
+        input.id === 'triangleOffButton' ||
+        input.id === 'loopGroupsRefreshButton' ||
+        input.id === 'loopGroupsEnableAllButton' ||
+        input.id === 'loopGroupsDisableAllButton') {
         return;
     }
 
@@ -888,6 +1046,149 @@ const clipDriftOffButton = document.getElementById('clipDriftOffButton');
 if (clipDriftOffButton) {
     clipDriftOffButton.addEventListener('click', function() {
         sendMessageToVisual({ type: 'vj', clipDrift: false });
+    });
+}
+
+// Presets that overwrite the visualizer URL field, then open it.
+const cells12PresetUrl = 'sonicsphere.html?basicvideo=1&fullbg=1&aspect=16x9&videofit=cover&set=sets/set-cells1-cells2-autoplay.json';
+const cells12LogoPresetUrl = cells12PresetUrl + '&logo=1&logoposition=top&logoopacity=0.92';
+
+function applyPresetUrl(url) {
+    const input = document.getElementById('visualUrl');
+    if (input) input.value = url;
+    openVisualWindow();
+}
+
+const presetCells12AutoplayButton = document.getElementById('presetCells12AutoplayButton');
+if (presetCells12AutoplayButton) {
+    presetCells12AutoplayButton.addEventListener('click', function() {
+        applyPresetUrl(cells12LogoPresetUrl);
+    });
+}
+
+const presetCells12NoLogoButton = document.getElementById('presetCells12NoLogoButton');
+if (presetCells12NoLogoButton) {
+    presetCells12NoLogoButton.addEventListener('click', function() {
+        applyPresetUrl(cells12PresetUrl);
+    });
+}
+
+function readLogoOpacity() {
+    const raw = parseFloat(document.getElementById('logoOpacityInput')?.value);
+    return Number.isFinite(raw) ? Math.max(0, Math.min(1, raw)) : 0.92;
+}
+function readLogoPosition() {
+    return document.getElementById('logoPositionSelect')?.value || 'top';
+}
+
+const logoShowButton = document.getElementById('logoShowButton');
+if (logoShowButton) {
+    logoShowButton.addEventListener('click', function() {
+        sendMessageToVisual({
+            type: 'vj',
+            logo: true,
+            logoOpacity: readLogoOpacity(),
+            logoPosition: readLogoPosition()
+        });
+    });
+}
+
+const logoHideButton = document.getElementById('logoHideButton');
+if (logoHideButton) {
+    logoHideButton.addEventListener('click', function() {
+        sendMessageToVisual({ type: 'vj', logo: false });
+    });
+}
+
+const logoPositionSelect = document.getElementById('logoPositionSelect');
+if (logoPositionSelect) {
+    logoPositionSelect.addEventListener('change', function() {
+        sendMessageToVisual({ type: 'vj', logoPosition: readLogoPosition() });
+    });
+}
+
+const logoOpacityInput = document.getElementById('logoOpacityInput');
+if (logoOpacityInput) {
+    logoOpacityInput.addEventListener('input', function() {
+        sendMessageToVisual({ type: 'vj', logoOpacity: readLogoOpacity() });
+    });
+}
+
+const triangleOnButton = document.getElementById('triangleOnButton');
+if (triangleOnButton) {
+    triangleOnButton.addEventListener('click', function() {
+        sendMessageToVisual({ type: 'vj', mosaic: true, mosaicFx: false });
+    });
+}
+
+const triangleFxButton = document.getElementById('triangleFxButton');
+if (triangleFxButton) {
+    triangleFxButton.addEventListener('click', function() {
+        sendMessageToVisual({ type: 'vj', mosaic: true, mosaicFx: true });
+    });
+}
+
+const triangleOffButton = document.getElementById('triangleOffButton');
+if (triangleOffButton) {
+    triangleOffButton.addEventListener('click', function() {
+        sendMessageToVisual({ type: 'vj', mosaic: false, mosaicFx: false });
+    });
+}
+
+const folderLoopGroupsHostRoot = document.getElementById('folderLoopGroupsHost');
+if (folderLoopGroupsHostRoot) {
+    folderLoopGroupsHostRoot.addEventListener('change', function(event) {
+        const target = event.target;
+        if (!target || !target.matches('input.folder-loop-enable')) {
+            return;
+        }
+        const idx = parseInt(target.dataset.loopIndex, 10);
+        if (!Number.isFinite(idx)) {
+            return;
+        }
+        const row = __vjLoopGroupsLast[idx];
+        if (!row || !row.id) {
+            return;
+        }
+        sendMessageToVisual({ type: 'vj', loopGroupId: row.id, loopGroupEnabled: !!target.checked });
+    });
+}
+
+function applyFolderLoopBulkToggle(enableAll) {
+    if (__vjLoopGroupsLast.length === 0) {
+        return;
+    }
+    const toggleMap = {};
+    __vjLoopGroupsLast.forEach(function(row) {
+        if (!row || !row.id) {
+            return;
+        }
+        toggleMap[row.id] = !!enableAll;
+    });
+    sendMessageToVisual({ type: 'vj', loopGroups: toggleMap });
+    setTimeout(function() {
+        sendMessageToVisual({ type: 'vj', requestLoopGroups: true });
+    }, 200);
+}
+
+const loopGroupsRefreshButton = document.getElementById('loopGroupsRefreshButton');
+if (loopGroupsRefreshButton) {
+    loopGroupsRefreshButton.addEventListener('click', function() {
+        sendMessageToVisual({ type: 'vj', requestLoopGroups: true });
+    });
+}
+
+const loopGroupsEnableAllButton = document.getElementById('loopGroupsEnableAllButton');
+if (loopGroupsEnableAllButton) {
+    loopGroupsEnableAllButton.addEventListener('click', function() {
+        applyFolderLoopBulkToggle(true);
+    });
+}
+
+const loopGroupsDisableAllButton = document.getElementById('loopGroupsDisableAllButton');
+if (loopGroupsDisableAllButton) {
+    loopGroupsDisableAllButton.addEventListener('click', function() {
+        applyFolderLoopBulkToggle(false);
     });
 }
 
@@ -1086,6 +1387,11 @@ openVisualWindow();
 // sendMessageToVisual({ type: "playbackspeed", payload: {speed: 0.2 } });
 
 window.addEventListener('message', function(event) {
+    const data = event.data;
+    if (data && data.type === 'vjLoopGroups') {
+        renderFolderLoopGroupPanel(data.groups || []);
+        return;
+    }
 
     console.log("message received");
 

@@ -4,21 +4,38 @@ allVideoLoopsIndex = 0;
 window.addEventListener('message', function(event) {
     const data = event.data;
 
+    // Ignore messages that don't follow the legacy {name, value} contract this
+    // controller understands (modern VJ messages use {type:'vj', ...} and are
+    // handled by sonicsphere's own listener).
+    if (!data || typeof data !== 'object') {
+        return;
+    }
+    if (data.type === 'vj') {
+        return;
+    }
+    if (typeof data.name !== 'string') {
+        return;
+    }
+
     // const targetOrigin = event.origin || "*";
     const targetOrigin = "*";
 
     //TODO add bidirectional messaging
-    event.source.postMessage({
-        name: 'videolist',
-        value: document.getElementById('videoListContents').textContent,
-    }, targetOrigin);
+    if (event.source && typeof event.source.postMessage === 'function') {
+        try {
+            event.source.postMessage({
+                name: 'videolist',
+                value: document.getElementById('videoListContents').textContent,
+            }, targetOrigin);
+        } catch (_) {}
+    }
 
     console.log("got a message");
 
     // Modern set playback (video_processor.js + sonicsphere vj bridge) handles
     // loop changes centrally. Skip legacy queue mutations to avoid double-advances
     // and conflicting loop stacks.
-    if (event.data && (event.data.name === "videochange" || event.data.name === "videochangeloop")) {
+    if (event.data.name === "videochange" || event.data.name === "videochangeloop") {
         if (typeof window.playNextSetEntry === 'function') {
             return;
         }

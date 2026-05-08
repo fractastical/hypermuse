@@ -1,0 +1,306 @@
+{
+  "setName": "Artbeats.Alien.Atmospheres",
+  "sourceDirectory": "loops/Artbeats.Alien.Atmospheres",
+  "sourceDirectories": [
+    "loops/Artbeats.Alien.Atmospheres"
+  ],
+  "generatedAt": "2026-05-08T01:52:32.852Z",
+  "count": 20,
+  "playbackMode": "pingpong",
+  "moleculeGraph": {
+    "name": "caffeine",
+    "names": [
+      "caffeine",
+      "serotonin",
+      "dopamine",
+      "glucose"
+    ],
+    "renderMode": "coherent",
+    "cycleOnPhaseChange": true
+  },
+  "simulationPresets": {
+    "grayScott": "nexus"
+  },
+  "backgrounds": {
+    "script": "infinitestreams/src/sketches/yuruyurau/flow1",
+    "scripts": [
+      "infinitestreams/src/sketches/yuruyurau/dots",
+      "infinitestreams/src/sketches/yuruyurau/waves",
+      "infinitestreams/src/sketches/yuruyurau/magnets",
+      "infinitestreams/src/sketches/yuruyurau/orbits",
+      "infinitestreams/src/sketches/yuruyurau/shear",
+      "infinitestreams/src/sketches/yuruyurau/pulse",
+      "infinitestreams/src/sketches/yuruyurau/flow1",
+      "infinitestreams/src/sketches/yuruyurau/flow2",
+      "infinitestreams/src/sketches/snow/lines",
+      "infinitestreams/src/sketches/snow/grid",
+      "infinitestreams/src/sketches/snow/spiral",
+      "infinitestreams/src/sketches/snow/spiralLines",
+      "infinitestreams/src/sketches/snow/rotatingPattern",
+      "infinitestreams/src/sketches/snow/rotatingBlobs",
+      "infinitestreams/src/sketches/snow/rotatingRects",
+      "infinitestreams/src/sketches/snow/rotatingSquares",
+      "infinitestreams/src/sketches/snow/rotatingStars",
+      "infinitestreams/src/sketches/snow/noiseColumns",
+      "infinitestreams/src/sketches/snow/noiseBlobs",
+      "infinitestreams/src/sketches/snow/noiseCircles",
+      "infinitestreams/src/sketches/snow/noiseCircles4",
+      "infinitestreams/src/sketches/snow/noiseCircles5",
+      "infinitestreams/src/sketches/snow/pieArcs",
+      "infinitestreams/src/sketches/snow/pieArcs3",
+      "infinitestreams/src/sketches/snow/circles",
+      "infinitestreams/src/sketches/snow/colorLines",
+      "infinitestreams/src/sketches/snow/morphingShapes",
+      "infinitestreams/src/sketches/snow/musicalExplosions",
+      "infinitestreams/src/sketches/snow/waveEllipses"
+    ],
+    "cycleOnPhaseChange": true,
+    "blendMode": "additive",
+    "opacity": 1,
+    "scrollSpeed": 0.012
+  },
+  "videoBackground": {
+    "enabled": false,
+    "opacity": 0.9
+  },
+  "effectTimeline": {
+    "enabled": true,
+    "phases": [
+      {
+        "name": "classic",
+        "durationSec": 16
+      },
+      {
+        "name": "life",
+        "durationSec": 16
+      },
+      {
+        "name": "classic",
+        "durationSec": 16
+      },
+      {
+        "name": "kuramoto",
+        "durationSec": 16
+      },
+      {
+        "name": "classic",
+        "durationSec": 16
+      },
+      {
+        "name": "gray-scott",
+        "durationSec": 16
+      },
+      {
+        "name": "classic",
+        "durationSec": 16
+      },
+      {
+        "name": "physarum",
+        "durationSec": 16
+      },
+      {
+        "name": "classic",
+        "durationSec": 16
+      },
+      {
+        "name": "molecule",
+        "durationSec": 16
+      },
+      {
+        "name": "classic",
+        "durationSec": 16
+      },
+      {
+        "name": "stacked",
+        "durationSec": 16
+      }
+    ]
+  },
+  "defaultTransition": {
+    "type": "fade",
+    "durationMs": 900,
+    "holdMs": 8000
+  },
+  "loops": [
+    {
+      "url": "loops/Artbeats.Alien.Atmospheres/Clips/AM101.mp4",
+      "label": "AM101.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 900,
+        "holdMs": 8000
+      }
+    },
+    {
+      "url": "loops/Artbeats.Alien.Atmospheres/Clips/AM102.mp4",
+      "label": "AM102.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 900,
+        "holdMs": 8000
+      }
+    },
+    {
+      "url": "loops/Artbeats.Alien.Atmospheres/Clips/AM103.mp4",
+      "label": "AM103.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 900,
+        "holdMs": 8000
+      }
+    },
+    {
+      "url": "loops/Artbeats.Alien.Atmospheres/Clips/AM104.mp4",
+      "label": "AM104.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 900,
+        "holdMs": 8000
+      }
+    },
+    {
+      "url": "loops/Artbeats.Alien.Atmospheres/Clips/AM105.mp4",
+      "label": "AM105.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 900,
+        "holdMs": 8000
+      }
+    },
+    {
+      "url": "loops/Artbeats.Alien.Atmospheres/Clips/AM106.mp4",
+      "label": "AM106.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 900,
+        "holdMs": 8000
+      }
+    },
+    {
+      "url": "loops/Artbeats.Alien.Atmospheres/Clips/AM107.mp4",
+      "label": "AM107.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 900,
+        "holdMs": 8000
+      }
+    },
+    {
+      "url": "loops/Artbeats.Alien.Atmospheres/Clips/AM108.mp4",
+      "label": "AM108.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 900,
+        "holdMs": 8000
+      }
+    },
+    {
+      "url": "loops/Artbeats.Alien.Atmospheres/Clips/AM109.mp4",
+      "label": "AM109.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 900,
+        "holdMs": 8000
+      }
+    },
+    {
+      "url": "loops/Artbeats.Alien.Atmospheres/Clips/AM110.mp4",
+      "label": "AM110.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 900,
+        "holdMs": 8000
+      }
+    },
+    {
+      "url": "loops/Artbeats.Alien.Atmospheres/Clips/AM111.mp4",
+      "label": "AM111.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 900,
+        "holdMs": 8000
+      }
+    },
+    {
+      "url": "loops/Artbeats.Alien.Atmospheres/Clips/AM112.mp4",
+      "label": "AM112.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 900,
+        "holdMs": 8000
+      }
+    },
+    {
+      "url": "loops/Artbeats.Alien.Atmospheres/Clips/AM113.mp4",
+      "label": "AM113.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 900,
+        "holdMs": 8000
+      }
+    },
+    {
+      "url": "loops/Artbeats.Alien.Atmospheres/Clips/AM114.mp4",
+      "label": "AM114.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 900,
+        "holdMs": 8000
+      }
+    },
+    {
+      "url": "loops/Artbeats.Alien.Atmospheres/Clips/AM115.mp4",
+      "label": "AM115.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 900,
+        "holdMs": 8000
+      }
+    },
+    {
+      "url": "loops/Artbeats.Alien.Atmospheres/Clips/AM116.mp4",
+      "label": "AM116.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 900,
+        "holdMs": 8000
+      }
+    },
+    {
+      "url": "loops/Artbeats.Alien.Atmospheres/Clips/AM117.mp4",
+      "label": "AM117.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 900,
+        "holdMs": 8000
+      }
+    },
+    {
+      "url": "loops/Artbeats.Alien.Atmospheres/Clips/AM118.mp4",
+      "label": "AM118.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 900,
+        "holdMs": 8000
+      }
+    },
+    {
+      "url": "loops/Artbeats.Alien.Atmospheres/Clips/AM119.mp4",
+      "label": "AM119.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 900,
+        "holdMs": 8000
+      }
+    },
+    {
+      "url": "loops/Artbeats.Alien.Atmospheres/Clips/AM120.mp4",
+      "label": "AM120.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 900,
+        "holdMs": 8000
+      }
+    }
+  ]
+}

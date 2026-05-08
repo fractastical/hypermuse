@@ -12,6 +12,7 @@ const VIDEO_DIR = path.join(ARTIFACTS_DIR, "videos");
 const AUDIO_PATH = path.join(ARTIFACTS_DIR, "generated-tone.wav");
 const VJ_SET_MANIFEST = process.env.VJ_SET_MANIFEST || "sets/bio1.json";
 const CAPTURE_MS = Number.parseInt(process.env.CAPTURE_MS || "18000", 10);
+const CAPTURE_FULL_SET = process.env.CAPTURE_FULL_SET === "1";
 const OUTPUT_VIDEO = process.env.OUTPUT_VIDEO
   ? path.resolve(PROJECT_ROOT, process.env.OUTPUT_VIDEO)
   : path.join(ARTIFACTS_DIR, "sample-sonicsphere.webm");
@@ -21,10 +22,6 @@ const OUTPUT_VIDEO_SILENT = process.env.OUTPUT_VIDEO_SILENT
     path.dirname(OUTPUT_VIDEO),
     `${path.basename(OUTPUT_VIDEO, path.extname(OUTPUT_VIDEO))}-silent${path.extname(OUTPUT_VIDEO) || ".webm"}`
   );
-const TEST_TONE_DURATION_SEC = Math.min(
-  900,
-  Math.max(14, Math.ceil(CAPTURE_MS / 1000))
-);
 const INPUT_AUDIO_FILE = process.env.INPUT_AUDIO_FILE || "";
 const MOLECULE_NAME = process.env.MOLECULE_NAME || "";
 const AUTO_BUILD_SET_MANIFEST = process.env.AUTO_BUILD_SET_MANIFEST !== "0";
@@ -134,6 +131,51 @@ function getManifestLoopCount() {
   } catch {
     return 0;
   }
+}
+
+function estimateManifestCaptureMs() {
+  const manifestPath = path.resolve(PROJECT_ROOT, VJ_SET_MANIFEST);
+  if (!fs.existsSync(manifestPath)) {
+    return null;
+  }
+  try {
+    const data = JSON.parse(fs.readFileSync(manifestPath, "utf8"));
+    const loops = Array.isArray(data?.loops) ? data.loops : [];
+    if (loops.length === 0) {
+      return null;
+    }
+    const defaultTransition = (data && typeof data.defaultTransition === "object")
+      ? data.defaultTransition
+      : {};
+    const fallbackHoldMs = Number.isFinite(defaultTransition.holdMs)
+      ? Math.max(250, Number(defaultTransition.holdMs))
+      : Math.max(250, SET_HOLD_MS);
+    let total = 0;
+    for (const loop of loops) {
+      if (!loop || typeof loop !== "object") {
+        total += fallbackHoldMs;
+        continue;
+      }
+      const trans = (loop.transition && typeof loop.transition === "object")
+        ? loop.transition
+        : defaultTransition;
+      const holdMs = Number.isFinite(trans.holdMs)
+        ? Math.max(250, Number(trans.holdMs))
+        : fallbackHoldMs;
+      total += holdMs;
+    }
+    // Small tail so last clip has a visible dwell before recorder stops.
+    return Math.max(1000, Math.round(total + 500));
+  } catch {
+    return null;
+  }
+}
+
+function getToneDurationSec(captureMs) {
+  return Math.min(
+    900,
+    Math.max(14, Math.ceil(captureMs / 1000))
+  );
 }
 
 function isMidiFile(filePath) {
@@ -292,11 +334,18 @@ function createTestToneWav({
 
 async function runCapture() {
   const globalT0 = Date.now();
+  const runtimeCaptureMs = CAPTURE_FULL_SET
+    ? (estimateManifestCaptureMs() || CAPTURE_MS)
+    : CAPTURE_MS;
+  const toneDurationSec = getToneDurationSec(runtimeCaptureMs);
   console.log(`[export] ══ Video export start · ${new Date(globalT0).toISOString()}`);
   ensureDir(ARTIFACTS_DIR);
   ensureDir(VIDEO_DIR);
   const exportSize = resolveExportSize();
-  elapsedSince(globalT0, `resolution ${exportSize.width}×${exportSize.height} (${exportSize.profile}) · videoReel=${EXPORT_VIDEO_REEL ? "1" : "0"} · CAPTURE_MS=${CAPTURE_MS}`);
+  elapsedSince(
+    globalT0,
+    `resolution ${exportSize.width}×${exportSize.height} (${exportSize.profile}) · videoReel=${EXPORT_VIDEO_REEL ? "1" : "0"} · CAPTURE_MS=${runtimeCaptureMs}${CAPTURE_FULL_SET ? " (full set)" : ""}`
+  );
   rebuildSetManifestIfNeeded();
   const manifestLoopCount = getManifestLoopCount();
   if (REQUIRE_SET_LOOPS && manifestLoopCount === 0) {
@@ -312,7 +361,7 @@ async function runCapture() {
     }
     audioFileForCapture = resolvedInput;
   } else {
-    fs.writeFileSync(AUDIO_PATH, createTestToneWav({ durationSeconds: TEST_TONE_DURATION_SEC }));
+    fs.writeFileSync(AUDIO_PATH, createTestToneWav({ durationSeconds: toneDurationSec }));
   }
 
   const browser = await chromium.launch({
@@ -419,8 +468,8 @@ async function runCapture() {
     let elapsedMs = 0;
     let lastProgLog = 0;
     let lastState = null;
-    const progStep = Math.max(8000, Math.floor(CAPTURE_MS / 12));
-    while (elapsedMs < CAPTURE_MS) {
+    const progStep = Math.max(8000, Math.floor(runtimeCaptureMs / 12));
+    while (elapsedMs < runtimeCaptureMs) {
       const inCycle = elapsedMs % cycleMs;
       const basicWindowMs = cycleMs * basicRatio;
       const shouldBasic = inCycle < basicWindowMs;
@@ -435,13 +484,13 @@ async function runCapture() {
       const timeToBoundary = shouldBasic
         ? Math.max(1, basicWindowMs - inCycle)
         : Math.max(1, cycleMs - inCycle);
-      const remaining = CAPTURE_MS - elapsedMs;
+      const remaining = runtimeCaptureMs - elapsedMs;
       const stepMs = Math.max(220, Math.min(remaining, timeToBoundary));
       await page.waitForTimeout(stepMs);
       elapsedMs += stepMs;
-      if (elapsedMs - lastProgLog >= progStep || elapsedMs >= CAPTURE_MS) {
-        const pct = Math.round((100 * elapsedMs) / CAPTURE_MS);
-        elapsedSince(globalT0, `mixed basic/ratio capture ${pct}% · ${Math.round(elapsedMs / 1000)}s / ${Math.round(CAPTURE_MS / 1000)}s`);
+      if (elapsedMs - lastProgLog >= progStep || elapsedMs >= runtimeCaptureMs) {
+        const pct = Math.round((100 * elapsedMs) / runtimeCaptureMs);
+        elapsedSince(globalT0, `mixed basic/ratio capture ${pct}% · ${Math.round(elapsedMs / 1000)}s / ${Math.round(runtimeCaptureMs / 1000)}s`);
         lastProgLog = elapsedMs;
       }
     }
@@ -458,12 +507,12 @@ async function runCapture() {
         window.setBasicVideoMode(true);
       }
     });
-    await waitRecordingWindow(page, CAPTURE_MS, "basic-video only");
+    await waitRecordingWindow(page, runtimeCaptureMs, "basic-video only");
   } else {
     // Give decode + capture loops enough time to build visible geometry.
     await waitRecordingWindow(
       page,
-      CAPTURE_MS,
+      runtimeCaptureMs,
       EXPORT_VIDEO_REEL ? "video reel (classic fullscreen)" : "effects timeline"
     );
   }
@@ -497,7 +546,7 @@ async function runCapture() {
   }
   const wallTotal = Math.round((Date.now() - globalT0) / 1000);
   console.log(`[export] ══ Done · total wall ${wallTotal}s · Sample video written: ${OUTPUT_VIDEO}`);
-  console.log(`[export]     capture timeline ${CAPTURE_MS} ms · tone ${TEST_TONE_DURATION_SEC}s`);
+  console.log(`[export]     capture timeline ${runtimeCaptureMs} ms · tone ${toneDurationSec}s`);
 }
 
 async function main() {

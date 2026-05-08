@@ -1,7 +1,7 @@
 {
   "setName": "set-color-purple-teal-arc",
   "sourceDirectory": "loops",
-  "generatedAt": "2026-05-08T01:13:02.490Z",
+  "generatedAt": "2026-05-08T02:20:53.310Z",
   "count": 407,
   "playbackMode": "loop",
   "setNotes": "Cool chromatic arc: purple / magenta / teal-cyan family clips from color tags.",
@@ -141,26 +141,6 @@
       }
     },
     {
-      "url": "loops/morpholib/turing_patterns_loop30.mp4",
-      "label": "turing_patterns_loop30.mp4",
-      "transition": {
-        "type": "fade",
-        "durationMs": 650,
-        "holdMs": 8200,
-        "holdLastFrameOnClipEnd": true
-      }
-    },
-    {
-      "url": "loops/reactions/cell-image-library/4cbe64dc737c-hue-loop.mp4",
-      "label": "4cbe64dc737c-hue-loop.mp4",
-      "transition": {
-        "type": "fade",
-        "durationMs": 650,
-        "holdMs": 8200,
-        "holdLastFrameOnClipEnd": true
-      }
-    },
-    {
       "url": "loops/ArtBeats - Centrifusion/CLIPS/CFU104.mp4",
       "label": "CFU104.mp4",
       "transition": {
@@ -783,36 +763,6 @@
     {
       "url": "loops/cells2/vecteezy_microscopic-world-of-cells-scientific-illustration-of_72642324.mp4",
       "label": "vecteezy_microscopic-world-of-cells-scientific-illustration-of_72642324.mp4",
-      "transition": {
-        "type": "fade",
-        "durationMs": 650,
-        "holdMs": 8200,
-        "holdLastFrameOnClipEnd": true
-      }
-    },
-    {
-      "url": "loops/clarafi/Bordetella pertussis and Whooping Cough.mp4",
-      "label": "Bordetella pertussis and Whooping Cough.mp4",
-      "transition": {
-        "type": "fade",
-        "durationMs": 650,
-        "holdMs": 8200,
-        "holdLastFrameOnClipEnd": true
-      }
-    },
-    {
-      "url": "loops/clarafi/Citric Acid Cycle _ HHMI BioInteractive Video.webm",
-      "label": "Citric Acid Cycle _ HHMI BioInteractive Video.webm",
-      "transition": {
-        "type": "fade",
-        "durationMs": 650,
-        "holdMs": 8200,
-        "holdLastFrameOnClipEnd": true
-      }
-    },
-    {
-      "url": "loops/clarafi/How Enzymes Work (from PDB-101).mp4",
-      "label": "How Enzymes Work (from PDB-101).mp4",
       "transition": {
         "type": "fade",
         "durationMs": 650,
@@ -1271,16 +1221,6 @@
       }
     },
     {
-      "url": "loops/clarafi/How Tumors Grow _ HHMI BioInteractive Video.mp4",
-      "label": "How Tumors Grow _ HHMI BioInteractive Video.mp4",
-      "transition": {
-        "type": "fade",
-        "durationMs": 650,
-        "holdMs": 8200,
-        "holdLastFrameOnClipEnd": true
-      }
-    },
-    {
       "url": "loops/ArtBeats - Centrifusion/CLIPS/CFU103.mp4",
       "label": "CFU103.mp4",
       "transition": {
@@ -1621,36 +1561,6 @@
       }
     },
     {
-      "url": "loops/clarafi/Electron Transport Chain _ HHMI BioInteractive Video.mp4",
-      "label": "Electron Transport Chain _ HHMI BioInteractive Video.mp4",
-      "transition": {
-        "type": "fade",
-        "durationMs": 650,
-        "holdMs": 8200,
-        "holdLastFrameOnClipEnd": true
-      }
-    },
-    {
-      "url": "loops/clarafi/The Structure of DNA.mp4",
-      "label": "The Structure of DNA.mp4",
-      "transition": {
-        "type": "fade",
-        "durationMs": 650,
-        "holdMs": 8200,
-        "holdLastFrameOnClipEnd": true
-      }
-    },
-    {
-      "url": "loops/clarafi/hemoglobin3.mov",
-      "label": "hemoglobin3.mov",
-      "transition": {
-        "type": "fade",
-        "durationMs": 650,
-        "holdMs": 8200,
-        "holdLastFrameOnClipEnd": true
-      }
-    },
-    {
       "url": "loops/highdef/Actin and mitochondria in mouse brain tumor cells 2025 Small Wor.mp4",
       "label": "Actin and mitochondria in mouse brain tumor cells 2025 Small Wor.mp4",
       "transition": {
@@ -1773,26 +1683,6 @@
     {
       "url": "loops/highdef/Mitotic waves in the embryo of a fruit fly 2024 Small World in M.mp4",
       "label": "Mitotic waves in the embryo of a fruit fly 2024 Small World in M.mp4",
-      "transition": {
-        "type": "fade",
-        "durationMs": 650,
-        "holdMs": 8200,
-        "holdLastFrameOnClipEnd": true
-      }
-    },
-    {
-      "url": "loops/morpholib/turing_patterns_loop30.mp4",
-      "label": "turing_patterns_loop30.mp4",
-      "transition": {
-        "type": "fade",
-        "durationMs": 650,
-        "holdMs": 8200,
-        "holdLastFrameOnClipEnd": true
-      }
-    },
-    {
-      "url": "loops/reactions/cell-image-library/4cbe64dc737c-hue-loop.mp4",
-      "label": "4cbe64dc737c-hue-loop.mp4",
       "transition": {
         "type": "fade",
         "durationMs": 650,
@@ -2423,36 +2313,6 @@
     {
       "url": "loops/cells2/vecteezy_microscopic-world-of-cells-scientific-illustration-of_72642324.mp4",
       "label": "vecteezy_microscopic-world-of-cells-scientific-illustration-of_72642324.mp4",
-      "transition": {
-        "type": "fade",
-        "durationMs": 650,
-        "holdMs": 8200,
-        "holdLastFrameOnClipEnd": true
-      }
-    },
-    {
-      "url": "loops/clarafi/Bordetella pertussis and Whooping Cough.mp4",
-      "label": "Bordetella pertussis and Whooping Cough.mp4",
-      "transition": {
-        "type": "fade",
-        "durationMs": 650,
-        "holdMs": 8200,
-        "holdLastFrameOnClipEnd": true
-      }
-    },
-    {
-      "url": "loops/clarafi/Citric Acid Cycle _ HHMI BioInteractive Video.webm",
-      "label": "Citric Acid Cycle _ HHMI BioInteractive Video.webm",
-      "transition": {
-        "type": "fade",
-        "durationMs": 650,
-        "holdMs": 8200,
-        "holdLastFrameOnClipEnd": true
-      }
-    },
-    {
-      "url": "loops/clarafi/How Enzymes Work (from PDB-101).mp4",
-      "label": "How Enzymes Work (from PDB-101).mp4",
       "transition": {
         "type": "fade",
         "durationMs": 650,
@@ -2911,16 +2771,6 @@
       }
     },
     {
-      "url": "loops/clarafi/How Tumors Grow _ HHMI BioInteractive Video.mp4",
-      "label": "How Tumors Grow _ HHMI BioInteractive Video.mp4",
-      "transition": {
-        "type": "fade",
-        "durationMs": 650,
-        "holdMs": 8200,
-        "holdLastFrameOnClipEnd": true
-      }
-    },
-    {
       "url": "loops/ArtBeats - Centrifusion/CLIPS/CFU103.mp4",
       "label": "CFU103.mp4",
       "transition": {
@@ -3261,36 +3111,6 @@
       }
     },
     {
-      "url": "loops/clarafi/Electron Transport Chain _ HHMI BioInteractive Video.mp4",
-      "label": "Electron Transport Chain _ HHMI BioInteractive Video.mp4",
-      "transition": {
-        "type": "fade",
-        "durationMs": 650,
-        "holdMs": 8200,
-        "holdLastFrameOnClipEnd": true
-      }
-    },
-    {
-      "url": "loops/clarafi/The Structure of DNA.mp4",
-      "label": "The Structure of DNA.mp4",
-      "transition": {
-        "type": "fade",
-        "durationMs": 650,
-        "holdMs": 8200,
-        "holdLastFrameOnClipEnd": true
-      }
-    },
-    {
-      "url": "loops/clarafi/hemoglobin3.mov",
-      "label": "hemoglobin3.mov",
-      "transition": {
-        "type": "fade",
-        "durationMs": 650,
-        "holdMs": 8200,
-        "holdLastFrameOnClipEnd": true
-      }
-    },
-    {
       "url": "loops/highdef/Actin and mitochondria in mouse brain tumor cells 2025 Small Wor.mp4",
       "label": "Actin and mitochondria in mouse brain tumor cells 2025 Small Wor.mp4",
       "transition": {
@@ -3413,26 +3233,6 @@
     {
       "url": "loops/highdef/Mitotic waves in the embryo of a fruit fly 2024 Small World in M.mp4",
       "label": "Mitotic waves in the embryo of a fruit fly 2024 Small World in M.mp4",
-      "transition": {
-        "type": "fade",
-        "durationMs": 650,
-        "holdMs": 8200,
-        "holdLastFrameOnClipEnd": true
-      }
-    },
-    {
-      "url": "loops/morpholib/turing_patterns_loop30.mp4",
-      "label": "turing_patterns_loop30.mp4",
-      "transition": {
-        "type": "fade",
-        "durationMs": 650,
-        "holdMs": 8200,
-        "holdLastFrameOnClipEnd": true
-      }
-    },
-    {
-      "url": "loops/reactions/cell-image-library/4cbe64dc737c-hue-loop.mp4",
-      "label": "4cbe64dc737c-hue-loop.mp4",
       "transition": {
         "type": "fade",
         "durationMs": 650,
@@ -4071,38 +3871,238 @@
       }
     },
     {
-      "url": "loops/clarafi/Bordetella pertussis and Whooping Cough.mp4",
-      "label": "Bordetella pertussis and Whooping Cough.mp4",
-      "transition": {
-        "type": "fade",
-        "durationMs": 650,
-        "holdMs": 8200,
-        "holdLastFrameOnClipEnd": true
-      }
-    },
-    {
-      "url": "loops/clarafi/Citric Acid Cycle _ HHMI BioInteractive Video.webm",
-      "label": "Citric Acid Cycle _ HHMI BioInteractive Video.webm",
-      "transition": {
-        "type": "fade",
-        "durationMs": 650,
-        "holdMs": 8200,
-        "holdLastFrameOnClipEnd": true
-      }
-    },
-    {
-      "url": "loops/clarafi/How Enzymes Work (from PDB-101).mp4",
-      "label": "How Enzymes Work (from PDB-101).mp4",
-      "transition": {
-        "type": "fade",
-        "durationMs": 650,
-        "holdMs": 8200,
-        "holdLastFrameOnClipEnd": true
-      }
-    },
-    {
       "url": "loops/highdef/Self-pollination in a flower of thymeleaf speedwell Veronica ser.mp4",
       "label": "Self-pollination in a flower of thymeleaf speedwell Veronica ser.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/highdef/zoom-swim-paracetamol cut.mp4",
+      "label": "zoom-swim-paracetamol cut.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/ArtBeats - Centrifusion/CLIPS/CFU110.mp4",
+      "label": "CFU110.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/ArtBeats - Centrifusion/CLIPS/CFU118.mp4",
+      "label": "CFU118.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/ArtBeats - Centrifusion/CLIPS/CFU136.mp4",
+      "label": "CFU136.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats Ocean Water Effects PAL/CWE101.mp4",
+      "label": "CWE101.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats Ocean Water Effects PAL/CWE102.mp4",
+      "label": "CWE102.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats Ocean Water Effects PAL/CWE103.mp4",
+      "label": "CWE103.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats Ocean Water Effects PAL/CWE104.mp4",
+      "label": "CWE104.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats Ocean Water Effects PAL/CWE105.mp4",
+      "label": "CWE105.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats Ocean Water Effects PAL/CWE111.mp4",
+      "label": "CWE111.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats Ocean Water Effects PAL/CWE112.mp4",
+      "label": "CWE112.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats Ocean Water Effects PAL/CWE114.mp4",
+      "label": "CWE114.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats Ocean Water Effects PAL/CWE115.mp4",
+      "label": "CWE115.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats Ocean Water Effects PAL/CWE117.mp4",
+      "label": "CWE117.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats Ocean Water Effects PAL/CWE121.mp4",
+      "label": "CWE121.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats-OceanWaterEffects/CWE101.mp4",
+      "label": "CWE101.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats-OceanWaterEffects/CWE102.mp4",
+      "label": "CWE102.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats-OceanWaterEffects/CWE103.mp4",
+      "label": "CWE103.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats-OceanWaterEffects/CWE104.mp4",
+      "label": "CWE104.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats-OceanWaterEffects/CWE105.mp4",
+      "label": "CWE105.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats-OceanWaterEffects/CWE111.mp4",
+      "label": "CWE111.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats-OceanWaterEffects/CWE112.mp4",
+      "label": "CWE112.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats-OceanWaterEffects/CWE114.mp4",
+      "label": "CWE114.mp4",
       "transition": {
         "type": "fade",
         "durationMs": 650,

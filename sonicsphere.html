@@ -312,6 +312,11 @@ button:hover {
         let innerTriangleOffset = 0.005;
         let merkabaMode = false;
         let noteDisplayEnabled= false;
+        // Declared up-front so the render loop can read them before video_processor.js
+        // (which also declares them) loads. Without this, an early animation frame
+        // would throw ReferenceError until external scripts finish loading.
+        var videoElementActive = false;
+        var imageElementActive = false;
         let peakBandIndex;
         let playbackRate= 0.5;
         let videoFullOpacity = true;
@@ -649,6 +654,68 @@ button:hover {
             layer.style.transition = `opacity ${blackoutTransitionMs}ms ease`;
             layer.style.opacity = String(blackoutOpacity);
         }
+
+        // SynBioBeta logo overlay (toggle via VJ command logo:true|false / logoOpacity / logoPosition).
+        let synbiobetaLogoLayer = null;
+        let synbiobetaLogoOpacity = 0.92;
+        let synbiobetaLogoPosition = 'top';
+        function ensureSynBioBetaLogoLayer() {
+            if (synbiobetaLogoLayer) return synbiobetaLogoLayer;
+            synbiobetaLogoLayer = document.createElement('div');
+            synbiobetaLogoLayer.id = 'synbiobetaLogoLayer';
+            synbiobetaLogoLayer.style.position = 'fixed';
+            synbiobetaLogoLayer.style.left = '0';
+            synbiobetaLogoLayer.style.right = '0';
+            synbiobetaLogoLayer.style.height = '22vh';
+            synbiobetaLogoLayer.style.pointerEvents = 'none';
+            synbiobetaLogoLayer.style.zIndex = '24';
+            synbiobetaLogoLayer.style.opacity = '0';
+            synbiobetaLogoLayer.style.transition = 'opacity 600ms ease';
+            synbiobetaLogoLayer.style.backgroundImage = "url('assets/synbiobeta-logo.png')";
+            synbiobetaLogoLayer.style.backgroundRepeat = 'no-repeat';
+            synbiobetaLogoLayer.style.backgroundPosition = 'center center';
+            synbiobetaLogoLayer.style.backgroundSize = 'contain';
+            synbiobetaLogoLayer.style.filter = 'drop-shadow(0 4px 18px rgba(0,0,0,0.55))';
+            applySynBioBetaLogoPosition(synbiobetaLogoPosition);
+            document.body.appendChild(synbiobetaLogoLayer);
+            return synbiobetaLogoLayer;
+        }
+        function applySynBioBetaLogoPosition(position) {
+            const pos = String(position || 'top').toLowerCase();
+            synbiobetaLogoPosition = pos;
+            if (!synbiobetaLogoLayer) return;
+            synbiobetaLogoLayer.style.top = '';
+            synbiobetaLogoLayer.style.bottom = '';
+            if (pos === 'bottom') {
+                synbiobetaLogoLayer.style.bottom = '4vh';
+            } else if (pos === 'center') {
+                synbiobetaLogoLayer.style.top = '50%';
+                synbiobetaLogoLayer.style.transform = 'translateY(-50%)';
+                return;
+            } else {
+                synbiobetaLogoLayer.style.top = '4vh';
+            }
+            synbiobetaLogoLayer.style.transform = '';
+        }
+        function setSynBioBetaLogoVisible(visible, opacity) {
+            const layer = ensureSynBioBetaLogoLayer();
+            if (Number.isFinite(opacity)) {
+                synbiobetaLogoOpacity = Math.max(0, Math.min(1, Number(opacity)));
+            }
+            layer.style.opacity = visible ? String(synbiobetaLogoOpacity) : '0';
+        }
+        window.setSynBioBetaLogo = function(opts = {}) {
+            if (opts.position) {
+                ensureSynBioBetaLogoLayer();
+                applySynBioBetaLogoPosition(opts.position);
+            }
+            if (typeof opts.visible === 'boolean') {
+                setSynBioBetaLogoVisible(opts.visible, opts.opacity);
+            } else if (Number.isFinite(opts.opacity)) {
+                ensureSynBioBetaLogoLayer().style.opacity = String(Math.max(0, Math.min(1, opts.opacity)));
+                synbiobetaLogoOpacity = Math.max(0, Math.min(1, opts.opacity));
+            }
+        };
 
         window.setRenderAspectPreset = setRenderAspectPreset;
         window.setVideoBackdropFitMode = setVideoBackdropFitMode;
@@ -2014,10 +2081,26 @@ button:hover {
             return document.getElementById('videoElement');
         }
 
+        function ensureBasicVideoBlackBackdrop() {
+            let layer = document.getElementById('basicVideoBlackBackdrop');
+            if (!layer) {
+                layer = document.createElement('div');
+                layer.id = 'basicVideoBlackBackdrop';
+                layer.style.position = 'fixed';
+                layer.style.inset = '0';
+                layer.style.background = '#000';
+                layer.style.pointerEvents = 'none';
+                layer.style.zIndex = '1';
+                document.body.appendChild(layer);
+            }
+            return layer;
+        }
+
         function setDirectBasicVideoSurface(enabled) {
             const el = getVideoElementRef();
             if (!el) return;
             if (enabled) {
+                ensureBasicVideoBlackBackdrop().style.display = 'block';
                 el.classList.remove('hidden');
                 el.style.position = 'fixed';
                 el.style.left = '0';
@@ -2030,6 +2113,8 @@ button:hover {
                 el.style.background = '#000';
                 return;
             }
+            const backdrop = document.getElementById('basicVideoBlackBackdrop');
+            if (backdrop) backdrop.style.display = 'none';
             el.style.position = '';
             el.style.left = '';
             el.style.top = '';
@@ -4280,6 +4365,25 @@ button:hover {
         } else if (typeof cmd.blackout === 'number') {
             setBlackoutLevel(cmd.blackout, cmd.blackoutFadeMs);
         }
+        if (typeof cmd.logo === 'boolean') {
+            setSynBioBetaLogoVisible(cmd.logo, cmd.logoOpacity);
+        } else if (Number.isFinite(cmd.logoOpacity)) {
+            const layer = ensureSynBioBetaLogoLayer();
+            const op = Math.max(0, Math.min(1, Number(cmd.logoOpacity)));
+            synbiobetaLogoOpacity = op;
+            layer.style.opacity = String(op);
+        }
+        if (typeof cmd.logoPosition === 'string') {
+            ensureSynBioBetaLogoLayer();
+            applySynBioBetaLogoPosition(cmd.logoPosition);
+        }
+        if (cmd.loopGroups && typeof cmd.loopGroups === 'object' && typeof window.applyLoopGroupToggleMap === 'function') {
+            window.applyLoopGroupToggleMap(cmd.loopGroups);
+        }
+        if (typeof cmd.loopGroupId === 'string' && typeof cmd.loopGroupEnabled === 'boolean'
+            && typeof window.setLoopGroupEnabled === 'function') {
+            window.setLoopGroupEnabled(String(cmd.loopGroupId).trim(), cmd.loopGroupEnabled);
+        }
         if (typeof cmd.clipDrift === 'boolean' && typeof window.setProgressiveClipWindowConfig === 'function') {
             window.setProgressiveClipWindowConfig({
                 enabled: cmd.clipDrift,
@@ -4341,6 +4445,19 @@ button:hover {
         }
         if (event.data.type === 'vj') {
             applyVjCommand(event.data);
+            if (event.data.requestLoopGroups && typeof window.getLoopGroupsSnapshot === 'function') {
+                try {
+                    if (event.source && typeof event.source.postMessage === 'function') {
+                        event.source.postMessage({
+                            type: 'vjLoopGroups',
+                            groups: window.getLoopGroupsSnapshot(),
+                            revision: Date.now()
+                        }, '*');
+                    }
+                } catch (error) {
+                    console.warn(error);
+                }
+            }
             return;
         }
         // Compatibility bridge for legacy controller name/value messages.
@@ -4504,6 +4621,9 @@ button:hover {
     const bootInfinitestreams = vjBootParams.get('infinitestreams');
     const bootInfinitestreamsOpacity = Number(vjBootParams.get('infinitestreamsopacity'));
     const bootInfinitestreamsUrl = vjBootParams.get('infinitestreamsurl');
+    const bootLogo = vjBootParams.get('logo');
+    const bootLogoOpacity = Number(vjBootParams.get('logoopacity'));
+    const bootLogoPosition = vjBootParams.get('logoposition');
     applyVjCommand({
         mode: bootMode || undefined,
         speed: Number.isFinite(bootSpeed) ? bootSpeed : undefined,
@@ -4513,7 +4633,10 @@ button:hover {
         audio: bootAudio === null ? undefined : (bootAudio === 'true' || bootAudio === '1'),
         infinitestreams: bootInfinitestreams === null ? undefined : (bootInfinitestreams === 'true' || bootInfinitestreams === '1'),
         infinitestreamsOpacity: Number.isFinite(bootInfinitestreamsOpacity) ? bootInfinitestreamsOpacity : undefined,
-        infinitestreamsUrl: bootInfinitestreamsUrl || undefined
+        infinitestreamsUrl: bootInfinitestreamsUrl || undefined,
+        logo: bootLogo === null ? undefined : (bootLogo === 'true' || bootLogo === '1'),
+        logoOpacity: Number.isFinite(bootLogoOpacity) ? bootLogoOpacity : undefined,
+        logoPosition: bootLogoPosition || undefined
     });
     function loadBootSetWhenReady(manifestPath, attempt = 0) {
         if (!manifestPath) return;

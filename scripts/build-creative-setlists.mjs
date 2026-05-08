@@ -47,9 +47,25 @@ const INFINITESTREAMS_SCRIPT_POOL = (
   .filter(Boolean);
 
 const VIDEO_EXTENSIONS = new Set([".mp4", ".mov", ".webm", ".m4v", ".avi", ".mkv"]);
+const EXCLUDED_VIDEO_PATTERNS = (
+  process.env.CREATIVE_SETLIST_EXCLUDE_PATTERNS
+  || "loops/morpholib/turing_patterns_loop30.mp4,loops/clarafi/"
+)
+  .split(",")
+  .map((s) => s.trim())
+  .filter(Boolean)
+  .map((s) => s.toLowerCase());
 
 function toPosix(inputPath) {
   return inputPath.split(path.sep).join("/");
+}
+
+function isExcludedVideoPath(inputPath) {
+  const rel = toPosix(path.isAbsolute(inputPath)
+    ? path.relative(PROJECT_ROOT, inputPath)
+    : String(inputPath || ""));
+  const lowerRel = rel.toLowerCase();
+  return EXCLUDED_VIDEO_PATTERNS.some((pattern) => lowerRel.includes(pattern));
 }
 
 function collectVideosRecursive(dirPath, acc = []) {
@@ -61,7 +77,9 @@ function collectVideosRecursive(dirPath, acc = []) {
       continue;
     }
     if (VIDEO_EXTENSIONS.has(path.extname(entry.name).toLowerCase())) {
-      acc.push(fullPath);
+      if (!isExcludedVideoPath(fullPath)) {
+        acc.push(fullPath);
+      }
     }
   }
   return acc;
@@ -220,7 +238,7 @@ function collectColorArcLoops(tagIndex, clipBudget) {
       let n = 0;
       for (const ref of list) {
         const p = parseVideoRef(ref);
-        if (!p || seen.has(p)) continue;
+        if (!p || seen.has(p) || isExcludedVideoPath(p)) continue;
         const abs = path.join(PROJECT_ROOT, p);
         if (!fs.existsSync(abs)) continue;
         seen.add(p);
@@ -246,7 +264,7 @@ function collectTaggedLoops(tagIndex, tags, clipBudget, seenGlobal = new Set()) 
     let n = 0;
     for (const ref of list) {
       const p = parseVideoRef(ref);
-      if (!p || seenGlobal.has(p)) continue;
+      if (!p || seenGlobal.has(p) || isExcludedVideoPath(p)) continue;
       const abs = path.join(PROJECT_ROOT, p);
       if (!fs.existsSync(abs)) continue;
       seenGlobal.add(p);
