@@ -15,6 +15,15 @@ window.addEventListener('message', function(event) {
 
     console.log("got a message");
 
+    // Modern set playback (video_processor.js + sonicsphere vj bridge) handles
+    // loop changes centrally. Skip legacy queue mutations to avoid double-advances
+    // and conflicting loop stacks.
+    if (event.data && (event.data.name === "videochange" || event.data.name === "videochangeloop")) {
+        if (typeof window.playNextSetEntry === 'function') {
+            return;
+        }
+    }
+
     if (event.data.name === "playbackrate") {
 
         playbackrate =  parseFloat(event.data.value);

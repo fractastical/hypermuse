@@ -10,31 +10,107 @@
     <meta charset="utf-8">
     <title>Controller (for Audiosphere)</title>
     <style>
+    :root {
+        --bg0: #060813;
+        --bg1: #0d1230;
+        --panel: rgba(10, 18, 44, 0.74);
+        --panel-border: rgba(86, 214, 255, 0.35);
+        --text: #cfe9ff;
+        --accent: #58f6ff;
+        --accent-2: #c17dff;
+    }
+
+    * {
+        box-sizing: border-box;
+    }
+
     body {
         margin: 0;
         display: flex;
         align-items: center;
         justify-content: center;
         min-height: 100vh;
-        background: #f0f0f0;
+        color: var(--text);
+        font-family: "JetBrains Mono", "SF Mono", "Menlo", "Consolas", monospace;
+        background:
+            radial-gradient(circle at 20% 20%, rgba(88, 246, 255, 0.18), transparent 38%),
+            radial-gradient(circle at 80% 0%, rgba(193, 125, 255, 0.2), transparent 45%),
+            linear-gradient(170deg, var(--bg0), var(--bg1));
     }
 
-    input {
-        padding:3px;
-        margin:3px;
-        size:10;
+    body::before {
+        content: "";
+        position: fixed;
+        inset: 0;
+        pointer-events: none;
+        opacity: 0.22;
+        background-image:
+            linear-gradient(rgba(90, 180, 255, 0.18) 1px, transparent 1px),
+            linear-gradient(90deg, rgba(90, 180, 255, 0.18) 1px, transparent 1px);
+        background-size: 34px 34px;
+        mix-blend-mode: screen;
+    }
+
+    input, textarea {
+        padding: 6px 8px;
+        margin: 3px;
+        border-radius: 6px;
+        border: 1px solid rgba(118, 230, 255, 0.45);
+        background: rgba(7, 14, 35, 0.88);
+        color: var(--text);
+        box-shadow: inset 0 0 0 1px rgba(12, 32, 72, 0.6);
+    }
+
+    input[type="button"] {
+        border-color: rgba(88, 246, 255, 0.6);
+        color: #ecfdff;
+        background: linear-gradient(180deg, rgba(47, 115, 159, 0.65), rgba(20, 43, 78, 0.8));
+        text-transform: uppercase;
+        letter-spacing: 0.04em;
+        font-size: 11px;
+        cursor: pointer;
+        box-shadow:
+            0 0 14px rgba(88, 246, 255, 0.2),
+            inset 0 0 12px rgba(88, 246, 255, 0.18);
+    }
+
+    input[type="button"]:hover {
+        border-color: var(--accent);
+        box-shadow:
+            0 0 20px rgba(88, 246, 255, 0.35),
+            inset 0 0 14px rgba(193, 125, 255, 0.22);
+    }
+
+    input:focus, textarea:focus {
+        outline: none;
+        border-color: var(--accent-2);
+        box-shadow:
+            0 0 0 2px rgba(193, 125, 255, 0.25),
+            inset 0 0 0 1px rgba(193, 125, 255, 0.4);
     }
 
     .input-grid {
         display: grid;
-        grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-        gap: 20px;
-        max-height: 90vh;
+        grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+        gap: 14px;
+        width: min(96vw, 1600px);
+        max-height: 92vh;
         overflow-y: auto;
-        padding: 20px;
+        padding: 18px;
+        border-radius: 14px;
+        border: 1px solid var(--panel-border);
+        background: var(--panel);
+        backdrop-filter: blur(8px);
+        box-shadow:
+            0 14px 38px rgba(2, 5, 16, 0.65),
+            inset 0 0 28px rgba(88, 246, 255, 0.08);
+    }
+
+    .input-group {
+        padding: 8px;
         border-radius: 10px;
-        background: #fff;
-        box-shadow: 0px 5px 15px rgba(0, 0, 0, 0.1);
+        border: 1px solid rgba(88, 246, 255, 0.22);
+        background: rgba(7, 16, 40, 0.58);
     }
 
 
@@ -44,7 +120,7 @@
 
     @keyframes flash {
         50% {
-            background: green;
+            background: rgba(88, 246, 255, 0.85);
         }
         100% {
             background: transparent;
@@ -66,6 +142,41 @@
 </head>
 <body>
     <div id="thresholds" class="input-grid">
+    <div class="input-group">
+        Visualizer URL:
+        <input type="text" id="visualUrl" size="80" value="sonicsphere.html?demo=1&fullscreen=1&hideoverlay=1&basicvideo=1&fullbg=1&aspect=16x9&videofit=cover&set=sets/set-live-default-all-loops.json"/>
+        <input type="button" id="openVisualButton" value="open/reopen visual"/>
+    </div>
+    <div class="input-group">
+        Bridge:
+        <input type="button" id="bridgeFadeOutButton" value="fade to black"/>
+        <input type="button" id="bridgeFadeInButton" value="fade in"/>
+    </div>
+    <div class="input-group">
+        Basic Video Mode:
+        <input type="button" id="basicVideoOnButton" value="basic on"/>
+        <input type="button" id="basicVideoOffButton" value="basic off"/>
+        <input type="button" id="basicVideoToggleButton" value="toggle basic"/>
+    </div>
+    <div class="input-group">
+        Loop Rating:
+        <input type="button" id="likeLoopButton" value="like loop"/>
+        <input type="button" id="dislikeLoopButton" value="dislike & skip"/>
+    </div>
+    <div class="input-group">
+        Recent Loop Rating:
+        loops back <input type="text" id="recentOffsetBack" value="1" size="3"/>
+        <input type="button" id="likeRecentLoopButton" value="like recent"/>
+        <input type="button" id="dislikeRecentLoopButton" value="dislike recent"/>
+    </div>
+    <div class="input-group">
+        Clip Drift (per-loop variation):
+        <input type="button" id="clipDriftOnButton" value="drift on"/>
+        <input type="button" id="clipDriftOffButton" value="drift off"/>
+        offset sec/visit <input type="text" id="clipDriftOffsetSec" value="1"/>
+        hold +ms/visit <input type="text" id="clipDriftHoldMs" value="350"/>
+    </div>
+
      <!-- music add:  <input type="file" id="audioInput" multiple  accept="audio/*, .midi, .mid">
      <input type="text" id="audiopop" value="pop"/>
     video: <input type="file" id="videoInput" accept="video/*" multiple>
@@ -579,8 +690,15 @@ function getNextImageTexture() {
 
 let visualWindow;
 
+function getVisualUrlFromUi() {
+    const input = document.getElementById('visualUrl');
+    const raw = input && input.value ? String(input.value).trim() : '';
+    if (raw) return raw;
+    return 'sonicsphere.html?demo=1&fullscreen=1&hideoverlay=1&basicvideo=1&fullbg=1&aspect=16x9&videofit=cover&set=sets/set-live-default-all-loops.json';
+}
+
 function openVisualWindow() {
-    visualWindow = window.open('sonicsphere.html', '_blank');
+    visualWindow = window.open(getVisualUrlFromUi(), '_blank');
 
 }
 
@@ -606,6 +724,26 @@ const inputs = document.querySelectorAll('input');
 
 // Loop through each input and attach the event listener
 inputs.forEach(input => {
+    if (input.id === 'visualUrl') {
+        return;
+    }
+    if (input.id === 'recentOffsetBack') {
+        return;
+    }
+    if (input.id === 'openVisualButton' ||
+        input.id === 'bridgeFadeOutButton' ||
+        input.id === 'bridgeFadeInButton' ||
+        input.id === 'basicVideoOnButton' ||
+        input.id === 'basicVideoOffButton' ||
+        input.id === 'basicVideoToggleButton' ||
+        input.id === 'likeLoopButton' ||
+        input.id === 'dislikeLoopButton' ||
+        input.id === 'likeRecentLoopButton' ||
+        input.id === 'dislikeRecentLoopButton' ||
+        input.id === 'clipDriftOnButton' ||
+        input.id === 'clipDriftOffButton') {
+        return;
+    }
 
     if(input.type === 'button') {
     input.addEventListener('click', function(event) {
@@ -643,6 +781,115 @@ inputs.forEach(input => {
     });
 
 });
+
+const openVisualButton = document.getElementById('openVisualButton');
+if (openVisualButton) {
+    openVisualButton.addEventListener('click', function() {
+        openVisualWindow();
+    });
+}
+
+const bridgeFadeOutButton = document.getElementById('bridgeFadeOutButton');
+if (bridgeFadeOutButton) {
+    bridgeFadeOutButton.addEventListener('click', function() {
+        sendMessageToVisual({ type: 'vj', blackout: 1, blackoutFadeMs: 1400 });
+    });
+}
+
+const bridgeFadeInButton = document.getElementById('bridgeFadeInButton');
+if (bridgeFadeInButton) {
+    bridgeFadeInButton.addEventListener('click', function() {
+        sendMessageToVisual({ type: 'vj', blackout: 0, blackoutFadeMs: 1200 });
+    });
+}
+
+const basicVideoOnButton = document.getElementById('basicVideoOnButton');
+if (basicVideoOnButton) {
+    basicVideoOnButton.addEventListener('click', function() {
+        sendMessageToVisual({ type: 'vj', basicVideo: true });
+    });
+}
+
+const basicVideoOffButton = document.getElementById('basicVideoOffButton');
+if (basicVideoOffButton) {
+    basicVideoOffButton.addEventListener('click', function() {
+        sendMessageToVisual({ type: 'vj', basicVideo: false });
+    });
+}
+
+const basicVideoToggleButton = document.getElementById('basicVideoToggleButton');
+if (basicVideoToggleButton) {
+    basicVideoToggleButton.addEventListener('click', function() {
+        sendMessageToVisual({ type: 'vj', toggle: 'basicVideo' });
+    });
+}
+
+const likeLoopButton = document.getElementById('likeLoopButton');
+if (likeLoopButton) {
+    likeLoopButton.addEventListener('click', function() {
+        sendMessageToVisual({ type: 'vj', loopPreference: 'like' });
+    });
+}
+
+const dislikeLoopButton = document.getElementById('dislikeLoopButton');
+if (dislikeLoopButton) {
+    dislikeLoopButton.addEventListener('click', function() {
+        sendMessageToVisual({ type: 'vj', loopPreference: 'dislike', advanceOnDislike: true });
+    });
+}
+
+function getRecentOffsetBack() {
+    const input = document.getElementById('recentOffsetBack');
+    const raw = input && input.value ? input.value : '1';
+    const parsed = parseInt(raw, 10);
+    return Number.isFinite(parsed) ? Math.max(0, parsed) : 1;
+}
+
+const likeRecentLoopButton = document.getElementById('likeRecentLoopButton');
+if (likeRecentLoopButton) {
+    likeRecentLoopButton.addEventListener('click', function() {
+        sendMessageToVisual({
+            type: 'vj',
+            recentLoopPreference: 'like',
+            recentOffsetBack: getRecentOffsetBack()
+        });
+    });
+}
+
+const dislikeRecentLoopButton = document.getElementById('dislikeRecentLoopButton');
+if (dislikeRecentLoopButton) {
+    dislikeRecentLoopButton.addEventListener('click', function() {
+        sendMessageToVisual({
+            type: 'vj',
+            recentLoopPreference: 'dislike',
+            recentOffsetBack: getRecentOffsetBack(),
+            advanceOnDislike: true
+        });
+    });
+}
+
+const clipDriftOnButton = document.getElementById('clipDriftOnButton');
+if (clipDriftOnButton) {
+    clipDriftOnButton.addEventListener('click', function() {
+        const offsetInput = document.getElementById('clipDriftOffsetSec');
+        const holdInput = document.getElementById('clipDriftHoldMs');
+        const offsetStep = parseFloat(offsetInput && offsetInput.value ? offsetInput.value : '1');
+        const holdStep = parseFloat(holdInput && holdInput.value ? holdInput.value : '350');
+        sendMessageToVisual({
+            type: 'vj',
+            clipDrift: true,
+            clipDriftOffsetSec: Number.isFinite(offsetStep) ? offsetStep : 1,
+            clipDriftHoldStepMs: Number.isFinite(holdStep) ? holdStep : 350
+        });
+    });
+}
+
+const clipDriftOffButton = document.getElementById('clipDriftOffButton');
+if (clipDriftOffButton) {
+    clipDriftOffButton.addEventListener('click', function() {
+        sendMessageToVisual({ type: 'vj', clipDrift: false });
+    });
+}
 
 let val = document.getElementById("changelog").value;
 document.getElementById("changelog").value = val + "{ timestamp:" + new Date().getTime() + ", name: start, value: start }"; 

@@ -48,9 +48,21 @@ const supportedVideoExtensions = new Set([
 let currentSetEntries = [];
 let currentSetIndex = -1;
 let setAdvanceTimer = null;
+let transitionSwapTimer = null;
+let suppressEndedUntilMs = 0;
+let currentPlaybackEpoch = 0;
 let currentSetDirection = 1;
 let currentSetPlaybackMode = 'pingpong';
 let activeClipWindowHandler = null;
+let setAutoAdvanceEnabled = true;
+let progressiveClipDriftEnabled = false;
+let progressiveClipOffsetStepSec = 1;
+let progressiveClipHoldStepMs = 350;
+let progressiveClipHoldMaxExtraMs = 5000;
+const clipVisitByUrl = new Map();
+const loopPreferenceByUrl = new Map();
+const recentLoopHistory = [];
+const RECENT_LOOP_HISTORY_MAX = 48;
 const sampleSetPresets = [
     { id: 'bio1', label: 'Bio 1 (default)', manifest: 'sets/bio1.json' },
     { id: 'tonight1', label: 'Sample 1h — Betse + cells', manifest: 'sets/tonight-set-1-betse-cells.json' },
@@ -62,6 +74,7 @@ const sampleSetPresets = [
     { id: 'creativeRedRoundtrip', label: 'Color arc — red → diffusion → back', manifest: 'sets/set-color-red-diffusion-roundtrip.json' },
     { id: 'creativePurpleTeal', label: 'Color arc — purple / magenta / teal-cyan', manifest: 'sets/set-color-purple-teal-arc.json' },
 ];
+const ALL_VIDEO_SET_MANIFEST = 'sets/set-live-default-all-loops.json';
 
 function populateSetPresets() {
 const presetSelect = document.getElementById('videoSetPreset');
@@ -95,10 +108,32 @@ if (setAdvanceTimer !== null) {
 }
 }
 
+function clearTransitionSwapTimer() {
+if (transitionSwapTimer !== null) {
+    clearTimeout(transitionSwapTimer);
+    transitionSwapTimer = null;
+}
+}
+
 function clearClipWindowHandler() {
 if (activeClipWindowHandler) {
     videoElement.removeEventListener('timeupdate', activeClipWindowHandler);
     activeClipWindowHandler = null;
+}
+}
+
+function setProgressiveClipWindowConfig(config = {}) {
+if (typeof config.enabled === 'boolean') {
+    progressiveClipDriftEnabled = !!config.enabled;
+}
+if (Number.isFinite(config.offsetStepSec)) {
+    progressiveClipOffsetStepSec = Math.max(0, Number(config.offsetStepSec));
+}
+if (Number.isFinite(config.holdStepMs)) {
+    progressiveClipHoldStepMs = Math.max(0, Number(config.holdStepMs));
+}
+if (Number.isFinite(config.holdMaxExtraMs)) {
+    progressiveClipHoldMaxExtraMs = Math.max(0, Number(config.holdMaxExtraMs));
 }
 }
 
@@ -127,12 +162,20 @@ for (let i = 0; i < urls.length; i++) {
 return entries;
 }
 
-function scheduleSetAdvance(entry) {
+function scheduleSetAdvance(entry, epoch) {
 clearSetAdvanceTimer();
+if (!setAutoAdvanceEnabled) {
+    return;
+}
 if (!entry || !entry.transition || !Number.isFinite(entry.transition.holdMs)) {
     return;
 }
 let effectiveHoldMs = entry.transition.holdMs;
+if (progressiveClipDriftEnabled) {
+    const visit = Number.isFinite(entry.__runtimeVisit) ? Math.max(0, entry.__runtimeVisit) : 0;
+    const extra = Math.min(progressiveClipHoldMaxExtraMs, visit * progressiveClipHoldStepMs);
+    effectiveHoldMs += extra;
+}
 if (Number.isFinite(entry.transition.clipStartSec) && Number.isFinite(entry.transition.clipEndSec)) {
     const clipSpanMs = Math.max(250, (entry.transition.clipEndSec - entry.transition.clipStartSec) * 1000);
     if (!entry.transition.holdLastFrameOnClipEnd) {
@@ -143,22 +186,33 @@ if (effectiveHoldMs <= 0) {
     return;
 }
 setAdvanceTimer = setTimeout(function() {
+    if (epoch !== currentPlaybackEpoch) return;
     playNextSetEntry();
 }, effectiveHoldMs);
 }
 
-function applyClipWindow(entry) {
+function applyClipWindow(entry, epoch) {
 clearClipWindowHandler();
 if (!entry || !entry.transition) {
     return;
 }
-const startSec = Number.isFinite(entry.transition.clipStartSec) ? Math.max(0, entry.transition.clipStartSec) : null;
+const explicitStartSec = Number.isFinite(entry.transition.clipStartSec) ? Math.max(0, entry.transition.clipStartSec) : null;
 const endSec = Number.isFinite(entry.transition.clipEndSec) ? Math.max(0, entry.transition.clipEndSec) : null;
-if (startSec === null && endSec === null) {
+const visit = Number.isFinite(entry.__runtimeVisit) ? Math.max(0, entry.__runtimeVisit) : 0;
+const driftStartSecRaw = progressiveClipDriftEnabled ? (visit * progressiveClipOffsetStepSec) : 0;
+if (explicitStartSec === null && endSec === null && driftStartSecRaw <= 0) {
     return;
 }
 const setStart = function() {
-    if (!Number.isFinite(videoElement.duration) || videoElement.duration <= 0 || startSec === null) {
+    if (!Number.isFinite(videoElement.duration) || videoElement.duration <= 0) {
+        return;
+    }
+    let startSec = explicitStartSec;
+    if (startSec === null && driftStartSecRaw > 0) {
+        const maxSeekSpan = Math.max(0.35, videoElement.duration - 0.35);
+        startSec = maxSeekSpan > 0 ? (driftStartSecRaw % maxSeekSpan) : 0;
+    }
+    if (startSec === null) {
         return;
     }
     const maxStart = Math.max(0, Math.min(startSec, Math.max(0, videoElement.duration - 0.05)));
@@ -168,7 +222,7 @@ const setStart = function() {
         console.warn(error);
     }
 };
-if (startSec !== null) {
+if (explicitStartSec !== null || driftStartSecRaw > 0) {
     if (videoElement.readyState >= 1) {
         setStart();
     } else {
@@ -177,6 +231,7 @@ if (startSec !== null) {
 }
 if (endSec !== null) {
     activeClipWindowHandler = function() {
+        if (epoch !== currentPlaybackEpoch) return;
         if (videoElement.currentTime >= (endSec - 0.04)) {
             clearClipWindowHandler();
             clearSetAdvanceTimer();
@@ -185,7 +240,7 @@ if (endSec !== null) {
                 playNextSetEntry();
                 return;
             }
-            const startRef = startSec !== null ? startSec : 0;
+            const startRef = explicitStartSec !== null ? explicitStartSec : 0;
             const elapsedClipMs = Math.max(0, (Math.max(startRef, endSec) - startRef) * 1000);
             const targetHoldMs = Number.isFinite(entry.transition.holdMs) ? Math.max(0, entry.transition.holdMs) : 0;
             const remainingHoldMs = Math.max(0, targetHoldMs - elapsedClipMs);
@@ -196,6 +251,7 @@ if (endSec !== null) {
             }
             if (remainingHoldMs > 0) {
                 setAdvanceTimer = setTimeout(function() {
+                    if (epoch !== currentPlaybackEpoch) return;
                     playNextSetEntry();
                 }, remainingHoldMs);
             } else {
@@ -218,28 +274,46 @@ for (let i = 0; i < currentSetEntries.length; i++) {
     currentSetEntries[i].transition.durationMs = nextTransitionMs;
 }
 if (currentSetEntries.length > 0 && currentSetIndex >= 0) {
-    scheduleSetAdvance(currentSetEntries[currentSetIndex]);
+    scheduleSetAdvance(currentSetEntries[currentSetIndex], currentPlaybackEpoch);
 }
 }
 
-function applyTransitionAndPlay(entry) {
+function setSetAutoAdvanceEnabled(enabled) {
+setAutoAdvanceEnabled = !!enabled;
+if (!setAutoAdvanceEnabled) {
+    clearSetAdvanceTimer();
+    return;
+}
+if (currentSetEntries.length > 0 && currentSetIndex >= 0) {
+    scheduleSetAdvance(currentSetEntries[currentSetIndex], currentPlaybackEpoch);
+}
+}
+
+function applyTransitionAndPlay(entry, epoch) {
 if (!entry) {
     return;
 }
+clearTransitionSwapTimer();
+clearClipWindowHandler();
+clearSetAdvanceTimer();
 const transition = entry.transition || {};
 if (window.setVideoBackdropCrop) {
     window.setVideoBackdropCrop(transition.crop || null);
 }
 const transitionType = transition.type || 'cut';
 const durationMs = Math.max(0, parseInt(transition.durationMs || 0));
+// Ignore stale ended events during clip swaps (common cause of instant "switch back").
+suppressEndedUntilMs = Date.now() + Math.max(350, durationMs + 250);
 
 if (transitionType === 'fade' && durationMs > 0) {
     const half = Math.max(60, Math.floor(durationMs / 2));
     videoElement.style.transition = `opacity ${half}ms linear`;
     videoElement.style.opacity = '0';
-    setTimeout(function() {
+    transitionSwapTimer = setTimeout(function() {
+        if (epoch !== currentPlaybackEpoch) return;
+        transitionSwapTimer = null;
         videoElement.src = entry.url;
-        applyClipWindow(entry);
+        applyClipWindow(entry, epoch);
         videoElement.playbackRate = playbackRate;
         videoElement.play();
         videoElement.style.opacity = '1';
@@ -248,7 +322,7 @@ if (transitionType === 'fade' && durationMs > 0) {
     videoElement.style.transition = '';
     videoElement.style.opacity = '1';
     videoElement.src = entry.url;
-    applyClipWindow(entry);
+    applyClipWindow(entry, epoch);
     videoElement.playbackRate = playbackRate;
     videoElement.play();
 }
@@ -259,42 +333,138 @@ if (currentSetEntries.length === 0) {
     return;
 }
 currentSetIndex = ((index % currentSetEntries.length) + currentSetEntries.length) % currentSetEntries.length;
+const epoch = ++currentPlaybackEpoch;
 const entry = currentSetEntries[currentSetIndex];
+if (entry && entry.url) {
+    recentLoopHistory.push({
+        url: entry.url,
+        label: entry.label || entry.url.split('/').pop(),
+        at: Date.now()
+    });
+    if (recentLoopHistory.length > RECENT_LOOP_HISTORY_MAX) {
+        recentLoopHistory.splice(0, recentLoopHistory.length - RECENT_LOOP_HISTORY_MAX);
+    }
+}
+const key = entry && entry.url ? entry.url : `idx:${currentSetIndex}`;
+const seenCount = clipVisitByUrl.get(key) || 0;
+clipVisitByUrl.set(key, seenCount + 1);
+entry.__runtimeVisit = seenCount;
 window.__hypermuseCurrentLoopLabel = entry && entry.label ? entry.label : (entry && entry.url ? entry.url.split('/').pop() : "");
-applyTransitionAndPlay(entry);
-scheduleSetAdvance(entry);
+applyTransitionAndPlay(entry, epoch);
+scheduleSetAdvance(entry, epoch);
 videoElementActive = true;
 }
 
-function playNextSetEntry() {
-if (currentSetEntries.length === 0) {
-    return false;
+function isSetEntryEligible(entry) {
+if (!entry || !entry.url) return false;
+return loopPreferenceByUrl.get(entry.url) !== 'dislike';
 }
+
+function applyLoopPreferenceForUrl(url, preference) {
+if (!url) return false;
+const normalized = String(preference || '').trim().toLowerCase();
+if (normalized === 'dislike') {
+    loopPreferenceByUrl.set(url, 'dislike');
+    return true;
+}
+if (normalized === 'like') {
+    loopPreferenceByUrl.set(url, 'like');
+    return true;
+}
+loopPreferenceByUrl.delete(url);
+return true;
+}
+
+function getRecentLoopUrlByOffset(offsetBack = 1) {
+const offset = Math.max(0, parseInt(offsetBack, 10) || 0);
+if (recentLoopHistory.length === 0) return null;
+const uniqueUrlsNewestFirst = [];
+const seen = new Set();
+for (let i = recentLoopHistory.length - 1; i >= 0; i--) {
+    const item = recentLoopHistory[i];
+    if (!item || !item.url || seen.has(item.url)) continue;
+    seen.add(item.url);
+    uniqueUrlsNewestFirst.push(item.url);
+}
+return uniqueUrlsNewestFirst[offset] || null;
+}
+
+function getNextSetIndexCandidate() {
 if (currentSetPlaybackMode === 'pingpong') {
-    if (currentSetEntries.length === 1) {
-        playSetEntryAt(0);
-        return true;
+    if (currentSetEntries.length <= 1) {
+        return 0;
     }
     if (currentSetIndex >= currentSetEntries.length - 1) {
         currentSetDirection = -1;
     } else if (currentSetIndex <= 0) {
         currentSetDirection = 1;
     }
-    playSetEntryAt(currentSetIndex + currentSetDirection);
-} else {
-    playSetEntryAt(currentSetIndex + 1);
+    return currentSetIndex + currentSetDirection;
 }
-return true;
+return currentSetIndex + 1;
+}
+
+function playNextSetEntry() {
+if (currentSetEntries.length === 0) {
+    return false;
+}
+let candidate = getNextSetIndexCandidate();
+const maxAttempts = Math.max(1, currentSetEntries.length * 2);
+for (let attempt = 0; attempt < maxAttempts; attempt++) {
+    const normalized = ((candidate % currentSetEntries.length) + currentSetEntries.length) % currentSetEntries.length;
+    const entry = currentSetEntries[normalized];
+    if (isSetEntryEligible(entry)) {
+        playSetEntryAt(normalized);
+        return true;
+    }
+    currentSetIndex = normalized;
+    candidate = getNextSetIndexCandidate();
+}
+return false;
+}
+
+function ensureCurrentSetPlayback() {
+if (currentSetEntries.length > 0) {
+    const idx = currentSetIndex >= 0 ? currentSetIndex : 0;
+    const entry = currentSetEntries[idx];
+    if (entry && entry.url) {
+        if (videoElement.src !== entry.url) {
+            videoElement.src = entry.url;
+        }
+        videoElement.playbackRate = playbackRate;
+        try {
+            const maybePromise = videoElement.play();
+            if (maybePromise && typeof maybePromise.catch === 'function') {
+                maybePromise.catch(() => {});
+            }
+        } catch (_) {}
+        videoElementActive = true;
+        return true;
+    }
+}
+if (videoElement && (videoElement.currentSrc || videoElement.src)) {
+    try {
+        const maybePromise = videoElement.play();
+        if (maybePromise && typeof maybePromise.catch === 'function') {
+            maybePromise.catch(() => {});
+        }
+    } catch (_) {}
+    return true;
+}
+return false;
 }
 
 function queueVideoSet(urls, labels = [], transitions = [], defaults = {}) {
 activeVideoQueue.length = 0;
 originalVideos.length = 0;
+allVideoLoops.length = 0;
 clearVideoList();
 clearSetAdvanceTimer();
+clearTransitionSwapTimer();
 clearClipWindowHandler();
 currentSetDirection = 1;
 currentSetPlaybackMode = defaults.playbackMode || 'pingpong';
+setAutoAdvanceEnabled = true;
 
 for (let i = 0; i < urls.length; i++) {
     const url = urls[i];
@@ -307,6 +477,9 @@ for (let i = 0; i < urls.length; i++) {
 allVideoLoops.push([...originalVideos]);
 
 currentSetEntries = normalizeSetEntries(urls, labels, transitions, defaults);
+clipVisitByUrl.clear();
+loopPreferenceByUrl.clear();
+recentLoopHistory.length = 0;
 window.__hypermuseLoadedSetCount = currentSetEntries.length;
 window.__hypermuseCurrentLoopLabel = "";
 window.__hypermuseSetUrls = currentSetEntries.map((entry) => entry.url).filter(Boolean);
@@ -396,6 +569,61 @@ return urls.length;
 
 window.loadVideoSetManifest = loadVideoSetManifest;
 window.setSetPlaybackTiming = setSetPlaybackTiming;
+window.setSetAutoAdvanceEnabled = setSetAutoAdvanceEnabled;
+window.playNextSetEntry = playNextSetEntry;
+window.ensureCurrentSetPlayback = ensureCurrentSetPlayback;
+window.setCurrentLoopPreference = function(preference, options = {}) {
+    if (currentSetEntries.length === 0 || currentSetIndex < 0) {
+        return false;
+    }
+    const entry = currentSetEntries[currentSetIndex];
+    if (!entry || !entry.url) {
+        return false;
+    }
+    const normalized = String(preference || '').trim().toLowerCase();
+    const updated = applyLoopPreferenceForUrl(entry.url, normalized);
+    if (!updated) return false;
+    if (normalized === 'dislike' && options.advance !== false) {
+        playNextSetEntry();
+    }
+    return true;
+};
+window.getCurrentLoopPreference = function() {
+    if (currentSetEntries.length === 0 || currentSetIndex < 0) {
+        return 'neutral';
+    }
+    const entry = currentSetEntries[currentSetIndex];
+    if (!entry || !entry.url) {
+        return 'neutral';
+    }
+    return loopPreferenceByUrl.get(entry.url) || 'neutral';
+};
+window.setRecentLoopPreference = function(offsetBack, preference, options = {}) {
+    const url = getRecentLoopUrlByOffset(offsetBack);
+    if (!url) return false;
+    const normalized = String(preference || '').trim().toLowerCase();
+    const updated = applyLoopPreferenceForUrl(url, normalized);
+    if (!updated) return false;
+    if (options.advanceIfCurrent !== false && currentSetEntries.length > 0 && currentSetIndex >= 0) {
+        const currentEntry = currentSetEntries[currentSetIndex];
+        if (currentEntry && currentEntry.url === url && normalized === 'dislike') {
+            playNextSetEntry();
+        }
+    }
+    return true;
+};
+window.getRecentLoopUrls = function() {
+    const unique = [];
+    const seen = new Set();
+    for (let i = recentLoopHistory.length - 1; i >= 0; i--) {
+        const item = recentLoopHistory[i];
+        if (!item || !item.url || seen.has(item.url)) continue;
+        seen.add(item.url);
+        unique.push(item.url);
+    }
+    return unique;
+};
+window.setProgressiveClipWindowConfig = setProgressiveClipWindowConfig;
 window.getLoadedSetUrls = function() {
     return Array.isArray(window.__hypermuseSetUrls) ? window.__hypermuseSetUrls.slice() : [];
 };
@@ -468,6 +696,22 @@ if (loadVideoSetPresetButton) {
     });
 }
 
+const loadAllVideoSetsButton = document.getElementById('loadAllVideoSetsButton');
+if (loadAllVideoSetsButton) {
+    loadAllVideoSetsButton.addEventListener('click', async function() {
+        const manifestInput = document.getElementById('videoSetManifest');
+        if (manifestInput) {
+            manifestInput.value = ALL_VIDEO_SET_MANIFEST;
+        }
+        try {
+            const total = await loadVideoSetManifest(ALL_VIDEO_SET_MANIFEST);
+            console.log(`Loaded all video set ${ALL_VIDEO_SET_MANIFEST} (${total} loops)`);
+        } catch (error) {
+            console.error(error);
+        }
+    });
+}
+
 const videoSetPresetSelect = document.getElementById('videoSetPreset');
 if (videoSetPresetSelect) {
     videoSetPresetSelect.addEventListener('change', function() {
@@ -517,6 +761,9 @@ if (event.key === "v") {
 });
 
 videoElement.addEventListener('ended', function() {
+if (Date.now() < suppressEndedUntilMs) {
+    return;
+}
 if (currentSetEntries.length > 0) {
     playNextSetEntry();
     return;

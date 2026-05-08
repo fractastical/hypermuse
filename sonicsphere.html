@@ -11,6 +11,7 @@
             overflow: hidden;
             display: flex;  
             background-color: black;
+            min-height: 100vh;
         }
         #thresholds {
             width: 200px;  /* Adjust this as needed */
@@ -32,8 +33,9 @@
 ; */
 
         #container {
-            margin-top:50px;
-            height: 500px;
+            margin-top: 0;
+            height: 100vh;
+            min-height: 100vh;
             flex-grow: 1;
         }
 
@@ -133,6 +135,7 @@ button:hover {
             <label for="videoSetPreset">Set preset:</label>
             <select id="videoSetPreset"></select>
             <button id="loadVideoSetPresetButton">Load Preset</button>
+            <button id="loadAllVideoSetsButton">Load All</button>
             <label for="renderAspectPreset">Aspect:</label>
             <select id="renderAspectPreset">
               <option value="auto" selected>auto (window)</option>
@@ -274,6 +277,7 @@ button:hover {
           <div class="file-input-group">
             <button id="startExportButton">Start Export</button>
             <button id="stopExportButton">Stop Export</button>
+            <button id="toggleFullscreenButton">Fullscreen</button>
           </div>
           <button id="startButton">Start</button>
           <button id="beatButton" onclick="hide()">Hide ("h")</button>
@@ -388,6 +392,9 @@ button:hover {
         let backdropOpacityMultiplier = 1.0;
         let backdropBlendMode = 'additive';
         let backdropScrollSpeed = 0.012;
+        let blackoutLayer = null;
+        let blackoutOpacity = 0;
+        let blackoutTransitionMs = 1200;
         let backdropTileEnabled = true;
         let backdropTileCount = 2.6;
         let backdropOriginalFidelity = true;
@@ -538,11 +545,19 @@ button:hover {
         const scene = new THREE.Scene();
         const camera = new THREE.PerspectiveCamera(75, window.innerWidth/window.innerHeight, 0.1, 100);
         camera.position.z = 2;
+        const renderQuery = new URLSearchParams(window.location.search);
         const DEMO_CAMERA_Z = 2.45;
         const DEMO_CAMERA_Y = 0.0;
-        const DEMO_VISUAL_OFFSET_X = -0.733;
+        const demoVisualOffsetXRaw = Number.parseFloat(String(renderQuery.get('visualoffsetx') || '0'));
+        const DEMO_VISUAL_OFFSET_X = Number.isFinite(demoVisualOffsetXRaw) ? demoVisualOffsetXRaw : 0;
         const renderer = new THREE.WebGLRenderer({ antialias: true });
-        renderer.setPixelRatio(window.devicePixelRatio * 5); // x times the normal resolution
+        const requestedRenderScale = Number.parseFloat(String(renderQuery.get('renderscale') || ''));
+        const isDemoBoot = renderQuery.get('demo') === '1';
+        const baseRenderScale = Number.isFinite(requestedRenderScale)
+            ? requestedRenderScale
+            : (isDemoBoot ? 1 : Math.min(window.devicePixelRatio || 1, 2));
+        // Lower default render scale in demo/export mode keeps frame pacing smooth.
+        renderer.setPixelRatio(Math.max(0.75, Math.min(2.5, baseRenderScale)));
         renderer.autoClear = false;
 
         renderer.shadowMap.enabled = true;
@@ -557,6 +572,13 @@ button:hover {
         let demoMode = demoBootSearch.get('demo') === '1';
         /** Hide bottom debug ticker in demo (e.g. Playwright exports: ?demo=1&hideoverlay=1). */
         const hideDemoFxOverlay = demoBootSearch.get('hideoverlay') === '1';
+        const forceFullscreenMode = demoBootSearch.get('fullscreen') === '1' || demoBootSearch.get('fs') === '1';
+        const forceBasicVideoMode = demoBootSearch.get('basicvideo') === '1' || demoBootSearch.get('basic') === '1';
+        const forceFullVideoBg = demoBootSearch.get('fullbg') === '1' || demoBootSearch.get('videobg') === '1';
+        const safeTopRaw = Number.parseFloat(String(demoBootSearch.get('safetop') || "0"));
+        const safeHeightRaw = Number.parseFloat(String(demoBootSearch.get('safeheight') || "1"));
+        const demoSafeTopFrac = Number.isFinite(safeTopRaw) ? Math.max(0, Math.min(0.9, safeTopRaw)) : 0;
+        const demoSafeHeightFrac = Number.isFinite(safeHeightRaw) ? Math.max(0.1, Math.min(1, safeHeightRaw)) : 1;
         const requestedAspectPreset = String(demoBootSearch.get('aspect') || 'auto').trim();
         const requestedVideoFit = String(demoBootSearch.get('videofit') || '').trim();
 
@@ -597,6 +619,35 @@ button:hover {
                 select.value = videoBackdropFitMode;
             }
             updateVideoBackdropFit();
+            if (basicVideoModeEnabled) {
+                setDirectBasicVideoSurface(true);
+            }
+        }
+
+        function ensureBlackoutLayer() {
+            if (blackoutLayer) return blackoutLayer;
+            blackoutLayer = document.createElement('div');
+            blackoutLayer.id = 'blackoutLayer';
+            blackoutLayer.style.position = 'fixed';
+            blackoutLayer.style.left = '0';
+            blackoutLayer.style.top = '0';
+            blackoutLayer.style.width = '100vw';
+            blackoutLayer.style.height = '100vh';
+            blackoutLayer.style.background = '#000';
+            blackoutLayer.style.opacity = '0';
+            blackoutLayer.style.pointerEvents = 'none';
+            blackoutLayer.style.zIndex = '19';
+            blackoutLayer.style.transition = `opacity ${blackoutTransitionMs}ms ease`;
+            document.body.appendChild(blackoutLayer);
+            return blackoutLayer;
+        }
+
+        function setBlackoutLevel(level = 0, fadeMs = 1200) {
+            blackoutOpacity = Math.max(0, Math.min(1, Number(level) || 0));
+            blackoutTransitionMs = Math.max(0, Number(fadeMs) || 0);
+            const layer = ensureBlackoutLayer();
+            layer.style.transition = `opacity ${blackoutTransitionMs}ms ease`;
+            layer.style.opacity = String(blackoutOpacity);
         }
 
         window.setRenderAspectPreset = setRenderAspectPreset;
@@ -604,11 +655,19 @@ button:hover {
 
         function resizeRendererLayout() {
             if (demoMode) {
-                renderer.setSize(window.innerWidth, window.innerHeight);
-                camera.aspect = window.innerWidth / window.innerHeight;
+                const fullW = window.innerWidth;
+                const fullH = window.innerHeight;
+                const safeTopPx = Math.round(fullH * demoSafeTopFrac);
+                const safeHeightPx = Math.max(1, Math.round(fullH * demoSafeHeightFrac));
+                renderer.setSize(fullW, safeHeightPx);
+                camera.aspect = fullW / safeHeightPx;
                 camera.position.set(0, DEMO_CAMERA_Y, DEMO_CAMERA_Z);
                 camera.lookAt(0, 0, 0);
                 scene.position.set(DEMO_VISUAL_OFFSET_X, 0, 0);
+                if (renderer && renderer.domElement) {
+                    renderer.domElement.style.top = `${safeTopPx}px`;
+                    renderer.domElement.style.left = '0';
+                }
             } else {
                 const targetAspect = resolveAspectRatioPreset(renderAspectPreset);
                 if (targetAspect) {
@@ -1951,9 +2010,85 @@ button:hover {
         }
         window.toggleBackdropOriginalFidelity = toggleBackdropOriginalFidelity;
 
+        function getVideoElementRef() {
+            return document.getElementById('videoElement');
+        }
+
+        function setDirectBasicVideoSurface(enabled) {
+            const el = getVideoElementRef();
+            if (!el) return;
+            if (enabled) {
+                el.classList.remove('hidden');
+                el.style.position = 'fixed';
+                el.style.left = '0';
+                el.style.top = '0';
+                el.style.width = '100vw';
+                el.style.height = '100vh';
+                el.style.objectFit = videoBackdropFitMode === 'contain' ? 'contain' : 'cover';
+                el.style.zIndex = '2';
+                el.style.pointerEvents = 'none';
+                el.style.background = '#000';
+                return;
+            }
+            el.style.position = '';
+            el.style.left = '';
+            el.style.top = '';
+            el.style.width = '';
+            el.style.height = '';
+            el.style.objectFit = '';
+            el.style.zIndex = '';
+            el.style.pointerEvents = '';
+            el.style.background = '';
+            el.classList.add('hidden');
+        }
+
+        function ensureBasicVideoPlayback() {
+            if (typeof window.ensureCurrentSetPlayback === 'function') {
+                const recovered = window.ensureCurrentSetPlayback();
+                if (recovered) {
+                    return;
+                }
+            }
+            const el = getVideoElementRef();
+            if (!el) return;
+            el.muted = true;
+            el.setAttribute('muted', 'muted');
+            el.setAttribute('playsinline', 'playsinline');
+            const hasSrc = !!(el.currentSrc || el.src);
+            if (!hasSrc) {
+                const setUrls = Array.isArray(window.__hypermuseSetUrls) ? window.__hypermuseSetUrls : [];
+                if (setUrls.length > 0) {
+                    el.src = setUrls[0];
+                }
+            }
+            const tryPlay = function() {
+                try {
+                    const maybePromise = el.play();
+                    if (maybePromise && typeof maybePromise.catch === 'function') {
+                        maybePromise.catch(() => {});
+                    }
+                } catch (_) {
+                    // Best-effort only; user gesture may still be required in some browsers.
+                }
+            };
+            if (el.readyState >= 2) {
+                tryPlay();
+            } else {
+                el.addEventListener('loadedmetadata', tryPlay, { once: true });
+                el.addEventListener('canplay', tryPlay, { once: true });
+            }
+        }
+
         function setBasicVideoMode(enabled) {
             const nextEnabled = !!enabled;
             if (nextEnabled === basicVideoModeEnabled) {
+                if (nextEnabled) {
+                    // Re-assert basic-video state so controller "basic on" can recover from stalls.
+                    setVideoBackgroundConfig({ enabled: true, opacity: 1 });
+                    setDirectBasicVideoSurface(true);
+                    ensureBasicVideoPlayback();
+                    updateEffectOverlay();
+                }
                 return;
             }
             if (nextEnabled) {
@@ -1972,6 +2107,8 @@ button:hover {
                 applyEffectProfile('classic');
                 lastAppliedEffectPhase = 'classic';
                 clearTransientGeometries();
+                setDirectBasicVideoSurface(true);
+                ensureBasicVideoPlayback();
             } else {
                 basicVideoModeEnabled = false;
                 const previous = basicVideoModeSnapshot || {};
@@ -1992,6 +2129,7 @@ button:hover {
                 });
                 basicVideoModeSnapshot = null;
                 effectTimelineStartMs = performance.now();
+                setDirectBasicVideoSurface(false);
             }
             const basicToggle = document.getElementById('basicVideoModeToggle');
             if (basicToggle) {
@@ -3319,6 +3457,14 @@ button:hover {
                 setBasicVideoMode(!!basicVideoModeToggle.checked);
             });
         }
+        const toggleFullscreenButton = document.getElementById('toggleFullscreenButton');
+        if (toggleFullscreenButton) {
+            toggleFullscreenButton.addEventListener('click', function() {
+                requestFullscreenMode(!document.fullscreenElement);
+            });
+            updateFullscreenButtonLabel();
+        }
+        document.addEventListener('fullscreenchange', updateFullscreenButtonLabel);
         const renderAspectPresetSelect = document.getElementById('renderAspectPreset');
         if (renderAspectPresetSelect) {
             renderAspectPresetSelect.addEventListener('change', function() {
@@ -3341,9 +3487,12 @@ button:hover {
             originalFidelity: backdropOriginalFidelityInput ? !!backdropOriginalFidelityInput.checked : backdropOriginalFidelity
         });
         setVideoBackgroundConfig({
-            enabled: fullScreenVideoBgToggle ? !!fullScreenVideoBgToggle.checked : false,
+            enabled: forceFullVideoBg ? true : (fullScreenVideoBgToggle ? !!fullScreenVideoBgToggle.checked : false),
             opacity: fullScreenVideoBgOpacityInput ? parseFloat(fullScreenVideoBgOpacityInput.value) : fullScreenVideoBgOpacity
         });
+        if (forceBasicVideoMode) {
+            setBasicVideoMode(true);
+        }
         setFibonacciMosaicConfig({
             enabled: fibonacciMosaicToggle ? !!fibonacciMosaicToggle.checked : fibonacciMosaicEnabled,
             fx: fibonacciMosaicFxToggle ? !!fibonacciMosaicFxToggle.checked : fibonacciMosaicFxEnabled,
@@ -3356,21 +3505,44 @@ button:hover {
         });
         setRenderAspectPreset(requestedAspectPreset || 'auto');
         setVideoBackdropFitMode(requestedVideoFit || (videoBackdropFitModeSelect ? videoBackdropFitModeSelect.value : 'cover'));
+        if (forceFullscreenMode) {
+            requestFullscreenMode(true);
+            const tryFullscreenFromGesture = function() {
+                if (!document.fullscreenElement) {
+                    requestFullscreenMode(true);
+                }
+            };
+            document.addEventListener('pointerdown', tryFullscreenFromGesture, { once: true });
+            document.addEventListener('keydown', tryFullscreenFromGesture, { once: true });
+        }
 
         document.addEventListener('keydown', function(event) {
+            const key = String(event.key || '').toLowerCase();
+            if (key === 'h') {
+                const appPanel = document.getElementById('app');
+                const isHidden = !!(appPanel && appPanel.style.display === 'none');
+                setUiHidden(!isHidden);
+                event.preventDefault();
+                event.stopPropagation();
+                if (typeof event.stopImmediatePropagation === 'function') {
+                    event.stopImmediatePropagation();
+                }
+                return;
+            }
             if (event.defaultPrevented || event.repeat) {
                 return;
             }
             const target = event.target;
             if (target && (target.tagName === 'INPUT' || target.tagName === 'TEXTAREA' || target.tagName === 'SELECT' || target.isContentEditable)) {
                 return;
-            }
-            const key = String(event.key || '').toLowerCase();
-            if (key === 'o') {
+            } else if (key === 'o') {
                 toggleBackdropOriginalFidelity();
                 event.preventDefault();
             } else if (key === 'b') {
                 setBasicVideoMode(!basicVideoModeEnabled);
+                event.preventDefault();
+            } else if (key === 'f') {
+                requestFullscreenMode(!document.fullscreenElement);
                 event.preventDefault();
             }
         });
@@ -3732,7 +3904,9 @@ button:hover {
             }
 
             renderer.clear();
-            if (basicVideoModeEnabled && videoBackdropScene && videoBackdropCamera && videoBackdropMaterial && videoElementActive) {
+            const activeVideoElement = getVideoElementRef();
+            const hasPlayableVideoSource = !!(activeVideoElement && (activeVideoElement.currentSrc || activeVideoElement.src));
+            if (basicVideoModeEnabled && videoBackdropScene && videoBackdropCamera && videoBackdropMaterial && hasPlayableVideoSource) {
                 videoBackdropMaterial.opacity = 1;
                 renderer.render(videoBackdropScene, videoBackdropCamera);
                 updateEffectOverlay();
@@ -3780,9 +3954,27 @@ button:hover {
         let audioContext;
         let biquadFilter;
         let startButton = document.getElementById('startButton');
-        startButton.addEventListener('click', function() {
-            startButton.parentElement.removeChild(startButton);
+        function ensureMicEnableButtonVisible() {
+            if (!startButton) return;
+            startButton.style.display = 'inline-block';
+            startButton.style.position = demoMode ? 'fixed' : '';
+            if (demoMode) {
+                startButton.style.right = '14px';
+                startButton.style.bottom = '14px';
+                startButton.style.zIndex = '30';
+                startButton.style.background = 'rgba(0,0,0,0.68)';
+                startButton.style.color = '#fff';
+                startButton.style.border = '1px solid rgba(255,255,255,0.5)';
+                startButton.textContent = 'Enable Mic';
+            }
+        }
 
+        function hideMicEnableButton() {
+            if (!startButton) return;
+            startButton.style.display = 'none';
+        }
+
+        function startMicCaptureFromGesture() {
             navigator.mediaDevices.getUserMedia({ video: false, audio: true}).then(function(stream) {
 
             //NOTE: this helped with some pitch detection but had side effects
@@ -3815,8 +4007,16 @@ button:hover {
                 MAX_SIZE = Math.max(4,Math.floor(audioContext.sampleRate/5000));	// corresponds to a 5kHz signal
                 // startPitchDetect();
                 // updatePitch();
+                hideMicEnableButton();
 
+            }).catch(function(error) {
+                console.warn('Mic permission was not granted or failed to start.', error);
+                ensureMicEnableButtonVisible();
             });
+        }
+
+        startButton.addEventListener('click', function() {
+            startMicCaptureFromGesture();
         });
 
         
@@ -3919,8 +4119,19 @@ button:hover {
         }
         if (appPanel) {
             appPanel.style.display = nextHidden ? 'none' : 'block';
+            if (demoMode && !nextHidden) {
+                // In demo/fullscreen, force controls above the canvas so toggles are usable.
+                appPanel.style.position = 'fixed';
+                appPanel.style.left = '0';
+                appPanel.style.top = '0';
+                appPanel.style.zIndex = '25';
+                appPanel.style.maxHeight = '100vh';
+                appPanel.style.overflow = 'auto';
+                appPanel.style.background = 'rgba(0,0,0,0.42)';
+            }
         }
     }
+
 
     function setVjAudioEnabled(enabled) {
         const nextEnabled = !!enabled;
@@ -3932,10 +4143,7 @@ button:hover {
             return;
         }
         if (!analyser || !audioContext) {
-            const startBtn = document.getElementById('startButton');
-            if (startBtn && typeof startBtn.click === 'function') {
-                startBtn.click();
-            }
+            ensureMicEnableButtonVisible();
             return;
         }
         ensureVisualizerLoopsRunning();
@@ -3952,6 +4160,12 @@ button:hover {
         if (document.fullscreenElement && document.exitFullscreen) {
             document.exitFullscreen().catch(() => {});
         }
+    }
+
+    function updateFullscreenButtonLabel() {
+        const btn = document.getElementById('toggleFullscreenButton');
+        if (!btn) return;
+        btn.textContent = document.fullscreenElement ? 'Exit Fullscreen' : 'Fullscreen';
     }
 
     function mapVjModeToEffect(mode) {
@@ -4034,6 +4248,12 @@ button:hover {
         if (typeof cmd.layout === 'string') {
             setEffectLayoutMode(cmd.layout);
         }
+        if (typeof cmd.basicVideo === 'boolean') {
+            setBasicVideoMode(cmd.basicVideo);
+        }
+        if (cmd.toggle === 'basicVideo') {
+            setBasicVideoMode(!basicVideoModeEnabled);
+        }
         if (typeof cmd.mosaic === 'boolean') {
             setFibonacciMosaicConfig({ enabled: cmd.mosaic });
         }
@@ -4055,6 +4275,35 @@ button:hover {
         if (typeof cmd.infinitestreamsBlend === 'string') {
             setInfinitestreamsEmbedConfig({ blendMode: cmd.infinitestreamsBlend });
         }
+        if (typeof cmd.blackout === 'boolean') {
+            setBlackoutLevel(cmd.blackout ? 1 : 0, cmd.blackoutFadeMs);
+        } else if (typeof cmd.blackout === 'number') {
+            setBlackoutLevel(cmd.blackout, cmd.blackoutFadeMs);
+        }
+        if (typeof cmd.clipDrift === 'boolean' && typeof window.setProgressiveClipWindowConfig === 'function') {
+            window.setProgressiveClipWindowConfig({
+                enabled: cmd.clipDrift,
+                offsetStepSec: cmd.clipDriftOffsetSec,
+                holdStepMs: cmd.clipDriftHoldStepMs
+            });
+        }
+        if (typeof cmd.loopPreference === 'string' && typeof window.setCurrentLoopPreference === 'function') {
+            const pref = String(cmd.loopPreference).trim().toLowerCase();
+            if (pref === 'like' || pref === 'dislike' || pref === 'neutral') {
+                window.setCurrentLoopPreference(pref, {
+                    advance: cmd.advanceOnDislike !== false
+                });
+            }
+        }
+        if (typeof cmd.recentLoopPreference === 'string' && typeof window.setRecentLoopPreference === 'function') {
+            const pref = String(cmd.recentLoopPreference).trim().toLowerCase();
+            if (pref === 'like' || pref === 'dislike' || pref === 'neutral') {
+                const offsetBack = Math.max(0, parseInt(cmd.recentOffsetBack, 10) || 1);
+                window.setRecentLoopPreference(offsetBack, pref, {
+                    advanceIfCurrent: cmd.advanceOnDislike !== false
+                });
+            }
+        }
         if (typeof cmd.wordList === 'string') {
             applyWordCloudList(cmd.wordList);
         }
@@ -4071,6 +4320,10 @@ button:hover {
             intensity: backdropOpacityMultiplier,
             paused: vjPaused,
             layout: effectLayoutMode,
+            basicVideo: basicVideoModeEnabled,
+            loopPreference: (typeof window.getCurrentLoopPreference === 'function')
+                ? window.getCurrentLoopPreference()
+                : 'neutral',
             wordList: activeWordCloudListName,
             infinitestreams: infinitestreamsEmbedEnabled,
             mosaic: fibonacciMosaicEnabled,
@@ -4083,10 +4336,27 @@ button:hover {
     };
 
     window.addEventListener('message', function(event) {
-        if (!event || !event.data || event.data.type !== 'vj') {
+        if (!event || !event.data) {
             return;
         }
-        applyVjCommand(event.data);
+        if (event.data.type === 'vj') {
+            applyVjCommand(event.data);
+            return;
+        }
+        // Compatibility bridge for legacy controller name/value messages.
+        if (event.data.name === 'bridgeFadeOutButton') {
+            applyVjCommand({ type: 'vj', blackout: 1, blackoutFadeMs: 1400 });
+            return;
+        }
+        if (event.data.name === 'bridgeFadeInButton') {
+            applyVjCommand({ type: 'vj', blackout: 0, blackoutFadeMs: 1200 });
+            return;
+        }
+        if (event.data.name === 'videochange' || event.data.name === 'videochangeloop') {
+            if (typeof window.playNextSetEntry === 'function') {
+                window.playNextSetEntry();
+            }
+        }
     });
 
     function announceVjReady() {
@@ -4225,6 +4495,7 @@ button:hover {
         setUiHidden(true);
     }
     const bootMode = vjBootParams.get('mode');
+    const bootSetManifest = vjBootParams.get('set') || vjBootParams.get('setmanifest');
     const bootSpeed = Number(vjBootParams.get('speed'));
     const bootHue = Number(vjBootParams.get('hue'));
     const bootIntensity = Number(vjBootParams.get('intensity'));
@@ -4244,6 +4515,25 @@ button:hover {
         infinitestreamsOpacity: Number.isFinite(bootInfinitestreamsOpacity) ? bootInfinitestreamsOpacity : undefined,
         infinitestreamsUrl: bootInfinitestreamsUrl || undefined
     });
+    function loadBootSetWhenReady(manifestPath, attempt = 0) {
+        if (!manifestPath) return;
+        if (typeof window.loadVideoSetManifest === 'function') {
+            window.loadVideoSetManifest(manifestPath).then(() => {
+                if (demoMode) {
+                    setBasicVideoMode(true);
+                }
+            }).catch((error) => {
+                console.warn(error);
+            });
+            return;
+        }
+        if (attempt < 80) {
+            setTimeout(function() {
+                loadBootSetWhenReady(manifestPath, attempt + 1);
+            }, 125);
+        }
+    }
+    loadBootSetWhenReady(bootSetManifest);
     announceVjReady();
     initVjWebSocket();
     initVjRemotePolling(vjBootParams);
