@@ -1,0 +1,4119 @@
+{
+  "setName": "tonight-set-1-betse-cells",
+  "sourceDirectory": "loops",
+  "sourceDirectories": [
+    "loops/reactions/betse",
+    "loops/cells1",
+    "loops/cells2",
+    "loops/reactions"
+  ],
+  "generatedAt": "2026-05-08T00:11:32.611Z",
+  "count": 407,
+  "playbackMode": "loop",
+  "effectTimeline": {
+    "enabled": true,
+    "phases": [
+      {
+        "name": "classic",
+        "durationSec": 18
+      },
+      {
+        "name": "gray-scott",
+        "durationSec": 22
+      },
+      {
+        "name": "physarum",
+        "durationSec": 20
+      },
+      {
+        "name": "word-cloud",
+        "durationSec": 16
+      },
+      {
+        "name": "molecule",
+        "durationSec": 16
+      },
+      {
+        "name": "rewrite",
+        "durationSec": 16
+      }
+    ]
+  },
+  "defaultTransition": {
+    "type": "fade",
+    "durationMs": 650,
+    "holdMs": 8200
+  },
+  "loops": [
+    {
+      "url": "loops/reactions/betse/01-betse-data-yaml-geo-lattice-lattice.mp4",
+      "label": "01-betse-data-yaml-geo-lattice-lattice.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/cells1/14726771_1920_1080_30fps.mp4",
+      "label": "14726771_1920_1080_30fps.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/cells2/large-numbers-of-cells-gather-together-2026-01-28-03-23-59-utc.mov",
+      "label": "large-numbers-of-cells-gather-together-2026-01-28-03-23-59-utc.mov",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/reactions/betse/01-betse-data-yaml-geo-lattice-lattice.mp4",
+      "label": "01-betse-data-yaml-geo-lattice-lattice.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/reactions/betse/02-betse-data-yaml-geo-embryo-neurula-connected.mp4",
+      "label": "02-betse-data-yaml-geo-embryo-neurula-connected.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/cells1/14852548_1920_1080_30fps.mp4",
+      "label": "14852548_1920_1080_30fps.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/cells2/microscopic-sample-spinal-cord-cell-ts-200x-magnif-2025-12-17-05-34-16-utc.mov",
+      "label": "microscopic-sample-spinal-cord-cell-ts-200x-magnif-2025-12-17-05-34-16-utc.mov",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/reactions/betse/02-betse-data-yaml-geo-embryo-neurula-connected.mp4",
+      "label": "02-betse-data-yaml-geo-embryo-neurula-connected.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/reactions/betse/03-betse-data-yaml-geo-planaria-o-gutmask.mp4",
+      "label": "03-betse-data-yaml-geo-planaria-o-gutmask.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/cells1/15006604_1920_1080_30fps.mp4",
+      "label": "15006604_1920_1080_30fps.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/cells2/microscopic-view-of-cells-and-particles-in-motion-2026-02-13-21-04-43-utc.mp4",
+      "label": "microscopic-view-of-cells-and-particles-in-motion-2026-02-13-21-04-43-utc.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/reactions/betse/03-betse-data-yaml-geo-planaria-o-gutmask.mp4",
+      "label": "03-betse-data-yaml-geo-planaria-o-gutmask.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/reactions/betse/04-betse-data-yaml-geo-planaria-o-boundarymask.mp4",
+      "label": "04-betse-data-yaml-geo-planaria-o-boundarymask.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/cells1/15285614_1920_1080_30fps.mp4",
+      "label": "15285614_1920_1080_30fps.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/cells2/molecular-binding-on-cellular-membrane-surface-2026-04-13-00-47-52-utc.mp4",
+      "label": "molecular-binding-on-cellular-membrane-surface-2026-04-13-00-47-52-utc.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/reactions/betse/04-betse-data-yaml-geo-planaria-o-boundarymask.mp4",
+      "label": "04-betse-data-yaml-geo-planaria-o-boundarymask.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/reactions/betse/05-betse-data-yaml-geo-lattice-holes.mp4",
+      "label": "05-betse-data-yaml-geo-lattice-holes.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/cells1/3191573-uhd_3840_2160_25fps.mp4",
+      "label": "3191573-uhd_3840_2160_25fps.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/cells2/output_video 2_1.mp4",
+      "label": "output_video 2_1.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/reactions/betse/05-betse-data-yaml-geo-lattice-holes.mp4",
+      "label": "05-betse-data-yaml-geo-lattice-holes.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/reactions/betse/06-betse-data-yaml-geo-worm-2h-gradient.mp4",
+      "label": "06-betse-data-yaml-geo-worm-2h-gradient.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/cells1/8739082-uhd_1920_1440_18fps.mp4",
+      "label": "8739082-uhd_1920_1440_18fps.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/cells2/vecteezy_abnormal-cancer-cell-with-long-slender-tendrils_75741038.mp4",
+      "label": "vecteezy_abnormal-cancer-cell-with-long-slender-tendrils_75741038.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/reactions/betse/06-betse-data-yaml-geo-worm-2h-gradient.mp4",
+      "label": "06-betse-data-yaml-geo-worm-2h-gradient.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/reactions/betse/07-betse-data-yaml-geo-worm-3cutsb.mp4",
+      "label": "07-betse-data-yaml-geo-worm-3cutsb.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/cells1/AETHER 002.mp4",
+      "label": "AETHER 002.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/cells2/vecteezy_ai-generated-3d-illustration-of-human-blood-cells-in-color_42474251.mp4",
+      "label": "vecteezy_ai-generated-3d-illustration-of-human-blood-cells-in-color_42474251.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/reactions/betse/07-betse-data-yaml-geo-worm-3cutsb.mp4",
+      "label": "07-betse-data-yaml-geo-worm-3cutsb.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/reactions/betse/08-betse-data-yaml-geo-worm-1h-gradient-linear.mp4",
+      "label": "08-betse-data-yaml-geo-worm-1h-gradient-linear.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/cells1/bio-cell-animation-2026-01-28-04-15-42-utc.mp4",
+      "label": "bio-cell-animation-2026-01-28-04-15-42-utc.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/cells2/vecteezy_cell-division-effect-on-blur-background_3145462.mp4",
+      "label": "vecteezy_cell-division-effect-on-blur-background_3145462.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/reactions/betse/08-betse-data-yaml-geo-worm-1h-gradient-linear.mp4",
+      "label": "08-betse-data-yaml-geo-worm-1h-gradient-linear.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/reactions/betse/09-betse-data-yaml-geo-worm-1h-gradient.mp4",
+      "label": "09-betse-data-yaml-geo-worm-1h-gradient.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/cells1/cell-division-cellular-therapy-2026-01-28-05-03-42-utc.mp4",
+      "label": "cell-division-cellular-therapy-2026-01-28-05-03-42-utc.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/cells2/vecteezy_intricate-view-of-a-living-cell-s-inner-world_50600544.mp4",
+      "label": "vecteezy_intricate-view-of-a-living-cell-s-inner-world_50600544.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/reactions/betse/09-betse-data-yaml-geo-worm-1h-gradient.mp4",
+      "label": "09-betse-data-yaml-geo-worm-1h-gradient.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/reactions/betse/10-doc-yaml-paper-2018-pbmb-patterns-geo-1h2-1h-gradient.mp4",
+      "label": "10-doc-yaml-paper-2018-pbmb-patterns-geo-1h2-1h-gradient.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/cells1/cell-division-loop-background-2026-01-28-02-43-48-utc.mov",
+      "label": "cell-division-loop-background-2026-01-28-02-43-48-utc.mov",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/cells2/vecteezy_liquid-sphere-green-sparkling-energy-rotates-inside-the_55353522.mp4",
+      "label": "vecteezy_liquid-sphere-green-sparkling-energy-rotates-inside-the_55353522.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/reactions/betse/10-doc-yaml-paper-2018-pbmb-patterns-geo-1h2-1h-gradient.mp4",
+      "label": "10-doc-yaml-paper-2018-pbmb-patterns-geo-1h2-1h-gradient.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/reactions/betse/11-betse-data-yaml-geo-worm-2h-gradient-asym.mp4",
+      "label": "11-betse-data-yaml-geo-worm-2h-gradient-asym.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/cells1/cell-reproduction-2026-01-28-04-16-06-utc.mp4",
+      "label": "cell-reproduction-2026-01-28-04-16-06-utc.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/cells2/vecteezy_microscopic-world-of-cells-scientific-illustration-of_72642324.mp4",
+      "label": "vecteezy_microscopic-world-of-cells-scientific-illustration-of_72642324.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/reactions/betse/11-betse-data-yaml-geo-worm-2h-gradient-asym.mp4",
+      "label": "11-betse-data-yaml-geo-worm-2h-gradient-asym.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/reactions/betse/12-betse-data-yaml-geo-worm-1h-gradient-neural.mp4",
+      "label": "12-betse-data-yaml-geo-worm-1h-gradient-neural.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/cells1/fluorescently-labeled-cells-under-a-microscope-2026-03-18-17-50-52-utc.mp4",
+      "label": "fluorescently-labeled-cells-under-a-microscope-2026-03-18-17-50-52-utc.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/cells2/vecteezy_scene-presents-dynamic-array-of-spherical-and-ring-shaped_72165849.mp4",
+      "label": "vecteezy_scene-presents-dynamic-array-of-spherical-and-ring-shaped_72165849.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/reactions/betse/12-betse-data-yaml-geo-worm-1h-gradient-neural.mp4",
+      "label": "12-betse-data-yaml-geo-worm-1h-gradient-neural.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/reactions/betse/13-betse-data-yaml-geo-worm-2h-gradient-neural.mp4",
+      "label": "13-betse-data-yaml-geo-worm-2h-gradient-neural.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/cells1/human-eukaryotic-cell-structure-2026-01-28-02-58-49-utc.mp4",
+      "label": "human-eukaryotic-cell-structure-2026-01-28-02-58-49-utc.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/cells2/vecteezy_the-purple-glowing-energy-spheres-divide-like-cells-in-a_59486657.mp4",
+      "label": "vecteezy_the-purple-glowing-energy-spheres-divide-like-cells-in-a_59486657.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/reactions/betse/13-betse-data-yaml-geo-worm-2h-gradient-neural.mp4",
+      "label": "13-betse-data-yaml-geo-worm-2h-gradient-neural.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/reactions/betse/14-betse-data-yaml-geo-embryo-neurula-mesoderm.mp4",
+      "label": "14-betse-data-yaml-geo-embryo-neurula-mesoderm.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/cells1/infected-cell-attack-healthy-cell-2026-02-18-09-40-51-utc.mov",
+      "label": "infected-cell-attack-healthy-cell-2026-02-18-09-40-51-utc.mov",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/cells2/vertical-conceptual-animation-of-the-biological-ce-2026-01-28-05-10-46-utc.mp4",
+      "label": "vertical-conceptual-animation-of-the-biological-ce-2026-01-28-05-10-46-utc.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/reactions/betse/14-betse-data-yaml-geo-embryo-neurula-mesoderm.mp4",
+      "label": "14-betse-data-yaml-geo-embryo-neurula-mesoderm.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/reactions/betse/15-betse-data-yaml-geo-embryo-neurula-epidermis.mp4",
+      "label": "15-betse-data-yaml-geo-embryo-neurula-epidermis.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/cells1/is.mp4",
+      "label": "is.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/cells2/vibrant-cell-structure-with-colorful-organelles-an-2026-03-12-02-01-33-utc.mp4",
+      "label": "vibrant-cell-structure-with-colorful-organelles-an-2026-03-12-02-01-33-utc.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/reactions/betse/15-betse-data-yaml-geo-embryo-neurula-epidermis.mp4",
+      "label": "15-betse-data-yaml-geo-embryo-neurula-epidermis.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/reactions/betse/16-betse-data-yaml-geo-worm-2h-gradient-linear.mp4",
+      "label": "16-betse-data-yaml-geo-worm-2h-gradient-linear.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/reactions/betse/16-betse-data-yaml-geo-worm-2h-gradient-linear.mp4",
+      "label": "16-betse-data-yaml-geo-worm-2h-gradient-linear.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/reactions/betse/17-betse-data-yaml-geo-worm-werner-gradient.mp4",
+      "label": "17-betse-data-yaml-geo-worm-werner-gradient.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/reactions/betse/17-betse-data-yaml-geo-worm-werner-gradient.mp4",
+      "label": "17-betse-data-yaml-geo-worm-werner-gradient.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/reactions/betse/18-betse-data-yaml-geo-cyst-thick-side-ring.mp4",
+      "label": "18-betse-data-yaml-geo-cyst-thick-side-ring.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/reactions/betse/18-betse-data-yaml-geo-cyst-thick-side-ring.mp4",
+      "label": "18-betse-data-yaml-geo-cyst-thick-side-ring.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/reactions/betse/19-betse-data-yaml-geo-snake-body.mp4",
+      "label": "19-betse-data-yaml-geo-snake-body.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/reactions/betse/19-betse-data-yaml-geo-snake-body.mp4",
+      "label": "19-betse-data-yaml-geo-snake-body.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/reactions/betse/20-betse-data-yaml-geo-circle-ring.mp4",
+      "label": "20-betse-data-yaml-geo-circle-ring.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/reactions/betse/20-betse-data-yaml-geo-circle-ring.mp4",
+      "label": "20-betse-data-yaml-geo-circle-ring.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/reactions/betse/21-doc-ipynb-tutorial-developer-geo-circle-ring.mp4",
+      "label": "21-doc-ipynb-tutorial-developer-geo-circle-ring.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/reactions/betse/21-doc-ipynb-tutorial-developer-geo-circle-ring.mp4",
+      "label": "21-doc-ipynb-tutorial-developer-geo-circle-ring.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/reactions/betse/22-betse-data-yaml-geo-planaria-o-gutcavity.mp4",
+      "label": "22-betse-data-yaml-geo-planaria-o-gutcavity.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/reactions/betse/22-betse-data-yaml-geo-planaria-o-gutcavity.mp4",
+      "label": "22-betse-data-yaml-geo-planaria-o-gutcavity.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/reactions/betse/23-betse-data-yaml-geo-worm-o-somatic.mp4",
+      "label": "23-betse-data-yaml-geo-worm-o-somatic.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/reactions/betse/23-betse-data-yaml-geo-worm-o-somatic.mp4",
+      "label": "23-betse-data-yaml-geo-worm-o-somatic.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/reactions/betse/24-betse-data-yaml-geo-cyst-blastula2.mp4",
+      "label": "24-betse-data-yaml-geo-cyst-blastula2.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/reactions/betse/24-betse-data-yaml-geo-cyst-blastula2.mp4",
+      "label": "24-betse-data-yaml-geo-cyst-blastula2.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/reactions/betse/25-betse-data-yaml-geo-cyst-blastula.mp4",
+      "label": "25-betse-data-yaml-geo-cyst-blastula.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/reactions/betse/25-betse-data-yaml-geo-cyst-blastula.mp4",
+      "label": "25-betse-data-yaml-geo-cyst-blastula.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/reactions/betse/26-betse-data-yaml-geo-worm-2h-gradient-flatmid.mp4",
+      "label": "26-betse-data-yaml-geo-worm-2h-gradient-flatmid.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/reactions/betse/26-betse-data-yaml-geo-worm-2h-gradient-flatmid.mp4",
+      "label": "26-betse-data-yaml-geo-worm-2h-gradient-flatmid.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/reactions/betse/27-betse-data-yaml-geo-cyst-ring.mp4",
+      "label": "27-betse-data-yaml-geo-cyst-ring.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/reactions/betse/27-betse-data-yaml-geo-cyst-ring.mp4",
+      "label": "27-betse-data-yaml-geo-cyst-ring.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/reactions/betse/28-betse-data-yaml-geo-worm-body.mp4",
+      "label": "28-betse-data-yaml-geo-worm-body.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/reactions/betse/28-betse-data-yaml-geo-worm-body.mp4",
+      "label": "28-betse-data-yaml-geo-worm-body.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/reactions/betse/29-doc-yaml-paper-2018-pbmb-patterns-geo-1h2-body.mp4",
+      "label": "29-doc-yaml-paper-2018-pbmb-patterns-geo-1h2-body.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/reactions/betse/29-doc-yaml-paper-2018-pbmb-patterns-geo-1h2-body.mp4",
+      "label": "29-doc-yaml-paper-2018-pbmb-patterns-geo-1h2-body.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/reactions/betse/30-betse-data-yaml-geo-worm-2cutsb.mp4",
+      "label": "30-betse-data-yaml-geo-worm-2cutsb.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/reactions/betse/30-betse-data-yaml-geo-worm-2cutsb.mp4",
+      "label": "30-betse-data-yaml-geo-worm-2cutsb.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/reactions/betse/31-betse-data-yaml-geo-worm-3cuts.mp4",
+      "label": "31-betse-data-yaml-geo-worm-3cuts.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/reactions/betse/31-betse-data-yaml-geo-worm-3cuts.mp4",
+      "label": "31-betse-data-yaml-geo-worm-3cuts.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/reactions/betse/32-doc-yaml-paper-2018-pbmb-patterns-geo-1h2-3cuts.mp4",
+      "label": "32-doc-yaml-paper-2018-pbmb-patterns-geo-1h2-3cuts.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/reactions/betse/32-doc-yaml-paper-2018-pbmb-patterns-geo-1h2-3cuts.mp4",
+      "label": "32-doc-yaml-paper-2018-pbmb-patterns-geo-1h2-3cuts.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/reactions/betse/33-betse-data-yaml-geo-embryo-neurula-endoderm.mp4",
+      "label": "33-betse-data-yaml-geo-embryo-neurula-endoderm.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/reactions/betse/33-betse-data-yaml-geo-embryo-neurula-endoderm.mp4",
+      "label": "33-betse-data-yaml-geo-embryo-neurula-endoderm.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/reactions/betse/34-betse-data-yaml-geo-embryo-neurula-base.mp4",
+      "label": "34-betse-data-yaml-geo-embryo-neurula-base.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/reactions/betse/34-betse-data-yaml-geo-embryo-neurula-base.mp4",
+      "label": "34-betse-data-yaml-geo-embryo-neurula-base.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/reactions/betse/35-betse-data-yaml-geo-embryo2-folds.mp4",
+      "label": "35-betse-data-yaml-geo-embryo2-folds.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/reactions/betse/35-betse-data-yaml-geo-embryo2-folds.mp4",
+      "label": "35-betse-data-yaml-geo-embryo2-folds.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/reactions/betse/36-betse-data-yaml-geo-embryo2-clipping.mp4",
+      "label": "36-betse-data-yaml-geo-embryo2-clipping.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/reactions/betse/36-betse-data-yaml-geo-embryo2-clipping.mp4",
+      "label": "36-betse-data-yaml-geo-embryo2-clipping.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/reactions/cell-image-library/03cdb0002d6c-hue-loop.mp4",
+      "label": "03cdb0002d6c-hue-loop.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/reactions/cell-image-library/06e6ddf798df-hue-loop.mp4",
+      "label": "06e6ddf798df-hue-loop.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/reactions/cell-image-library/3ed6f7529ea7-hue-loop.mp4",
+      "label": "3ed6f7529ea7-hue-loop.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/reactions/cell-image-library/4cbe64dc737c-hue-loop.mp4",
+      "label": "4cbe64dc737c-hue-loop.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/reactions/cell-image-library/9e4a91e86967-hue-loop.mp4",
+      "label": "9e4a91e86967-hue-loop.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/reactions/cell-image-library/bb2d08e011cc-hue-loop.mp4",
+      "label": "bb2d08e011cc-hue-loop.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/reactions/nikon-smallworld/nikon-laser-soap.mp4",
+      "label": "nikon-laser-soap.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/reactions/nikon-smallworld/nikon-paracetamol.mp4",
+      "label": "nikon-paracetamol.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/reactions/nikon-smallworld/nikon-rotifers.mp4",
+      "label": "nikon-rotifers.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/reactions/nikon-smallworld/nikon-trachelius.mp4",
+      "label": "nikon-trachelius.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/reactions/betse/01-betse-data-yaml-geo-lattice-lattice.mp4",
+      "label": "01-betse-data-yaml-geo-lattice-lattice.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/cells1/14726771_1920_1080_30fps.mp4",
+      "label": "14726771_1920_1080_30fps.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/cells2/large-numbers-of-cells-gather-together-2026-01-28-03-23-59-utc.mov",
+      "label": "large-numbers-of-cells-gather-together-2026-01-28-03-23-59-utc.mov",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/reactions/betse/01-betse-data-yaml-geo-lattice-lattice.mp4",
+      "label": "01-betse-data-yaml-geo-lattice-lattice.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/reactions/betse/02-betse-data-yaml-geo-embryo-neurula-connected.mp4",
+      "label": "02-betse-data-yaml-geo-embryo-neurula-connected.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/cells1/14852548_1920_1080_30fps.mp4",
+      "label": "14852548_1920_1080_30fps.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/cells2/microscopic-sample-spinal-cord-cell-ts-200x-magnif-2025-12-17-05-34-16-utc.mov",
+      "label": "microscopic-sample-spinal-cord-cell-ts-200x-magnif-2025-12-17-05-34-16-utc.mov",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/reactions/betse/02-betse-data-yaml-geo-embryo-neurula-connected.mp4",
+      "label": "02-betse-data-yaml-geo-embryo-neurula-connected.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/reactions/betse/03-betse-data-yaml-geo-planaria-o-gutmask.mp4",
+      "label": "03-betse-data-yaml-geo-planaria-o-gutmask.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/cells1/15006604_1920_1080_30fps.mp4",
+      "label": "15006604_1920_1080_30fps.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/cells2/microscopic-view-of-cells-and-particles-in-motion-2026-02-13-21-04-43-utc.mp4",
+      "label": "microscopic-view-of-cells-and-particles-in-motion-2026-02-13-21-04-43-utc.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/reactions/betse/03-betse-data-yaml-geo-planaria-o-gutmask.mp4",
+      "label": "03-betse-data-yaml-geo-planaria-o-gutmask.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/reactions/betse/04-betse-data-yaml-geo-planaria-o-boundarymask.mp4",
+      "label": "04-betse-data-yaml-geo-planaria-o-boundarymask.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/cells1/15285614_1920_1080_30fps.mp4",
+      "label": "15285614_1920_1080_30fps.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/cells2/molecular-binding-on-cellular-membrane-surface-2026-04-13-00-47-52-utc.mp4",
+      "label": "molecular-binding-on-cellular-membrane-surface-2026-04-13-00-47-52-utc.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/reactions/betse/04-betse-data-yaml-geo-planaria-o-boundarymask.mp4",
+      "label": "04-betse-data-yaml-geo-planaria-o-boundarymask.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/reactions/betse/05-betse-data-yaml-geo-lattice-holes.mp4",
+      "label": "05-betse-data-yaml-geo-lattice-holes.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/cells1/3191573-uhd_3840_2160_25fps.mp4",
+      "label": "3191573-uhd_3840_2160_25fps.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/cells2/output_video 2_1.mp4",
+      "label": "output_video 2_1.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/reactions/betse/05-betse-data-yaml-geo-lattice-holes.mp4",
+      "label": "05-betse-data-yaml-geo-lattice-holes.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/reactions/betse/06-betse-data-yaml-geo-worm-2h-gradient.mp4",
+      "label": "06-betse-data-yaml-geo-worm-2h-gradient.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/cells1/8739082-uhd_1920_1440_18fps.mp4",
+      "label": "8739082-uhd_1920_1440_18fps.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/cells2/vecteezy_abnormal-cancer-cell-with-long-slender-tendrils_75741038.mp4",
+      "label": "vecteezy_abnormal-cancer-cell-with-long-slender-tendrils_75741038.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/reactions/betse/06-betse-data-yaml-geo-worm-2h-gradient.mp4",
+      "label": "06-betse-data-yaml-geo-worm-2h-gradient.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/reactions/betse/07-betse-data-yaml-geo-worm-3cutsb.mp4",
+      "label": "07-betse-data-yaml-geo-worm-3cutsb.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/cells1/AETHER 002.mp4",
+      "label": "AETHER 002.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/cells2/vecteezy_ai-generated-3d-illustration-of-human-blood-cells-in-color_42474251.mp4",
+      "label": "vecteezy_ai-generated-3d-illustration-of-human-blood-cells-in-color_42474251.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/reactions/betse/07-betse-data-yaml-geo-worm-3cutsb.mp4",
+      "label": "07-betse-data-yaml-geo-worm-3cutsb.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/reactions/betse/08-betse-data-yaml-geo-worm-1h-gradient-linear.mp4",
+      "label": "08-betse-data-yaml-geo-worm-1h-gradient-linear.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/cells1/bio-cell-animation-2026-01-28-04-15-42-utc.mp4",
+      "label": "bio-cell-animation-2026-01-28-04-15-42-utc.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/cells2/vecteezy_cell-division-effect-on-blur-background_3145462.mp4",
+      "label": "vecteezy_cell-division-effect-on-blur-background_3145462.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/reactions/betse/08-betse-data-yaml-geo-worm-1h-gradient-linear.mp4",
+      "label": "08-betse-data-yaml-geo-worm-1h-gradient-linear.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/reactions/betse/09-betse-data-yaml-geo-worm-1h-gradient.mp4",
+      "label": "09-betse-data-yaml-geo-worm-1h-gradient.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/cells1/cell-division-cellular-therapy-2026-01-28-05-03-42-utc.mp4",
+      "label": "cell-division-cellular-therapy-2026-01-28-05-03-42-utc.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/cells2/vecteezy_intricate-view-of-a-living-cell-s-inner-world_50600544.mp4",
+      "label": "vecteezy_intricate-view-of-a-living-cell-s-inner-world_50600544.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/reactions/betse/09-betse-data-yaml-geo-worm-1h-gradient.mp4",
+      "label": "09-betse-data-yaml-geo-worm-1h-gradient.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/reactions/betse/10-doc-yaml-paper-2018-pbmb-patterns-geo-1h2-1h-gradient.mp4",
+      "label": "10-doc-yaml-paper-2018-pbmb-patterns-geo-1h2-1h-gradient.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/cells1/cell-division-loop-background-2026-01-28-02-43-48-utc.mov",
+      "label": "cell-division-loop-background-2026-01-28-02-43-48-utc.mov",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/cells2/vecteezy_liquid-sphere-green-sparkling-energy-rotates-inside-the_55353522.mp4",
+      "label": "vecteezy_liquid-sphere-green-sparkling-energy-rotates-inside-the_55353522.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/reactions/betse/10-doc-yaml-paper-2018-pbmb-patterns-geo-1h2-1h-gradient.mp4",
+      "label": "10-doc-yaml-paper-2018-pbmb-patterns-geo-1h2-1h-gradient.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/reactions/betse/11-betse-data-yaml-geo-worm-2h-gradient-asym.mp4",
+      "label": "11-betse-data-yaml-geo-worm-2h-gradient-asym.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/cells1/cell-reproduction-2026-01-28-04-16-06-utc.mp4",
+      "label": "cell-reproduction-2026-01-28-04-16-06-utc.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/cells2/vecteezy_microscopic-world-of-cells-scientific-illustration-of_72642324.mp4",
+      "label": "vecteezy_microscopic-world-of-cells-scientific-illustration-of_72642324.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/reactions/betse/11-betse-data-yaml-geo-worm-2h-gradient-asym.mp4",
+      "label": "11-betse-data-yaml-geo-worm-2h-gradient-asym.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/reactions/betse/12-betse-data-yaml-geo-worm-1h-gradient-neural.mp4",
+      "label": "12-betse-data-yaml-geo-worm-1h-gradient-neural.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/cells1/fluorescently-labeled-cells-under-a-microscope-2026-03-18-17-50-52-utc.mp4",
+      "label": "fluorescently-labeled-cells-under-a-microscope-2026-03-18-17-50-52-utc.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/cells2/vecteezy_scene-presents-dynamic-array-of-spherical-and-ring-shaped_72165849.mp4",
+      "label": "vecteezy_scene-presents-dynamic-array-of-spherical-and-ring-shaped_72165849.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/reactions/betse/12-betse-data-yaml-geo-worm-1h-gradient-neural.mp4",
+      "label": "12-betse-data-yaml-geo-worm-1h-gradient-neural.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/reactions/betse/13-betse-data-yaml-geo-worm-2h-gradient-neural.mp4",
+      "label": "13-betse-data-yaml-geo-worm-2h-gradient-neural.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/cells1/human-eukaryotic-cell-structure-2026-01-28-02-58-49-utc.mp4",
+      "label": "human-eukaryotic-cell-structure-2026-01-28-02-58-49-utc.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/cells2/vecteezy_the-purple-glowing-energy-spheres-divide-like-cells-in-a_59486657.mp4",
+      "label": "vecteezy_the-purple-glowing-energy-spheres-divide-like-cells-in-a_59486657.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/reactions/betse/13-betse-data-yaml-geo-worm-2h-gradient-neural.mp4",
+      "label": "13-betse-data-yaml-geo-worm-2h-gradient-neural.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/reactions/betse/14-betse-data-yaml-geo-embryo-neurula-mesoderm.mp4",
+      "label": "14-betse-data-yaml-geo-embryo-neurula-mesoderm.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/cells1/infected-cell-attack-healthy-cell-2026-02-18-09-40-51-utc.mov",
+      "label": "infected-cell-attack-healthy-cell-2026-02-18-09-40-51-utc.mov",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/cells2/vertical-conceptual-animation-of-the-biological-ce-2026-01-28-05-10-46-utc.mp4",
+      "label": "vertical-conceptual-animation-of-the-biological-ce-2026-01-28-05-10-46-utc.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/reactions/betse/14-betse-data-yaml-geo-embryo-neurula-mesoderm.mp4",
+      "label": "14-betse-data-yaml-geo-embryo-neurula-mesoderm.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/reactions/betse/15-betse-data-yaml-geo-embryo-neurula-epidermis.mp4",
+      "label": "15-betse-data-yaml-geo-embryo-neurula-epidermis.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/cells1/is.mp4",
+      "label": "is.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/cells2/vibrant-cell-structure-with-colorful-organelles-an-2026-03-12-02-01-33-utc.mp4",
+      "label": "vibrant-cell-structure-with-colorful-organelles-an-2026-03-12-02-01-33-utc.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/reactions/betse/15-betse-data-yaml-geo-embryo-neurula-epidermis.mp4",
+      "label": "15-betse-data-yaml-geo-embryo-neurula-epidermis.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/reactions/betse/16-betse-data-yaml-geo-worm-2h-gradient-linear.mp4",
+      "label": "16-betse-data-yaml-geo-worm-2h-gradient-linear.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/reactions/betse/16-betse-data-yaml-geo-worm-2h-gradient-linear.mp4",
+      "label": "16-betse-data-yaml-geo-worm-2h-gradient-linear.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/reactions/betse/17-betse-data-yaml-geo-worm-werner-gradient.mp4",
+      "label": "17-betse-data-yaml-geo-worm-werner-gradient.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/reactions/betse/17-betse-data-yaml-geo-worm-werner-gradient.mp4",
+      "label": "17-betse-data-yaml-geo-worm-werner-gradient.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/reactions/betse/18-betse-data-yaml-geo-cyst-thick-side-ring.mp4",
+      "label": "18-betse-data-yaml-geo-cyst-thick-side-ring.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/reactions/betse/18-betse-data-yaml-geo-cyst-thick-side-ring.mp4",
+      "label": "18-betse-data-yaml-geo-cyst-thick-side-ring.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/reactions/betse/19-betse-data-yaml-geo-snake-body.mp4",
+      "label": "19-betse-data-yaml-geo-snake-body.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/reactions/betse/19-betse-data-yaml-geo-snake-body.mp4",
+      "label": "19-betse-data-yaml-geo-snake-body.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/reactions/betse/20-betse-data-yaml-geo-circle-ring.mp4",
+      "label": "20-betse-data-yaml-geo-circle-ring.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/reactions/betse/20-betse-data-yaml-geo-circle-ring.mp4",
+      "label": "20-betse-data-yaml-geo-circle-ring.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/reactions/betse/21-doc-ipynb-tutorial-developer-geo-circle-ring.mp4",
+      "label": "21-doc-ipynb-tutorial-developer-geo-circle-ring.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/reactions/betse/21-doc-ipynb-tutorial-developer-geo-circle-ring.mp4",
+      "label": "21-doc-ipynb-tutorial-developer-geo-circle-ring.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/reactions/betse/22-betse-data-yaml-geo-planaria-o-gutcavity.mp4",
+      "label": "22-betse-data-yaml-geo-planaria-o-gutcavity.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/reactions/betse/22-betse-data-yaml-geo-planaria-o-gutcavity.mp4",
+      "label": "22-betse-data-yaml-geo-planaria-o-gutcavity.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/reactions/betse/23-betse-data-yaml-geo-worm-o-somatic.mp4",
+      "label": "23-betse-data-yaml-geo-worm-o-somatic.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/reactions/betse/23-betse-data-yaml-geo-worm-o-somatic.mp4",
+      "label": "23-betse-data-yaml-geo-worm-o-somatic.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/reactions/betse/24-betse-data-yaml-geo-cyst-blastula2.mp4",
+      "label": "24-betse-data-yaml-geo-cyst-blastula2.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/reactions/betse/24-betse-data-yaml-geo-cyst-blastula2.mp4",
+      "label": "24-betse-data-yaml-geo-cyst-blastula2.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/reactions/betse/25-betse-data-yaml-geo-cyst-blastula.mp4",
+      "label": "25-betse-data-yaml-geo-cyst-blastula.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/reactions/betse/25-betse-data-yaml-geo-cyst-blastula.mp4",
+      "label": "25-betse-data-yaml-geo-cyst-blastula.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/reactions/betse/26-betse-data-yaml-geo-worm-2h-gradient-flatmid.mp4",
+      "label": "26-betse-data-yaml-geo-worm-2h-gradient-flatmid.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/reactions/betse/26-betse-data-yaml-geo-worm-2h-gradient-flatmid.mp4",
+      "label": "26-betse-data-yaml-geo-worm-2h-gradient-flatmid.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/reactions/betse/27-betse-data-yaml-geo-cyst-ring.mp4",
+      "label": "27-betse-data-yaml-geo-cyst-ring.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/reactions/betse/27-betse-data-yaml-geo-cyst-ring.mp4",
+      "label": "27-betse-data-yaml-geo-cyst-ring.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/reactions/betse/28-betse-data-yaml-geo-worm-body.mp4",
+      "label": "28-betse-data-yaml-geo-worm-body.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/reactions/betse/28-betse-data-yaml-geo-worm-body.mp4",
+      "label": "28-betse-data-yaml-geo-worm-body.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/reactions/betse/29-doc-yaml-paper-2018-pbmb-patterns-geo-1h2-body.mp4",
+      "label": "29-doc-yaml-paper-2018-pbmb-patterns-geo-1h2-body.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/reactions/betse/29-doc-yaml-paper-2018-pbmb-patterns-geo-1h2-body.mp4",
+      "label": "29-doc-yaml-paper-2018-pbmb-patterns-geo-1h2-body.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/reactions/betse/30-betse-data-yaml-geo-worm-2cutsb.mp4",
+      "label": "30-betse-data-yaml-geo-worm-2cutsb.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/reactions/betse/30-betse-data-yaml-geo-worm-2cutsb.mp4",
+      "label": "30-betse-data-yaml-geo-worm-2cutsb.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/reactions/betse/31-betse-data-yaml-geo-worm-3cuts.mp4",
+      "label": "31-betse-data-yaml-geo-worm-3cuts.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/reactions/betse/31-betse-data-yaml-geo-worm-3cuts.mp4",
+      "label": "31-betse-data-yaml-geo-worm-3cuts.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/reactions/betse/32-doc-yaml-paper-2018-pbmb-patterns-geo-1h2-3cuts.mp4",
+      "label": "32-doc-yaml-paper-2018-pbmb-patterns-geo-1h2-3cuts.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/reactions/betse/32-doc-yaml-paper-2018-pbmb-patterns-geo-1h2-3cuts.mp4",
+      "label": "32-doc-yaml-paper-2018-pbmb-patterns-geo-1h2-3cuts.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/reactions/betse/33-betse-data-yaml-geo-embryo-neurula-endoderm.mp4",
+      "label": "33-betse-data-yaml-geo-embryo-neurula-endoderm.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/reactions/betse/33-betse-data-yaml-geo-embryo-neurula-endoderm.mp4",
+      "label": "33-betse-data-yaml-geo-embryo-neurula-endoderm.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/reactions/betse/34-betse-data-yaml-geo-embryo-neurula-base.mp4",
+      "label": "34-betse-data-yaml-geo-embryo-neurula-base.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/reactions/betse/34-betse-data-yaml-geo-embryo-neurula-base.mp4",
+      "label": "34-betse-data-yaml-geo-embryo-neurula-base.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/reactions/betse/35-betse-data-yaml-geo-embryo2-folds.mp4",
+      "label": "35-betse-data-yaml-geo-embryo2-folds.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/reactions/betse/35-betse-data-yaml-geo-embryo2-folds.mp4",
+      "label": "35-betse-data-yaml-geo-embryo2-folds.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/reactions/betse/36-betse-data-yaml-geo-embryo2-clipping.mp4",
+      "label": "36-betse-data-yaml-geo-embryo2-clipping.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/reactions/betse/36-betse-data-yaml-geo-embryo2-clipping.mp4",
+      "label": "36-betse-data-yaml-geo-embryo2-clipping.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/reactions/cell-image-library/03cdb0002d6c-hue-loop.mp4",
+      "label": "03cdb0002d6c-hue-loop.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/reactions/cell-image-library/06e6ddf798df-hue-loop.mp4",
+      "label": "06e6ddf798df-hue-loop.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/reactions/cell-image-library/3ed6f7529ea7-hue-loop.mp4",
+      "label": "3ed6f7529ea7-hue-loop.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/reactions/cell-image-library/4cbe64dc737c-hue-loop.mp4",
+      "label": "4cbe64dc737c-hue-loop.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/reactions/cell-image-library/9e4a91e86967-hue-loop.mp4",
+      "label": "9e4a91e86967-hue-loop.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/reactions/cell-image-library/bb2d08e011cc-hue-loop.mp4",
+      "label": "bb2d08e011cc-hue-loop.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/reactions/nikon-smallworld/nikon-laser-soap.mp4",
+      "label": "nikon-laser-soap.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/reactions/nikon-smallworld/nikon-paracetamol.mp4",
+      "label": "nikon-paracetamol.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/reactions/nikon-smallworld/nikon-rotifers.mp4",
+      "label": "nikon-rotifers.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/reactions/nikon-smallworld/nikon-trachelius.mp4",
+      "label": "nikon-trachelius.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/reactions/betse/01-betse-data-yaml-geo-lattice-lattice.mp4",
+      "label": "01-betse-data-yaml-geo-lattice-lattice.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/cells1/14726771_1920_1080_30fps.mp4",
+      "label": "14726771_1920_1080_30fps.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/cells2/large-numbers-of-cells-gather-together-2026-01-28-03-23-59-utc.mov",
+      "label": "large-numbers-of-cells-gather-together-2026-01-28-03-23-59-utc.mov",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/reactions/betse/01-betse-data-yaml-geo-lattice-lattice.mp4",
+      "label": "01-betse-data-yaml-geo-lattice-lattice.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/reactions/betse/02-betse-data-yaml-geo-embryo-neurula-connected.mp4",
+      "label": "02-betse-data-yaml-geo-embryo-neurula-connected.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/cells1/14852548_1920_1080_30fps.mp4",
+      "label": "14852548_1920_1080_30fps.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/cells2/microscopic-sample-spinal-cord-cell-ts-200x-magnif-2025-12-17-05-34-16-utc.mov",
+      "label": "microscopic-sample-spinal-cord-cell-ts-200x-magnif-2025-12-17-05-34-16-utc.mov",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/reactions/betse/02-betse-data-yaml-geo-embryo-neurula-connected.mp4",
+      "label": "02-betse-data-yaml-geo-embryo-neurula-connected.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/reactions/betse/03-betse-data-yaml-geo-planaria-o-gutmask.mp4",
+      "label": "03-betse-data-yaml-geo-planaria-o-gutmask.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/cells1/15006604_1920_1080_30fps.mp4",
+      "label": "15006604_1920_1080_30fps.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/cells2/microscopic-view-of-cells-and-particles-in-motion-2026-02-13-21-04-43-utc.mp4",
+      "label": "microscopic-view-of-cells-and-particles-in-motion-2026-02-13-21-04-43-utc.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/reactions/betse/03-betse-data-yaml-geo-planaria-o-gutmask.mp4",
+      "label": "03-betse-data-yaml-geo-planaria-o-gutmask.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/reactions/betse/04-betse-data-yaml-geo-planaria-o-boundarymask.mp4",
+      "label": "04-betse-data-yaml-geo-planaria-o-boundarymask.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/cells1/15285614_1920_1080_30fps.mp4",
+      "label": "15285614_1920_1080_30fps.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/cells2/molecular-binding-on-cellular-membrane-surface-2026-04-13-00-47-52-utc.mp4",
+      "label": "molecular-binding-on-cellular-membrane-surface-2026-04-13-00-47-52-utc.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/reactions/betse/04-betse-data-yaml-geo-planaria-o-boundarymask.mp4",
+      "label": "04-betse-data-yaml-geo-planaria-o-boundarymask.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/reactions/betse/05-betse-data-yaml-geo-lattice-holes.mp4",
+      "label": "05-betse-data-yaml-geo-lattice-holes.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/cells1/3191573-uhd_3840_2160_25fps.mp4",
+      "label": "3191573-uhd_3840_2160_25fps.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/cells2/output_video 2_1.mp4",
+      "label": "output_video 2_1.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/reactions/betse/05-betse-data-yaml-geo-lattice-holes.mp4",
+      "label": "05-betse-data-yaml-geo-lattice-holes.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/reactions/betse/06-betse-data-yaml-geo-worm-2h-gradient.mp4",
+      "label": "06-betse-data-yaml-geo-worm-2h-gradient.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/cells1/8739082-uhd_1920_1440_18fps.mp4",
+      "label": "8739082-uhd_1920_1440_18fps.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/cells2/vecteezy_abnormal-cancer-cell-with-long-slender-tendrils_75741038.mp4",
+      "label": "vecteezy_abnormal-cancer-cell-with-long-slender-tendrils_75741038.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/reactions/betse/06-betse-data-yaml-geo-worm-2h-gradient.mp4",
+      "label": "06-betse-data-yaml-geo-worm-2h-gradient.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/reactions/betse/07-betse-data-yaml-geo-worm-3cutsb.mp4",
+      "label": "07-betse-data-yaml-geo-worm-3cutsb.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/cells1/AETHER 002.mp4",
+      "label": "AETHER 002.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/cells2/vecteezy_ai-generated-3d-illustration-of-human-blood-cells-in-color_42474251.mp4",
+      "label": "vecteezy_ai-generated-3d-illustration-of-human-blood-cells-in-color_42474251.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/reactions/betse/07-betse-data-yaml-geo-worm-3cutsb.mp4",
+      "label": "07-betse-data-yaml-geo-worm-3cutsb.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/reactions/betse/08-betse-data-yaml-geo-worm-1h-gradient-linear.mp4",
+      "label": "08-betse-data-yaml-geo-worm-1h-gradient-linear.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/cells1/bio-cell-animation-2026-01-28-04-15-42-utc.mp4",
+      "label": "bio-cell-animation-2026-01-28-04-15-42-utc.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/cells2/vecteezy_cell-division-effect-on-blur-background_3145462.mp4",
+      "label": "vecteezy_cell-division-effect-on-blur-background_3145462.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/reactions/betse/08-betse-data-yaml-geo-worm-1h-gradient-linear.mp4",
+      "label": "08-betse-data-yaml-geo-worm-1h-gradient-linear.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/reactions/betse/09-betse-data-yaml-geo-worm-1h-gradient.mp4",
+      "label": "09-betse-data-yaml-geo-worm-1h-gradient.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/cells1/cell-division-cellular-therapy-2026-01-28-05-03-42-utc.mp4",
+      "label": "cell-division-cellular-therapy-2026-01-28-05-03-42-utc.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/cells2/vecteezy_intricate-view-of-a-living-cell-s-inner-world_50600544.mp4",
+      "label": "vecteezy_intricate-view-of-a-living-cell-s-inner-world_50600544.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/reactions/betse/09-betse-data-yaml-geo-worm-1h-gradient.mp4",
+      "label": "09-betse-data-yaml-geo-worm-1h-gradient.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/reactions/betse/10-doc-yaml-paper-2018-pbmb-patterns-geo-1h2-1h-gradient.mp4",
+      "label": "10-doc-yaml-paper-2018-pbmb-patterns-geo-1h2-1h-gradient.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/cells1/cell-division-loop-background-2026-01-28-02-43-48-utc.mov",
+      "label": "cell-division-loop-background-2026-01-28-02-43-48-utc.mov",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/cells2/vecteezy_liquid-sphere-green-sparkling-energy-rotates-inside-the_55353522.mp4",
+      "label": "vecteezy_liquid-sphere-green-sparkling-energy-rotates-inside-the_55353522.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/reactions/betse/10-doc-yaml-paper-2018-pbmb-patterns-geo-1h2-1h-gradient.mp4",
+      "label": "10-doc-yaml-paper-2018-pbmb-patterns-geo-1h2-1h-gradient.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/reactions/betse/11-betse-data-yaml-geo-worm-2h-gradient-asym.mp4",
+      "label": "11-betse-data-yaml-geo-worm-2h-gradient-asym.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/cells1/cell-reproduction-2026-01-28-04-16-06-utc.mp4",
+      "label": "cell-reproduction-2026-01-28-04-16-06-utc.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/cells2/vecteezy_microscopic-world-of-cells-scientific-illustration-of_72642324.mp4",
+      "label": "vecteezy_microscopic-world-of-cells-scientific-illustration-of_72642324.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/reactions/betse/11-betse-data-yaml-geo-worm-2h-gradient-asym.mp4",
+      "label": "11-betse-data-yaml-geo-worm-2h-gradient-asym.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/reactions/betse/12-betse-data-yaml-geo-worm-1h-gradient-neural.mp4",
+      "label": "12-betse-data-yaml-geo-worm-1h-gradient-neural.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/cells1/fluorescently-labeled-cells-under-a-microscope-2026-03-18-17-50-52-utc.mp4",
+      "label": "fluorescently-labeled-cells-under-a-microscope-2026-03-18-17-50-52-utc.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/cells2/vecteezy_scene-presents-dynamic-array-of-spherical-and-ring-shaped_72165849.mp4",
+      "label": "vecteezy_scene-presents-dynamic-array-of-spherical-and-ring-shaped_72165849.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/reactions/betse/12-betse-data-yaml-geo-worm-1h-gradient-neural.mp4",
+      "label": "12-betse-data-yaml-geo-worm-1h-gradient-neural.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/reactions/betse/13-betse-data-yaml-geo-worm-2h-gradient-neural.mp4",
+      "label": "13-betse-data-yaml-geo-worm-2h-gradient-neural.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/cells1/human-eukaryotic-cell-structure-2026-01-28-02-58-49-utc.mp4",
+      "label": "human-eukaryotic-cell-structure-2026-01-28-02-58-49-utc.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/cells2/vecteezy_the-purple-glowing-energy-spheres-divide-like-cells-in-a_59486657.mp4",
+      "label": "vecteezy_the-purple-glowing-energy-spheres-divide-like-cells-in-a_59486657.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/reactions/betse/13-betse-data-yaml-geo-worm-2h-gradient-neural.mp4",
+      "label": "13-betse-data-yaml-geo-worm-2h-gradient-neural.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/reactions/betse/14-betse-data-yaml-geo-embryo-neurula-mesoderm.mp4",
+      "label": "14-betse-data-yaml-geo-embryo-neurula-mesoderm.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/cells1/infected-cell-attack-healthy-cell-2026-02-18-09-40-51-utc.mov",
+      "label": "infected-cell-attack-healthy-cell-2026-02-18-09-40-51-utc.mov",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/cells2/vertical-conceptual-animation-of-the-biological-ce-2026-01-28-05-10-46-utc.mp4",
+      "label": "vertical-conceptual-animation-of-the-biological-ce-2026-01-28-05-10-46-utc.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/reactions/betse/14-betse-data-yaml-geo-embryo-neurula-mesoderm.mp4",
+      "label": "14-betse-data-yaml-geo-embryo-neurula-mesoderm.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/reactions/betse/15-betse-data-yaml-geo-embryo-neurula-epidermis.mp4",
+      "label": "15-betse-data-yaml-geo-embryo-neurula-epidermis.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/cells1/is.mp4",
+      "label": "is.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/cells2/vibrant-cell-structure-with-colorful-organelles-an-2026-03-12-02-01-33-utc.mp4",
+      "label": "vibrant-cell-structure-with-colorful-organelles-an-2026-03-12-02-01-33-utc.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/reactions/betse/15-betse-data-yaml-geo-embryo-neurula-epidermis.mp4",
+      "label": "15-betse-data-yaml-geo-embryo-neurula-epidermis.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/reactions/betse/16-betse-data-yaml-geo-worm-2h-gradient-linear.mp4",
+      "label": "16-betse-data-yaml-geo-worm-2h-gradient-linear.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/reactions/betse/16-betse-data-yaml-geo-worm-2h-gradient-linear.mp4",
+      "label": "16-betse-data-yaml-geo-worm-2h-gradient-linear.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/reactions/betse/17-betse-data-yaml-geo-worm-werner-gradient.mp4",
+      "label": "17-betse-data-yaml-geo-worm-werner-gradient.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/reactions/betse/17-betse-data-yaml-geo-worm-werner-gradient.mp4",
+      "label": "17-betse-data-yaml-geo-worm-werner-gradient.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/reactions/betse/18-betse-data-yaml-geo-cyst-thick-side-ring.mp4",
+      "label": "18-betse-data-yaml-geo-cyst-thick-side-ring.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/reactions/betse/18-betse-data-yaml-geo-cyst-thick-side-ring.mp4",
+      "label": "18-betse-data-yaml-geo-cyst-thick-side-ring.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/reactions/betse/19-betse-data-yaml-geo-snake-body.mp4",
+      "label": "19-betse-data-yaml-geo-snake-body.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/reactions/betse/19-betse-data-yaml-geo-snake-body.mp4",
+      "label": "19-betse-data-yaml-geo-snake-body.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/reactions/betse/20-betse-data-yaml-geo-circle-ring.mp4",
+      "label": "20-betse-data-yaml-geo-circle-ring.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/reactions/betse/20-betse-data-yaml-geo-circle-ring.mp4",
+      "label": "20-betse-data-yaml-geo-circle-ring.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/reactions/betse/21-doc-ipynb-tutorial-developer-geo-circle-ring.mp4",
+      "label": "21-doc-ipynb-tutorial-developer-geo-circle-ring.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/reactions/betse/21-doc-ipynb-tutorial-developer-geo-circle-ring.mp4",
+      "label": "21-doc-ipynb-tutorial-developer-geo-circle-ring.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/reactions/betse/22-betse-data-yaml-geo-planaria-o-gutcavity.mp4",
+      "label": "22-betse-data-yaml-geo-planaria-o-gutcavity.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/reactions/betse/22-betse-data-yaml-geo-planaria-o-gutcavity.mp4",
+      "label": "22-betse-data-yaml-geo-planaria-o-gutcavity.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/reactions/betse/23-betse-data-yaml-geo-worm-o-somatic.mp4",
+      "label": "23-betse-data-yaml-geo-worm-o-somatic.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/reactions/betse/23-betse-data-yaml-geo-worm-o-somatic.mp4",
+      "label": "23-betse-data-yaml-geo-worm-o-somatic.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/reactions/betse/24-betse-data-yaml-geo-cyst-blastula2.mp4",
+      "label": "24-betse-data-yaml-geo-cyst-blastula2.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/reactions/betse/24-betse-data-yaml-geo-cyst-blastula2.mp4",
+      "label": "24-betse-data-yaml-geo-cyst-blastula2.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/reactions/betse/25-betse-data-yaml-geo-cyst-blastula.mp4",
+      "label": "25-betse-data-yaml-geo-cyst-blastula.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/reactions/betse/25-betse-data-yaml-geo-cyst-blastula.mp4",
+      "label": "25-betse-data-yaml-geo-cyst-blastula.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/reactions/betse/26-betse-data-yaml-geo-worm-2h-gradient-flatmid.mp4",
+      "label": "26-betse-data-yaml-geo-worm-2h-gradient-flatmid.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/reactions/betse/26-betse-data-yaml-geo-worm-2h-gradient-flatmid.mp4",
+      "label": "26-betse-data-yaml-geo-worm-2h-gradient-flatmid.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/reactions/betse/27-betse-data-yaml-geo-cyst-ring.mp4",
+      "label": "27-betse-data-yaml-geo-cyst-ring.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/reactions/betse/27-betse-data-yaml-geo-cyst-ring.mp4",
+      "label": "27-betse-data-yaml-geo-cyst-ring.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/reactions/betse/28-betse-data-yaml-geo-worm-body.mp4",
+      "label": "28-betse-data-yaml-geo-worm-body.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/reactions/betse/28-betse-data-yaml-geo-worm-body.mp4",
+      "label": "28-betse-data-yaml-geo-worm-body.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/reactions/betse/29-doc-yaml-paper-2018-pbmb-patterns-geo-1h2-body.mp4",
+      "label": "29-doc-yaml-paper-2018-pbmb-patterns-geo-1h2-body.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/reactions/betse/29-doc-yaml-paper-2018-pbmb-patterns-geo-1h2-body.mp4",
+      "label": "29-doc-yaml-paper-2018-pbmb-patterns-geo-1h2-body.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/reactions/betse/30-betse-data-yaml-geo-worm-2cutsb.mp4",
+      "label": "30-betse-data-yaml-geo-worm-2cutsb.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/reactions/betse/30-betse-data-yaml-geo-worm-2cutsb.mp4",
+      "label": "30-betse-data-yaml-geo-worm-2cutsb.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/reactions/betse/31-betse-data-yaml-geo-worm-3cuts.mp4",
+      "label": "31-betse-data-yaml-geo-worm-3cuts.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/reactions/betse/31-betse-data-yaml-geo-worm-3cuts.mp4",
+      "label": "31-betse-data-yaml-geo-worm-3cuts.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/reactions/betse/32-doc-yaml-paper-2018-pbmb-patterns-geo-1h2-3cuts.mp4",
+      "label": "32-doc-yaml-paper-2018-pbmb-patterns-geo-1h2-3cuts.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/reactions/betse/32-doc-yaml-paper-2018-pbmb-patterns-geo-1h2-3cuts.mp4",
+      "label": "32-doc-yaml-paper-2018-pbmb-patterns-geo-1h2-3cuts.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/reactions/betse/33-betse-data-yaml-geo-embryo-neurula-endoderm.mp4",
+      "label": "33-betse-data-yaml-geo-embryo-neurula-endoderm.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/reactions/betse/33-betse-data-yaml-geo-embryo-neurula-endoderm.mp4",
+      "label": "33-betse-data-yaml-geo-embryo-neurula-endoderm.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/reactions/betse/34-betse-data-yaml-geo-embryo-neurula-base.mp4",
+      "label": "34-betse-data-yaml-geo-embryo-neurula-base.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/reactions/betse/34-betse-data-yaml-geo-embryo-neurula-base.mp4",
+      "label": "34-betse-data-yaml-geo-embryo-neurula-base.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/reactions/betse/35-betse-data-yaml-geo-embryo2-folds.mp4",
+      "label": "35-betse-data-yaml-geo-embryo2-folds.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/reactions/betse/35-betse-data-yaml-geo-embryo2-folds.mp4",
+      "label": "35-betse-data-yaml-geo-embryo2-folds.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/reactions/betse/36-betse-data-yaml-geo-embryo2-clipping.mp4",
+      "label": "36-betse-data-yaml-geo-embryo2-clipping.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/reactions/betse/36-betse-data-yaml-geo-embryo2-clipping.mp4",
+      "label": "36-betse-data-yaml-geo-embryo2-clipping.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/reactions/cell-image-library/03cdb0002d6c-hue-loop.mp4",
+      "label": "03cdb0002d6c-hue-loop.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/reactions/cell-image-library/06e6ddf798df-hue-loop.mp4",
+      "label": "06e6ddf798df-hue-loop.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/reactions/cell-image-library/3ed6f7529ea7-hue-loop.mp4",
+      "label": "3ed6f7529ea7-hue-loop.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/reactions/cell-image-library/4cbe64dc737c-hue-loop.mp4",
+      "label": "4cbe64dc737c-hue-loop.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/reactions/cell-image-library/9e4a91e86967-hue-loop.mp4",
+      "label": "9e4a91e86967-hue-loop.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/reactions/cell-image-library/bb2d08e011cc-hue-loop.mp4",
+      "label": "bb2d08e011cc-hue-loop.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/reactions/nikon-smallworld/nikon-laser-soap.mp4",
+      "label": "nikon-laser-soap.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/reactions/nikon-smallworld/nikon-paracetamol.mp4",
+      "label": "nikon-paracetamol.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/reactions/nikon-smallworld/nikon-rotifers.mp4",
+      "label": "nikon-rotifers.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/reactions/nikon-smallworld/nikon-trachelius.mp4",
+      "label": "nikon-trachelius.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/reactions/betse/01-betse-data-yaml-geo-lattice-lattice.mp4",
+      "label": "01-betse-data-yaml-geo-lattice-lattice.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/cells1/14726771_1920_1080_30fps.mp4",
+      "label": "14726771_1920_1080_30fps.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/cells2/large-numbers-of-cells-gather-together-2026-01-28-03-23-59-utc.mov",
+      "label": "large-numbers-of-cells-gather-together-2026-01-28-03-23-59-utc.mov",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/reactions/betse/01-betse-data-yaml-geo-lattice-lattice.mp4",
+      "label": "01-betse-data-yaml-geo-lattice-lattice.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/reactions/betse/02-betse-data-yaml-geo-embryo-neurula-connected.mp4",
+      "label": "02-betse-data-yaml-geo-embryo-neurula-connected.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/cells1/14852548_1920_1080_30fps.mp4",
+      "label": "14852548_1920_1080_30fps.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/cells2/microscopic-sample-spinal-cord-cell-ts-200x-magnif-2025-12-17-05-34-16-utc.mov",
+      "label": "microscopic-sample-spinal-cord-cell-ts-200x-magnif-2025-12-17-05-34-16-utc.mov",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/reactions/betse/02-betse-data-yaml-geo-embryo-neurula-connected.mp4",
+      "label": "02-betse-data-yaml-geo-embryo-neurula-connected.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/reactions/betse/03-betse-data-yaml-geo-planaria-o-gutmask.mp4",
+      "label": "03-betse-data-yaml-geo-planaria-o-gutmask.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/cells1/15006604_1920_1080_30fps.mp4",
+      "label": "15006604_1920_1080_30fps.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/cells2/microscopic-view-of-cells-and-particles-in-motion-2026-02-13-21-04-43-utc.mp4",
+      "label": "microscopic-view-of-cells-and-particles-in-motion-2026-02-13-21-04-43-utc.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/reactions/betse/03-betse-data-yaml-geo-planaria-o-gutmask.mp4",
+      "label": "03-betse-data-yaml-geo-planaria-o-gutmask.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/reactions/betse/04-betse-data-yaml-geo-planaria-o-boundarymask.mp4",
+      "label": "04-betse-data-yaml-geo-planaria-o-boundarymask.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/cells1/15285614_1920_1080_30fps.mp4",
+      "label": "15285614_1920_1080_30fps.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/cells2/molecular-binding-on-cellular-membrane-surface-2026-04-13-00-47-52-utc.mp4",
+      "label": "molecular-binding-on-cellular-membrane-surface-2026-04-13-00-47-52-utc.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/reactions/betse/04-betse-data-yaml-geo-planaria-o-boundarymask.mp4",
+      "label": "04-betse-data-yaml-geo-planaria-o-boundarymask.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/reactions/betse/05-betse-data-yaml-geo-lattice-holes.mp4",
+      "label": "05-betse-data-yaml-geo-lattice-holes.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/cells1/3191573-uhd_3840_2160_25fps.mp4",
+      "label": "3191573-uhd_3840_2160_25fps.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/cells2/output_video 2_1.mp4",
+      "label": "output_video 2_1.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/reactions/betse/05-betse-data-yaml-geo-lattice-holes.mp4",
+      "label": "05-betse-data-yaml-geo-lattice-holes.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/reactions/betse/06-betse-data-yaml-geo-worm-2h-gradient.mp4",
+      "label": "06-betse-data-yaml-geo-worm-2h-gradient.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/cells1/8739082-uhd_1920_1440_18fps.mp4",
+      "label": "8739082-uhd_1920_1440_18fps.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/cells2/vecteezy_abnormal-cancer-cell-with-long-slender-tendrils_75741038.mp4",
+      "label": "vecteezy_abnormal-cancer-cell-with-long-slender-tendrils_75741038.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/reactions/betse/06-betse-data-yaml-geo-worm-2h-gradient.mp4",
+      "label": "06-betse-data-yaml-geo-worm-2h-gradient.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/reactions/betse/07-betse-data-yaml-geo-worm-3cutsb.mp4",
+      "label": "07-betse-data-yaml-geo-worm-3cutsb.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/cells1/AETHER 002.mp4",
+      "label": "AETHER 002.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/cells2/vecteezy_ai-generated-3d-illustration-of-human-blood-cells-in-color_42474251.mp4",
+      "label": "vecteezy_ai-generated-3d-illustration-of-human-blood-cells-in-color_42474251.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/reactions/betse/07-betse-data-yaml-geo-worm-3cutsb.mp4",
+      "label": "07-betse-data-yaml-geo-worm-3cutsb.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/reactions/betse/08-betse-data-yaml-geo-worm-1h-gradient-linear.mp4",
+      "label": "08-betse-data-yaml-geo-worm-1h-gradient-linear.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/cells1/bio-cell-animation-2026-01-28-04-15-42-utc.mp4",
+      "label": "bio-cell-animation-2026-01-28-04-15-42-utc.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/cells2/vecteezy_cell-division-effect-on-blur-background_3145462.mp4",
+      "label": "vecteezy_cell-division-effect-on-blur-background_3145462.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/reactions/betse/08-betse-data-yaml-geo-worm-1h-gradient-linear.mp4",
+      "label": "08-betse-data-yaml-geo-worm-1h-gradient-linear.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/reactions/betse/09-betse-data-yaml-geo-worm-1h-gradient.mp4",
+      "label": "09-betse-data-yaml-geo-worm-1h-gradient.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/cells1/cell-division-cellular-therapy-2026-01-28-05-03-42-utc.mp4",
+      "label": "cell-division-cellular-therapy-2026-01-28-05-03-42-utc.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/cells2/vecteezy_intricate-view-of-a-living-cell-s-inner-world_50600544.mp4",
+      "label": "vecteezy_intricate-view-of-a-living-cell-s-inner-world_50600544.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/reactions/betse/09-betse-data-yaml-geo-worm-1h-gradient.mp4",
+      "label": "09-betse-data-yaml-geo-worm-1h-gradient.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/reactions/betse/10-doc-yaml-paper-2018-pbmb-patterns-geo-1h2-1h-gradient.mp4",
+      "label": "10-doc-yaml-paper-2018-pbmb-patterns-geo-1h2-1h-gradient.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/cells1/cell-division-loop-background-2026-01-28-02-43-48-utc.mov",
+      "label": "cell-division-loop-background-2026-01-28-02-43-48-utc.mov",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/cells2/vecteezy_liquid-sphere-green-sparkling-energy-rotates-inside-the_55353522.mp4",
+      "label": "vecteezy_liquid-sphere-green-sparkling-energy-rotates-inside-the_55353522.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/reactions/betse/10-doc-yaml-paper-2018-pbmb-patterns-geo-1h2-1h-gradient.mp4",
+      "label": "10-doc-yaml-paper-2018-pbmb-patterns-geo-1h2-1h-gradient.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/reactions/betse/11-betse-data-yaml-geo-worm-2h-gradient-asym.mp4",
+      "label": "11-betse-data-yaml-geo-worm-2h-gradient-asym.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/cells1/cell-reproduction-2026-01-28-04-16-06-utc.mp4",
+      "label": "cell-reproduction-2026-01-28-04-16-06-utc.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/cells2/vecteezy_microscopic-world-of-cells-scientific-illustration-of_72642324.mp4",
+      "label": "vecteezy_microscopic-world-of-cells-scientific-illustration-of_72642324.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/reactions/betse/11-betse-data-yaml-geo-worm-2h-gradient-asym.mp4",
+      "label": "11-betse-data-yaml-geo-worm-2h-gradient-asym.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/reactions/betse/12-betse-data-yaml-geo-worm-1h-gradient-neural.mp4",
+      "label": "12-betse-data-yaml-geo-worm-1h-gradient-neural.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/cells1/fluorescently-labeled-cells-under-a-microscope-2026-03-18-17-50-52-utc.mp4",
+      "label": "fluorescently-labeled-cells-under-a-microscope-2026-03-18-17-50-52-utc.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/cells2/vecteezy_scene-presents-dynamic-array-of-spherical-and-ring-shaped_72165849.mp4",
+      "label": "vecteezy_scene-presents-dynamic-array-of-spherical-and-ring-shaped_72165849.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/reactions/betse/12-betse-data-yaml-geo-worm-1h-gradient-neural.mp4",
+      "label": "12-betse-data-yaml-geo-worm-1h-gradient-neural.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/reactions/betse/13-betse-data-yaml-geo-worm-2h-gradient-neural.mp4",
+      "label": "13-betse-data-yaml-geo-worm-2h-gradient-neural.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/cells1/human-eukaryotic-cell-structure-2026-01-28-02-58-49-utc.mp4",
+      "label": "human-eukaryotic-cell-structure-2026-01-28-02-58-49-utc.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/cells2/vecteezy_the-purple-glowing-energy-spheres-divide-like-cells-in-a_59486657.mp4",
+      "label": "vecteezy_the-purple-glowing-energy-spheres-divide-like-cells-in-a_59486657.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/reactions/betse/13-betse-data-yaml-geo-worm-2h-gradient-neural.mp4",
+      "label": "13-betse-data-yaml-geo-worm-2h-gradient-neural.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/reactions/betse/14-betse-data-yaml-geo-embryo-neurula-mesoderm.mp4",
+      "label": "14-betse-data-yaml-geo-embryo-neurula-mesoderm.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/cells1/infected-cell-attack-healthy-cell-2026-02-18-09-40-51-utc.mov",
+      "label": "infected-cell-attack-healthy-cell-2026-02-18-09-40-51-utc.mov",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/cells2/vertical-conceptual-animation-of-the-biological-ce-2026-01-28-05-10-46-utc.mp4",
+      "label": "vertical-conceptual-animation-of-the-biological-ce-2026-01-28-05-10-46-utc.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/reactions/betse/14-betse-data-yaml-geo-embryo-neurula-mesoderm.mp4",
+      "label": "14-betse-data-yaml-geo-embryo-neurula-mesoderm.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/reactions/betse/15-betse-data-yaml-geo-embryo-neurula-epidermis.mp4",
+      "label": "15-betse-data-yaml-geo-embryo-neurula-epidermis.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/cells1/is.mp4",
+      "label": "is.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/cells2/vibrant-cell-structure-with-colorful-organelles-an-2026-03-12-02-01-33-utc.mp4",
+      "label": "vibrant-cell-structure-with-colorful-organelles-an-2026-03-12-02-01-33-utc.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/reactions/betse/15-betse-data-yaml-geo-embryo-neurula-epidermis.mp4",
+      "label": "15-betse-data-yaml-geo-embryo-neurula-epidermis.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/reactions/betse/16-betse-data-yaml-geo-worm-2h-gradient-linear.mp4",
+      "label": "16-betse-data-yaml-geo-worm-2h-gradient-linear.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/reactions/betse/16-betse-data-yaml-geo-worm-2h-gradient-linear.mp4",
+      "label": "16-betse-data-yaml-geo-worm-2h-gradient-linear.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/reactions/betse/17-betse-data-yaml-geo-worm-werner-gradient.mp4",
+      "label": "17-betse-data-yaml-geo-worm-werner-gradient.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/reactions/betse/17-betse-data-yaml-geo-worm-werner-gradient.mp4",
+      "label": "17-betse-data-yaml-geo-worm-werner-gradient.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/reactions/betse/18-betse-data-yaml-geo-cyst-thick-side-ring.mp4",
+      "label": "18-betse-data-yaml-geo-cyst-thick-side-ring.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/reactions/betse/18-betse-data-yaml-geo-cyst-thick-side-ring.mp4",
+      "label": "18-betse-data-yaml-geo-cyst-thick-side-ring.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/reactions/betse/19-betse-data-yaml-geo-snake-body.mp4",
+      "label": "19-betse-data-yaml-geo-snake-body.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/reactions/betse/19-betse-data-yaml-geo-snake-body.mp4",
+      "label": "19-betse-data-yaml-geo-snake-body.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/reactions/betse/20-betse-data-yaml-geo-circle-ring.mp4",
+      "label": "20-betse-data-yaml-geo-circle-ring.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/reactions/betse/20-betse-data-yaml-geo-circle-ring.mp4",
+      "label": "20-betse-data-yaml-geo-circle-ring.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/reactions/betse/21-doc-ipynb-tutorial-developer-geo-circle-ring.mp4",
+      "label": "21-doc-ipynb-tutorial-developer-geo-circle-ring.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    }
+  ]
+}

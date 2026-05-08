@@ -6,14 +6,37 @@
     "start": "npx http-server -c-1 -p 8080 .",
     "test": "playwright test",
     "build:vj-set": "node scripts/build-vj-set-manifest.mjs loops/bio1 sets/bio1.json",
-    "export:sample": "node scripts/generate-sample-video.mjs",
-    "export:sample:13x9": "EXPORT_PROFILE=wall_13x9 node scripts/generate-sample-video.mjs"
+    "export:sample": "EXPORT_VIDEO_REEL=1 node scripts/generate-sample-video.mjs",
+    "export:sample:5m": "EXPORT_VIDEO_REEL=1 CAPTURE_MS=300000 OUTPUT_VIDEO=artifacts/sample-sonicsphere-5m.webm node scripts/generate-sample-video.mjs",
+    "export:sample:10m": "EXPORT_VIDEO_REEL=1 CAPTURE_MS=600000 OUTPUT_VIDEO=artifacts/sample-sonicsphere-10m.webm node scripts/generate-sample-video.mjs",
+    "export:sample:13x9": "EXPORT_VIDEO_REEL=1 EXPORT_PROFILE=wall_13x9 node scripts/generate-sample-video.mjs",
+    "export:led:main": "EXPORT_VIDEO_REEL=1 EXPORT_PROFILE=led_main_bar OUTPUT_VIDEO=artifacts/led-main-bar-16x9.mp4 node scripts/generate-sample-video.mjs",
+    "export:led:main:4k": "EXPORT_VIDEO_REEL=1 EXPORT_PROFILE=led_main_4k OUTPUT_VIDEO=artifacts/led-main-bar-16x9-4k.mp4 node scripts/generate-sample-video.mjs",
+    "export:led:dj": "EXPORT_VIDEO_REEL=1 EXPORT_PROFILE=led_dj OUTPUT_VIDEO=artifacts/led-dj-screen-13x9.mp4 node scripts/generate-sample-video.mjs",
+    "export:led:still:main": "EXPORT_PROFILE=led_main_bar OUTPUT_STILL=artifacts/led-main-bar-16x9.png node scripts/export-led-still.mjs",
+    "export:led:set-samples": "node scripts/export-led-set-samples.mjs",
+    "prep:set:clips": "node scripts/prep-set-clips.mjs",
+    "export:dj:pdf": "DJ_FAST_PDF=1 node scripts/render-dj-options-pdf.mjs",
+    "export:dj:pdf:appendix": "DJ_APPENDIX_ONLY=1 DJ_FAST_PDF=1 node scripts/render-dj-options-pdf.mjs",
+    "export:dj:pdf:quick": "DJ_FAST_PDF=1 DJ_EFFECT_PROFILES=classic,gray-scott,physarum DJ_EFFECT_CAPTURE_MS=6000 DJ_VIDEOS_PER_FOLDER=8 node scripts/render-dj-options-pdf.mjs",
+    "export:dj:pdf:loops-only": "DJ_FAST_PDF=1 DJ_SKIP_EFFECT_SLIDES=1 DJ_VIDEOS_PER_FOLDER=10 node scripts/render-dj-options-pdf.mjs",
+    "export:dj:pdf:full": "DJ_EFFECT_LAYOUTS=spheres,thirds-2d DJ_INFINITESTREAMS_MAX=120 DJ_INFINITESTREAMS_SNAPSHOTS=1 node scripts/render-dj-options-pdf.mjs",
+    "scrape:cell:images": "node scripts/scrape-cell-image-library.mjs",
+    "build:cell:loops": "node scripts/build-cell-image-color-loops.mjs",
+    "build:betse:loops": "node scripts/build-betse-loops.mjs",
+    "build:setlists:creative": "node scripts/build-creative-setlists.mjs",
+    "export:set:videos": "node scripts/export-set-manifest-videos.mjs",
+    "export:feature:tour": "node scripts/generate-feature-tour-video.mjs",
+    "build:color:dataset": "node scripts/build-color-dataset.mjs",
+    "build:color:theme-set": "node scripts/build-color-theme-set.mjs"
   },
   "devDependencies": {
     "@playwright/test": "^1.44.0",
     "http-server": "^14.1.1"
   },
   "dependencies": {
-    "ffmpeg-static": "^5.3.0"
+    "ffmpeg-static": "^5.3.0",
+    "pdf-lib": "^1.17.1",
+    "tesseract.js": "^7.0.0"
   }
 }

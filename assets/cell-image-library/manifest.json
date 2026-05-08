@@ -1,0 +1,97 @@
+{
+  "sourcePage": "https://www.cellimagelibrary.org/home",
+  "generatedAt": "2026-05-06T02:55:48.780Z",
+  "totalDiscovered": 20,
+  "downloadedCount": 6,
+  "failedCount": 14,
+  "items": [
+    {
+      "sourceUrl": "https://cildata.crbs.ucsd.edu/media/thumbnail_display/50647/50647_thumbnailx88.jpg",
+      "localPath": "assets/cell-image-library/raw/03cdb0002d6c.jpg",
+      "mimeType": "image/jpeg"
+    },
+    {
+      "sourceUrl": "https://cildata.crbs.ucsd.edu/media/thumbnail_display/39146/39146_thumbnailx88.jpg",
+      "localPath": "assets/cell-image-library/raw/3ed6f7529ea7.jpg",
+      "mimeType": "image/jpeg"
+    },
+    {
+      "sourceUrl": "https://cildata.crbs.ucsd.edu/media/thumbnail_display/9775/9775_thumbnailx88.jpg",
+      "localPath": "assets/cell-image-library/raw/9e4a91e86967.jpg",
+      "mimeType": "image/jpeg"
+    },
+    {
+      "sourceUrl": "https://cildata.crbs.ucsd.edu/media/thumbnail_display/40608/40608_thumbnailx88.jpg",
+      "localPath": "assets/cell-image-library/raw/06e6ddf798df.jpg",
+      "mimeType": "image/jpeg"
+    },
+    {
+      "sourceUrl": "https://cildata.crbs.ucsd.edu/media/thumbnail_display/40613/40613_thumbnailx88.jpg",
+      "localPath": "assets/cell-image-library/raw/bb2d08e011cc.jpg",
+      "mimeType": "image/jpeg"
+    },
+    {
+      "sourceUrl": "https://cildata.crbs.ucsd.edu/media/thumbnail_display/36420/36420_thumbnailx88.jpg",
+      "localPath": "assets/cell-image-library/raw/4cbe64dc737c.jpg",
+      "mimeType": "image/jpeg"
+    }
+  ],
+  "failed": [
+    {
+      "sourceUrl": "https://www.cellimagelibrary.org/pix/CIL_logo_final_75H.jpg?1780243859",
+      "error": "fetch failed"
+    },
+    {
+      "sourceUrl": "https://www.cellimagelibrary.org/pix/CRBS_LOGO.png",
+      "error": "fetch failed"
+    },
+    {
+      "sourceUrl": "https://www.cellimagelibrary.org/pic/facebook-icon.png",
+      "error": "fetch failed"
+    },
+    {
+      "sourceUrl": "https://www.cellimagelibrary.org/pic/twitter-icon.png",
+      "error": "fetch failed"
+    },
+    {
+      "sourceUrl": "https://www.cellimagelibrary.org/pic/In-2C-89px-R.png",
+      "error": "fetch failed"
+    },
+    {
+      "sourceUrl": "https://www.cellimagelibrary.org/pic/tumblr-logo-whiteonblue-24.png",
+      "error": "fetch failed"
+    },
+    {
+      "sourceUrl": "https://www.cellimagelibrary.org/pic/pinterest-icon.png",
+      "error": "fetch failed"
+    },
+    {
+      "sourceUrl": "https://www.cellimagelibrary.org/pic/Instagram-icons2.png",
+      "error": "fetch failed"
+    },
+    {
+      "sourceUrl": "https://www.cellimagelibrary.org/pic/interactive_cells/eukaryotic/default.png",
+      "error": "fetch failed"
+    },
+    {
+      "sourceUrl": "https://www.cellimagelibrary.org/pix/ascb_logo.gif?69faad9d2ba88",
+      "error": "fetch failed"
+    },
+    {
+      "sourceUrl": "https://www.cellimagelibrary.org/pix/nif_button2.png?69faad9d2bad5",
+      "error": "fetch failed"
+    },
+    {
+      "sourceUrl": "https://www.cellimagelibrary.org/pix/DCI_button.png?69faad9d2bb25",
+      "error": "fetch failed"
+    },
+    {
+      "sourceUrl": "https://www.cellimagelibrary.org/pix/labbyrcw.jpg?69faad9d2bb72",
+      "error": "fetch failed"
+    },
+    {
+      "sourceUrl": "https://www.cellimagelibrary.org/pix/icon_ucsd.png",
+      "error": "fetch failed"
+    }
+  ]
+}

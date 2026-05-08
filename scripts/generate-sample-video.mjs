@@ -1,17 +1,30 @@
 import fs from "node:fs";
 import path from "node:path";
-import { spawnSync } from "node:child_process";
+import http from "node:http";
+import { spawnSync, spawn } from "node:child_process";
 import { chromium } from "@playwright/test";
 import ffmpegPath from "ffmpeg-static";
+import { resolveLedExportSize } from "./led-screen-presets.mjs";
 
 const PROJECT_ROOT = process.cwd();
 const ARTIFACTS_DIR = path.join(PROJECT_ROOT, "artifacts");
 const VIDEO_DIR = path.join(ARTIFACTS_DIR, "videos");
 const AUDIO_PATH = path.join(ARTIFACTS_DIR, "generated-tone.wav");
-const OUTPUT_VIDEO = path.join(ARTIFACTS_DIR, "sample-sonicsphere.webm");
-const OUTPUT_VIDEO_SILENT = path.join(ARTIFACTS_DIR, "sample-sonicsphere-silent.webm");
 const VJ_SET_MANIFEST = process.env.VJ_SET_MANIFEST || "sets/bio1.json";
 const CAPTURE_MS = Number.parseInt(process.env.CAPTURE_MS || "18000", 10);
+const OUTPUT_VIDEO = process.env.OUTPUT_VIDEO
+  ? path.resolve(PROJECT_ROOT, process.env.OUTPUT_VIDEO)
+  : path.join(ARTIFACTS_DIR, "sample-sonicsphere.webm");
+const OUTPUT_VIDEO_SILENT = process.env.OUTPUT_VIDEO_SILENT
+  ? path.resolve(PROJECT_ROOT, process.env.OUTPUT_VIDEO_SILENT)
+  : path.join(
+    path.dirname(OUTPUT_VIDEO),
+    `${path.basename(OUTPUT_VIDEO, path.extname(OUTPUT_VIDEO))}-silent${path.extname(OUTPUT_VIDEO) || ".webm"}`
+  );
+const TEST_TONE_DURATION_SEC = Math.min(
+  900,
+  Math.max(14, Math.ceil(CAPTURE_MS / 1000))
+);
 const INPUT_AUDIO_FILE = process.env.INPUT_AUDIO_FILE || "";
 const MOLECULE_NAME = process.env.MOLECULE_NAME || "";
 const AUTO_BUILD_SET_MANIFEST = process.env.AUTO_BUILD_SET_MANIFEST !== "0";
@@ -25,9 +38,65 @@ const EFFECT_TIMELINE_PHASES = (EFFECT_TIMELINE_PHASES_RAW || "")
   .split(",")
   .map((value) => value.trim())
   .filter(Boolean);
-const EXPORT_PROFILE = String(process.env.EXPORT_PROFILE || "hd").trim().toLowerCase();
-const EXPORT_WIDTH = Number.parseInt(process.env.EXPORT_WIDTH || "0", 10);
-const EXPORT_HEIGHT = Number.parseInt(process.env.EXPORT_HEIGHT || "0", 10);
+const BASIC_VIDEO_RATIO = Number.parseFloat(process.env.BASIC_VIDEO_RATIO || "0");
+const BASIC_VIDEO_CYCLE_MS = Number.parseInt(process.env.BASIC_VIDEO_CYCLE_MS || "12000", 10);
+const FX_LAYOUT = String(process.env.FX_LAYOUT || "").trim();
+const SERVER_PORT = Number.parseInt(process.env.SAMPLE_SERVER_PORT || process.env.SERVER_PORT || "8080", 10);
+/** Classic + fullscreen video layers only — no sphere/triangle FX or effect-timeline hops (venue MP4 reels). */
+const EXPORT_VIDEO_REEL = process.env.EXPORT_VIDEO_REEL === "1";
+const SONIC_CAPTURE_URL = `http://127.0.0.1:${SERVER_PORT}/sonicsphere.html?demo=1&hideoverlay=1`;
+
+async function waitForServer(url, timeoutMs = 25000) {
+  const started = Date.now();
+  while ((Date.now() - started) < timeoutMs) {
+    const ok = await new Promise((resolve) => {
+      const req = http.get(url, (res) => {
+        res.resume();
+        resolve(res.statusCode >= 200 && res.statusCode < 500);
+      });
+      req.on("error", () => resolve(false));
+      req.setTimeout(1500, () => {
+        req.destroy();
+        resolve(false);
+      });
+    });
+    if (ok) return true;
+    await new Promise((resolve) => setTimeout(resolve, 400));
+  }
+  return false;
+}
+
+function startHttpServer(port) {
+  return spawn("npx", ["http-server", "-c-1", "-p", String(port), "."], {
+    cwd: PROJECT_ROOT,
+    stdio: "ignore"
+  });
+}
+
+/** Chunked timeouts so terminal shows progress instead of freezing on multi-minute captures. */
+async function waitRecordingWindow(page, totalMs, label) {
+  if (totalMs <= 0) {
+    return;
+  }
+  const targetSec = Math.round(totalMs / 1000);
+  const tickMs = Math.min(30000, Math.max(4000, Math.floor(totalMs / 12)));
+  const t0 = Date.now();
+  let acc = 0;
+  console.log(`[export] ── Recording: ${label} · target wall ${targetSec}s (updates ~every ${Math.round(tickMs / 1000)}s)`);
+  while (acc < totalMs) {
+    const chunk = Math.min(tickMs, totalMs - acc);
+    await page.waitForTimeout(chunk);
+    acc += chunk;
+    const pct = Math.min(100, Math.round((100 * acc) / totalMs));
+    const wallSec = Math.round((Date.now() - t0) / 1000);
+    console.log(`[export]    … ${pct}% · ${Math.round(acc / 1000)}s / ${targetSec}s simulated · wall ${wallSec}s`);
+  }
+}
+
+function elapsedSince(globalT0, msg) {
+  const wall = Math.round((Date.now() - globalT0) / 1000);
+  console.log(`[export +${wall}s] ${msg}`);
+}
 
 function ensureDir(dirPath) {
   fs.mkdirSync(dirPath, { recursive: true });
@@ -73,14 +142,7 @@ function isMidiFile(filePath) {
 }
 
 function resolveExportSize() {
-  if (Number.isFinite(EXPORT_WIDTH) && Number.isFinite(EXPORT_HEIGHT) && EXPORT_WIDTH > 0 && EXPORT_HEIGHT > 0) {
-    return { width: EXPORT_WIDTH, height: EXPORT_HEIGHT, profile: "custom" };
-  }
-  if (EXPORT_PROFILE === "wall_13x9" || EXPORT_PROFILE === "13x9") {
-    // Exact 13:9 frame.
-    return { width: 1872, height: 1296, profile: "wall_13x9" };
-  }
-  return { width: 1920, height: 1080, profile: "hd" };
+  return resolveLedExportSize(process.env);
 }
 
 function muxAudio(videoPath, audioPath, outputPath) {
@@ -101,30 +163,62 @@ function muxAudio(videoPath, audioPath, outputPath) {
     return { ok: false, reason: "could not determine captured video duration" };
   }
   const cappedDuration = Math.max(0.5, durationSec - 0.03);
-  const args = [
-    "-y",
-    "-i",
-    videoPath,
-    "-i",
-    audioPath,
-    "-t",
-    cappedDuration.toFixed(3),
-    "-map",
-    "0:v:0",
-    "-map",
-    "1:a:0",
-    "-c:v",
-    "libvpx",
-    "-b:v",
-    "3M",
-    "-deadline",
-    "realtime",
-    "-cpu-used",
-    "5",
-    "-c:a",
-    "libopus",
-    outputPath
-  ];
+  const ext = path.extname(outputPath).toLowerCase();
+  const useMp4Family = ext === ".mp4" || ext === ".m4v" || ext === ".mov";
+  const crf = process.env.EXPORT_CRF || "20";
+  const args = useMp4Family
+    ? [
+      "-y",
+      "-i",
+      videoPath,
+      "-i",
+      audioPath,
+      "-t",
+      cappedDuration.toFixed(3),
+      "-map",
+      "0:v:0",
+      "-map",
+      "1:a:0",
+      "-c:v",
+      "libx264",
+      "-preset",
+      "medium",
+      "-crf",
+      crf,
+      "-pix_fmt",
+      "yuv420p",
+      "-c:a",
+      "aac",
+      "-b:a",
+      "192k",
+      "-movflags",
+      "+faststart",
+      outputPath
+    ]
+    : [
+      "-y",
+      "-i",
+      videoPath,
+      "-i",
+      audioPath,
+      "-t",
+      cappedDuration.toFixed(3),
+      "-map",
+      "0:v:0",
+      "-map",
+      "1:a:0",
+      "-c:v",
+      "libvpx",
+      "-b:v",
+      "3M",
+      "-deadline",
+      "realtime",
+      "-cpu-used",
+      "5",
+      "-c:a",
+      "libopus",
+      outputPath
+    ];
   const result = spawnSync(ffmpegPath, args, { encoding: "utf8" });
   if (result.status !== 0) {
     return {
@@ -197,10 +291,12 @@ function createTestToneWav({
 }
 
 async function runCapture() {
+  const globalT0 = Date.now();
+  console.log(`[export] ══ Video export start · ${new Date(globalT0).toISOString()}`);
   ensureDir(ARTIFACTS_DIR);
   ensureDir(VIDEO_DIR);
   const exportSize = resolveExportSize();
-  console.log(`Export frame: ${exportSize.width}x${exportSize.height} (${exportSize.profile})`);
+  elapsedSince(globalT0, `resolution ${exportSize.width}×${exportSize.height} (${exportSize.profile}) · videoReel=${EXPORT_VIDEO_REEL ? "1" : "0"} · CAPTURE_MS=${CAPTURE_MS}`);
   rebuildSetManifestIfNeeded();
   const manifestLoopCount = getManifestLoopCount();
   if (REQUIRE_SET_LOOPS && manifestLoopCount === 0) {
@@ -216,13 +312,15 @@ async function runCapture() {
     }
     audioFileForCapture = resolvedInput;
   } else {
-    fs.writeFileSync(AUDIO_PATH, createTestToneWav());
+    fs.writeFileSync(AUDIO_PATH, createTestToneWav({ durationSeconds: TEST_TONE_DURATION_SEC }));
   }
 
   const browser = await chromium.launch({
     channel: "chrome",
     headless: true
   });
+
+  elapsedSince(globalT0, "Chromium launched, opening tab…");
 
   const context = await browser.newContext({
     viewport: { width: exportSize.width, height: exportSize.height },
@@ -233,10 +331,21 @@ async function runCapture() {
   });
 
   const page = await context.newPage();
-  await page.goto("http://127.0.0.1:8080/sonicsphere.html?demo=1", {
+  await page.goto(SONIC_CAPTURE_URL, {
     waitUntil: "domcontentloaded",
     timeout: 30000
   });
+  elapsedSince(globalT0, "sonicsphere loaded (demo+hideoverlay)");
+
+  if (FX_LAYOUT && !EXPORT_VIDEO_REEL) {
+    await page.waitForFunction(
+      () => typeof window.setEffectLayoutMode === "function",
+      { timeout: 25000 }
+    );
+    await page.evaluate((layout) => {
+      window.setEffectLayoutMode(layout);
+    }, FX_LAYOUT);
+  }
 
   // Load prebuilt VJ set when available.
   await page.evaluate(async (manifestPath) => {
@@ -254,13 +363,24 @@ async function runCapture() {
   if (REQUIRE_SET_LOOPS && loadedSetCount === 0) {
     throw new Error(`No set loops loaded in page from ${VJ_SET_MANIFEST}.`);
   }
+  elapsedSince(globalT0, `manifest ${VJ_SET_MANIFEST} → ${loadedSetCount} clip(s)`);
   await page.evaluate(({ holdMs, transitionMs }) => {
     if (window.setSetPlaybackTiming) {
       window.setSetPlaybackTiming(holdMs, transitionMs);
     }
   }, { holdMs: SET_HOLD_MS, transitionMs: SET_TRANSITION_MS });
 
-  if (EFFECT_TIMELINE_PHASES.length > 0) {
+  if (EXPORT_VIDEO_REEL) {
+    await page.waitForFunction(
+      () => typeof window.setBasicVideoMode === "function",
+      { timeout: 25000 }
+    );
+    await page.evaluate(() => {
+      if (window.setBasicVideoMode) {
+        window.setBasicVideoMode(true);
+      }
+    });
+  } else if (EFFECT_TIMELINE_PHASES.length > 0) {
     await page.evaluate(({ phaseSec, phaseNames }) => {
       if (!window.setEffectTimelineConfig || !Array.isArray(phaseNames) || phaseNames.length === 0) {
         return;
@@ -274,7 +394,7 @@ async function runCapture() {
     }, { phaseSec: EFFECT_TIMELINE_PHASE_SEC, phaseNames: EFFECT_TIMELINE_PHASES });
   }
 
-  if (MOLECULE_NAME) {
+  if (!EXPORT_VIDEO_REEL && MOLECULE_NAME) {
     await page.evaluate(async (moleculeName) => {
       if (window.loadMoleculeGraphByName) {
         try {
@@ -288,10 +408,67 @@ async function runCapture() {
 
   const audioInput = page.locator("#audioInput");
   await audioInput.setInputFiles(audioFileForCapture);
+  elapsedSince(globalT0, "audio attached · starting viewport recording window");
 
-  // Give decode + capture loops enough time to build visible geometry.
-  await page.waitForTimeout(CAPTURE_MS);
+  // Optional distributed basic-mode capture across the full render (ignored when EXPORT_VIDEO_REEL; already in basic video).
+  const basicRatio = EXPORT_VIDEO_REEL
+    ? -1
+    : (Number.isFinite(BASIC_VIDEO_RATIO) ? Math.max(0, Math.min(1, BASIC_VIDEO_RATIO)) : 0);
+  const cycleMs = Math.max(1000, Number.isFinite(BASIC_VIDEO_CYCLE_MS) ? BASIC_VIDEO_CYCLE_MS : 12000);
+  if (basicRatio > 0 && basicRatio < 1) {
+    let elapsedMs = 0;
+    let lastProgLog = 0;
+    let lastState = null;
+    const progStep = Math.max(8000, Math.floor(CAPTURE_MS / 12));
+    while (elapsedMs < CAPTURE_MS) {
+      const inCycle = elapsedMs % cycleMs;
+      const basicWindowMs = cycleMs * basicRatio;
+      const shouldBasic = inCycle < basicWindowMs;
+      if (shouldBasic !== lastState) {
+        await page.evaluate((enabled) => {
+          if (window.setBasicVideoMode) {
+            window.setBasicVideoMode(!!enabled);
+          }
+        }, shouldBasic);
+        lastState = shouldBasic;
+      }
+      const timeToBoundary = shouldBasic
+        ? Math.max(1, basicWindowMs - inCycle)
+        : Math.max(1, cycleMs - inCycle);
+      const remaining = CAPTURE_MS - elapsedMs;
+      const stepMs = Math.max(220, Math.min(remaining, timeToBoundary));
+      await page.waitForTimeout(stepMs);
+      elapsedMs += stepMs;
+      if (elapsedMs - lastProgLog >= progStep || elapsedMs >= CAPTURE_MS) {
+        const pct = Math.round((100 * elapsedMs) / CAPTURE_MS);
+        elapsedSince(globalT0, `mixed basic/ratio capture ${pct}% · ${Math.round(elapsedMs / 1000)}s / ${Math.round(CAPTURE_MS / 1000)}s`);
+        lastProgLog = elapsedMs;
+      }
+    }
+    if (lastState) {
+      await page.evaluate(() => {
+        if (window.setBasicVideoMode) {
+          window.setBasicVideoMode(false);
+        }
+      });
+    }
+  } else if (basicRatio >= 1) {
+    await page.evaluate(() => {
+      if (window.setBasicVideoMode) {
+        window.setBasicVideoMode(true);
+      }
+    });
+    await waitRecordingWindow(page, CAPTURE_MS, "basic-video only");
+  } else {
+    // Give decode + capture loops enough time to build visible geometry.
+    await waitRecordingWindow(
+      page,
+      CAPTURE_MS,
+      EXPORT_VIDEO_REEL ? "video reel (classic fullscreen)" : "effects timeline"
+    );
+  }
 
+  elapsedSince(globalT0, "viewport recording stopped · closing Playwright …");
   const video = page.video();
   await context.close();
   await browser.close();
@@ -302,10 +479,14 @@ async function runCapture() {
 
   const recordedPath = await video.path();
   fs.copyFileSync(recordedPath, OUTPUT_VIDEO_SILENT);
+  elapsedSince(globalT0, `raw WebM copy → ${path.relative(PROJECT_ROOT, OUTPUT_VIDEO_SILENT)}`);
 
   const canMuxAudio = !isMidiFile(audioFileForCapture);
   if (canMuxAudio) {
+    elapsedSince(globalT0, `FFmpeg mux to ${path.extname(OUTPUT_VIDEO)} (blocked until finish …)`);
+    const muxStart = Date.now();
     const muxResult = muxAudio(OUTPUT_VIDEO_SILENT, audioFileForCapture, OUTPUT_VIDEO);
+    elapsedSince(globalT0, `FFmpeg done (+${Math.round((Date.now() - muxStart) / 1000)}s mux)`);
     if (!muxResult.ok) {
       fs.copyFileSync(OUTPUT_VIDEO_SILENT, OUTPUT_VIDEO);
       console.warn(`Audio mux failed, wrote silent file: ${muxResult.reason}`);
@@ -314,10 +495,38 @@ async function runCapture() {
     fs.copyFileSync(OUTPUT_VIDEO_SILENT, OUTPUT_VIDEO);
     console.warn("MIDI source selected; exported video is silent (no rendered audio track).");
   }
-  console.log(`Sample video written: ${OUTPUT_VIDEO}`);
+  const wallTotal = Math.round((Date.now() - globalT0) / 1000);
+  console.log(`[export] ══ Done · total wall ${wallTotal}s · Sample video written: ${OUTPUT_VIDEO}`);
+  console.log(`[export]     capture timeline ${CAPTURE_MS} ms · tone ${TEST_TONE_DURATION_SEC}s`);
 }
 
-runCapture().catch((error) => {
+async function main() {
+  const baseUrl = `http://127.0.0.1:${SERVER_PORT}/sonicsphere.html`;
+  let server = null;
+  const serverUp = await waitForServer(baseUrl, 2000);
+  if (serverUp) {
+    console.log(`[export] Using existing HTTP server on port ${SERVER_PORT}`);
+  } else {
+    console.log(`[export] No server on ${SERVER_PORT}; starting http-server …`);
+    server = startHttpServer(SERVER_PORT);
+    const ready = await waitForServer(baseUrl, 30000);
+    if (!ready) {
+      if (server && !server.killed) server.kill("SIGTERM");
+      throw new Error(
+        `Could not reach ${baseUrl}. Free port ${SERVER_PORT} or start the app with: npm start`
+      );
+    }
+  }
+  try {
+    await runCapture();
+  } finally {
+    if (server && !server.killed) {
+      server.kill("SIGTERM");
+    }
+  }
+}
+
+main().catch((error) => {
   console.error(error);
   process.exitCode = 1;
 });

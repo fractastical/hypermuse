@@ -1,0 +1,4126 @@
+{
+  "setName": "set-sample-morpholib-clarafi",
+  "sourceDirectory": "loops",
+  "sourceDirectories": [
+    "loops/morpholib",
+    "loops/clarafi"
+  ],
+  "generatedAt": "2026-05-08T01:13:02.496Z",
+  "count": 407,
+  "playbackMode": "loop",
+  "effectTimeline": {
+    "enabled": true,
+    "phases": [
+      {
+        "name": "classic",
+        "durationSec": 16
+      },
+      {
+        "name": "molecule",
+        "durationSec": 18
+      },
+      {
+        "name": "kuramoto",
+        "durationSec": 16
+      },
+      {
+        "name": "physarum",
+        "durationSec": 20
+      },
+      {
+        "name": "rewrite",
+        "durationSec": 14
+      },
+      {
+        "name": "classic",
+        "durationSec": 14
+      },
+      {
+        "name": "gray-scott",
+        "durationSec": 22
+      },
+      {
+        "name": "life",
+        "durationSec": 14
+      }
+    ]
+  },
+  "defaultTransition": {
+    "type": "fade",
+    "durationMs": 650,
+    "holdMs": 8200
+  },
+  "loops": [
+    {
+      "url": "loops/morpholib/raup_shell_animation_loop30.mp4",
+      "label": "raup_shell_animation_loop30.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/clarafi/1 Long Term Potentiation introduction.mp4",
+      "label": "1 Long Term Potentiation introduction.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/morpholib/turing_patterns_black_neon_loop30.mp4",
+      "label": "turing_patterns_black_neon_loop30.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/clarafi/1184.mp4",
+      "label": "1184.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/morpholib/turing_patterns_black_variation_loop30.mp4",
+      "label": "turing_patterns_black_variation_loop30.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/clarafi/1197.mp4",
+      "label": "1197.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/morpholib/turing_patterns_loop30.mp4",
+      "label": "turing_patterns_loop30.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/clarafi/1198.mp4",
+      "label": "1198.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/clarafi/274880032.mp4",
+      "label": "274880032.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/clarafi/274971978.mp4",
+      "label": "274971978.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/clarafi/28234_web.mp4",
+      "label": "28234_web.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/clarafi/AETHER 002.mp4",
+      "label": "AETHER 002.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/clarafi/ATP Synthase.mp4",
+      "label": "ATP Synthase.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/clarafi/ATP Synthesis _ HHMI BioInteractive Video.mp4",
+      "label": "ATP Synthesis _ HHMI BioInteractive Video.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/clarafi/ATP in Use _ HHMI BioInteractive Video.webm",
+      "label": "ATP in Use _ HHMI BioInteractive Video.webm",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/clarafi/Alzheimer's Enigma.mp4",
+      "label": "Alzheimer's Enigma.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/clarafi/Apoptosis _WATERMARK_ (2006)  by Drew Berry wehi.tv, sound design Franc Tétaz.mp4",
+      "label": "Apoptosis _WATERMARK_ (2006)  by Drew Berry wehi.tv, sound design Franc Tétaz.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/clarafi/Bordetella pertussis and Whooping Cough.mp4",
+      "label": "Bordetella pertussis and Whooping Cough.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/clarafi/Cancer Is Not One Disease.mp4",
+      "label": "Cancer Is Not One Disease.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/clarafi/Chicken Embryo Development.webm",
+      "label": "Chicken Embryo Development.webm",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/clarafi/Citric Acid Cycle _ HHMI BioInteractive Video.webm",
+      "label": "Citric Acid Cycle _ HHMI BioInteractive Video.webm",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/clarafi/Clostridium tetani and Tetanus.mp4",
+      "label": "Clostridium tetani and Tetanus.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/clarafi/Differentiation and the Fate of Cells _ HHMI BioInteractive Video.mp4",
+      "label": "Differentiation and the Fate of Cells _ HHMI BioInteractive Video.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/clarafi/Electron Transport Chain _ HHMI BioInteractive Video.mp4",
+      "label": "Electron Transport Chain _ HHMI BioInteractive Video.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/clarafi/Entomology Animated Episode 1_ RIFA Madness!.mp4",
+      "label": "Entomology Animated Episode 1_ RIFA Madness!.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/clarafi/Entomology Animated Episode 2_ Chemistry Must Be Respected!.mp4",
+      "label": "Entomology Animated Episode 2_ Chemistry Must Be Respected!.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/clarafi/Glycolysis _ HHMI BioInteractive Video.webm",
+      "label": "Glycolysis _ HHMI BioInteractive Video.webm",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/clarafi/How Enzymes Work (from PDB-101).mp4",
+      "label": "How Enzymes Work (from PDB-101).mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/clarafi/How Tumors Grow _ HHMI BioInteractive Video.mp4",
+      "label": "How Tumors Grow _ HHMI BioInteractive Video.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/clarafi/Human Embryonic Development _ HHMI BioInteractive Video.mp4",
+      "label": "Human Embryonic Development _ HHMI BioInteractive Video.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/clarafi/Immune System - Fighting Infection by Clonal Selection (2009) Etsuko Uno wehi.tv.mp4",
+      "label": "Immune System - Fighting Infection by Clonal Selection (2009) Etsuko Uno wehi.tv.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/clarafi/Insulin Production and Type 1 Diabetes (2009) by Etsuko Uno wehi.tv.mp4",
+      "label": "Insulin Production and Type 1 Diabetes (2009) by Etsuko Uno wehi.tv.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/clarafi/Insulin Receptor and Type 2 Diabetes.mp4",
+      "label": "Insulin Receptor and Type 2 Diabetes.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/clarafi/Kinesin Walking Narrated Version for Garland.mp4",
+      "label": "Kinesin Walking Narrated Version for Garland.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/clarafi/Metastatic bone pain.mp4",
+      "label": "Metastatic bone pain.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/clarafi/Muscle Myosin.mp4",
+      "label": "Muscle Myosin.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/clarafi/Pyruvate Dehydrogenase _ HHMI BioInteractive Video.webm",
+      "label": "Pyruvate Dehydrogenase _ HHMI BioInteractive Video.webm",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/clarafi/Si(111) Surface 7&times;7 Reconstruction.mp4",
+      "label": "Si(111) Surface 7&times;7 Reconstruction.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/clarafi/The Structure of DNA.mp4",
+      "label": "The Structure of DNA.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/clarafi/The Whole Brain Catalog (http___wholebraincatalog.org).mp4",
+      "label": "The Whole Brain Catalog (http___wholebraincatalog.org).mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/clarafi/fantastic vesicle traffic.mp4",
+      "label": "fantastic vesicle traffic.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/clarafi/hemoglobin1.mov",
+      "label": "hemoglobin1.mov",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/clarafi/hemoglobin1b.mov",
+      "label": "hemoglobin1b.mov",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/clarafi/hemoglobin1c.mov",
+      "label": "hemoglobin1c.mov",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/clarafi/hemoglobin2.mov",
+      "label": "hemoglobin2.mov",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/clarafi/hemoglobin3.mov",
+      "label": "hemoglobin3.mov",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/clarafi/videoplayback.mp4",
+      "label": "videoplayback.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/morpholib/raup_shell_animation_loop30.mp4",
+      "label": "raup_shell_animation_loop30.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/clarafi/1 Long Term Potentiation introduction.mp4",
+      "label": "1 Long Term Potentiation introduction.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/morpholib/turing_patterns_black_neon_loop30.mp4",
+      "label": "turing_patterns_black_neon_loop30.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/clarafi/1184.mp4",
+      "label": "1184.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/morpholib/turing_patterns_black_variation_loop30.mp4",
+      "label": "turing_patterns_black_variation_loop30.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/clarafi/1197.mp4",
+      "label": "1197.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/morpholib/turing_patterns_loop30.mp4",
+      "label": "turing_patterns_loop30.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/clarafi/1198.mp4",
+      "label": "1198.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/clarafi/274880032.mp4",
+      "label": "274880032.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/clarafi/274971978.mp4",
+      "label": "274971978.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/clarafi/28234_web.mp4",
+      "label": "28234_web.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/clarafi/AETHER 002.mp4",
+      "label": "AETHER 002.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/clarafi/ATP Synthase.mp4",
+      "label": "ATP Synthase.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/clarafi/ATP Synthesis _ HHMI BioInteractive Video.mp4",
+      "label": "ATP Synthesis _ HHMI BioInteractive Video.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/clarafi/ATP in Use _ HHMI BioInteractive Video.webm",
+      "label": "ATP in Use _ HHMI BioInteractive Video.webm",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/clarafi/Alzheimer's Enigma.mp4",
+      "label": "Alzheimer's Enigma.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/clarafi/Apoptosis _WATERMARK_ (2006)  by Drew Berry wehi.tv, sound design Franc Tétaz.mp4",
+      "label": "Apoptosis _WATERMARK_ (2006)  by Drew Berry wehi.tv, sound design Franc Tétaz.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/clarafi/Bordetella pertussis and Whooping Cough.mp4",
+      "label": "Bordetella pertussis and Whooping Cough.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/clarafi/Cancer Is Not One Disease.mp4",
+      "label": "Cancer Is Not One Disease.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/clarafi/Chicken Embryo Development.webm",
+      "label": "Chicken Embryo Development.webm",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/clarafi/Citric Acid Cycle _ HHMI BioInteractive Video.webm",
+      "label": "Citric Acid Cycle _ HHMI BioInteractive Video.webm",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/clarafi/Clostridium tetani and Tetanus.mp4",
+      "label": "Clostridium tetani and Tetanus.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/clarafi/Differentiation and the Fate of Cells _ HHMI BioInteractive Video.mp4",
+      "label": "Differentiation and the Fate of Cells _ HHMI BioInteractive Video.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/clarafi/Electron Transport Chain _ HHMI BioInteractive Video.mp4",
+      "label": "Electron Transport Chain _ HHMI BioInteractive Video.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/clarafi/Entomology Animated Episode 1_ RIFA Madness!.mp4",
+      "label": "Entomology Animated Episode 1_ RIFA Madness!.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/clarafi/Entomology Animated Episode 2_ Chemistry Must Be Respected!.mp4",
+      "label": "Entomology Animated Episode 2_ Chemistry Must Be Respected!.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/clarafi/Glycolysis _ HHMI BioInteractive Video.webm",
+      "label": "Glycolysis _ HHMI BioInteractive Video.webm",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/clarafi/How Enzymes Work (from PDB-101).mp4",
+      "label": "How Enzymes Work (from PDB-101).mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/clarafi/How Tumors Grow _ HHMI BioInteractive Video.mp4",
+      "label": "How Tumors Grow _ HHMI BioInteractive Video.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/clarafi/Human Embryonic Development _ HHMI BioInteractive Video.mp4",
+      "label": "Human Embryonic Development _ HHMI BioInteractive Video.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/clarafi/Immune System - Fighting Infection by Clonal Selection (2009) Etsuko Uno wehi.tv.mp4",
+      "label": "Immune System - Fighting Infection by Clonal Selection (2009) Etsuko Uno wehi.tv.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/clarafi/Insulin Production and Type 1 Diabetes (2009) by Etsuko Uno wehi.tv.mp4",
+      "label": "Insulin Production and Type 1 Diabetes (2009) by Etsuko Uno wehi.tv.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/clarafi/Insulin Receptor and Type 2 Diabetes.mp4",
+      "label": "Insulin Receptor and Type 2 Diabetes.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/clarafi/Kinesin Walking Narrated Version for Garland.mp4",
+      "label": "Kinesin Walking Narrated Version for Garland.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/clarafi/Metastatic bone pain.mp4",
+      "label": "Metastatic bone pain.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/clarafi/Muscle Myosin.mp4",
+      "label": "Muscle Myosin.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/clarafi/Pyruvate Dehydrogenase _ HHMI BioInteractive Video.webm",
+      "label": "Pyruvate Dehydrogenase _ HHMI BioInteractive Video.webm",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/clarafi/Si(111) Surface 7&times;7 Reconstruction.mp4",
+      "label": "Si(111) Surface 7&times;7 Reconstruction.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/clarafi/The Structure of DNA.mp4",
+      "label": "The Structure of DNA.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/clarafi/The Whole Brain Catalog (http___wholebraincatalog.org).mp4",
+      "label": "The Whole Brain Catalog (http___wholebraincatalog.org).mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/clarafi/fantastic vesicle traffic.mp4",
+      "label": "fantastic vesicle traffic.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/clarafi/hemoglobin1.mov",
+      "label": "hemoglobin1.mov",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/clarafi/hemoglobin1b.mov",
+      "label": "hemoglobin1b.mov",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/clarafi/hemoglobin1c.mov",
+      "label": "hemoglobin1c.mov",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/clarafi/hemoglobin2.mov",
+      "label": "hemoglobin2.mov",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/clarafi/hemoglobin3.mov",
+      "label": "hemoglobin3.mov",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/clarafi/videoplayback.mp4",
+      "label": "videoplayback.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/morpholib/raup_shell_animation_loop30.mp4",
+      "label": "raup_shell_animation_loop30.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/clarafi/1 Long Term Potentiation introduction.mp4",
+      "label": "1 Long Term Potentiation introduction.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/morpholib/turing_patterns_black_neon_loop30.mp4",
+      "label": "turing_patterns_black_neon_loop30.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/clarafi/1184.mp4",
+      "label": "1184.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/morpholib/turing_patterns_black_variation_loop30.mp4",
+      "label": "turing_patterns_black_variation_loop30.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/clarafi/1197.mp4",
+      "label": "1197.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/morpholib/turing_patterns_loop30.mp4",
+      "label": "turing_patterns_loop30.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/clarafi/1198.mp4",
+      "label": "1198.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/clarafi/274880032.mp4",
+      "label": "274880032.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/clarafi/274971978.mp4",
+      "label": "274971978.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/clarafi/28234_web.mp4",
+      "label": "28234_web.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/clarafi/AETHER 002.mp4",
+      "label": "AETHER 002.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/clarafi/ATP Synthase.mp4",
+      "label": "ATP Synthase.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/clarafi/ATP Synthesis _ HHMI BioInteractive Video.mp4",
+      "label": "ATP Synthesis _ HHMI BioInteractive Video.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/clarafi/ATP in Use _ HHMI BioInteractive Video.webm",
+      "label": "ATP in Use _ HHMI BioInteractive Video.webm",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/clarafi/Alzheimer's Enigma.mp4",
+      "label": "Alzheimer's Enigma.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/clarafi/Apoptosis _WATERMARK_ (2006)  by Drew Berry wehi.tv, sound design Franc Tétaz.mp4",
+      "label": "Apoptosis _WATERMARK_ (2006)  by Drew Berry wehi.tv, sound design Franc Tétaz.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/clarafi/Bordetella pertussis and Whooping Cough.mp4",
+      "label": "Bordetella pertussis and Whooping Cough.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/clarafi/Cancer Is Not One Disease.mp4",
+      "label": "Cancer Is Not One Disease.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/clarafi/Chicken Embryo Development.webm",
+      "label": "Chicken Embryo Development.webm",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/clarafi/Citric Acid Cycle _ HHMI BioInteractive Video.webm",
+      "label": "Citric Acid Cycle _ HHMI BioInteractive Video.webm",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/clarafi/Clostridium tetani and Tetanus.mp4",
+      "label": "Clostridium tetani and Tetanus.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/clarafi/Differentiation and the Fate of Cells _ HHMI BioInteractive Video.mp4",
+      "label": "Differentiation and the Fate of Cells _ HHMI BioInteractive Video.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/clarafi/Electron Transport Chain _ HHMI BioInteractive Video.mp4",
+      "label": "Electron Transport Chain _ HHMI BioInteractive Video.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/clarafi/Entomology Animated Episode 1_ RIFA Madness!.mp4",
+      "label": "Entomology Animated Episode 1_ RIFA Madness!.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/clarafi/Entomology Animated Episode 2_ Chemistry Must Be Respected!.mp4",
+      "label": "Entomology Animated Episode 2_ Chemistry Must Be Respected!.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/clarafi/Glycolysis _ HHMI BioInteractive Video.webm",
+      "label": "Glycolysis _ HHMI BioInteractive Video.webm",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/clarafi/How Enzymes Work (from PDB-101).mp4",
+      "label": "How Enzymes Work (from PDB-101).mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/clarafi/How Tumors Grow _ HHMI BioInteractive Video.mp4",
+      "label": "How Tumors Grow _ HHMI BioInteractive Video.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/clarafi/Human Embryonic Development _ HHMI BioInteractive Video.mp4",
+      "label": "Human Embryonic Development _ HHMI BioInteractive Video.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/clarafi/Immune System - Fighting Infection by Clonal Selection (2009) Etsuko Uno wehi.tv.mp4",
+      "label": "Immune System - Fighting Infection by Clonal Selection (2009) Etsuko Uno wehi.tv.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/clarafi/Insulin Production and Type 1 Diabetes (2009) by Etsuko Uno wehi.tv.mp4",
+      "label": "Insulin Production and Type 1 Diabetes (2009) by Etsuko Uno wehi.tv.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/clarafi/Insulin Receptor and Type 2 Diabetes.mp4",
+      "label": "Insulin Receptor and Type 2 Diabetes.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/clarafi/Kinesin Walking Narrated Version for Garland.mp4",
+      "label": "Kinesin Walking Narrated Version for Garland.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/clarafi/Metastatic bone pain.mp4",
+      "label": "Metastatic bone pain.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/clarafi/Muscle Myosin.mp4",
+      "label": "Muscle Myosin.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/clarafi/Pyruvate Dehydrogenase _ HHMI BioInteractive Video.webm",
+      "label": "Pyruvate Dehydrogenase _ HHMI BioInteractive Video.webm",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/clarafi/Si(111) Surface 7&times;7 Reconstruction.mp4",
+      "label": "Si(111) Surface 7&times;7 Reconstruction.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/clarafi/The Structure of DNA.mp4",
+      "label": "The Structure of DNA.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/clarafi/The Whole Brain Catalog (http___wholebraincatalog.org).mp4",
+      "label": "The Whole Brain Catalog (http___wholebraincatalog.org).mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/clarafi/fantastic vesicle traffic.mp4",
+      "label": "fantastic vesicle traffic.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/clarafi/hemoglobin1.mov",
+      "label": "hemoglobin1.mov",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/clarafi/hemoglobin1b.mov",
+      "label": "hemoglobin1b.mov",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/clarafi/hemoglobin1c.mov",
+      "label": "hemoglobin1c.mov",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/clarafi/hemoglobin2.mov",
+      "label": "hemoglobin2.mov",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/clarafi/hemoglobin3.mov",
+      "label": "hemoglobin3.mov",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/clarafi/videoplayback.mp4",
+      "label": "videoplayback.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/morpholib/raup_shell_animation_loop30.mp4",
+      "label": "raup_shell_animation_loop30.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/clarafi/1 Long Term Potentiation introduction.mp4",
+      "label": "1 Long Term Potentiation introduction.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/morpholib/turing_patterns_black_neon_loop30.mp4",
+      "label": "turing_patterns_black_neon_loop30.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/clarafi/1184.mp4",
+      "label": "1184.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/morpholib/turing_patterns_black_variation_loop30.mp4",
+      "label": "turing_patterns_black_variation_loop30.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/clarafi/1197.mp4",
+      "label": "1197.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/morpholib/turing_patterns_loop30.mp4",
+      "label": "turing_patterns_loop30.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/clarafi/1198.mp4",
+      "label": "1198.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/clarafi/274880032.mp4",
+      "label": "274880032.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/clarafi/274971978.mp4",
+      "label": "274971978.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/clarafi/28234_web.mp4",
+      "label": "28234_web.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/clarafi/AETHER 002.mp4",
+      "label": "AETHER 002.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/clarafi/ATP Synthase.mp4",
+      "label": "ATP Synthase.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/clarafi/ATP Synthesis _ HHMI BioInteractive Video.mp4",
+      "label": "ATP Synthesis _ HHMI BioInteractive Video.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/clarafi/ATP in Use _ HHMI BioInteractive Video.webm",
+      "label": "ATP in Use _ HHMI BioInteractive Video.webm",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/clarafi/Alzheimer's Enigma.mp4",
+      "label": "Alzheimer's Enigma.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/clarafi/Apoptosis _WATERMARK_ (2006)  by Drew Berry wehi.tv, sound design Franc Tétaz.mp4",
+      "label": "Apoptosis _WATERMARK_ (2006)  by Drew Berry wehi.tv, sound design Franc Tétaz.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/clarafi/Bordetella pertussis and Whooping Cough.mp4",
+      "label": "Bordetella pertussis and Whooping Cough.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/clarafi/Cancer Is Not One Disease.mp4",
+      "label": "Cancer Is Not One Disease.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/clarafi/Chicken Embryo Development.webm",
+      "label": "Chicken Embryo Development.webm",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/clarafi/Citric Acid Cycle _ HHMI BioInteractive Video.webm",
+      "label": "Citric Acid Cycle _ HHMI BioInteractive Video.webm",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/clarafi/Clostridium tetani and Tetanus.mp4",
+      "label": "Clostridium tetani and Tetanus.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/clarafi/Differentiation and the Fate of Cells _ HHMI BioInteractive Video.mp4",
+      "label": "Differentiation and the Fate of Cells _ HHMI BioInteractive Video.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/clarafi/Electron Transport Chain _ HHMI BioInteractive Video.mp4",
+      "label": "Electron Transport Chain _ HHMI BioInteractive Video.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/clarafi/Entomology Animated Episode 1_ RIFA Madness!.mp4",
+      "label": "Entomology Animated Episode 1_ RIFA Madness!.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/clarafi/Entomology Animated Episode 2_ Chemistry Must Be Respected!.mp4",
+      "label": "Entomology Animated Episode 2_ Chemistry Must Be Respected!.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/clarafi/Glycolysis _ HHMI BioInteractive Video.webm",
+      "label": "Glycolysis _ HHMI BioInteractive Video.webm",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/clarafi/How Enzymes Work (from PDB-101).mp4",
+      "label": "How Enzymes Work (from PDB-101).mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/clarafi/How Tumors Grow _ HHMI BioInteractive Video.mp4",
+      "label": "How Tumors Grow _ HHMI BioInteractive Video.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/clarafi/Human Embryonic Development _ HHMI BioInteractive Video.mp4",
+      "label": "Human Embryonic Development _ HHMI BioInteractive Video.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/clarafi/Immune System - Fighting Infection by Clonal Selection (2009) Etsuko Uno wehi.tv.mp4",
+      "label": "Immune System - Fighting Infection by Clonal Selection (2009) Etsuko Uno wehi.tv.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/clarafi/Insulin Production and Type 1 Diabetes (2009) by Etsuko Uno wehi.tv.mp4",
+      "label": "Insulin Production and Type 1 Diabetes (2009) by Etsuko Uno wehi.tv.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/clarafi/Insulin Receptor and Type 2 Diabetes.mp4",
+      "label": "Insulin Receptor and Type 2 Diabetes.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/clarafi/Kinesin Walking Narrated Version for Garland.mp4",
+      "label": "Kinesin Walking Narrated Version for Garland.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/clarafi/Metastatic bone pain.mp4",
+      "label": "Metastatic bone pain.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/clarafi/Muscle Myosin.mp4",
+      "label": "Muscle Myosin.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/clarafi/Pyruvate Dehydrogenase _ HHMI BioInteractive Video.webm",
+      "label": "Pyruvate Dehydrogenase _ HHMI BioInteractive Video.webm",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/clarafi/Si(111) Surface 7&times;7 Reconstruction.mp4",
+      "label": "Si(111) Surface 7&times;7 Reconstruction.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/clarafi/The Structure of DNA.mp4",
+      "label": "The Structure of DNA.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/clarafi/The Whole Brain Catalog (http___wholebraincatalog.org).mp4",
+      "label": "The Whole Brain Catalog (http___wholebraincatalog.org).mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/clarafi/fantastic vesicle traffic.mp4",
+      "label": "fantastic vesicle traffic.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/clarafi/hemoglobin1.mov",
+      "label": "hemoglobin1.mov",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/clarafi/hemoglobin1b.mov",
+      "label": "hemoglobin1b.mov",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/clarafi/hemoglobin1c.mov",
+      "label": "hemoglobin1c.mov",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/clarafi/hemoglobin2.mov",
+      "label": "hemoglobin2.mov",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/clarafi/hemoglobin3.mov",
+      "label": "hemoglobin3.mov",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/clarafi/videoplayback.mp4",
+      "label": "videoplayback.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/morpholib/raup_shell_animation_loop30.mp4",
+      "label": "raup_shell_animation_loop30.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/clarafi/1 Long Term Potentiation introduction.mp4",
+      "label": "1 Long Term Potentiation introduction.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/morpholib/turing_patterns_black_neon_loop30.mp4",
+      "label": "turing_patterns_black_neon_loop30.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/clarafi/1184.mp4",
+      "label": "1184.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/morpholib/turing_patterns_black_variation_loop30.mp4",
+      "label": "turing_patterns_black_variation_loop30.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/clarafi/1197.mp4",
+      "label": "1197.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/morpholib/turing_patterns_loop30.mp4",
+      "label": "turing_patterns_loop30.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/clarafi/1198.mp4",
+      "label": "1198.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/clarafi/274880032.mp4",
+      "label": "274880032.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/clarafi/274971978.mp4",
+      "label": "274971978.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/clarafi/28234_web.mp4",
+      "label": "28234_web.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/clarafi/AETHER 002.mp4",
+      "label": "AETHER 002.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/clarafi/ATP Synthase.mp4",
+      "label": "ATP Synthase.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/clarafi/ATP Synthesis _ HHMI BioInteractive Video.mp4",
+      "label": "ATP Synthesis _ HHMI BioInteractive Video.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/clarafi/ATP in Use _ HHMI BioInteractive Video.webm",
+      "label": "ATP in Use _ HHMI BioInteractive Video.webm",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/clarafi/Alzheimer's Enigma.mp4",
+      "label": "Alzheimer's Enigma.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/clarafi/Apoptosis _WATERMARK_ (2006)  by Drew Berry wehi.tv, sound design Franc Tétaz.mp4",
+      "label": "Apoptosis _WATERMARK_ (2006)  by Drew Berry wehi.tv, sound design Franc Tétaz.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/clarafi/Bordetella pertussis and Whooping Cough.mp4",
+      "label": "Bordetella pertussis and Whooping Cough.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/clarafi/Cancer Is Not One Disease.mp4",
+      "label": "Cancer Is Not One Disease.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/clarafi/Chicken Embryo Development.webm",
+      "label": "Chicken Embryo Development.webm",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/clarafi/Citric Acid Cycle _ HHMI BioInteractive Video.webm",
+      "label": "Citric Acid Cycle _ HHMI BioInteractive Video.webm",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/clarafi/Clostridium tetani and Tetanus.mp4",
+      "label": "Clostridium tetani and Tetanus.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/clarafi/Differentiation and the Fate of Cells _ HHMI BioInteractive Video.mp4",
+      "label": "Differentiation and the Fate of Cells _ HHMI BioInteractive Video.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/clarafi/Electron Transport Chain _ HHMI BioInteractive Video.mp4",
+      "label": "Electron Transport Chain _ HHMI BioInteractive Video.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/clarafi/Entomology Animated Episode 1_ RIFA Madness!.mp4",
+      "label": "Entomology Animated Episode 1_ RIFA Madness!.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/clarafi/Entomology Animated Episode 2_ Chemistry Must Be Respected!.mp4",
+      "label": "Entomology Animated Episode 2_ Chemistry Must Be Respected!.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/clarafi/Glycolysis _ HHMI BioInteractive Video.webm",
+      "label": "Glycolysis _ HHMI BioInteractive Video.webm",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/clarafi/How Enzymes Work (from PDB-101).mp4",
+      "label": "How Enzymes Work (from PDB-101).mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/clarafi/How Tumors Grow _ HHMI BioInteractive Video.mp4",
+      "label": "How Tumors Grow _ HHMI BioInteractive Video.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/clarafi/Human Embryonic Development _ HHMI BioInteractive Video.mp4",
+      "label": "Human Embryonic Development _ HHMI BioInteractive Video.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/clarafi/Immune System - Fighting Infection by Clonal Selection (2009) Etsuko Uno wehi.tv.mp4",
+      "label": "Immune System - Fighting Infection by Clonal Selection (2009) Etsuko Uno wehi.tv.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/clarafi/Insulin Production and Type 1 Diabetes (2009) by Etsuko Uno wehi.tv.mp4",
+      "label": "Insulin Production and Type 1 Diabetes (2009) by Etsuko Uno wehi.tv.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/clarafi/Insulin Receptor and Type 2 Diabetes.mp4",
+      "label": "Insulin Receptor and Type 2 Diabetes.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/clarafi/Kinesin Walking Narrated Version for Garland.mp4",
+      "label": "Kinesin Walking Narrated Version for Garland.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/clarafi/Metastatic bone pain.mp4",
+      "label": "Metastatic bone pain.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/clarafi/Muscle Myosin.mp4",
+      "label": "Muscle Myosin.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/clarafi/Pyruvate Dehydrogenase _ HHMI BioInteractive Video.webm",
+      "label": "Pyruvate Dehydrogenase _ HHMI BioInteractive Video.webm",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/clarafi/Si(111) Surface 7&times;7 Reconstruction.mp4",
+      "label": "Si(111) Surface 7&times;7 Reconstruction.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/clarafi/The Structure of DNA.mp4",
+      "label": "The Structure of DNA.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/clarafi/The Whole Brain Catalog (http___wholebraincatalog.org).mp4",
+      "label": "The Whole Brain Catalog (http___wholebraincatalog.org).mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/clarafi/fantastic vesicle traffic.mp4",
+      "label": "fantastic vesicle traffic.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/clarafi/hemoglobin1.mov",
+      "label": "hemoglobin1.mov",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/clarafi/hemoglobin1b.mov",
+      "label": "hemoglobin1b.mov",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/clarafi/hemoglobin1c.mov",
+      "label": "hemoglobin1c.mov",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/clarafi/hemoglobin2.mov",
+      "label": "hemoglobin2.mov",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/clarafi/hemoglobin3.mov",
+      "label": "hemoglobin3.mov",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/clarafi/videoplayback.mp4",
+      "label": "videoplayback.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/morpholib/raup_shell_animation_loop30.mp4",
+      "label": "raup_shell_animation_loop30.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/clarafi/1 Long Term Potentiation introduction.mp4",
+      "label": "1 Long Term Potentiation introduction.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/morpholib/turing_patterns_black_neon_loop30.mp4",
+      "label": "turing_patterns_black_neon_loop30.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/clarafi/1184.mp4",
+      "label": "1184.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/morpholib/turing_patterns_black_variation_loop30.mp4",
+      "label": "turing_patterns_black_variation_loop30.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/clarafi/1197.mp4",
+      "label": "1197.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/morpholib/turing_patterns_loop30.mp4",
+      "label": "turing_patterns_loop30.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/clarafi/1198.mp4",
+      "label": "1198.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/clarafi/274880032.mp4",
+      "label": "274880032.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/clarafi/274971978.mp4",
+      "label": "274971978.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/clarafi/28234_web.mp4",
+      "label": "28234_web.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/clarafi/AETHER 002.mp4",
+      "label": "AETHER 002.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/clarafi/ATP Synthase.mp4",
+      "label": "ATP Synthase.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/clarafi/ATP Synthesis _ HHMI BioInteractive Video.mp4",
+      "label": "ATP Synthesis _ HHMI BioInteractive Video.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/clarafi/ATP in Use _ HHMI BioInteractive Video.webm",
+      "label": "ATP in Use _ HHMI BioInteractive Video.webm",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/clarafi/Alzheimer's Enigma.mp4",
+      "label": "Alzheimer's Enigma.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/clarafi/Apoptosis _WATERMARK_ (2006)  by Drew Berry wehi.tv, sound design Franc Tétaz.mp4",
+      "label": "Apoptosis _WATERMARK_ (2006)  by Drew Berry wehi.tv, sound design Franc Tétaz.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/clarafi/Bordetella pertussis and Whooping Cough.mp4",
+      "label": "Bordetella pertussis and Whooping Cough.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/clarafi/Cancer Is Not One Disease.mp4",
+      "label": "Cancer Is Not One Disease.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/clarafi/Chicken Embryo Development.webm",
+      "label": "Chicken Embryo Development.webm",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/clarafi/Citric Acid Cycle _ HHMI BioInteractive Video.webm",
+      "label": "Citric Acid Cycle _ HHMI BioInteractive Video.webm",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/clarafi/Clostridium tetani and Tetanus.mp4",
+      "label": "Clostridium tetani and Tetanus.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/clarafi/Differentiation and the Fate of Cells _ HHMI BioInteractive Video.mp4",
+      "label": "Differentiation and the Fate of Cells _ HHMI BioInteractive Video.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/clarafi/Electron Transport Chain _ HHMI BioInteractive Video.mp4",
+      "label": "Electron Transport Chain _ HHMI BioInteractive Video.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/clarafi/Entomology Animated Episode 1_ RIFA Madness!.mp4",
+      "label": "Entomology Animated Episode 1_ RIFA Madness!.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/clarafi/Entomology Animated Episode 2_ Chemistry Must Be Respected!.mp4",
+      "label": "Entomology Animated Episode 2_ Chemistry Must Be Respected!.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/clarafi/Glycolysis _ HHMI BioInteractive Video.webm",
+      "label": "Glycolysis _ HHMI BioInteractive Video.webm",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/clarafi/How Enzymes Work (from PDB-101).mp4",
+      "label": "How Enzymes Work (from PDB-101).mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/clarafi/How Tumors Grow _ HHMI BioInteractive Video.mp4",
+      "label": "How Tumors Grow _ HHMI BioInteractive Video.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/clarafi/Human Embryonic Development _ HHMI BioInteractive Video.mp4",
+      "label": "Human Embryonic Development _ HHMI BioInteractive Video.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/clarafi/Immune System - Fighting Infection by Clonal Selection (2009) Etsuko Uno wehi.tv.mp4",
+      "label": "Immune System - Fighting Infection by Clonal Selection (2009) Etsuko Uno wehi.tv.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/clarafi/Insulin Production and Type 1 Diabetes (2009) by Etsuko Uno wehi.tv.mp4",
+      "label": "Insulin Production and Type 1 Diabetes (2009) by Etsuko Uno wehi.tv.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/clarafi/Insulin Receptor and Type 2 Diabetes.mp4",
+      "label": "Insulin Receptor and Type 2 Diabetes.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/clarafi/Kinesin Walking Narrated Version for Garland.mp4",
+      "label": "Kinesin Walking Narrated Version for Garland.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/clarafi/Metastatic bone pain.mp4",
+      "label": "Metastatic bone pain.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/clarafi/Muscle Myosin.mp4",
+      "label": "Muscle Myosin.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/clarafi/Pyruvate Dehydrogenase _ HHMI BioInteractive Video.webm",
+      "label": "Pyruvate Dehydrogenase _ HHMI BioInteractive Video.webm",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/clarafi/Si(111) Surface 7&times;7 Reconstruction.mp4",
+      "label": "Si(111) Surface 7&times;7 Reconstruction.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/clarafi/The Structure of DNA.mp4",
+      "label": "The Structure of DNA.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/clarafi/The Whole Brain Catalog (http___wholebraincatalog.org).mp4",
+      "label": "The Whole Brain Catalog (http___wholebraincatalog.org).mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/clarafi/fantastic vesicle traffic.mp4",
+      "label": "fantastic vesicle traffic.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/clarafi/hemoglobin1.mov",
+      "label": "hemoglobin1.mov",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/clarafi/hemoglobin1b.mov",
+      "label": "hemoglobin1b.mov",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/clarafi/hemoglobin1c.mov",
+      "label": "hemoglobin1c.mov",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/clarafi/hemoglobin2.mov",
+      "label": "hemoglobin2.mov",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/clarafi/hemoglobin3.mov",
+      "label": "hemoglobin3.mov",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/clarafi/videoplayback.mp4",
+      "label": "videoplayback.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/morpholib/raup_shell_animation_loop30.mp4",
+      "label": "raup_shell_animation_loop30.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/clarafi/1 Long Term Potentiation introduction.mp4",
+      "label": "1 Long Term Potentiation introduction.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/morpholib/turing_patterns_black_neon_loop30.mp4",
+      "label": "turing_patterns_black_neon_loop30.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/clarafi/1184.mp4",
+      "label": "1184.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/morpholib/turing_patterns_black_variation_loop30.mp4",
+      "label": "turing_patterns_black_variation_loop30.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/clarafi/1197.mp4",
+      "label": "1197.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/morpholib/turing_patterns_loop30.mp4",
+      "label": "turing_patterns_loop30.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/clarafi/1198.mp4",
+      "label": "1198.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/clarafi/274880032.mp4",
+      "label": "274880032.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/clarafi/274971978.mp4",
+      "label": "274971978.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/clarafi/28234_web.mp4",
+      "label": "28234_web.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/clarafi/AETHER 002.mp4",
+      "label": "AETHER 002.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/clarafi/ATP Synthase.mp4",
+      "label": "ATP Synthase.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/clarafi/ATP Synthesis _ HHMI BioInteractive Video.mp4",
+      "label": "ATP Synthesis _ HHMI BioInteractive Video.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/clarafi/ATP in Use _ HHMI BioInteractive Video.webm",
+      "label": "ATP in Use _ HHMI BioInteractive Video.webm",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/clarafi/Alzheimer's Enigma.mp4",
+      "label": "Alzheimer's Enigma.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/clarafi/Apoptosis _WATERMARK_ (2006)  by Drew Berry wehi.tv, sound design Franc Tétaz.mp4",
+      "label": "Apoptosis _WATERMARK_ (2006)  by Drew Berry wehi.tv, sound design Franc Tétaz.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/clarafi/Bordetella pertussis and Whooping Cough.mp4",
+      "label": "Bordetella pertussis and Whooping Cough.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/clarafi/Cancer Is Not One Disease.mp4",
+      "label": "Cancer Is Not One Disease.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/clarafi/Chicken Embryo Development.webm",
+      "label": "Chicken Embryo Development.webm",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/clarafi/Citric Acid Cycle _ HHMI BioInteractive Video.webm",
+      "label": "Citric Acid Cycle _ HHMI BioInteractive Video.webm",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/clarafi/Clostridium tetani and Tetanus.mp4",
+      "label": "Clostridium tetani and Tetanus.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/clarafi/Differentiation and the Fate of Cells _ HHMI BioInteractive Video.mp4",
+      "label": "Differentiation and the Fate of Cells _ HHMI BioInteractive Video.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/clarafi/Electron Transport Chain _ HHMI BioInteractive Video.mp4",
+      "label": "Electron Transport Chain _ HHMI BioInteractive Video.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/clarafi/Entomology Animated Episode 1_ RIFA Madness!.mp4",
+      "label": "Entomology Animated Episode 1_ RIFA Madness!.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/clarafi/Entomology Animated Episode 2_ Chemistry Must Be Respected!.mp4",
+      "label": "Entomology Animated Episode 2_ Chemistry Must Be Respected!.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/clarafi/Glycolysis _ HHMI BioInteractive Video.webm",
+      "label": "Glycolysis _ HHMI BioInteractive Video.webm",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/clarafi/How Enzymes Work (from PDB-101).mp4",
+      "label": "How Enzymes Work (from PDB-101).mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/clarafi/How Tumors Grow _ HHMI BioInteractive Video.mp4",
+      "label": "How Tumors Grow _ HHMI BioInteractive Video.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/clarafi/Human Embryonic Development _ HHMI BioInteractive Video.mp4",
+      "label": "Human Embryonic Development _ HHMI BioInteractive Video.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/clarafi/Immune System - Fighting Infection by Clonal Selection (2009) Etsuko Uno wehi.tv.mp4",
+      "label": "Immune System - Fighting Infection by Clonal Selection (2009) Etsuko Uno wehi.tv.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/clarafi/Insulin Production and Type 1 Diabetes (2009) by Etsuko Uno wehi.tv.mp4",
+      "label": "Insulin Production and Type 1 Diabetes (2009) by Etsuko Uno wehi.tv.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/clarafi/Insulin Receptor and Type 2 Diabetes.mp4",
+      "label": "Insulin Receptor and Type 2 Diabetes.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/clarafi/Kinesin Walking Narrated Version for Garland.mp4",
+      "label": "Kinesin Walking Narrated Version for Garland.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/clarafi/Metastatic bone pain.mp4",
+      "label": "Metastatic bone pain.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/clarafi/Muscle Myosin.mp4",
+      "label": "Muscle Myosin.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/clarafi/Pyruvate Dehydrogenase _ HHMI BioInteractive Video.webm",
+      "label": "Pyruvate Dehydrogenase _ HHMI BioInteractive Video.webm",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/clarafi/Si(111) Surface 7&times;7 Reconstruction.mp4",
+      "label": "Si(111) Surface 7&times;7 Reconstruction.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/clarafi/The Structure of DNA.mp4",
+      "label": "The Structure of DNA.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/clarafi/The Whole Brain Catalog (http___wholebraincatalog.org).mp4",
+      "label": "The Whole Brain Catalog (http___wholebraincatalog.org).mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/clarafi/fantastic vesicle traffic.mp4",
+      "label": "fantastic vesicle traffic.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/clarafi/hemoglobin1.mov",
+      "label": "hemoglobin1.mov",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/clarafi/hemoglobin1b.mov",
+      "label": "hemoglobin1b.mov",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/clarafi/hemoglobin1c.mov",
+      "label": "hemoglobin1c.mov",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/clarafi/hemoglobin2.mov",
+      "label": "hemoglobin2.mov",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/clarafi/hemoglobin3.mov",
+      "label": "hemoglobin3.mov",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/clarafi/videoplayback.mp4",
+      "label": "videoplayback.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/morpholib/raup_shell_animation_loop30.mp4",
+      "label": "raup_shell_animation_loop30.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/clarafi/1 Long Term Potentiation introduction.mp4",
+      "label": "1 Long Term Potentiation introduction.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/morpholib/turing_patterns_black_neon_loop30.mp4",
+      "label": "turing_patterns_black_neon_loop30.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/clarafi/1184.mp4",
+      "label": "1184.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/morpholib/turing_patterns_black_variation_loop30.mp4",
+      "label": "turing_patterns_black_variation_loop30.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/clarafi/1197.mp4",
+      "label": "1197.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/morpholib/turing_patterns_loop30.mp4",
+      "label": "turing_patterns_loop30.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/clarafi/1198.mp4",
+      "label": "1198.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/clarafi/274880032.mp4",
+      "label": "274880032.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/clarafi/274971978.mp4",
+      "label": "274971978.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/clarafi/28234_web.mp4",
+      "label": "28234_web.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/clarafi/AETHER 002.mp4",
+      "label": "AETHER 002.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/clarafi/ATP Synthase.mp4",
+      "label": "ATP Synthase.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/clarafi/ATP Synthesis _ HHMI BioInteractive Video.mp4",
+      "label": "ATP Synthesis _ HHMI BioInteractive Video.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/clarafi/ATP in Use _ HHMI BioInteractive Video.webm",
+      "label": "ATP in Use _ HHMI BioInteractive Video.webm",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/clarafi/Alzheimer's Enigma.mp4",
+      "label": "Alzheimer's Enigma.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/clarafi/Apoptosis _WATERMARK_ (2006)  by Drew Berry wehi.tv, sound design Franc Tétaz.mp4",
+      "label": "Apoptosis _WATERMARK_ (2006)  by Drew Berry wehi.tv, sound design Franc Tétaz.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/clarafi/Bordetella pertussis and Whooping Cough.mp4",
+      "label": "Bordetella pertussis and Whooping Cough.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/clarafi/Cancer Is Not One Disease.mp4",
+      "label": "Cancer Is Not One Disease.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/clarafi/Chicken Embryo Development.webm",
+      "label": "Chicken Embryo Development.webm",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/clarafi/Citric Acid Cycle _ HHMI BioInteractive Video.webm",
+      "label": "Citric Acid Cycle _ HHMI BioInteractive Video.webm",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/clarafi/Clostridium tetani and Tetanus.mp4",
+      "label": "Clostridium tetani and Tetanus.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/clarafi/Differentiation and the Fate of Cells _ HHMI BioInteractive Video.mp4",
+      "label": "Differentiation and the Fate of Cells _ HHMI BioInteractive Video.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/clarafi/Electron Transport Chain _ HHMI BioInteractive Video.mp4",
+      "label": "Electron Transport Chain _ HHMI BioInteractive Video.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/clarafi/Entomology Animated Episode 1_ RIFA Madness!.mp4",
+      "label": "Entomology Animated Episode 1_ RIFA Madness!.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/clarafi/Entomology Animated Episode 2_ Chemistry Must Be Respected!.mp4",
+      "label": "Entomology Animated Episode 2_ Chemistry Must Be Respected!.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/clarafi/Glycolysis _ HHMI BioInteractive Video.webm",
+      "label": "Glycolysis _ HHMI BioInteractive Video.webm",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/clarafi/How Enzymes Work (from PDB-101).mp4",
+      "label": "How Enzymes Work (from PDB-101).mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/clarafi/How Tumors Grow _ HHMI BioInteractive Video.mp4",
+      "label": "How Tumors Grow _ HHMI BioInteractive Video.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/clarafi/Human Embryonic Development _ HHMI BioInteractive Video.mp4",
+      "label": "Human Embryonic Development _ HHMI BioInteractive Video.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/clarafi/Immune System - Fighting Infection by Clonal Selection (2009) Etsuko Uno wehi.tv.mp4",
+      "label": "Immune System - Fighting Infection by Clonal Selection (2009) Etsuko Uno wehi.tv.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/clarafi/Insulin Production and Type 1 Diabetes (2009) by Etsuko Uno wehi.tv.mp4",
+      "label": "Insulin Production and Type 1 Diabetes (2009) by Etsuko Uno wehi.tv.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/clarafi/Insulin Receptor and Type 2 Diabetes.mp4",
+      "label": "Insulin Receptor and Type 2 Diabetes.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/clarafi/Kinesin Walking Narrated Version for Garland.mp4",
+      "label": "Kinesin Walking Narrated Version for Garland.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/clarafi/Metastatic bone pain.mp4",
+      "label": "Metastatic bone pain.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/clarafi/Muscle Myosin.mp4",
+      "label": "Muscle Myosin.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/clarafi/Pyruvate Dehydrogenase _ HHMI BioInteractive Video.webm",
+      "label": "Pyruvate Dehydrogenase _ HHMI BioInteractive Video.webm",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/clarafi/Si(111) Surface 7&times;7 Reconstruction.mp4",
+      "label": "Si(111) Surface 7&times;7 Reconstruction.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/clarafi/The Structure of DNA.mp4",
+      "label": "The Structure of DNA.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/clarafi/The Whole Brain Catalog (http___wholebraincatalog.org).mp4",
+      "label": "The Whole Brain Catalog (http___wholebraincatalog.org).mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/clarafi/fantastic vesicle traffic.mp4",
+      "label": "fantastic vesicle traffic.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/clarafi/hemoglobin1.mov",
+      "label": "hemoglobin1.mov",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/clarafi/hemoglobin1b.mov",
+      "label": "hemoglobin1b.mov",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/clarafi/hemoglobin1c.mov",
+      "label": "hemoglobin1c.mov",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/clarafi/hemoglobin2.mov",
+      "label": "hemoglobin2.mov",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/clarafi/hemoglobin3.mov",
+      "label": "hemoglobin3.mov",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/clarafi/videoplayback.mp4",
+      "label": "videoplayback.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/morpholib/raup_shell_animation_loop30.mp4",
+      "label": "raup_shell_animation_loop30.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/clarafi/1 Long Term Potentiation introduction.mp4",
+      "label": "1 Long Term Potentiation introduction.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/morpholib/turing_patterns_black_neon_loop30.mp4",
+      "label": "turing_patterns_black_neon_loop30.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/clarafi/1184.mp4",
+      "label": "1184.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/morpholib/turing_patterns_black_variation_loop30.mp4",
+      "label": "turing_patterns_black_variation_loop30.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/clarafi/1197.mp4",
+      "label": "1197.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/morpholib/turing_patterns_loop30.mp4",
+      "label": "turing_patterns_loop30.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/clarafi/1198.mp4",
+      "label": "1198.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/clarafi/274880032.mp4",
+      "label": "274880032.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/clarafi/274971978.mp4",
+      "label": "274971978.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/clarafi/28234_web.mp4",
+      "label": "28234_web.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/clarafi/AETHER 002.mp4",
+      "label": "AETHER 002.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/clarafi/ATP Synthase.mp4",
+      "label": "ATP Synthase.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/clarafi/ATP Synthesis _ HHMI BioInteractive Video.mp4",
+      "label": "ATP Synthesis _ HHMI BioInteractive Video.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/clarafi/ATP in Use _ HHMI BioInteractive Video.webm",
+      "label": "ATP in Use _ HHMI BioInteractive Video.webm",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/clarafi/Alzheimer's Enigma.mp4",
+      "label": "Alzheimer's Enigma.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/clarafi/Apoptosis _WATERMARK_ (2006)  by Drew Berry wehi.tv, sound design Franc Tétaz.mp4",
+      "label": "Apoptosis _WATERMARK_ (2006)  by Drew Berry wehi.tv, sound design Franc Tétaz.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/clarafi/Bordetella pertussis and Whooping Cough.mp4",
+      "label": "Bordetella pertussis and Whooping Cough.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/clarafi/Cancer Is Not One Disease.mp4",
+      "label": "Cancer Is Not One Disease.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/clarafi/Chicken Embryo Development.webm",
+      "label": "Chicken Embryo Development.webm",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/clarafi/Citric Acid Cycle _ HHMI BioInteractive Video.webm",
+      "label": "Citric Acid Cycle _ HHMI BioInteractive Video.webm",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/clarafi/Clostridium tetani and Tetanus.mp4",
+      "label": "Clostridium tetani and Tetanus.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/clarafi/Differentiation and the Fate of Cells _ HHMI BioInteractive Video.mp4",
+      "label": "Differentiation and the Fate of Cells _ HHMI BioInteractive Video.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/clarafi/Electron Transport Chain _ HHMI BioInteractive Video.mp4",
+      "label": "Electron Transport Chain _ HHMI BioInteractive Video.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/clarafi/Entomology Animated Episode 1_ RIFA Madness!.mp4",
+      "label": "Entomology Animated Episode 1_ RIFA Madness!.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/clarafi/Entomology Animated Episode 2_ Chemistry Must Be Respected!.mp4",
+      "label": "Entomology Animated Episode 2_ Chemistry Must Be Respected!.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/clarafi/Glycolysis _ HHMI BioInteractive Video.webm",
+      "label": "Glycolysis _ HHMI BioInteractive Video.webm",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/clarafi/How Enzymes Work (from PDB-101).mp4",
+      "label": "How Enzymes Work (from PDB-101).mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/clarafi/How Tumors Grow _ HHMI BioInteractive Video.mp4",
+      "label": "How Tumors Grow _ HHMI BioInteractive Video.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/clarafi/Human Embryonic Development _ HHMI BioInteractive Video.mp4",
+      "label": "Human Embryonic Development _ HHMI BioInteractive Video.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/clarafi/Immune System - Fighting Infection by Clonal Selection (2009) Etsuko Uno wehi.tv.mp4",
+      "label": "Immune System - Fighting Infection by Clonal Selection (2009) Etsuko Uno wehi.tv.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    }
+  ],
+  "setNotes": "Tight reel: morphology + explanatory science clips only (loops/morpholib · loops/clarafi)."
+}

@@ -1,0 +1,23 @@
+{
+  "generatedAt": "2026-04-27T15:03:22.704Z",
+  "sourceDirectory": "loops/clarafi",
+  "scanConfig": {
+    "maxScanSec": 60,
+    "stepSec": 1,
+    "minCleanSec": 8,
+    "titleSkipSec": 2
+  },
+  "totalVideosScanned": 43,
+  "acceptedCount": 1,
+  "rejectedCount": 42,
+  "whitelist": [
+    {
+      "url": "loops/clarafi/Metastatic bone pain.mp4",
+      "label": "Metastatic bone pain.mp4",
+      "clipStartSec": 49.8,
+      "clipEndSec": 59.8,
+      "cleanDurationSec": 10,
+      "durationSec": 360.04
+    }
+  ]
+}

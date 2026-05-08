@@ -105,6 +105,7 @@ button:hover {
     <script src="js/layers/sim_compositor.js"></script>
     <script src="infinitestreams/p5_background_engine.js"></script>
     <script src="js/simulations/life_sim.js"></script>
+    <script src="js/simulations/hierarchical_life_sim.js"></script>
     <script src="js/simulations/kuramoto_sim.js"></script>
     <script src="js/simulations/gray_scott_sim.js"></script>
     <script src="js/simulations/physarum_sim.js"></script>
@@ -129,6 +130,13 @@ button:hover {
             <label for="videoSetManifest">Video Set Manifest:</label>
             <input type="text" id="videoSetManifest" value="sets/bio1.json" />
             <button id="loadVideoSetButton">Load Set</button>
+            <label for="videoSetPreset">Set preset:</label>
+            <select id="videoSetPreset"></select>
+            <button id="loadVideoSetPresetButton">Load Preset</button>
+            <label>
+              <input type="checkbox" id="basicVideoModeToggle" />
+              basic mode (videos only)
+            </label>
           </div>
           <div class="file-input-group">
             <label for="effectTimelinePhases">Effect phases (override):</label>
@@ -148,9 +156,29 @@ button:hover {
             <select id="moleculeRenderMode">
               <option value="coherent" selected>coherent</option>
               <option value="expressive">expressive</option>
+              <option value="rewrite">rewrite</option>
+            </select>
+            <label for="effectLayoutMode">FX layout:</label>
+            <select id="effectLayoutMode">
+              <option value="spheres" selected>spheres</option>
+              <option value="thirds-2d">thirds-2d</option>
             </select>
             <button id="loadMoleculeButton">Load Molecule</button>
             <span id="moleculeStatus">embedded water</span>
+          </div>
+          <div class="file-input-group">
+            <label for="wordCloudListSelect">Word list:</label>
+            <select id="wordCloudListSelect"></select>
+            <input type="text" id="wordCloudListNameInput" value="set-01" placeholder="new list name" />
+            <button id="saveWordCloudListButton">Save List</button>
+            <label for="wordCloudPhrasesInput">Word cloud phrases:</label>
+            <input
+              type="text"
+              id="wordCloudPhrasesInput"
+              value=""
+              placeholder="comma-separated phrases"
+            />
+            <button id="applyWordCloudPhrasesButton">Apply Words</button>
           </div>
           <div class="file-input-group">
             <label for="backdropOpacityInput">Backdrop opacity:</label>
@@ -202,11 +230,33 @@ button:hover {
             <label for="backdropTileCount">tiles:</label>
             <input type="range" id="backdropTileCount" min="1" max="5" step="0.1" value="2.6" />
             <label>
+              <input type="checkbox" id="backdropOriginalFidelity" checked />
+              original p5
+            </label>
+            <label>
               <input type="checkbox" id="fullScreenVideoBgToggle" />
               full-screen VJ bg
             </label>
             <label for="fullScreenVideoBgOpacity">video opacity:</label>
             <input type="range" id="fullScreenVideoBgOpacity" min="0" max="1" step="0.01" value="0.9" />
+            <label>
+              <input type="checkbox" id="fibonacciMosaicToggle" />
+              fibonacci video mosaic
+            </label>
+            <label>
+              <input type="checkbox" id="fibonacciMosaicFxToggle" />
+              mosaic 2d effects in frames
+            </label>
+            <label for="fibonacciMosaicOpacity">mosaic opacity:</label>
+            <input type="range" id="fibonacciMosaicOpacity" min="0" max="1" step="0.01" value="0.65" />
+            <label>
+              <input type="checkbox" id="infinitestreamsEmbedToggle" />
+              embed infinitestreams.io
+            </label>
+            <label for="infinitestreamsEmbedOpacity">embed opacity:</label>
+            <input type="range" id="infinitestreamsEmbedOpacity" min="0" max="1" step="0.01" value="0.7" />
+            <label for="infinitestreamsEmbedUrl">embed URL:</label>
+            <input type="text" id="infinitestreamsEmbedUrl" value="https://infinitestreams.io/" />
           </div>
           <div class="file-input-group">
             <button id="startExportButton">Start Export</button>
@@ -266,8 +316,23 @@ button:hover {
         let videoBackdropQuad;
         let videoBackdropMaterial;
         let videoBackdropTexture;
+        let videoBackdropCrop = null;
         let fullScreenVideoBgEnabled = false;
         let fullScreenVideoBgOpacity = 0.9;
+        let fibonacciMosaicEnabled = false;
+        let fibonacciMosaicFxEnabled = false;
+        let fibonacciMosaicOpacity = 0.65;
+        let fibonacciMosaicLayer = null;
+        let fibonacciMosaicTiles = [];
+        let fibonacciMosaicLastSwapMs = 0;
+        let fibonacciMosaicFxIndex = 0;
+        let infinitestreamsEmbedEnabled = false;
+        let infinitestreamsEmbedOpacity = 0.7;
+        let infinitestreamsEmbedUrl = 'https://infinitestreams.io/';
+        let infinitestreamsEmbedBlendMode = 'screen';
+        let infinitestreamsEmbedIframe = null;
+        let basicVideoModeEnabled = false;
+        let basicVideoModeSnapshot = null;
         let backgroundEngine;
         let backgroundBackdropQuad;
         let backgroundBackdropMaterial;
@@ -310,11 +375,13 @@ button:hover {
         let backdropScrollSpeed = 0.012;
         let backdropTileEnabled = true;
         let backdropTileCount = 2.6;
+        let backdropOriginalFidelity = true;
         let lastBackdropTickMs = performance.now();
         let lifeSideSphere;
         let kuramotoSideSphere;
         let moleculeSideSphere;
         let moleculeSimulationPlugin;
+        let hierarchicalLifePlugin;
         let grayScottPrimaryPlugin;
         let grayScottAltPlugin;
         let grayScottPresetName = 'nexus';
@@ -323,13 +390,21 @@ button:hover {
         let effectTimelineStartMs = null;
         let effectTimelineEnabled = true;
         let lastAppliedEffectPhase = '';
-        let activeEffectProfile = 'classic';
-        const VALID_EFFECT_PROFILES = new Set(['classic', 'life', 'kuramoto', 'gray-scott', 'physarum', 'molecule', 'stacked']);
+        let activeEffectProfile = 'molecule';
+        const VALID_EFFECT_PROFILES = new Set(['classic', 'life', 'hierarchical-life', 'kuramoto', 'gray-scott', 'physarum', 'molecule', 'rewrite', 'word-cloud', 'stacked']);
+        let vjSpeedMultiplier = 1;
+        let vjPaused = false;
+        let vjWs = null;
+        let vjRemotePollTimer = null;
+        let vjRemoteLastFingerprint = '';
+        let vjRemotePollInFlight = false;
         let simulationShellBaseOpacity = 0.24;
         let effectActivationFactor = 1.0;
         let effectTimelinePlan = [
             { name: 'classic', durationSec: 16 },
             { name: 'life', durationSec: 16 },
+            { name: 'classic', durationSec: 16 },
+            { name: 'hierarchical-life', durationSec: 16 },
             { name: 'classic', durationSec: 16 },
             { name: 'kuramoto', durationSec: 16 },
             { name: 'classic', durationSec: 16 },
@@ -339,7 +414,43 @@ button:hover {
             { name: 'classic', durationSec: 16 },
             { name: 'molecule', durationSec: 16 },
             { name: 'classic', durationSec: 16 },
+            { name: 'word-cloud', durationSec: 16 },
+            { name: 'classic', durationSec: 16 },
             { name: 'stacked', durationSec: 16 }
+        ];
+        const DEFAULT_MOLECULE_SEQUENCE = [
+            'water',
+            'methane',
+            'ethane',
+            'propane',
+            'butane',
+            'methanol',
+            'ethanol',
+            'isopropanol',
+            'acetone',
+            'formaldehyde',
+            'acetic acid',
+            'formic acid',
+            'urea',
+            'benzene',
+            'toluene',
+            'phenol',
+            'aniline',
+            'glucose',
+            'fructose',
+            'caffeine',
+            'aspirin',
+            'acetaminophen',
+            'ibuprofen',
+            'nicotine',
+            'dopamine',
+            'serotonin',
+            'adenine',
+            'guanine',
+            'cytosine',
+            'thymine',
+            'uracil',
+            'cholesterol'
         ];
         let sceneRecorder = null;
         let sceneRecorderChunks = [];
@@ -359,6 +470,48 @@ button:hover {
         let moleculeInterBondLines;
         let moleculeInterBondMaterial;
         let moleculeRenderMode = 'coherent';
+        let effectLayoutMode = 'spheres';
+        let effectThirdPanels = [];
+        let moleculeRewriteState = 0;
+        let moleculeLoadInFlight = false;
+        let lastMoleculeBeatAdvanceMs = 0;
+        const MOLECULE_BEAT_ADVANCE_COOLDOWN_MS = 420;
+        let effectProfileActivatedMs = performance.now();
+        const EFFECT_COLOR_FADE_IN_MS = 14000;
+        let wordCloudLayer = null;
+        let wordCloudItems = [];
+        const WORD_CLOUD_STORAGE_KEY = 'hypermuse-wordcloud-lists-v1';
+        const DEFAULT_WORD_CLOUD_LIST_NAME = 'bioelectric-core-v1';
+        const DEFAULT_WORD_CLOUD_PHRASES = [
+            'Biocode', 'Anatomical Homeostasis', 'Basal Cognition', 'Bioelectric Code', 'Bioelectricity',
+            'Collective Intelligence', 'Connexins / Innexins', 'Depolarization / Hyperpolarization',
+            'Diverse Intelligence', 'Electroceuticals', 'Gap Junctions', 'Ion Channels',
+            'Morphogenetic Code', 'Morphospace', 'Pattern Memory', 'Synthetic Morphology',
+            'Vmem (membrane voltage)', 'Xenobots', 'Active Inference', 'Animated Mathematics',
+            'Apeiron / Khora', 'Attractor / Attractor Landscape', 'Biological Relativity',
+            'Boundary / Markov Blanket', 'Category Theory', 'Cognitive Light Cone',
+            'Cognitive Platonism / Cognitive Construct', 'Computation', 'Constraint / Form',
+            'Constructor Theory', 'Formal Causality', 'Identity (axiomatic operator)', 'Ingression',
+            'Latent Platonic Space', 'Lego Hypothesis', 'Multiscale Competency Architecture (MCA)',
+            'Ontogenetic Alternative', 'Platonic Representation Hypothesis', 'Polycomputation',
+            'Representational Convergence', 'Ruliad', 'Spherical Causation',
+            'Substrate-dependent Mathematics Hypothesis', 'TAME (Technological Approach to Mind Everywhere)',
+            'Unified Factored Representations (UFR)', 'Universal Geometry of Embeddings',
+            'Virtual Governor', 'Graph Grammars', 'String-regulated Rewriting', 'Graph Rewriting',
+            'Regulatory Strings', 'Formal Languages', 'Graph-encoded Phenotypes',
+            'Mathematical Graph Formalism', 'Morphological Graphs', 'Nodes and Edges',
+            'Graph Derivation', 'Graph Edit Distance', 'Functional Ontology', 'Phenotype Formalization',
+            'Planform', 'Limbform', 'PlanGexQ', 'Reference Morphology', 'Manipulation Tree',
+            'Computational Morphology', 'Biological Shape Modeling', 'Morphogenesis', 'Pattern Formation',
+            'Regeneration', 'Planarian Regeneration', 'Limb Regeneration', 'Developmental Biology',
+            'Systems Biology', 'Gene Regulatory Networks', 'Dynamic Spatial Models',
+            'Spatial Gene Expression', 'Reverse-engineering Regeneration', 'Automated Model Discovery',
+            'In Silico Experiments', 'Machine Learning Inference', 'Synthetic Biology',
+            'Morphological Encoding'
+        ];
+        let wordCloudLists = {};
+        let activeWordCloudListName = DEFAULT_WORD_CLOUD_LIST_NAME;
+        let wordCloudPhrases = DEFAULT_WORD_CLOUD_PHRASES.slice();
 
         let captureInterval = null;
         let animationStarted = false;
@@ -385,7 +538,10 @@ button:hover {
 
 
         let container = document.getElementById('container');
-        let demoMode = (new URLSearchParams(window.location.search)).get('demo') === '1';
+        const demoBootSearch = new URLSearchParams(window.location.search);
+        let demoMode = demoBootSearch.get('demo') === '1';
+        /** Hide bottom debug ticker in demo (e.g. Playwright exports: ?demo=1&hideoverlay=1). */
+        const hideDemoFxOverlay = demoBootSearch.get('hideoverlay') === '1';
 
         function resizeRendererLayout() {
             if (demoMode) {
@@ -425,6 +581,7 @@ button:hover {
             renderer.domElement.style.position = 'fixed';
             renderer.domElement.style.left = '0';
             renderer.domElement.style.top = '0';
+            renderer.domElement.style.zIndex = '1';
             resizeRendererLayout();
             updateEffectOverlay();
         }
@@ -574,6 +731,12 @@ button:hover {
             if (!laneBaseSpheres || laneBaseSpheres.length === 0) {
                 return;
             }
+            if (effectLayoutMode === 'thirds-2d') {
+                for (let i = 0; i < laneBaseSpheres.length; i++) {
+                    laneBaseSpheres[i].visible = false;
+                }
+                return;
+            }
             const classicRecentlyActive = (nowMs - lastClassicPolygonMs) < 1400;
             let targetOpacity = 0.018;
             if (activeEffectProfile === 'classic') {
@@ -582,11 +745,285 @@ button:hover {
                 targetOpacity = 0.026;
             }
             for (let i = 0; i < laneBaseSpheres.length; i++) {
+                laneBaseSpheres[i].visible = true;
                 const material = laneBaseSpheres[i].material;
                 if (!material) {
                     continue;
                 }
                 material.opacity += (targetOpacity - material.opacity) * 0.08;
+            }
+        }
+
+        function ensureWordCloudLayer() {
+            if (wordCloudLayer) {
+                return;
+            }
+            wordCloudLayer = document.createElement('div');
+            wordCloudLayer.style.position = 'fixed';
+            wordCloudLayer.style.left = '0';
+            wordCloudLayer.style.top = '0';
+            wordCloudLayer.style.width = '100vw';
+            wordCloudLayer.style.height = '100vh';
+            wordCloudLayer.style.pointerEvents = 'none';
+            wordCloudLayer.style.zIndex = '3';
+            wordCloudLayer.style.overflow = 'hidden';
+            wordCloudLayer.style.display = 'none';
+            document.body.appendChild(wordCloudLayer);
+        }
+
+        function normalizeWordCloudPhrases(input) {
+            if (Array.isArray(input)) {
+                return input.map((p) => String(p || '').trim()).filter(Boolean);
+            }
+            return String(input || '')
+                .split(',')
+                .map((p) => p.trim())
+                .filter(Boolean);
+        }
+
+        function getDefaultWordCloudLists() {
+            return {
+                [DEFAULT_WORD_CLOUD_LIST_NAME]: DEFAULT_WORD_CLOUD_PHRASES.slice(),
+                'synthetic-bio-mit-v1': [
+                    'MIT Media Lab', 'Media Arts and Sciences', 'Community Biotechnology Initiative',
+                    'How to Grow Almost Anything', 'HTGAA', 'Democratizing Synthetic Biology',
+                    'Synthetic Biology Literacy', 'Global Synthetic Biology Education', 'Hybrid Distance Learning',
+                    'Cloud Labs', 'Robot Assisted Labs', 'Remote Wet Lab Protocols', 'Biology Through Code',
+                    'Liquid Handling Robots', 'Laboratory Automation', 'Hands On Bioeducation',
+                    'Global Community Bio Summit', 'Community Biology', 'DIY Biology', 'Biohacking',
+                    'Bioethics', 'Biosafety', 'Safe Biotechnology', 'Living Systems Creativity',
+                    'E coli Transformation', 'Fluorescent E coli', 'Nanopore Sequencing', 'Genetic Circuits',
+                    'Protein Design', 'Genome Engineering', 'Next Generation Gene Synthesis', 'DNA Synthesis',
+                    'De Novo DNA Synthesis', 'Rapid DNA Fabrication', 'Synthetic DNA', 'DNA Constructs',
+                    'Gene Assembly', 'High Throughput Gene Synthesis', 'Silicon Chip DNA Synthesis',
+                    'BioFab Platform', 'Molecular Machines Group', 'Gen9', 'DNA Error Correction',
+                    'Metabolic Pathway Engineering', 'Programmable Microorganisms', 'Engineered Microbes',
+                    'Microbial Pigments', 'Scent Producing Bacteria', 'Bacterial Bioart', 'Biofabrication',
+                    'Bioprinting', 'Microfluidics', 'Bioproduction', 'Bioreactors', 'Aroma Compound Production',
+                    'Viruslike Protein Shells', 'Drug Delivery', 'Living Materials', 'Hybrid Living Materials',
+                    'Biointegrated Design', '3D Bioprinting', 'Multimaterial 3D Printing',
+                    'Engineered Bacteria', 'Chemical Signaling', 'Microbial Fluorescence',
+                    'Living Cells on Printed Objects', 'Therapeutic Compounds', 'Responsive Biomaterials',
+                    'Mediated Matter', 'Synthetic Biology and Design', 'Amino Labs', 'DNA Playground',
+                    'Bio Explorer', 'Synthetic Biology Kits', 'Bio Education Kits', 'Engineering Microbes',
+                    'Sculpting Evolution', 'Kevin Esvelt', 'Advancing Biotechnology Safely', 'Directed Evolution',
+                    'PACE', 'PRANCE', 'Robotics Assisted Evolution', 'Machine Learning Biodesign',
+                    'Molecular Tool Evolution', 'CRISPR', 'Genome Editing', 'Gene Drives',
+                    'Reversible Gene Drives', 'Daisy Drive', 'Ecological Engineering',
+                    'Community Guided Ecological Engineering', 'Mice Against Ticks', 'White Footed Mice',
+                    'Lyme Disease Prevention', 'Wild Population Editing', 'Ecosystem Editing',
+                    'Biotechnology Governance', 'Responsible Innovation', 'Information Hazards',
+                    'DNA Synthesis Screening', 'Cryptographic Screening', 'SecureDNA',
+                    'Privacy Preserving Screening', 'Clean DNA Market', 'Biosecurity', 'Pandemic Prevention',
+                    'Catastrophic Biorisk', 'Nucleic Acid Observatory', 'Metagenomic Sequencing',
+                    'Pathogen Detection', 'Global Biological Threats', 'Genetic Attribution',
+                    'Open Science with Safeguards', 'Synthetic Biology Policy', 'Biodesign',
+                    'Living Technology', 'Biology Based Manufacturing', 'Smart Materials',
+                    'Biological Computing', 'Distributed Biofoundries', 'Community Fab Labs',
+                    'Global Learning Nodes', 'Bioenthusiasts', 'Artists Engineers Designers',
+                    'Synthetic Biology Accessibility', 'Biological Design Tools'
+                ],
+                'ai-bio-futures-v1': [
+                    'Programmable Biology', 'AI x Biology', 'Digital Biology',
+                    'Foundation Models for Biology', 'Multimodal Biological AI', 'Predictive Biological Design',
+                    'Virtual Biology', 'Multiscale Biology', 'Cells to Patients Translation',
+                    'AI Powered Drug Discovery', 'Protein Design', 'Molecular Design', 'RNA Design',
+                    'Reading Writing and Editing DNA', 'Genome Editing', 'Gene Synthesis',
+                    'Synthetic Genomes', 'Genetic Code Rewriting', 'Non Canonical Biopolymers',
+                    'Engineered Human Therapies', 'Cell and Gene Therapy', 'Precision Medicine',
+                    'Diagnostics', 'Engineered Therapeutics', 'Longevity', 'Cellular Reprogramming',
+                    'Neurotech', 'Psychedelics', 'Human Health', 'Biopharma Tools and Tech',
+                    'Microbiome Engineering', 'Biomanufacturing Scale Up', 'Continuous Fermentation',
+                    'Scalable Bioprocessing', 'Real Time Bioprocess Monitoring', 'Biofoundries',
+                    'Hardware and Automation', 'Cloud Labs', 'Laboratory Automation',
+                    'High Throughput Experimentation', 'Bioeconomy', 'Bioeconomy Policy',
+                    'Regulatory Innovation', 'Business of Biology', 'Capital Markets', 'Partnering',
+                    'Commercialization', 'IP Strategy', 'Market Strategy', 'DeSci',
+                    'Decentralized Science', 'Biosecurity', 'Bioethics', 'Information Hazards',
+                    'DNA Synthesis Screening', 'Responsible Innovation', 'Planetary Health',
+                    'Sustainability', 'Climate Tech', 'Environment', 'Food and Agriculture',
+                    'Sustainable Nutrition', 'Sustainable Materials', 'Chemicals and Materials',
+                    'Consumer Products', 'Bio Enabled Manufacturing', 'Biological Computing',
+                    'Cells as Computers', 'Biological Sensing', 'Biological Decision Making',
+                    'Space Exploration', 'Synthetic Biology in Space', 'Biodesign',
+                    'Living Materials', 'Biofabrication', 'Engineered Microbes', 'Bio Based Manufacturing'
+                ]
+            };
+        }
+
+        function loadWordCloudLists() {
+            const defaults = getDefaultWordCloudLists();
+            let parsed = {};
+            try {
+                const raw = window.localStorage ? window.localStorage.getItem(WORD_CLOUD_STORAGE_KEY) : null;
+                if (raw) {
+                    const obj = JSON.parse(raw);
+                    if (obj && typeof obj === 'object') {
+                        parsed = obj;
+                    }
+                }
+            } catch (error) {
+                console.warn(error);
+            }
+            const merged = { ...defaults };
+            for (const [name, values] of Object.entries(parsed)) {
+                const normalized = normalizeWordCloudPhrases(values);
+                if (!name || normalized.length === 0) continue;
+                merged[String(name)] = normalized;
+            }
+            wordCloudLists = merged;
+            if (!wordCloudLists[activeWordCloudListName]) {
+                activeWordCloudListName = Object.keys(wordCloudLists)[0] || DEFAULT_WORD_CLOUD_LIST_NAME;
+            }
+        }
+
+        function persistWordCloudLists() {
+            try {
+                if (!window.localStorage) return;
+                window.localStorage.setItem(WORD_CLOUD_STORAGE_KEY, JSON.stringify(wordCloudLists));
+            } catch (error) {
+                console.warn(error);
+            }
+        }
+
+        function refreshWordCloudListSelect() {
+            const select = document.getElementById('wordCloudListSelect');
+            if (!select) return;
+            select.innerHTML = '';
+            const names = Object.keys(wordCloudLists).sort((a, b) => a.localeCompare(b));
+            for (const name of names) {
+                const option = document.createElement('option');
+                option.value = name;
+                option.textContent = name;
+                select.appendChild(option);
+            }
+            if (wordCloudLists[activeWordCloudListName]) {
+                select.value = activeWordCloudListName;
+            } else if (names.length > 0) {
+                activeWordCloudListName = names[0];
+                select.value = names[0];
+            }
+        }
+
+        function applyWordCloudList(name) {
+            const key = String(name || '').trim();
+            if (!key || !wordCloudLists[key]) return false;
+            activeWordCloudListName = key;
+            setWordCloudPhrases(wordCloudLists[key]);
+            const select = document.getElementById('wordCloudListSelect');
+            if (select) {
+                select.value = activeWordCloudListName;
+            }
+            const input = document.getElementById('wordCloudPhrasesInput');
+            if (input) {
+                input.value = wordCloudPhrases.join(', ');
+            }
+            updateEffectOverlay();
+            return true;
+        }
+        window.setWordCloudList = applyWordCloudList;
+
+        function saveCurrentWordCloudList(name) {
+            const key = String(name || '').trim();
+            if (!key) return false;
+            const normalized = normalizeWordCloudPhrases(wordCloudPhrases);
+            if (normalized.length === 0) return false;
+            wordCloudLists[key] = normalized;
+            activeWordCloudListName = key;
+            persistWordCloudLists();
+            refreshWordCloudListSelect();
+            updateEffectOverlay();
+            return true;
+        }
+        window.saveWordCloudList = saveCurrentWordCloudList;
+
+        function rebuildWordCloudItems() {
+            ensureWordCloudLayer();
+            if (!wordCloudLayer) {
+                return;
+            }
+            wordCloudLayer.innerHTML = '';
+            wordCloudItems = [];
+            const phrases = Array.isArray(wordCloudPhrases) && wordCloudPhrases.length > 0
+                ? wordCloudPhrases
+                : ['morphosonic'];
+            for (let i = 0; i < phrases.length; i++) {
+                const el = document.createElement('div');
+                el.textContent = phrases[i];
+                el.style.position = 'absolute';
+                el.style.whiteSpace = 'nowrap';
+                el.style.fontFamily = 'Arial, sans-serif';
+                el.style.fontWeight = '700';
+                el.style.letterSpacing = '0.02em';
+                const baseSize = 20 + Math.random() * 24;
+                el.style.fontSize = `${baseSize.toFixed(1)}px`;
+                el.style.color = i % 2 === 0 ? 'rgba(158,255,220,0.88)' : 'rgba(178,236,255,0.84)';
+                el.style.textShadow = '0 0 10px rgba(88, 255, 212, 0.35)';
+                const x = Math.random() * Math.max(200, window.innerWidth - 240);
+                const y = Math.random() * Math.max(80, window.innerHeight - 120);
+                wordCloudLayer.appendChild(el);
+                const rect = el.getBoundingClientRect();
+                wordCloudItems.push({
+                    el,
+                    x,
+                    y,
+                    vx: (Math.random() * 130) - 65,
+                    vy: (Math.random() * 90) - 45,
+                    baseSize,
+                    w: Math.max(40, rect.width),
+                    h: Math.max(16, rect.height)
+                });
+            }
+        }
+
+        function setWordCloudPhrases(input) {
+            const next = normalizeWordCloudPhrases(input);
+            if (next.length === 0) {
+                return;
+            }
+            wordCloudPhrases = next;
+            rebuildWordCloudItems();
+            const inputEl = document.getElementById('wordCloudPhrasesInput');
+            if (inputEl) {
+                inputEl.value = wordCloudPhrases.join(', ');
+            }
+            updateEffectOverlay();
+        }
+        window.setWordCloudPhrases = setWordCloudPhrases;
+
+        function updateWordCloudOverlay(dt, audioFrame) {
+            if (!wordCloudLayer) {
+                return;
+            }
+            const enabled = activeEffectProfile === 'word-cloud';
+            wordCloudLayer.style.display = enabled ? 'block' : 'none';
+            if (!enabled || wordCloudItems.length === 0) {
+                return;
+            }
+            const dts = Math.max(0.001, Math.min(0.05, Number(dt) || 0.016));
+            const energy = audioFrame ? (audioFrame.energy || 0) : 0;
+            const beatBoost = audioFrame && audioFrame.beat ? 0.22 : 0;
+            const vw = Math.max(320, window.innerWidth);
+            const vh = Math.max(220, window.innerHeight);
+            for (let i = 0; i < wordCloudItems.length; i++) {
+                const item = wordCloudItems[i];
+                const speedScale = 1 + (energy * 0.9);
+                item.x += item.vx * dts * speedScale;
+                item.y += item.vy * dts * speedScale;
+                const maxX = Math.max(8, vw - item.w - 8);
+                const maxY = Math.max(8, vh - item.h - 8);
+                if (item.x <= 0 || item.x >= maxX) {
+                    item.vx *= -1;
+                    item.x = Math.max(0, Math.min(maxX, item.x));
+                }
+                if (item.y <= 0 || item.y >= maxY) {
+                    item.vy *= -1;
+                    item.y = Math.max(0, Math.min(maxY, item.y));
+                }
+                const size = item.baseSize * (1 + (energy * 0.45) + beatBoost);
+                item.el.style.fontSize = `${size.toFixed(1)}px`;
+                item.el.style.opacity = `${Math.min(1, 0.62 + (energy * 0.7) + beatBoost)}`;
+                item.el.style.transform = `translate(${item.x.toFixed(1)}px, ${item.y.toFixed(1)}px)`;
             }
         }
 
@@ -699,7 +1136,9 @@ button:hover {
             if (!moleculeRenderGroup || !moleculeSimulationPlugin || !moleculeSimulationPlugin.getRenderData) {
                 return;
             }
-            const visible = activeEffectProfile === 'molecule' || activeEffectProfile === 'stacked';
+            const visible = activeEffectProfile === 'molecule'
+                || activeEffectProfile === 'rewrite'
+                || activeEffectProfile === 'stacked';
             moleculeRenderGroup.visible = visible;
             if (!visible) {
                 return;
@@ -715,7 +1154,13 @@ button:hover {
                 rebuildMoleculeBaseLayout(renderData);
             }
 
-            const clusterCount = activeEffectProfile === 'molecule' ? MOLECULE_CLUSTER_COUNT : Math.max(3, MOLECULE_CLUSTER_COUNT - 2);
+            const isRewriteMode = activeEffectProfile === 'rewrite' || moleculeRenderMode === 'rewrite';
+            if (isRewriteMode && audioFrame && audioFrame.beat) {
+                moleculeRewriteState = (moleculeRewriteState + 1) % 4;
+            }
+            const clusterCount = isRewriteMode
+                ? 6
+                : (activeEffectProfile === 'molecule' ? MOLECULE_CLUSTER_COUNT : Math.max(3, MOLECULE_CLUSTER_COUNT - 2));
             ensureMoleculeAtomMeshes(atomCount, clusterCount);
 
             const activeSignals = new Array(atomCount).fill(0);
@@ -732,6 +1177,127 @@ button:hover {
                 totalSignal += signal;
             }
             const meanSignal = totalSignal / Math.max(1, atomCount);
+
+            if (isRewriteMode) {
+                const now = performance.now();
+                const laneCenters = [-0.72, 0, 0.72]; // high, mid, low lanes left->right
+                const laneEnergies = [high, mid, low];
+                const chainsPerLane = 2;
+                const chainSpread = 0.14;
+                const atomWorldPositions = Array.from({ length: clusterCount }, () => new Array(atomCount));
+                const clusterCenters = [];
+
+                for (let lane = 0; lane < laneCenters.length; lane++) {
+                    for (let chain = 0; chain < chainsPerLane; chain++) {
+                        const clusterIndex = (lane * chainsPerLane) + chain;
+                        const laneEnergy = laneEnergies[lane] || 0;
+                        const lanePhase = (now * 0.0012 * (0.6 + laneEnergy)) + (chain * 1.7);
+                        const center = new THREE.Vector3(
+                            laneCenters[lane] + ((chain - 0.5) * chainSpread),
+                            Math.sin(lanePhase) * (0.12 + (laneEnergy * 0.2)),
+                            Math.cos(lanePhase * 0.7) * (0.08 + (laneEnergy * 0.16))
+                        );
+                        clusterCenters.push(center);
+                        const rotation = (lanePhase * 0.8) + (moleculeRewriteState * 0.45);
+                        const cosR = Math.cos(rotation);
+                        const sinR = Math.sin(rotation);
+                        const chainScale = 0.72 + (laneEnergy * 0.32) + beatBoost;
+
+                        for (let atomIndex = 0; atomIndex < atomCount; atomIndex++) {
+                            const meshIndex = (clusterIndex * atomCount) + atomIndex;
+                            const mesh = moleculeAtomMeshes[meshIndex];
+                            if (!mesh) continue;
+                            const base = moleculeBaseAtomPositions[atomIndex] || new THREE.Vector3();
+                            const rotatedX = (base.x * cosR) - (base.y * sinR);
+                            const rotatedY = (base.x * sinR) + (base.y * cosR);
+                            const wave = Math.sin((now * 0.0026) + (atomIndex * 0.35) + (lane * 0.9)) * (0.04 + (high * 0.08));
+                            const targetPos = new THREE.Vector3(
+                                center.x + (rotatedX * chainScale),
+                                center.y + (rotatedY * chainScale) + wave,
+                                center.z + (base.z * chainScale)
+                            );
+                            mesh.position.lerp(targetPos, 0.48);
+                            atomWorldPositions[clusterIndex][atomIndex] = mesh.position.clone();
+
+                            const atomSignal = activeSignals[atomIndex] || 0;
+                            const atomSize = 0.055 + (atomSignal * 0.09) + beatBoost + (laneEnergy * 0.04);
+                            mesh.scale.set(atomSize, atomSize, atomSize);
+                            mesh.material.opacity = Math.min(1, 0.52 + (atomSignal * 0.42) + beatBoost + (laneEnergy * 0.12));
+                            setAtomVisual(mesh, renderData.atoms[atomIndex].symbol, atomSignal + (laneEnergy * 0.2), beatBoost);
+                        }
+                    }
+                }
+
+                const bondPairs = [];
+                if (moleculeRewriteState === 0 && Array.isArray(renderData.bonds)) {
+                    for (let i = 0; i < renderData.bonds.length; i++) {
+                        const bond = renderData.bonds[i];
+                        bondPairs.push([bond.a, bond.b]);
+                    }
+                } else if (moleculeRewriteState === 1) {
+                    for (let i = 0; i < atomCount; i++) {
+                        bondPairs.push([i, (i + 1) % atomCount]);
+                    }
+                } else if (moleculeRewriteState === 2) {
+                    for (let i = 0; i < atomCount; i += 2) {
+                        bondPairs.push([i, (i + 2) % atomCount]);
+                    }
+                } else {
+                    for (let i = 0; i < atomCount; i++) {
+                        bondPairs.push([i, (atomCount - 1 - i)]);
+                    }
+                }
+
+                const bondPositions = [];
+                for (let clusterIndex = 0; clusterIndex < clusterCount; clusterIndex++) {
+                    const clusterAtoms = atomWorldPositions[clusterIndex];
+                    for (let i = 0; i < bondPairs.length; i++) {
+                        const a = bondPairs[i][0];
+                        const b = bondPairs[i][1];
+                        if (!clusterAtoms[a] || !clusterAtoms[b]) continue;
+                        const signal = Math.max(activeSignals[a] || 0, activeSignals[b] || 0);
+                        if (signal < 0.02 && Math.random() > 0.2) continue;
+                        bondPositions.push(
+                            clusterAtoms[a].x, clusterAtoms[a].y, clusterAtoms[a].z,
+                            clusterAtoms[b].x, clusterAtoms[b].y, clusterAtoms[b].z
+                        );
+                    }
+                }
+                moleculeBondLines.geometry.setAttribute(
+                    'position',
+                    new THREE.Float32BufferAttribute(bondPositions, 3)
+                );
+                moleculeBondLines.geometry.computeBoundingSphere();
+
+                const interBondPositions = [];
+                for (let lane = 0; lane < laneCenters.length; lane++) {
+                    const base = lane * chainsPerLane;
+                    const a = clusterCenters[base];
+                    const b = clusterCenters[base + 1];
+                    if (a && b) {
+                        interBondPositions.push(a.x, a.y, a.z, b.x, b.y, b.z);
+                    }
+                    if (lane < laneCenters.length - 1) {
+                        const c = clusterCenters[base + 1];
+                        const d = clusterCenters[(lane + 1) * chainsPerLane];
+                        if (c && d) {
+                            interBondPositions.push(c.x, c.y, c.z, d.x, d.y, d.z);
+                        }
+                    }
+                }
+                moleculeInterBondLines.geometry.setAttribute(
+                    'position',
+                    new THREE.Float32BufferAttribute(interBondPositions, 3)
+                );
+                moleculeInterBondLines.geometry.computeBoundingSphere();
+
+                moleculeBondMaterial.opacity = Math.min(1, 0.58 + (meanSignal * 0.36) + (high * 0.2) + beatBoost);
+                moleculeInterBondMaterial.opacity = Math.min(1, 0.44 + (mid * 0.32) + beatBoost);
+                moleculeRenderGroup.rotation.y += 0.0005 + (mid * 0.0026);
+                moleculeRenderGroup.rotation.x = Math.sin(now / 1700) * 0.09;
+                moleculeRenderGroup.rotation.z = Math.cos(now / 1300) * 0.06;
+                return;
+            }
 
             if (moleculeRenderMode === 'coherent') {
                 const nowMs = performance.now();
@@ -779,9 +1345,9 @@ button:hover {
 
                 moleculeBondMaterial.opacity = Math.min(1, 0.7 + (meanSignal * 0.22) + (low * 0.15) + beatBoost);
                 moleculeInterBondMaterial.opacity = 0;
-                moleculeRenderGroup.rotation.y += 0.0008 + (mid * 0.0022);
-                moleculeRenderGroup.rotation.x = Math.sin(nowMs / 2600) * 0.04;
-                moleculeRenderGroup.rotation.z = Math.cos(nowMs / 3200) * 0.03;
+                moleculeRenderGroup.rotation.y += 0.00035 + (mid * 0.0012);
+                moleculeRenderGroup.rotation.x = Math.sin(nowMs / 4200) * 0.028;
+                moleculeRenderGroup.rotation.z = Math.cos(nowMs / 5100) * 0.02;
                 return;
             }
 
@@ -897,9 +1463,12 @@ button:hover {
             if (!effectOverlayElement) {
                 return;
             }
-            effectOverlayElement.style.display = demoMode ? 'block' : 'none';
+            effectOverlayElement.style.display = (demoMode && !hideDemoFxOverlay) ? 'block' : 'none';
             const phase = String(activeEffectProfile || 'classic').toUpperCase();
             let details = `Effect: ${phase} | Lanes: HIGH MID LOW`;
+            if (basicVideoModeEnabled) {
+                details = `Effect: BASIC VIDEO | Videos-only (B)`;
+            }
             if (activeEffectProfile === 'classic') {
                 const currentLoopLabel = window.__hypermuseCurrentLoopLabel
                     ? String(window.__hypermuseCurrentLoopLabel).trim()
@@ -912,15 +1481,26 @@ button:hover {
                 details += ` | GS Preset: ${String(grayScottPresetName || 'nexus').toUpperCase()}`;
             }
             details += ` | BG: ${String(backgroundScriptId || 'none').toUpperCase()}`;
+            details += ` | P5: ${backdropOriginalFidelity ? 'ORIGINAL' : 'STYLIZED'} (O)`;
             if (fullScreenVideoBgEnabled) {
                 details += ` | VJ VIDEO BG`;
             }
-            if ((activeEffectProfile === 'molecule' || activeEffectProfile === 'stacked') && moleculeSimulationPlugin && moleculeSimulationPlugin.getSummary) {
+            if (fibonacciMosaicEnabled) {
+                details += ` | FIBONACCI MOSAIC`;
+            }
+            if (infinitestreamsEmbedEnabled) {
+                details += ` | INFSTREAM EMBED`;
+            }
+            details += ` | Layout: ${effectLayoutMode === 'thirds-2d' ? 'THIRDS-2D' : 'SPHERES'}`;
+            if ((activeEffectProfile === 'molecule' || activeEffectProfile === 'rewrite' || activeEffectProfile === 'stacked') && moleculeSimulationPlugin && moleculeSimulationPlugin.getSummary) {
                 const summary = moleculeSimulationPlugin.getSummary();
                 if (summary && summary.label) {
                     details += ` | Molecule: ${summary.label}`;
                 }
                 details += ` | MolViz: ${String(moleculeRenderMode || 'coherent').toUpperCase()}`;
+            }
+            if (activeEffectProfile === 'word-cloud') {
+                details += ` | List: ${activeWordCloudListName} | Phrases: ${wordCloudPhrases.length}`;
             }
             effectOverlayElement.textContent = details;
         }
@@ -930,12 +1510,23 @@ button:hover {
             simCompositor = new HypermuseSimulationCompositor({ width: 128, height: 128 });
             // Use 500x500 logical canvas for closer parity with original infinitestreams formulas.
             // Then tile that texture to fill the screen.
-            backgroundEngine = new HypermuseP5BackgroundEngine({ width: 500, height: 500, pointScale: 0.28 });
+            backgroundEngine = new HypermuseP5BackgroundEngine({
+                width: 500,
+                height: 500,
+                strictOriginal: true,
+                originalPointScale: 1.0,
+                stylizedPointScale: 0.28
+            });
             backgroundEngine.setScript(backgroundScriptId);
             const lifePlugin = new HypermuseLifeSimulationPlugin("life-primary");
             simCompositor.registerPlugin(lifePlugin, {
                 opacity: 0.85,
                 color: [70, 180, 255]
+            });
+            hierarchicalLifePlugin = new HypermuseHierarchicalLifeSimulationPlugin("hierarchical-life-primary");
+            simCompositor.registerPlugin(hierarchicalLifePlugin, {
+                opacity: 0.05,
+                color: [96, 210, 255]
             });
             const kuramotoPlugin = new HypermuseKuramotoSimulationPlugin("kuramoto-primary");
             simCompositor.registerPlugin(kuramotoPlugin, {
@@ -1019,6 +1610,29 @@ button:hover {
             moleculeSideSphere.position.set(MOLECULE_SIDE_SPHERE_X, MOLECULE_SIDE_SPHERE_Y, SIDE_SPHERE_Z + 0.08);
             moleculeSideSphere.visible = false;
             scene.add(moleculeSideSphere);
+
+            const thirdPanelGeometry = new THREE.PlaneGeometry(0.98, 1.7);
+            const thirdPanelX = [-1.07, 0, 1.07];
+            const thirdPanelColors = [0x8df7c8, 0xb8f8ff, 0xd5ffe8];
+            effectThirdPanels = [];
+            for (let i = 0; i < thirdPanelX.length; i++) {
+                const panel = new THREE.Mesh(
+                    thirdPanelGeometry,
+                    new THREE.MeshBasicMaterial({
+                        map: simCompositor.texture,
+                        color: thirdPanelColors[i],
+                        transparent: true,
+                        opacity: 0.72,
+                        blending: THREE.AdditiveBlending,
+                        depthWrite: false,
+                        side: THREE.DoubleSide
+                    })
+                );
+                panel.position.set(thirdPanelX[i], 0, 0.14);
+                panel.visible = false;
+                scene.add(panel);
+                effectThirdPanels.push(panel);
+            }
             initMoleculeOverlay();
             setGrayScottPreset(grayScottPresetName);
         }
@@ -1102,6 +1716,37 @@ button:hover {
             } else {
                 videoBackdropQuad.scale.set(1, viewportAspect / videoAspect, 1);
             }
+            if (videoBackdropTexture) {
+                const crop = videoBackdropCrop;
+                if (crop && Number.isFinite(crop.x) && Number.isFinite(crop.y) && Number.isFinite(crop.width) && Number.isFinite(crop.height)) {
+                    const width = Math.max(0.2, Math.min(1, crop.width));
+                    const height = Math.max(0.2, Math.min(1, crop.height));
+                    const maxX = Math.max(0, 1 - width);
+                    const maxY = Math.max(0, 1 - height);
+                    const x = Math.max(0, Math.min(maxX, crop.x));
+                    const y = Math.max(0, Math.min(maxY, crop.y));
+                    videoBackdropTexture.repeat.set(width, height);
+                    videoBackdropTexture.offset.set(x, y);
+                } else {
+                    videoBackdropTexture.repeat.set(1, 1);
+                    videoBackdropTexture.offset.set(0, 0);
+                }
+                videoBackdropTexture.needsUpdate = true;
+            }
+        }
+
+        function setVideoBackdropCrop(crop = null) {
+            if (crop && typeof crop === 'object') {
+                videoBackdropCrop = {
+                    x: Number(crop.x),
+                    y: Number(crop.y),
+                    width: Number(crop.width),
+                    height: Number(crop.height)
+                };
+            } else {
+                videoBackdropCrop = null;
+            }
+            updateVideoBackdropFit();
         }
 
         function getBackdropBlendConstant(mode) {
@@ -1165,6 +1810,9 @@ button:hover {
             if (Number.isFinite(config.tileCount)) {
                 backdropTileCount = Math.max(1, Math.min(8, config.tileCount));
             }
+            if (typeof config.originalFidelity === 'boolean') {
+                backdropOriginalFidelity = config.originalFidelity;
+            }
             if (Array.isArray(config.scripts)) {
                 const normalizedScripts = config.scripts
                     .map((value) => String(value || '').trim())
@@ -1200,10 +1848,72 @@ button:hover {
             if (tileCountInput) {
                 tileCountInput.value = String(backdropTileCount);
             }
+            const originalFidelityInput = document.getElementById('backdropOriginalFidelity');
+            if (originalFidelityInput) {
+                originalFidelityInput.checked = backdropOriginalFidelity;
+            }
+            if (backgroundEngine && backgroundEngine.setOriginalFidelity) {
+                backgroundEngine.setOriginalFidelity(backdropOriginalFidelity);
+            }
             applyBackdropStyle();
             updateEffectOverlay();
         }
         window.setBackdropConfig = setBackdropConfig;
+
+        function toggleBackdropOriginalFidelity() {
+            setBackdropConfig({ originalFidelity: !backdropOriginalFidelity });
+        }
+        window.toggleBackdropOriginalFidelity = toggleBackdropOriginalFidelity;
+
+        function setBasicVideoMode(enabled) {
+            const nextEnabled = !!enabled;
+            if (nextEnabled === basicVideoModeEnabled) {
+                return;
+            }
+            if (nextEnabled) {
+                basicVideoModeSnapshot = {
+                    effectTimelineEnabled,
+                    fullScreenVideoBgEnabled,
+                    fullScreenVideoBgOpacity
+                };
+                basicVideoModeEnabled = true;
+                effectTimelineEnabled = false;
+                const timelineInput = document.getElementById('effectTimelineEnabled');
+                if (timelineInput) {
+                    timelineInput.checked = false;
+                }
+                setVideoBackgroundConfig({ enabled: true, opacity: 1 });
+                applyEffectProfile('classic');
+                lastAppliedEffectPhase = 'classic';
+                clearTransientGeometries();
+            } else {
+                basicVideoModeEnabled = false;
+                const previous = basicVideoModeSnapshot || {};
+                effectTimelineEnabled = typeof previous.effectTimelineEnabled === 'boolean'
+                    ? previous.effectTimelineEnabled
+                    : effectTimelineEnabled;
+                const timelineInput = document.getElementById('effectTimelineEnabled');
+                if (timelineInput) {
+                    timelineInput.checked = effectTimelineEnabled;
+                }
+                setVideoBackgroundConfig({
+                    enabled: typeof previous.fullScreenVideoBgEnabled === 'boolean'
+                        ? previous.fullScreenVideoBgEnabled
+                        : fullScreenVideoBgEnabled,
+                    opacity: Number.isFinite(previous.fullScreenVideoBgOpacity)
+                        ? previous.fullScreenVideoBgOpacity
+                        : fullScreenVideoBgOpacity
+                });
+                basicVideoModeSnapshot = null;
+                effectTimelineStartMs = performance.now();
+            }
+            const basicToggle = document.getElementById('basicVideoModeToggle');
+            if (basicToggle) {
+                basicToggle.checked = basicVideoModeEnabled;
+            }
+            updateEffectOverlay();
+        }
+        window.setBasicVideoMode = setBasicVideoMode;
 
         function setVideoBackgroundConfig(config = {}) {
             if (typeof config.enabled === 'boolean') {
@@ -1227,6 +1937,227 @@ button:hover {
             updateEffectOverlay();
         }
         window.setVideoBackgroundConfig = setVideoBackgroundConfig;
+        window.setVideoBackdropCrop = setVideoBackdropCrop;
+
+        function getFibonacciRects(count = 8) {
+            let x = 0;
+            let y = 0;
+            let w = 1;
+            let h = 1;
+            let horizontal = true;
+            const phi = 0.61803398875;
+            const rects = [];
+            for (let i = 0; i < count; i++) {
+                if (horizontal) {
+                    const cut = w * phi;
+                    rects.push({ x, y, w: cut, h });
+                    x += cut;
+                    w -= cut;
+                } else {
+                    const cut = h * phi;
+                    rects.push({ x, y, w, h: cut });
+                    y += cut;
+                    h -= cut;
+                }
+                horizontal = !horizontal;
+                if (w < 0.08 || h < 0.08) break;
+            }
+            rects.push({ x, y, w: Math.max(0.08, w), h: Math.max(0.08, h) });
+            return rects.slice(0, count);
+        }
+
+        function getMosaicSources() {
+            const setUrls = Array.isArray(window.__hypermuseSetUrls) ? window.__hypermuseSetUrls : [];
+            if (setUrls.length > 0) return setUrls.slice();
+            const activeSrc = window.__hypermuseCurrentLoopLabel;
+            return activeSrc ? [activeSrc] : [];
+        }
+
+        function getMosaicFxModes() {
+            return ['life', 'hierarchical-life', 'kuramoto', 'gray-scott', 'physarum', 'word-cloud'];
+        }
+
+        function ensureFibonacciMosaicLayer() {
+            if (fibonacciMosaicLayer) return;
+            fibonacciMosaicLayer = document.createElement('div');
+            fibonacciMosaicLayer.style.position = 'fixed';
+            fibonacciMosaicLayer.style.left = '0';
+            fibonacciMosaicLayer.style.top = '0';
+            fibonacciMosaicLayer.style.width = '100vw';
+            fibonacciMosaicLayer.style.height = '100vh';
+            fibonacciMosaicLayer.style.pointerEvents = 'none';
+            fibonacciMosaicLayer.style.overflow = 'hidden';
+            fibonacciMosaicLayer.style.zIndex = '0';
+            fibonacciMosaicLayer.style.display = 'none';
+            document.body.appendChild(fibonacciMosaicLayer);
+        }
+
+        function createMosaicTile(rect, sourceUrl, tileIndex) {
+            const tile = document.createElement('div');
+            tile.style.position = 'absolute';
+            tile.style.left = `${(rect.x * 100).toFixed(3)}%`;
+            tile.style.top = `${(rect.y * 100).toFixed(3)}%`;
+            tile.style.width = `${(rect.w * 100).toFixed(3)}%`;
+            tile.style.height = `${(rect.h * 100).toFixed(3)}%`;
+            tile.style.overflow = 'hidden';
+            tile.style.border = '1px solid rgba(120,255,220,0.22)';
+            tile.style.background = '#04080d';
+            fibonacciMosaicLayer.appendChild(tile);
+            const useFxTile = fibonacciMosaicFxEnabled && (tileIndex % 2 === 1);
+            if (useFxTile) {
+                const modeList = getMosaicFxModes();
+                const mode = modeList[fibonacciMosaicFxIndex % modeList.length];
+                fibonacciMosaicFxIndex += 1;
+                const iframe = document.createElement('iframe');
+                iframe.setAttribute('title', `Mosaic FX ${mode}`);
+                iframe.setAttribute('allow', 'autoplay');
+                iframe.style.width = '100%';
+                iframe.style.height = '100%';
+                iframe.style.border = '0';
+                iframe.style.pointerEvents = 'none';
+                const modeParam = encodeURIComponent(mode);
+                iframe.src = `${window.location.origin}${window.location.pathname}?demo=1&hideui=1&mode=${modeParam}&layout=thirds-2d`;
+                tile.appendChild(iframe);
+                return { tile, iframe, isFx: true, mode };
+            }
+            const video = document.createElement('video');
+            video.muted = true;
+            video.autoplay = true;
+            video.loop = true;
+            video.playsInline = true;
+            video.preload = 'auto';
+            video.style.width = '100%';
+            video.style.height = '100%';
+            video.style.objectFit = 'cover';
+            video.src = sourceUrl || '';
+            tile.appendChild(video);
+            const tryPlay = () => video.play().catch(() => {});
+            video.addEventListener('canplay', tryPlay, { once: true });
+            tryPlay();
+            return { tile, video, isFx: false };
+        }
+
+        function rebuildFibonacciMosaicTiles() {
+            ensureFibonacciMosaicLayer();
+            if (!fibonacciMosaicLayer) return;
+            fibonacciMosaicLayer.innerHTML = '';
+            fibonacciMosaicTiles = [];
+            const sources = getMosaicSources();
+            if (sources.length === 0) return;
+            const rects = getFibonacciRects(8);
+            for (let i = 0; i < rects.length; i++) {
+                const src = sources[i % sources.length];
+                fibonacciMosaicTiles.push(createMosaicTile(rects[i], src, i));
+            }
+        }
+
+        function setFibonacciMosaicConfig(config = {}) {
+            if (typeof config.enabled === 'boolean') {
+                fibonacciMosaicEnabled = !!config.enabled;
+            }
+            if (typeof config.fx === 'boolean') {
+                fibonacciMosaicFxEnabled = !!config.fx;
+                fibonacciMosaicTiles = [];
+            }
+            if (Number.isFinite(config.opacity)) {
+                fibonacciMosaicOpacity = Math.max(0, Math.min(1, Number(config.opacity)));
+            }
+            ensureFibonacciMosaicLayer();
+            if (fibonacciMosaicLayer) {
+                if (fibonacciMosaicTiles.length === 0 && fibonacciMosaicEnabled) {
+                    rebuildFibonacciMosaicTiles();
+                }
+                fibonacciMosaicLayer.style.display = fibonacciMosaicEnabled ? 'block' : 'none';
+                fibonacciMosaicLayer.style.opacity = fibonacciMosaicEnabled ? String(fibonacciMosaicOpacity) : '0';
+            }
+            const toggle = document.getElementById('fibonacciMosaicToggle');
+            if (toggle) toggle.checked = fibonacciMosaicEnabled;
+            const fxToggle = document.getElementById('fibonacciMosaicFxToggle');
+            if (fxToggle) fxToggle.checked = fibonacciMosaicFxEnabled;
+            const opacityInput = document.getElementById('fibonacciMosaicOpacity');
+            if (opacityInput) opacityInput.value = String(fibonacciMosaicOpacity);
+            if (renderer && renderer.domElement) {
+                renderer.domElement.style.zIndex = '1';
+            }
+            updateEffectOverlay();
+        }
+        window.setFibonacciMosaic = setFibonacciMosaicConfig;
+
+        function updateFibonacciMosaic(nowMs = performance.now()) {
+            if (!fibonacciMosaicEnabled || fibonacciMosaicTiles.length === 0) return;
+            if ((nowMs - fibonacciMosaicLastSwapMs) < 7000) return;
+            fibonacciMosaicLastSwapMs = nowMs;
+            const sources = getMosaicSources();
+            if (sources.length === 0) return;
+            const tile = fibonacciMosaicTiles[Math.floor(Math.random() * fibonacciMosaicTiles.length)];
+            if (!tile || tile.isFx || !tile.video) return;
+            const nextSrc = sources[Math.floor(Math.random() * sources.length)];
+            if (!nextSrc || tile.video.src.endsWith(nextSrc)) return;
+            tile.video.src = nextSrc;
+            tile.video.play().catch(() => {});
+        }
+
+        function ensureInfinitestreamsEmbedLayer() {
+            if (infinitestreamsEmbedIframe) {
+                return;
+            }
+            infinitestreamsEmbedIframe = document.createElement('iframe');
+            infinitestreamsEmbedIframe.setAttribute('title', 'Infinitestreams Embed');
+            infinitestreamsEmbedIframe.setAttribute('allow', 'autoplay; fullscreen');
+            infinitestreamsEmbedIframe.style.position = 'fixed';
+            infinitestreamsEmbedIframe.style.left = '0';
+            infinitestreamsEmbedIframe.style.top = '0';
+            infinitestreamsEmbedIframe.style.width = '100vw';
+            infinitestreamsEmbedIframe.style.height = '100vh';
+            infinitestreamsEmbedIframe.style.border = '0';
+            infinitestreamsEmbedIframe.style.pointerEvents = 'none';
+            infinitestreamsEmbedIframe.style.opacity = '0';
+            infinitestreamsEmbedIframe.style.mixBlendMode = infinitestreamsEmbedBlendMode;
+            infinitestreamsEmbedIframe.style.zIndex = '0';
+            infinitestreamsEmbedIframe.style.display = 'none';
+            document.body.appendChild(infinitestreamsEmbedIframe);
+        }
+
+        function setInfinitestreamsEmbedConfig(config = {}) {
+            if (typeof config.enabled === 'boolean') {
+                infinitestreamsEmbedEnabled = !!config.enabled;
+            }
+            if (Number.isFinite(config.opacity)) {
+                infinitestreamsEmbedOpacity = Math.max(0, Math.min(1, Number(config.opacity)));
+            }
+            if (typeof config.url === 'string' && String(config.url).trim()) {
+                infinitestreamsEmbedUrl = String(config.url).trim();
+            }
+            if (typeof config.blendMode === 'string' && String(config.blendMode).trim()) {
+                infinitestreamsEmbedBlendMode = String(config.blendMode).trim();
+            }
+            ensureInfinitestreamsEmbedLayer();
+            if (infinitestreamsEmbedIframe) {
+                if (infinitestreamsEmbedIframe.src !== infinitestreamsEmbedUrl) {
+                    infinitestreamsEmbedIframe.src = infinitestreamsEmbedUrl;
+                }
+                infinitestreamsEmbedIframe.style.display = infinitestreamsEmbedEnabled ? 'block' : 'none';
+                infinitestreamsEmbedIframe.style.opacity = infinitestreamsEmbedEnabled ? String(infinitestreamsEmbedOpacity) : '0';
+                infinitestreamsEmbedIframe.style.mixBlendMode = infinitestreamsEmbedBlendMode;
+            }
+            const toggle = document.getElementById('infinitestreamsEmbedToggle');
+            if (toggle) {
+                toggle.checked = infinitestreamsEmbedEnabled;
+            }
+            const opacityInput = document.getElementById('infinitestreamsEmbedOpacity');
+            if (opacityInput) {
+                opacityInput.value = String(infinitestreamsEmbedOpacity);
+            }
+            const urlInput = document.getElementById('infinitestreamsEmbedUrl');
+            if (urlInput && urlInput.value !== infinitestreamsEmbedUrl) {
+                urlInput.value = infinitestreamsEmbedUrl;
+            }
+            if (renderer && renderer.domElement) {
+                renderer.domElement.style.zIndex = '1';
+            }
+            updateEffectOverlay();
+        }
+        window.setInfinitestreamsEmbed = setInfinitestreamsEmbedConfig;
 
         function advanceBackgroundScriptSequence() {
             if (!backgroundEngine || !Array.isArray(backgroundScriptSequence) || backgroundScriptSequence.length === 0) {
@@ -1257,20 +2188,48 @@ button:hover {
             if (!simulationShell) {
                 return;
             }
+            const thirdsLayout = effectLayoutMode === 'thirds-2d';
             const isClassic = activeEffectProfile === 'classic';
             const isLife = activeEffectProfile === 'life';
+            const isHierLife = activeEffectProfile === 'hierarchical-life';
             const isKuramoto = activeEffectProfile === 'kuramoto';
             const isGrayScott = activeEffectProfile === 'gray-scott';
             const isPhysarum = activeEffectProfile === 'physarum';
             const isMolecule = activeEffectProfile === 'molecule';
+            const isRewrite = activeEffectProfile === 'rewrite';
+            const isWordCloud = activeEffectProfile === 'word-cloud';
             const isStacked = activeEffectProfile === 'stacked';
             const isSecondaryCellular = isGrayScott || isPhysarum;
 
-            simulationShell.visible = true;
+            simulationShell.visible = !thirdsLayout;
+            if (thirdsLayout) {
+                simulationShell.position.set(0, 0, 0.08);
+                simulationShell.scale.set(1.66, 1.08, 0.14);
+            } else {
+                simulationShell.position.set(0, 0, 0);
+                simulationShell.scale.set(1, 1, 1);
+            }
+            if (effectThirdPanels && effectThirdPanels.length > 0) {
+                for (let i = 0; i < effectThirdPanels.length; i++) {
+                    const panel = effectThirdPanels[i];
+                    panel.visible = thirdsLayout;
+                    if (!panel.material) continue;
+                    const baseOpacity = isStacked ? 0.84 : 0.72;
+                    panel.material.opacity = thirdsLayout ? baseOpacity : 0;
+                }
+            }
             if (lifeSideSphere) {
                 lifeSideSphere.visible = concurrentSideEffects ? !isClassic : (isLife || isStacked);
+                if (thirdsLayout && !isClassic) {
+                    lifeSideSphere.visible = false;
+                } else {
+                    lifeSideSphere.position.set(-SIDE_SPHERE_X_SPREAD, SIDE_SPHERE_Y, SIDE_SPHERE_Z);
+                    lifeSideSphere.scale.set(1, 1, 1);
+                }
                 if (isLife) {
                     lifeSideSphere.material.opacity = 0.82;
+                } else if (isHierLife) {
+                    lifeSideSphere.material.opacity = 0.86;
                 } else if (isGrayScott) {
                     lifeSideSphere.material.opacity = 0.8;
                 } else if (isStacked) {
@@ -1281,8 +2240,16 @@ button:hover {
             }
             if (kuramotoSideSphere) {
                 kuramotoSideSphere.visible = concurrentSideEffects ? !isClassic : (isKuramoto || isStacked);
+                if (thirdsLayout && !isClassic) {
+                    kuramotoSideSphere.visible = false;
+                } else {
+                    kuramotoSideSphere.position.set(SIDE_SPHERE_X_SPREAD, SIDE_SPHERE_Y, SIDE_SPHERE_Z);
+                    kuramotoSideSphere.scale.set(1, 1, 1);
+                }
                 if (isKuramoto) {
                     kuramotoSideSphere.material.opacity = 0.86;
+                } else if (isHierLife) {
+                    kuramotoSideSphere.material.opacity = 0.62;
                 } else if (isPhysarum) {
                     kuramotoSideSphere.material.opacity = 0.84;
                 } else if (isStacked) {
@@ -1293,8 +2260,14 @@ button:hover {
             }
             if (moleculeSideSphere) {
                 moleculeSideSphere.visible = concurrentSideEffects
-                    ? (!isClassic && !isMolecule && !isSecondaryCellular)
+                    ? (!isClassic && !isMolecule && !isRewrite && !isWordCloud && !isSecondaryCellular)
                     : isStacked;
+                if (thirdsLayout && !isClassic) {
+                    moleculeSideSphere.visible = false;
+                } else {
+                    moleculeSideSphere.position.set(MOLECULE_SIDE_SPHERE_X, MOLECULE_SIDE_SPHERE_Y, SIDE_SPHERE_Z + 0.08);
+                    moleculeSideSphere.scale.set(1, 1, 1);
+                }
                 moleculeSideSphere.material.opacity = isStacked ? 0.62 : 0.28;
             }
 
@@ -1302,6 +2275,9 @@ button:hover {
                 if (isMolecule) {
                     moleculeRenderGroup.position.set(MOLECULE_SIDE_SPHERE_X, MOLECULE_SIDE_SPHERE_Y, SIDE_SPHERE_Z + 0.16);
                     moleculeRenderGroup.scale.set(0.78, 0.78, 0.78);
+                } else if (isRewrite) {
+                    moleculeRenderGroup.position.set(0, 0.03, 0.28);
+                    moleculeRenderGroup.scale.set(0.96, 0.96, 0.96);
                 } else if (isStacked) {
                     moleculeRenderGroup.position.set(MOLECULE_SIDE_SPHERE_X, MOLECULE_SIDE_SPHERE_Y - 0.03, SIDE_SPHERE_Z + 0.13);
                     moleculeRenderGroup.scale.set(0.62, 0.62, 0.62);
@@ -1311,6 +2287,15 @@ button:hover {
                 } else {
                     moleculeRenderGroup.position.set(0, 0, 0.28);
                     moleculeRenderGroup.scale.set(1.0, 1.0, 1.0);
+                }
+                if (thirdsLayout) {
+                    if (isMolecule || isRewrite || isStacked) {
+                        moleculeRenderGroup.position.set(1.05, 0.02, 0.22);
+                        moleculeRenderGroup.scale.set(0.55, 0.55, 0.55);
+                    } else if (concurrentSideEffects && !isClassic) {
+                        moleculeRenderGroup.position.set(1.05, 0.02, 0.2);
+                        moleculeRenderGroup.scale.set(0.42, 0.42, 0.42);
+                    }
                 }
             }
         }
@@ -1324,7 +2309,22 @@ button:hover {
 
         function setMoleculeRenderMode(mode) {
             const normalized = String(mode || '').trim().toLowerCase();
-            moleculeRenderMode = normalized === 'expressive' ? 'expressive' : 'coherent';
+            moleculeRenderMode = (normalized === 'expressive' || normalized === 'rewrite')
+                ? normalized
+                : 'coherent';
+            updateEffectOverlay();
+        }
+
+        function setEffectLayoutMode(mode) {
+            const normalized = String(mode || '').trim().toLowerCase();
+            effectLayoutMode = (normalized === 'thirds-2d' || normalized === 'thirds' || normalized === '2d')
+                ? 'thirds-2d'
+                : 'spheres';
+            const select = document.getElementById('effectLayoutMode');
+            if (select) {
+                select.value = effectLayoutMode;
+            }
+            updateSimulationStage();
             updateEffectOverlay();
         }
 
@@ -1336,6 +2336,7 @@ button:hover {
             if (!moleculeName) {
                 return;
             }
+            moleculeLoadInFlight = true;
             try {
                 setMoleculeStatus(`loading ${moleculeName}...`);
                 const result = await moleculeSimulationPlugin.loadFromPubChemName(moleculeName);
@@ -1345,6 +2346,8 @@ button:hover {
                 console.error(error);
                 setMoleculeStatus(`fallback active (${error.message})`);
                 updateEffectOverlay();
+            } finally {
+                moleculeLoadInFlight = false;
             }
         }
 
@@ -1371,9 +2374,27 @@ button:hover {
             await loadMoleculeByName(moleculeSequence[moleculeSequenceIndex]);
         }
 
+        function maybeAdvanceMoleculeOnBeat(audioFrame, nowMs) {
+            if (!audioFrame || !audioFrame.beat) {
+                return;
+            }
+            if (activeEffectProfile !== 'molecule') {
+                return;
+            }
+            if (moleculeSequence.length <= 1 || moleculeLoadInFlight) {
+                return;
+            }
+            if ((nowMs - lastMoleculeBeatAdvanceMs) < MOLECULE_BEAT_ADVANCE_COOLDOWN_MS) {
+                return;
+            }
+            lastMoleculeBeatAdvanceMs = nowMs;
+            advanceMoleculeSequence().catch((error) => console.error(error));
+        }
+
         window.loadMoleculeGraphByName = loadMoleculeByName;
         window.setMoleculeGraphSequence = setMoleculeSequence;
         window.setMoleculeRenderMode = setMoleculeRenderMode;
+        window.setEffectLayoutMode = setEffectLayoutMode;
 
         function setGrayScottPreset(presetName) {
             const normalized = String(presetName || '').trim().toLowerCase();
@@ -1409,10 +2430,15 @@ button:hover {
                 return;
             }
             const normalizedProfile = normalizeEffectProfileName(profileName);
-            if (normalizedProfile !== activeEffectProfile) {
+            const profileChanged = normalizedProfile !== activeEffectProfile;
+            if (profileChanged) {
                 // Prevent long-lived transient geometry from dominating after phase transitions.
                 clearTransientGeometries();
+                effectProfileActivatedMs = performance.now();
             }
+            // Baseline before profile-specific boosts.
+            simCompositor.setPluginOpacity('hierarchical-life-primary', 0.04);
+            simCompositor.setPluginColor('hierarchical-life-primary', [118, 228, 255]);
 
             if (normalizedProfile === 'classic') {
                 activeEffectProfile = 'classic';
@@ -1440,6 +2466,7 @@ button:hover {
             } else if (normalizedProfile === 'life') {
                 activeEffectProfile = 'life';
                 simCompositor.setPluginOpacity('life-primary', 1.0);
+                simCompositor.setPluginOpacity('hierarchical-life-primary', 0.22);
                 simCompositor.setPluginOpacity('kuramoto-primary', 0.20);
                 simCompositor.setPluginOpacity('gray-scott-primary', 0.34);
                 simCompositor.setPluginOpacity('gray-scott-alt', 0.28);
@@ -1460,6 +2487,31 @@ button:hover {
                 simulationShellBaseOpacity = 0.28;
                 effectActivationFactor = 0.78;
                 simulationBackdropBaseOpacity = 0.24;
+            } else if (normalizedProfile === 'hierarchical-life') {
+                activeEffectProfile = 'hierarchical-life';
+                simCompositor.setPluginOpacity('life-primary', 0.38);
+                simCompositor.setPluginOpacity('hierarchical-life-primary', 1.0);
+                simCompositor.setPluginOpacity('kuramoto-primary', 0.18);
+                simCompositor.setPluginOpacity('gray-scott-primary', 0.16);
+                simCompositor.setPluginOpacity('gray-scott-alt', 0.12);
+                simCompositor.setPluginOpacity('physarum-primary', 0.16);
+                simCompositor.setPluginOpacity('molecule-primary', 0.14);
+                simCompositor.setPluginColor('life-primary', [108, 246, 164]);
+                simCompositor.setPluginColor('hierarchical-life-primary', [136, 232, 255]);
+                simCompositor.setPluginColor('kuramoto-primary', [96, 214, 206]);
+                simCompositor.setPluginColor('gray-scott-primary', [182, 242, 220]);
+                simCompositor.setPluginColor('gray-scott-alt', [152, 220, 255]);
+                simCompositor.setPluginColor('physarum-primary', [162, 255, 198]);
+                simCompositor.setPluginColor('molecule-primary', [220, 255, 238]);
+                innerTriangleActive = false;
+                hueOffsetSpeed = 0.08;
+                Y_ROTATION_SPEED = 0.0007;
+                X_ROTATION_SPEED = 0.00025;
+                saturation = 96;
+                brightness = 56;
+                simulationShellBaseOpacity = 0.36;
+                effectActivationFactor = 0.74;
+                simulationBackdropBaseOpacity = 0.33;
             } else if (normalizedProfile === 'kuramoto') {
                 activeEffectProfile = 'kuramoto';
                 simCompositor.setPluginOpacity('life-primary', 0.25);
@@ -1485,27 +2537,37 @@ button:hover {
                 simulationBackdropBaseOpacity = 0.28;
             } else if (normalizedProfile === 'gray-scott') {
                 activeEffectProfile = 'gray-scott';
+                setGrayScottPreset('turing');
+                if (grayScottAltPlugin && typeof grayScottAltPlugin.configure === 'function') {
+                    grayScottAltPlugin.configure({
+                        diffusionU: 0.171,
+                        diffusionV: 0.084,
+                        feedBase: 0.024,
+                        killBase: 0.052,
+                        vThreshold: 0.195
+                    });
+                }
                 simCompositor.setPluginOpacity('life-primary', 0.35);
                 simCompositor.setPluginOpacity('kuramoto-primary', 0.22);
                 simCompositor.setPluginOpacity('gray-scott-primary', 1.0);
-                simCompositor.setPluginOpacity('gray-scott-alt', 0.95);
+                simCompositor.setPluginOpacity('gray-scott-alt', 0.98);
                 simCompositor.setPluginOpacity('physarum-primary', 0.35);
                 simCompositor.setPluginOpacity('molecule-primary', 0.2);
-                simCompositor.setPluginColor('life-primary', [98, 255, 146]);
-                simCompositor.setPluginColor('kuramoto-primary', [145, 245, 176]);
-                simCompositor.setPluginColor('gray-scott-primary', [226, 255, 238]);
-                simCompositor.setPluginColor('gray-scott-alt', [165, 236, 255]);
-                simCompositor.setPluginColor('physarum-primary', [140, 255, 188]);
+                simCompositor.setPluginColor('life-primary', [112, 255, 120]);
+                simCompositor.setPluginColor('kuramoto-primary', [255, 166, 236]);
+                simCompositor.setPluginColor('gray-scott-primary', [108, 246, 255]);
+                simCompositor.setPluginColor('gray-scott-alt', [255, 206, 88]);
+                simCompositor.setPluginColor('physarum-primary', [150, 255, 110]);
                 simCompositor.setPluginColor('molecule-primary', [218, 255, 230]);
                 innerTriangleActive = false;
-                hueOffsetSpeed = 0.2;
+                hueOffsetSpeed = 0.62;
                 Y_ROTATION_SPEED = 0.0009;
                 X_ROTATION_SPEED = 0.0003;
-                saturation = 95;
-                brightness = 56;
+                saturation = 126;
+                brightness = 68;
                 simulationShellBaseOpacity = 0.4;
-                effectActivationFactor = 0.7;
-                simulationBackdropBaseOpacity = 0.44;
+                effectActivationFactor = 0.76;
+                simulationBackdropBaseOpacity = 0.5;
             } else if (normalizedProfile === 'physarum') {
                 activeEffectProfile = 'physarum';
                 simCompositor.setPluginOpacity('life-primary', 0.26);
@@ -1552,6 +2614,54 @@ button:hover {
                 simulationShellBaseOpacity = 0.45;
                 effectActivationFactor = 0.52;
                 simulationBackdropBaseOpacity = 0.22;
+            } else if (normalizedProfile === 'rewrite') {
+                activeEffectProfile = 'rewrite';
+                simCompositor.setPluginOpacity('life-primary', 0.16);
+                simCompositor.setPluginOpacity('kuramoto-primary', 0.22);
+                simCompositor.setPluginOpacity('gray-scott-primary', 0.12);
+                simCompositor.setPluginOpacity('gray-scott-alt', 0.1);
+                simCompositor.setPluginOpacity('physarum-primary', 0.2);
+                simCompositor.setPluginOpacity('molecule-primary', 1.0);
+                simCompositor.setPluginColor('life-primary', [112, 242, 154]);
+                simCompositor.setPluginColor('kuramoto-primary', [116, 230, 212]);
+                simCompositor.setPluginColor('gray-scott-primary', [186, 244, 222]);
+                simCompositor.setPluginColor('gray-scott-alt', [146, 220, 255]);
+                simCompositor.setPluginColor('physarum-primary', [172, 255, 210]);
+                simCompositor.setPluginColor('molecule-primary', [252, 255, 246]);
+                innerTriangleActive = true;
+                hueOffsetSpeed = 0.16;
+                Y_ROTATION_SPEED = 0.001;
+                X_ROTATION_SPEED = 0.0007;
+                saturation = 94;
+                brightness = 62;
+                simulationShellBaseOpacity = 0.5;
+                effectActivationFactor = 0.58;
+                simulationBackdropBaseOpacity = 0.27;
+            } else if (normalizedProfile === 'word-cloud') {
+                activeEffectProfile = 'word-cloud';
+                simCompositor.setPluginOpacity('life-primary', 0.2);
+                simCompositor.setPluginOpacity('hierarchical-life-primary', 0.16);
+                simCompositor.setPluginOpacity('kuramoto-primary', 0.22);
+                simCompositor.setPluginOpacity('gray-scott-primary', 0.2);
+                simCompositor.setPluginOpacity('gray-scott-alt', 0.18);
+                simCompositor.setPluginOpacity('physarum-primary', 0.2);
+                simCompositor.setPluginOpacity('molecule-primary', 0.12);
+                simCompositor.setPluginColor('life-primary', [126, 255, 182]);
+                simCompositor.setPluginColor('hierarchical-life-primary', [140, 236, 255]);
+                simCompositor.setPluginColor('kuramoto-primary', [110, 230, 220]);
+                simCompositor.setPluginColor('gray-scott-primary', [188, 248, 230]);
+                simCompositor.setPluginColor('gray-scott-alt', [160, 226, 255]);
+                simCompositor.setPluginColor('physarum-primary', [182, 255, 214]);
+                simCompositor.setPluginColor('molecule-primary', [238, 255, 244]);
+                innerTriangleActive = false;
+                hueOffsetSpeed = 0.18;
+                Y_ROTATION_SPEED = 0.0006;
+                X_ROTATION_SPEED = 0.0002;
+                saturation = 96;
+                brightness = 54;
+                simulationShellBaseOpacity = 0.18;
+                effectActivationFactor = 0.5;
+                simulationBackdropBaseOpacity = 0.2;
             } else if (normalizedProfile === 'stacked') {
                 activeEffectProfile = 'stacked';
                 simCompositor.setPluginOpacity('life-primary', 0.75);
@@ -1578,6 +2688,89 @@ button:hover {
             }
             updateSimulationStage();
             updateEffectOverlay();
+        }
+
+        function blendColor(a, b, t) {
+            const clamped = Math.max(0, Math.min(1, Number(t) || 0));
+            return [
+                Math.round((a[0] * (1 - clamped)) + (b[0] * clamped)),
+                Math.round((a[1] * (1 - clamped)) + (b[1] * clamped)),
+                Math.round((a[2] * (1 - clamped)) + (b[2] * clamped))
+            ];
+        }
+
+        function samplePalette(palette, phase01) {
+            if (!Array.isArray(palette) || palette.length === 0) {
+                return [220, 255, 240];
+            }
+            if (palette.length === 1) {
+                return palette[0].slice();
+            }
+            const wrapped = ((Number(phase01) || 0) % 1 + 1) % 1;
+            const scaled = wrapped * palette.length;
+            const i0 = Math.floor(scaled) % palette.length;
+            const i1 = (i0 + 1) % palette.length;
+            const localT = scaled - Math.floor(scaled);
+            return blendColor(palette[i0], palette[i1], localT);
+        }
+
+        function updateDynamicEffectColors(audioFrame, nowMs) {
+            if (!simCompositor) {
+                return;
+            }
+            const energy = audioFrame ? (audioFrame.energy || 0) : 0;
+            const low = audioFrame ? (audioFrame.low || 0) : 0;
+            const mid = audioFrame ? (audioFrame.mid || 0) : 0;
+            const beatBoost = audioFrame && audioFrame.beat ? 0.08 : 0;
+            const t = (Number(nowMs) || 0) * 0.00006;
+            const fadeProgress = Math.max(
+                0,
+                Math.min(
+                    1,
+                    ((Number(nowMs) || 0) - effectProfileActivatedMs) / EFFECT_COLOR_FADE_IN_MS
+                )
+            );
+            const classicSeeds = {
+                grayPrimary: [185, 255, 210],
+                grayAlt: [160, 238, 255],
+                life: [140, 255, 168],
+                physarum: [146, 255, 195]
+            };
+
+            if (activeEffectProfile === 'gray-scott') {
+                const primaryPalette = [
+                    [64, 238, 255],
+                    [154, 255, 84],
+                    [255, 88, 216],
+                    [255, 222, 74],
+                    [88, 146, 255]
+                ];
+                const altPalette = [
+                    [114, 255, 255],
+                    [255, 150, 90],
+                    [198, 255, 96],
+                    [194, 126, 255],
+                    [255, 116, 176]
+                ];
+                const pTarget = samplePalette(primaryPalette, (t * 1.35) + (energy * 0.14) + beatBoost);
+                const aTarget = samplePalette(altPalette, (t * 1.85) + (mid * 0.16) + (beatBoost * 0.8));
+                simCompositor.setPluginColor('gray-scott-primary', blendColor(classicSeeds.grayPrimary, pTarget, fadeProgress));
+                simCompositor.setPluginColor('gray-scott-alt', blendColor(classicSeeds.grayAlt, aTarget, fadeProgress));
+                return;
+            }
+
+            if (activeEffectProfile === 'physarum' || activeEffectProfile === 'stacked') {
+                const driftPalette = [
+                    [132, 255, 196],
+                    [196, 236, 255],
+                    [255, 206, 168],
+                    [228, 188, 255]
+                ];
+                const lifeTarget = samplePalette(driftPalette, (t * 0.8) + (low * 0.05));
+                const physarumTarget = samplePalette(driftPalette, (t * 1.1) + 0.25 + (energy * 0.08));
+                simCompositor.setPluginColor('life-primary', blendColor(classicSeeds.life, lifeTarget, fadeProgress));
+                simCompositor.setPluginColor('physarum-primary', blendColor(classicSeeds.physarum, physarumTarget, fadeProgress));
+            }
         }
 
         function parsePhaseList(phaseListText, defaultDurationSec) {
@@ -1704,7 +2897,7 @@ button:hover {
         window.setEffectTimelineConfig = setEffectTimelineConfig;
 
         function applyTimedEffects() {
-            if (!effectTimelineEnabled || effectTimelineStartMs === null || effectTimelinePlan.length === 0) {
+            if (basicVideoModeEnabled || !effectTimelineEnabled || effectTimelineStartMs === null || effectTimelinePlan.length === 0) {
                 return;
             }
 
@@ -1905,6 +3098,45 @@ button:hover {
                 setMoleculeRenderMode(moleculeRenderModeSelect.value);
             });
         }
+        const effectLayoutModeSelect = document.getElementById('effectLayoutMode');
+        if (effectLayoutModeSelect) {
+            setEffectLayoutMode(effectLayoutModeSelect.value);
+            effectLayoutModeSelect.addEventListener('change', function() {
+                setEffectLayoutMode(effectLayoutModeSelect.value);
+            });
+        }
+        loadWordCloudLists();
+        refreshWordCloudListSelect();
+        ensureWordCloudLayer();
+        applyWordCloudList(activeWordCloudListName);
+        const wordCloudInput = document.getElementById('wordCloudPhrasesInput');
+        const wordCloudListSelect = document.getElementById('wordCloudListSelect');
+        const wordCloudListNameInput = document.getElementById('wordCloudListNameInput');
+        const saveWordCloudListButton = document.getElementById('saveWordCloudListButton');
+        const applyWordCloudButton = document.getElementById('applyWordCloudPhrasesButton');
+        if (applyWordCloudButton && wordCloudInput) {
+            applyWordCloudButton.addEventListener('click', function() {
+                setWordCloudPhrases(wordCloudInput.value);
+            });
+        }
+        if (wordCloudListSelect) {
+            wordCloudListSelect.addEventListener('change', function() {
+                applyWordCloudList(wordCloudListSelect.value);
+            });
+        }
+        if (saveWordCloudListButton) {
+            saveWordCloudListButton.addEventListener('click', function() {
+                const fallbackName = `list-${new Date().toISOString().slice(0, 10)}`;
+                const nextName = wordCloudListNameInput ? wordCloudListNameInput.value : fallbackName;
+                saveCurrentWordCloudList(nextName || fallbackName);
+            });
+        }
+        applyEffectProfile('molecule');
+        lastAppliedEffectPhase = 'molecule';
+        setMoleculeSequence(DEFAULT_MOLECULE_SEQUENCE, {
+            cycleOnPhaseChange: true,
+            startIndex: 0
+        });
         const backdropOpacityInput = document.getElementById('backdropOpacityInput');
         if (backdropOpacityInput) {
             backdropOpacityInput.addEventListener('input', function() {
@@ -1941,6 +3173,12 @@ button:hover {
                 setBackdropConfig({ tileCount: parseFloat(backdropTileCountInput.value) });
             });
         }
+        const backdropOriginalFidelityInput = document.getElementById('backdropOriginalFidelity');
+        if (backdropOriginalFidelityInput) {
+            backdropOriginalFidelityInput.addEventListener('change', function() {
+                setBackdropConfig({ originalFidelity: !!backdropOriginalFidelityInput.checked });
+            });
+        }
         const fullScreenVideoBgToggle = document.getElementById('fullScreenVideoBgToggle');
         if (fullScreenVideoBgToggle) {
             fullScreenVideoBgToggle.addEventListener('change', function() {
@@ -1953,17 +3191,88 @@ button:hover {
                 setVideoBackgroundConfig({ opacity: parseFloat(fullScreenVideoBgOpacityInput.value) });
             });
         }
+        const fibonacciMosaicToggle = document.getElementById('fibonacciMosaicToggle');
+        if (fibonacciMosaicToggle) {
+            fibonacciMosaicToggle.addEventListener('change', function() {
+                setFibonacciMosaicConfig({ enabled: !!fibonacciMosaicToggle.checked });
+            });
+        }
+        const fibonacciMosaicFxToggle = document.getElementById('fibonacciMosaicFxToggle');
+        if (fibonacciMosaicFxToggle) {
+            fibonacciMosaicFxToggle.addEventListener('change', function() {
+                setFibonacciMosaicConfig({ fx: !!fibonacciMosaicFxToggle.checked });
+            });
+        }
+        const fibonacciMosaicOpacityInput = document.getElementById('fibonacciMosaicOpacity');
+        if (fibonacciMosaicOpacityInput) {
+            fibonacciMosaicOpacityInput.addEventListener('input', function() {
+                setFibonacciMosaicConfig({ opacity: parseFloat(fibonacciMosaicOpacityInput.value) });
+            });
+        }
+        const infinitestreamsEmbedToggle = document.getElementById('infinitestreamsEmbedToggle');
+        if (infinitestreamsEmbedToggle) {
+            infinitestreamsEmbedToggle.addEventListener('change', function() {
+                setInfinitestreamsEmbedConfig({ enabled: !!infinitestreamsEmbedToggle.checked });
+            });
+        }
+        const infinitestreamsEmbedOpacityInput = document.getElementById('infinitestreamsEmbedOpacity');
+        if (infinitestreamsEmbedOpacityInput) {
+            infinitestreamsEmbedOpacityInput.addEventListener('input', function() {
+                setInfinitestreamsEmbedConfig({ opacity: parseFloat(infinitestreamsEmbedOpacityInput.value) });
+            });
+        }
+        const infinitestreamsEmbedUrlInput = document.getElementById('infinitestreamsEmbedUrl');
+        if (infinitestreamsEmbedUrlInput) {
+            infinitestreamsEmbedUrlInput.addEventListener('change', function() {
+                setInfinitestreamsEmbedConfig({ url: infinitestreamsEmbedUrlInput.value });
+            });
+        }
+        const basicVideoModeToggle = document.getElementById('basicVideoModeToggle');
+        if (basicVideoModeToggle) {
+            basicVideoModeToggle.addEventListener('change', function() {
+                setBasicVideoMode(!!basicVideoModeToggle.checked);
+            });
+        }
         setBackdropConfig({
             script: backdropScriptSelect ? backdropScriptSelect.value : backgroundScriptId,
             blendMode: backdropBlendModeSelect ? backdropBlendModeSelect.value : backdropBlendMode,
             opacity: backdropOpacityInput ? parseFloat(backdropOpacityInput.value) : backdropOpacityMultiplier,
             scrollSpeed: backdropScrollSpeedInput ? parseFloat(backdropScrollSpeedInput.value) : backdropScrollSpeed,
             tileEnabled: backdropTileEnabledInput ? !!backdropTileEnabledInput.checked : backdropTileEnabled,
-            tileCount: backdropTileCountInput ? parseFloat(backdropTileCountInput.value) : backdropTileCount
+            tileCount: backdropTileCountInput ? parseFloat(backdropTileCountInput.value) : backdropTileCount,
+            originalFidelity: backdropOriginalFidelityInput ? !!backdropOriginalFidelityInput.checked : backdropOriginalFidelity
         });
         setVideoBackgroundConfig({
             enabled: fullScreenVideoBgToggle ? !!fullScreenVideoBgToggle.checked : false,
             opacity: fullScreenVideoBgOpacityInput ? parseFloat(fullScreenVideoBgOpacityInput.value) : fullScreenVideoBgOpacity
+        });
+        setFibonacciMosaicConfig({
+            enabled: fibonacciMosaicToggle ? !!fibonacciMosaicToggle.checked : fibonacciMosaicEnabled,
+            fx: fibonacciMosaicFxToggle ? !!fibonacciMosaicFxToggle.checked : fibonacciMosaicFxEnabled,
+            opacity: fibonacciMosaicOpacityInput ? parseFloat(fibonacciMosaicOpacityInput.value) : fibonacciMosaicOpacity
+        });
+        setInfinitestreamsEmbedConfig({
+            enabled: infinitestreamsEmbedToggle ? !!infinitestreamsEmbedToggle.checked : infinitestreamsEmbedEnabled,
+            opacity: infinitestreamsEmbedOpacityInput ? parseFloat(infinitestreamsEmbedOpacityInput.value) : infinitestreamsEmbedOpacity,
+            url: infinitestreamsEmbedUrlInput ? infinitestreamsEmbedUrlInput.value : infinitestreamsEmbedUrl
+        });
+
+        document.addEventListener('keydown', function(event) {
+            if (event.defaultPrevented || event.repeat) {
+                return;
+            }
+            const target = event.target;
+            if (target && (target.tagName === 'INPUT' || target.tagName === 'TEXTAREA' || target.tagName === 'SELECT' || target.isContentEditable)) {
+                return;
+            }
+            const key = String(event.key || '').toLowerCase();
+            if (key === 'o') {
+                toggleBackdropOriginalFidelity();
+                event.preventDefault();
+            } else if (key === 'b') {
+                setBasicVideoMode(!basicVideoModeEnabled);
+                event.preventDefault();
+            }
         });
 
 
@@ -2010,6 +3319,8 @@ button:hover {
                 if (backgroundEngine) {
                     backgroundEngine.update(dt, audioFrame);
                 }
+                updateFibonacciMosaic(now);
+                updateWordCloudOverlay(dt, audioFrame);
                 if (simulationBackdropMaterial) {
                     simulationBackdropMaterial.opacity = Math.min(
                         0.75,
@@ -2022,6 +3333,8 @@ button:hover {
                     backgroundBackdropMaterial.opacity = Math.min(0.42, faintBase * faintScale);
                 }
                 updateMoleculeOverlay(audioFrame);
+                maybeAdvanceMoleculeOnBeat(audioFrame, nowMs);
+                updateDynamicEffectColors(audioFrame, nowMs);
                 if (simulationShell) {
                     // Keep this as a subtle background sphere carrying simulation texture.
                     simulationShell.material.opacity = Math.min(0.28, (simulationShellBaseOpacity * 0.22) + (audioFrame.energy * 0.12));
@@ -2189,7 +3502,7 @@ button:hover {
                             createdGeometry = lineGeometry;
                             createdObject = new THREE.Line(lineGeometry, lineMaterial);
                         } else {
-                            if (activeEffectProfile === 'molecule' && simCompositor && simCompositor.texture) {
+                            if ((activeEffectProfile === 'molecule' || activeEffectProfile === 'rewrite') && simCompositor && simCompositor.texture) {
                                 material = new THREE.MeshBasicMaterial({
                                     map: simCompositor.texture,
                                     color: color,
@@ -2289,10 +3602,13 @@ button:hover {
 
         function animate() {
             requestAnimationFrame(animate);
+            if (vjPaused) {
+                return;
+            }
             applyTimedEffects();
 
             // untoggle if to make fully deterministic
-            hueoffset += hueOffsetSpeed;
+            hueoffset += hueOffsetSpeed * vjSpeedMultiplier;
 
             if(hueoffset > 360) {
                 hueoffset -= 360;
@@ -2300,8 +3616,8 @@ button:hover {
 
 
 
-            scene.rotation.x += X_ROTATION_SPEED; 
-            scene.rotation.y += Y_ROTATION_SPEED;
+            scene.rotation.x += X_ROTATION_SPEED * vjSpeedMultiplier; 
+            scene.rotation.y += Y_ROTATION_SPEED * vjSpeedMultiplier;
             updateLaneShellOpacity();
             if (simCompositor && simCompositor.texture) {
                 const now = performance.now();
@@ -2316,6 +3632,12 @@ button:hover {
             }
 
             renderer.clear();
+            if (basicVideoModeEnabled && videoBackdropScene && videoBackdropCamera && videoBackdropMaterial && videoElementActive) {
+                videoBackdropMaterial.opacity = 1;
+                renderer.render(videoBackdropScene, videoBackdropCamera);
+                updateEffectOverlay();
+                return;
+            }
             if (fullScreenVideoBgEnabled && videoBackdropScene && videoBackdropCamera && videoBackdropMaterial && videoElementActive) {
                 videoBackdropMaterial.opacity = fullScreenVideoBgOpacity;
                 renderer.render(videoBackdropScene, videoBackdropCamera);
@@ -2483,6 +3805,348 @@ button:hover {
         MAX_SIZE = Math.max(4, Math.floor(audioContext.sampleRate / 5000));
 
     });
+
+    function setUiHidden(hidden) {
+        const nextHidden = !!hidden;
+        const thresholdsPanel = document.getElementById('thresholds');
+        const videoPanel = document.getElementById('videoList');
+        const appPanel = document.getElementById('app');
+        if (thresholdsPanel) {
+            thresholdsPanel.style.display = nextHidden ? 'none' : 'block';
+        }
+        if (videoPanel) {
+            videoPanel.style.display = nextHidden ? 'none' : 'block';
+        }
+        if (appPanel) {
+            appPanel.style.display = nextHidden ? 'none' : 'block';
+        }
+    }
+
+    function setVjAudioEnabled(enabled) {
+        const nextEnabled = !!enabled;
+        if (!nextEnabled) {
+            if (captureInterval) {
+                clearInterval(captureInterval);
+                captureInterval = null;
+            }
+            return;
+        }
+        if (!analyser || !audioContext) {
+            const startBtn = document.getElementById('startButton');
+            if (startBtn && typeof startBtn.click === 'function') {
+                startBtn.click();
+            }
+            return;
+        }
+        ensureVisualizerLoopsRunning();
+    }
+
+    function requestFullscreenMode(enabled) {
+        const wantsFullscreen = !!enabled;
+        if (wantsFullscreen) {
+            if (!document.fullscreenElement && document.documentElement && document.documentElement.requestFullscreen) {
+                document.documentElement.requestFullscreen().catch(() => {});
+            }
+            return;
+        }
+        if (document.fullscreenElement && document.exitFullscreen) {
+            document.exitFullscreen().catch(() => {});
+        }
+    }
+
+    function mapVjModeToEffect(mode) {
+        const normalized = String(mode || '').trim().toLowerCase();
+        if (normalized === 'morphospace') return 'molecule';
+        if (normalized === 'darcy') return 'kuramoto';
+        if (normalized === 'turing') return 'gray-scott';
+        if (normalized === 'voltage') return 'physarum';
+            if (normalized === 'hierarchical' || normalized === 'hierarchical-life' || normalized === 'hierlife') return 'hierarchical-life';
+            if (normalized === 'rewrite' || normalized === 'chemlambda' || normalized === 'lambda') return 'rewrite';
+        if (normalized === 'words' || normalized === 'wordcloud' || normalized === 'word-cloud') return 'word-cloud';
+        return 'classic';
+    }
+
+    function getNextVjMode() {
+        const sequence = ['morphospace', 'darcy', 'turing', 'voltage'];
+        const current = activeEffectProfile;
+        const reverseMap = {
+            molecule: 'morphospace',
+            kuramoto: 'darcy',
+            'gray-scott': 'turing',
+            physarum: 'voltage'
+        };
+        const currentMode = reverseMap[current] || 'morphospace';
+        const idx = sequence.indexOf(currentMode);
+        return sequence[(idx + 1) % sequence.length];
+    }
+
+    function applyVjCommand(command = {}) {
+        const cmd = command && command.type === 'vj'
+            ? command
+            : { ...command, type: 'vj' };
+
+        if (cmd.mode) {
+            const modeName = String(cmd.mode).trim().toLowerCase();
+            const resolvedMode = (modeName === 'next' || modeName === 'cycle')
+                ? getNextVjMode()
+                : modeName;
+            const effectName = mapVjModeToEffect(resolvedMode);
+            applyEffectProfile(effectName);
+            lastAppliedEffectPhase = effectName;
+        }
+        if (Number.isFinite(cmd.speed)) {
+            const nextSpeed = Math.max(0.1, Math.min(4, Number(cmd.speed)));
+            vjSpeedMultiplier = nextSpeed;
+            playbackRate = nextSpeed;
+        }
+        if (Number.isFinite(cmd.hue)) {
+            hueoffset = Math.max(-180, Math.min(180, Number(cmd.hue)));
+        }
+        if (Number.isFinite(cmd.intensity)) {
+            backdropOpacityMultiplier = Math.max(0, Math.min(2, Number(cmd.intensity)));
+        }
+        if (typeof cmd.paused === 'boolean') {
+            vjPaused = !!cmd.paused;
+        }
+        if (cmd.play === true) {
+            vjPaused = false;
+        }
+        if (cmd.pause === true) {
+            vjPaused = true;
+        }
+        if (cmd.toggle === 'pause') {
+            vjPaused = !vjPaused;
+        }
+        if (cmd.toggle === 'ui') {
+            const appPanel = document.getElementById('app');
+            const nextHidden = !(appPanel && appPanel.style.display === 'none');
+            setUiHidden(nextHidden);
+        }
+        if (typeof cmd.hideUI === 'boolean') {
+            setUiHidden(cmd.hideUI);
+        }
+        if (typeof cmd.audio === 'boolean') {
+            setVjAudioEnabled(cmd.audio);
+        }
+        if (typeof cmd.fullscreen === 'boolean') {
+            requestFullscreenMode(cmd.fullscreen);
+        }
+        if (typeof cmd.layout === 'string') {
+            setEffectLayoutMode(cmd.layout);
+        }
+        if (typeof cmd.mosaic === 'boolean') {
+            setFibonacciMosaicConfig({ enabled: cmd.mosaic });
+        }
+        if (typeof cmd.mosaicFx === 'boolean') {
+            setFibonacciMosaicConfig({ fx: cmd.mosaicFx });
+        }
+        if (Number.isFinite(cmd.mosaicOpacity)) {
+            setFibonacciMosaicConfig({ opacity: cmd.mosaicOpacity });
+        }
+        if (typeof cmd.infinitestreams === 'boolean') {
+            setInfinitestreamsEmbedConfig({ enabled: cmd.infinitestreams });
+        }
+        if (typeof cmd.infinitestreamsOpacity === 'number') {
+            setInfinitestreamsEmbedConfig({ opacity: cmd.infinitestreamsOpacity });
+        }
+        if (typeof cmd.infinitestreamsUrl === 'string') {
+            setInfinitestreamsEmbedConfig({ url: cmd.infinitestreamsUrl });
+        }
+        if (typeof cmd.infinitestreamsBlend === 'string') {
+            setInfinitestreamsEmbedConfig({ blendMode: cmd.infinitestreamsBlend });
+        }
+        if (typeof cmd.wordList === 'string') {
+            applyWordCloudList(cmd.wordList);
+        }
+        if (Array.isArray(cmd.words)) {
+            setWordCloudPhrases(cmd.words);
+        } else if (typeof cmd.words === 'string') {
+            setWordCloudPhrases(cmd.words);
+        }
+        updateEffectOverlay();
+        return {
+            mode: activeEffectProfile,
+            speed: vjSpeedMultiplier,
+            hue: hueoffset,
+            intensity: backdropOpacityMultiplier,
+            paused: vjPaused,
+            layout: effectLayoutMode,
+            wordList: activeWordCloudListName,
+            infinitestreams: infinitestreamsEmbedEnabled,
+            mosaic: fibonacciMosaicEnabled,
+            mosaicFx: fibonacciMosaicFxEnabled
+        };
+    }
+
+    window.vjControl = function(cmd = {}) {
+        return applyVjCommand(cmd);
+    };
+
+    window.addEventListener('message', function(event) {
+        if (!event || !event.data || event.data.type !== 'vj') {
+            return;
+        }
+        applyVjCommand(event.data);
+    });
+
+    function announceVjReady() {
+        const payload = { type: 'vj', event: 'ready', origin: location.origin };
+        if (window.parent && window.parent !== window) {
+            window.parent.postMessage(payload, '*');
+        }
+        if (window.opener) {
+            window.opener.postMessage(payload, '*');
+        }
+    }
+
+    function initVjWebSocket() {
+        const params = new URLSearchParams(window.location.search);
+        const wsUrl = params.get('ws');
+        if (!wsUrl) {
+            return;
+        }
+        let reconnectTimer = null;
+        const connect = function() {
+            if (vjWs && (vjWs.readyState === WebSocket.OPEN || vjWs.readyState === WebSocket.CONNECTING)) {
+                return;
+            }
+            try {
+                vjWs = new WebSocket(wsUrl);
+            } catch {
+                reconnectTimer = setTimeout(connect, 2000);
+                return;
+            }
+            vjWs.addEventListener('open', function() {
+                vjWs.send(JSON.stringify({ type: 'vj', event: 'hello' }));
+            });
+            vjWs.addEventListener('message', function(message) {
+                try {
+                    const payload = JSON.parse(message.data);
+                    if (payload && payload.type === 'vj') {
+                        applyVjCommand(payload);
+                    }
+                } catch {
+                    // ignore malformed messages
+                }
+            });
+            vjWs.addEventListener('close', function() {
+                if (reconnectTimer) {
+                    clearTimeout(reconnectTimer);
+                }
+                reconnectTimer = setTimeout(connect, 2000);
+            });
+        };
+        connect();
+    }
+
+    function resolveRemoteVjCommand(payload, instanceId) {
+        if (!payload || typeof payload !== 'object') {
+            return null;
+        }
+        if (payload.type === 'vj') {
+            return payload;
+        }
+        if (payload.command && typeof payload.command === 'object') {
+            return payload.command;
+        }
+        if (payload.instances && typeof payload.instances === 'object') {
+            const scoped = payload.instances[instanceId] || payload.instances.default;
+            if (scoped && typeof scoped === 'object') {
+                return scoped;
+            }
+        }
+        if (Array.isArray(payload.commands) && payload.commands.length > 0) {
+            const candidate = payload.commands.find((entry) => {
+                if (!entry || typeof entry !== 'object') return false;
+                if (!entry.instance && !entry.instanceId) return true;
+                return String(entry.instance || entry.instanceId) === instanceId;
+            });
+            if (candidate && typeof candidate.command === 'object') {
+                return candidate.command;
+            }
+        }
+        return null;
+    }
+
+    function initVjRemotePolling(params) {
+        const remoteUrl = params.get('remoteConfig') || params.get('remote');
+        if (!remoteUrl) {
+            return;
+        }
+        const instanceId = params.get('instance') || params.get('instanceId') || `hypermuse-${location.hostname}`;
+        const requestedMs = Number(params.get('remotePollMs'));
+        const pollMs = Number.isFinite(requestedMs) ? Math.max(500, requestedMs) : 1500;
+
+        const pollOnce = async function() {
+            if (vjRemotePollInFlight) {
+                return;
+            }
+            vjRemotePollInFlight = true;
+            try {
+                const url = new URL(remoteUrl, window.location.href);
+                url.searchParams.set('instance', instanceId);
+                url.searchParams.set('ts', String(Date.now()));
+                const response = await fetch(url.toString(), { cache: 'no-store' });
+                if (!response.ok) {
+                    return;
+                }
+                const payload = await response.json();
+                const command = resolveRemoteVjCommand(payload, instanceId);
+                if (!command) {
+                    return;
+                }
+                const fingerprint = String(
+                    payload.revision
+                    || payload.version
+                    || command.revision
+                    || JSON.stringify(command)
+                );
+                if (fingerprint === vjRemoteLastFingerprint) {
+                    return;
+                }
+                vjRemoteLastFingerprint = fingerprint;
+                applyVjCommand(command);
+            } catch {
+                // Ignore transient remote errors and continue polling.
+            } finally {
+                vjRemotePollInFlight = false;
+            }
+        };
+
+        pollOnce();
+        if (vjRemotePollTimer) {
+            clearInterval(vjRemotePollTimer);
+        }
+        vjRemotePollTimer = setInterval(pollOnce, pollMs);
+    }
+
+    const vjBootParams = new URLSearchParams(window.location.search);
+    if (vjBootParams.get('hideui') === '1' || vjBootParams.get('clean') === '1') {
+        setUiHidden(true);
+    }
+    const bootMode = vjBootParams.get('mode');
+    const bootSpeed = Number(vjBootParams.get('speed'));
+    const bootHue = Number(vjBootParams.get('hue'));
+    const bootIntensity = Number(vjBootParams.get('intensity'));
+    const bootPaused = vjBootParams.get('paused');
+    const bootAudio = vjBootParams.get('audio');
+    const bootInfinitestreams = vjBootParams.get('infinitestreams');
+    const bootInfinitestreamsOpacity = Number(vjBootParams.get('infinitestreamsopacity'));
+    const bootInfinitestreamsUrl = vjBootParams.get('infinitestreamsurl');
+    applyVjCommand({
+        mode: bootMode || undefined,
+        speed: Number.isFinite(bootSpeed) ? bootSpeed : undefined,
+        hue: Number.isFinite(bootHue) ? bootHue : undefined,
+        intensity: Number.isFinite(bootIntensity) ? bootIntensity : undefined,
+        paused: bootPaused === null ? undefined : (bootPaused === 'true' || bootPaused === '1'),
+        audio: bootAudio === null ? undefined : (bootAudio === 'true' || bootAudio === '1'),
+        infinitestreams: bootInfinitestreams === null ? undefined : (bootInfinitestreams === 'true' || bootInfinitestreams === '1'),
+        infinitestreamsOpacity: Number.isFinite(bootInfinitestreamsOpacity) ? bootInfinitestreamsOpacity : undefined,
+        infinitestreamsUrl: bootInfinitestreamsUrl || undefined
+    });
+    announceVjReady();
+    initVjWebSocket();
+    initVjRemotePolling(vjBootParams);
 
 
 

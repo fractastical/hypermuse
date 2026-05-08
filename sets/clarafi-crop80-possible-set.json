@@ -1,0 +1,194 @@
+{
+  "setName": "clarafi-crop80-possible",
+  "sourceDirectory": "loops/clarafi",
+  "generatedAt": "2026-04-27T16:27:35.518Z",
+  "count": 10,
+  "playbackMode": "loop",
+  "defaultTransition": {
+    "type": "fade",
+    "durationMs": 500,
+    "holdMs": 6000
+  },
+  "loops": [
+    {
+      "url": "loops/clarafi/274971978.mp4",
+      "label": "274971978.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 500,
+        "holdMs": 6000,
+        "clipStartSec": 4.8,
+        "clipEndSec": 10.8,
+        "crop": {
+          "x": 0.1,
+          "y": 0.1,
+          "width": 0.8,
+          "height": 0.8
+        },
+        "holdLastFrameOnClipEnd": false
+      }
+    },
+    {
+      "url": "loops/clarafi/Alzheimer's Enigma.mp4",
+      "label": "Alzheimer's Enigma.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 500,
+        "holdMs": 5000,
+        "clipStartSec": 18.8,
+        "clipEndSec": 23.8,
+        "crop": {
+          "x": 0.1,
+          "y": 0.1,
+          "width": 0.8,
+          "height": 0.8
+        },
+        "holdLastFrameOnClipEnd": false
+      }
+    },
+    {
+      "url": "loops/clarafi/Entomology Animated Episode 1_ RIFA Madness!.mp4",
+      "label": "Entomology Animated Episode 1_ RIFA Madness!.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 500,
+        "holdMs": 7000,
+        "clipStartSec": 13.8,
+        "clipEndSec": 20.8,
+        "crop": {
+          "x": 0.1,
+          "y": 0.1,
+          "width": 0.8,
+          "height": 0.8
+        },
+        "holdLastFrameOnClipEnd": false
+      }
+    },
+    {
+      "url": "loops/clarafi/Metastatic bone pain.mp4",
+      "label": "Metastatic bone pain.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 500,
+        "holdMs": 8000,
+        "clipStartSec": 42.8,
+        "clipEndSec": 50.8,
+        "crop": {
+          "x": 0.1,
+          "y": 0.1,
+          "width": 0.8,
+          "height": 0.8
+        },
+        "holdLastFrameOnClipEnd": false
+      }
+    },
+    {
+      "url": "loops/clarafi/Si(111) Surface 7&times;7 Reconstruction.mp4",
+      "label": "Si(111) Surface 7&times;7 Reconstruction.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 500,
+        "holdMs": 5000,
+        "clipStartSec": 23.8,
+        "clipEndSec": 28.8,
+        "crop": {
+          "x": 0.1,
+          "y": 0.1,
+          "width": 0.8,
+          "height": 0.8
+        },
+        "holdLastFrameOnClipEnd": false
+      }
+    },
+    {
+      "url": "loops/clarafi/hemoglobin1.mov",
+      "label": "hemoglobin1.mov",
+      "transition": {
+        "type": "fade",
+        "durationMs": 500,
+        "holdMs": 15000,
+        "clipStartSec": 26.8,
+        "clipEndSec": 41.8,
+        "crop": {
+          "x": 0.1,
+          "y": 0.1,
+          "width": 0.8,
+          "height": 0.8
+        },
+        "holdLastFrameOnClipEnd": false
+      }
+    },
+    {
+      "url": "loops/clarafi/hemoglobin1b.mov",
+      "label": "hemoglobin1b.mov",
+      "transition": {
+        "type": "fade",
+        "durationMs": 500,
+        "holdMs": 11500,
+        "clipStartSec": 10.8,
+        "clipEndSec": 22.3,
+        "crop": {
+          "x": 0.1,
+          "y": 0.1,
+          "width": 0.8,
+          "height": 0.8
+        },
+        "holdLastFrameOnClipEnd": false
+      }
+    },
+    {
+      "url": "loops/clarafi/hemoglobin2.mov",
+      "label": "hemoglobin2.mov",
+      "transition": {
+        "type": "fade",
+        "durationMs": 500,
+        "holdMs": 17530,
+        "clipStartSec": 1.8,
+        "clipEndSec": 19.33,
+        "crop": {
+          "x": 0.1,
+          "y": 0.1,
+          "width": 0.8,
+          "height": 0.8
+        },
+        "holdLastFrameOnClipEnd": false
+      }
+    },
+    {
+      "url": "loops/clarafi/hemoglobin3.mov",
+      "label": "hemoglobin3.mov",
+      "transition": {
+        "type": "fade",
+        "durationMs": 500,
+        "holdMs": 8230,
+        "clipStartSec": 4.8,
+        "clipEndSec": 13.03,
+        "crop": {
+          "x": 0.1,
+          "y": 0.1,
+          "width": 0.8,
+          "height": 0.8
+        },
+        "holdLastFrameOnClipEnd": false
+      }
+    },
+    {
+      "url": "loops/clarafi/videoplayback.mp4",
+      "label": "videoplayback.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 500,
+        "holdMs": 10000,
+        "clipStartSec": 33.8,
+        "clipEndSec": 43.8,
+        "crop": {
+          "x": 0.1,
+          "y": 0.1,
+          "width": 0.8,
+          "height": 0.8
+        },
+        "holdLastFrameOnClipEnd": false
+      }
+    }
+  ]
+}

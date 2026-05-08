@@ -1,0 +1,76 @@
+{
+  "setName": "clarafi-crop80-possible",
+  "sourceDirectory": "loops/clarafi",
+  "generatedAt": "2026-04-27T16:49:54.370Z",
+  "count": 6,
+  "playbackMode": "loop",
+  "defaultTransition": {
+    "type": "fade",
+    "durationMs": 500,
+    "holdMs": 6000
+  },
+  "loops": [
+    {
+      "url": "loops/prepped/clarafi-crop80-possible/002-alzheimer-s-enigma.mp4",
+      "label": "Alzheimer's Enigma.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 500,
+        "holdMs": 5000,
+        "holdLastFrameOnClipEnd": false
+      }
+    },
+    {
+      "url": "loops/prepped/clarafi-crop80-possible/003-entomology-animated-episode-1_-rifa-madness.mp4",
+      "label": "Entomology Animated Episode 1_ RIFA Madness!.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 500,
+        "holdMs": 7000,
+        "holdLastFrameOnClipEnd": false
+      }
+    },
+    {
+      "url": "loops/prepped/clarafi-crop80-possible/004-metastatic-bone-pain.mp4",
+      "label": "Metastatic bone pain.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 500,
+        "holdMs": 8000,
+        "holdLastFrameOnClipEnd": false
+      }
+    },
+    {
+      "url": "loops/prepped/clarafi-crop80-possible/005-si-111-surface-7-times-7-reconstruction.mp4",
+      "label": "Si(111) Surface 7&times;7 Reconstruction.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 500,
+        "holdMs": 5000,
+        "holdLastFrameOnClipEnd": false
+      }
+    },
+    {
+      "url": "loops/prepped/clarafi-crop80-possible/006-hemoglobin1.mp4",
+      "label": "hemoglobin1.mov",
+      "transition": {
+        "type": "fade",
+        "durationMs": 500,
+        "holdMs": 15000,
+        "holdLastFrameOnClipEnd": false
+      }
+    },
+    {
+      "url": "loops/prepped/clarafi-crop80-possible/010-videoplayback.mp4",
+      "label": "videoplayback.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 500,
+        "holdMs": 10000,
+        "holdLastFrameOnClipEnd": false
+      }
+    }
+  ],
+  "sourceManifest": "sets/clarafi-crop80-possible-set.json",
+  "preprocessedClips": 10
+}

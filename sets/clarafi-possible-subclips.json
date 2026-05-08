@@ -1,0 +1,39 @@
+{
+  "generatedAt": "2026-04-27T15:19:53.266Z",
+  "sourceDirectory": "loops/clarafi",
+  "scanConfig": {
+    "maxScanSec": 60,
+    "stepSec": 1,
+    "minCleanSec": 5,
+    "titleSkipSec": 2
+  },
+  "totalVideosScanned": 43,
+  "acceptedCount": 3,
+  "rejectedCount": 40,
+  "whitelist": [
+    {
+      "url": "loops/clarafi/274971978.mp4",
+      "label": "274971978.mp4",
+      "clipStartSec": 47.8,
+      "clipEndSec": 53.8,
+      "cleanDurationSec": 6,
+      "durationSec": 174.04
+    },
+    {
+      "url": "loops/clarafi/Alzheimer's Enigma.mp4",
+      "label": "Alzheimer's Enigma.mp4",
+      "clipStartSec": 15.8,
+      "clipEndSec": 21.8,
+      "cleanDurationSec": 6,
+      "durationSec": 230.06
+    },
+    {
+      "url": "loops/clarafi/Metastatic bone pain.mp4",
+      "label": "Metastatic bone pain.mp4",
+      "clipStartSec": 49.8,
+      "clipEndSec": 59.8,
+      "cleanDurationSec": 10,
+      "durationSec": 360.04
+    }
+  ]
+}

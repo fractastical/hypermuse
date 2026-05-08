@@ -199,7 +199,8 @@
     nexus: { diffusionU: 0.16, diffusionV: 0.08, feedBase: 0.034, killBase: 0.062, vThreshold: 0.24 },
     coral: { diffusionU: 0.162, diffusionV: 0.082, feedBase: 0.03, killBase: 0.058, vThreshold: 0.22 },
     mitosis: { diffusionU: 0.157, diffusionV: 0.079, feedBase: 0.038, killBase: 0.066, vThreshold: 0.25 },
-    veins: { diffusionU: 0.148, diffusionV: 0.074, feedBase: 0.026, killBase: 0.054, vThreshold: 0.2 }
+    veins: { diffusionU: 0.148, diffusionV: 0.074, feedBase: 0.026, killBase: 0.054, vThreshold: 0.2 },
+    turing: { diffusionU: 0.176, diffusionV: 0.086, feedBase: 0.026, killBase: 0.054, vThreshold: 0.21 }
   };
 
   window.HypermuseGrayScottSimulationPlugin = HypermuseGrayScottSimulationPlugin;

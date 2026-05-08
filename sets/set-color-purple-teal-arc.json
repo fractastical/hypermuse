@@ -1,0 +1,4114 @@
+{
+  "setName": "set-color-purple-teal-arc",
+  "sourceDirectory": "loops",
+  "generatedAt": "2026-05-08T01:13:02.490Z",
+  "count": 407,
+  "playbackMode": "loop",
+  "setNotes": "Cool chromatic arc: purple / magenta / teal-cyan family clips from color tags.",
+  "effectTimeline": {
+    "enabled": true,
+    "phases": [
+      {
+        "name": "classic",
+        "durationSec": 16
+      },
+      {
+        "name": "kuramoto",
+        "durationSec": 18
+      },
+      {
+        "name": "physarum",
+        "durationSec": 18
+      },
+      {
+        "name": "molecule",
+        "durationSec": 16
+      },
+      {
+        "name": "word-cloud",
+        "durationSec": 14
+      },
+      {
+        "name": "stacked",
+        "durationSec": 18
+      }
+    ]
+  },
+  "defaultTransition": {
+    "type": "fade",
+    "durationMs": 650,
+    "holdMs": 8200
+  },
+  "loops": [
+    {
+      "url": "loops/ArtBeats - Centrifusion/CLIPS/CFU111.mp4",
+      "label": "CFU111.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/ArtBeats - Centrifusion/CLIPS/CFU114.mp4",
+      "label": "CFU114.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/ArtBeats - Centrifusion/CLIPS/CFU127.mp4",
+      "label": "CFU127.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats-TimelapseFlowers3/TF301.mp4",
+      "label": "TF301.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats.Alien.Atmospheres/Clips/AM118.mp4",
+      "label": "AM118.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats_CyberJourneysHD/Clips/CJ115H.mp4",
+      "label": "CJ115H.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats_CyberJourneysHD/Clips/CJ120H.mp4",
+      "label": "CJ120H.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Triangle vids/4K Abstract Tunnel VJ Motion Background __ Free VJ Loops __ 4K VJ Loops.mp4",
+      "label": "4K Abstract Tunnel VJ Motion Background __ Free VJ Loops __ 4K VJ Loops.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/cells2/vecteezy_the-purple-glowing-energy-spheres-divide-like-cells-in-a_59486657.mp4",
+      "label": "vecteezy_the-purple-glowing-energy-spheres-divide-like-cells-in-a_59486657.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/highdef/Mitotic waves in the embryo of a fruit fly 2024 Small World in M.mp4",
+      "label": "Mitotic waves in the embryo of a fruit fly 2024 Small World in M.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/morpholib/turing_patterns_loop30.mp4",
+      "label": "turing_patterns_loop30.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/reactions/cell-image-library/4cbe64dc737c-hue-loop.mp4",
+      "label": "4cbe64dc737c-hue-loop.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/ArtBeats - Centrifusion/CLIPS/CFU104.mp4",
+      "label": "CFU104.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/ArtBeats - Centrifusion/CLIPS/CFU109.mp4",
+      "label": "CFU109.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/ArtBeats - Centrifusion/CLIPS/CFU112.mp4",
+      "label": "CFU112.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/ArtBeats - Centrifusion/CLIPS/CFU133.mp4",
+      "label": "CFU133.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/ArtBeats - Centrifusion/CLIPS/CFU139.mp4",
+      "label": "CFU139.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats-TimelapsePlants/TP116.mp4",
+      "label": "TP116.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Triangle vids/VJ three-dimensional triangle.mp4",
+      "label": "VJ three-dimensional triangle.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/cells1/cell-division-cellular-therapy-2026-01-28-05-03-42-utc.mp4",
+      "label": "cell-division-cellular-therapy-2026-01-28-05-03-42-utc.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/cells2/microscopic-sample-spinal-cord-cell-ts-200x-magnif-2025-12-17-05-34-16-utc.mov",
+      "label": "microscopic-sample-spinal-cord-cell-ts-200x-magnif-2025-12-17-05-34-16-utc.mov",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/cells2/molecular-binding-on-cellular-membrane-surface-2026-04-13-00-47-52-utc.mp4",
+      "label": "molecular-binding-on-cellular-membrane-surface-2026-04-13-00-47-52-utc.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/highdef/48-hour time-lapse of developing neurons connecting the opposite.mp4",
+      "label": "48-hour time-lapse of developing neurons connecting the opposite.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/ArtBeats - Centrifusion/CLIPS/CFU105.mp4",
+      "label": "CFU105.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/ArtBeats - Centrifusion/CLIPS/CFU107.mp4",
+      "label": "CFU107.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/ArtBeats - Centrifusion/CLIPS/CFU115.mp4",
+      "label": "CFU115.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/ArtBeats - Centrifusion/CLIPS/CFU128.mp4",
+      "label": "CFU128.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/ArtBeats - Centrifusion/CLIPS/CFU131.mp4",
+      "label": "CFU131.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/ArtBeats - Centrifusion/CLIPS/CFU138.mp4",
+      "label": "CFU138.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/ArtBeats - Centrifusion/CLIPS/CFU141.mp4",
+      "label": "CFU141.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats - Nature Underwater HD (1080i)/UN101H.mp4",
+      "label": "UN101H.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats - Nature Underwater HD (1080i)/UN102H.mp4",
+      "label": "UN102H.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats - Nature Underwater HD (1080i)/UN103H.mp4",
+      "label": "UN103H.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats - Nature Underwater HD (1080i)/UN104H.mp4",
+      "label": "UN104H.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats - Nature Underwater HD (1080i)/UN106H.mp4",
+      "label": "UN106H.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats - Nature Underwater HD (1080i)/UN107H.mp4",
+      "label": "UN107H.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats - Nature Underwater HD (1080i)/UN108H.mp4",
+      "label": "UN108H.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats - Nature Underwater HD (1080i)/UN109H.mp4",
+      "label": "UN109H.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats - Nature Underwater HD (1080i)/UN110H.mp4",
+      "label": "UN110H.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats - Nature Underwater HD (1080i)/UN111H.mp4",
+      "label": "UN111H.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats - Nature Underwater HD (1080i)/UN112H.mp4",
+      "label": "UN112H.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats - Nature Underwater HD (1080i)/UN113H.mp4",
+      "label": "UN113H.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats - Nature Underwater HD (1080i)/UN114H.mp4",
+      "label": "UN114H.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats - Nature Underwater HD (1080i)/UN115H.mp4",
+      "label": "UN115H.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats Ocean Water Effects PAL/CWE106.mp4",
+      "label": "CWE106.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats Ocean Water Effects PAL/CWE107.mp4",
+      "label": "CWE107.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats Ocean Water Effects PAL/CWE108.mp4",
+      "label": "CWE108.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats Ocean Water Effects PAL/CWE109.mp4",
+      "label": "CWE109.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats Ocean Water Effects PAL/CWE110.mp4",
+      "label": "CWE110.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats Ocean Water Effects PAL/CWE118.mp4",
+      "label": "CWE118.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats Ocean Water Effects PAL/CWE119.mp4",
+      "label": "CWE119.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats Ocean Water Effects PAL/CWE120.mp4",
+      "label": "CWE120.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats Ocean Water Effects PAL/CWE122.mp4",
+      "label": "CWE122.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats Ocean Water Effects PAL/CWE123.mp4",
+      "label": "CWE123.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats-OceanWaterEffects/CWE106.mp4",
+      "label": "CWE106.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats-OceanWaterEffects/CWE107.mp4",
+      "label": "CWE107.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats-OceanWaterEffects/CWE108.mp4",
+      "label": "CWE108.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats-OceanWaterEffects/CWE109.mp4",
+      "label": "CWE109.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats-OceanWaterEffects/CWE110.mp4",
+      "label": "CWE110.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats-OceanWaterEffects/CWE118.mp4",
+      "label": "CWE118.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats-OceanWaterEffects/CWE119.mp4",
+      "label": "CWE119.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats-OceanWaterEffects/CWE120.mp4",
+      "label": "CWE120.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats-OceanWaterEffects/CWE122.mp4",
+      "label": "CWE122.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats-OceanWaterEffects/CWE123.mp4",
+      "label": "CWE123.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats.Alien.Atmospheres/Clips/AM105.mp4",
+      "label": "AM105.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats.Alien.Atmospheres/Clips/AM112.mp4",
+      "label": "AM112.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats_CyberJourneysHD/Clips/CJ129H.mp4",
+      "label": "CJ129H.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Triangle vids/When you stand up too fast.mp4",
+      "label": "When you stand up too fast.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/cells1/3191573-uhd_3840_2160_25fps.mp4",
+      "label": "3191573-uhd_3840_2160_25fps.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/cells1/8739082-uhd_1920_1440_18fps.mp4",
+      "label": "8739082-uhd_1920_1440_18fps.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/cells1/AETHER 002.mp4",
+      "label": "AETHER 002.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/cells1/cell-division-loop-background-2026-01-28-02-43-48-utc.mov",
+      "label": "cell-division-loop-background-2026-01-28-02-43-48-utc.mov",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/cells2/large-numbers-of-cells-gather-together-2026-01-28-03-23-59-utc.mov",
+      "label": "large-numbers-of-cells-gather-together-2026-01-28-03-23-59-utc.mov",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/cells2/output_video 2_1.mp4",
+      "label": "output_video 2_1.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/cells2/vecteezy_microscopic-world-of-cells-scientific-illustration-of_72642324.mp4",
+      "label": "vecteezy_microscopic-world-of-cells-scientific-illustration-of_72642324.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/clarafi/Bordetella pertussis and Whooping Cough.mp4",
+      "label": "Bordetella pertussis and Whooping Cough.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/clarafi/Citric Acid Cycle _ HHMI BioInteractive Video.webm",
+      "label": "Citric Acid Cycle _ HHMI BioInteractive Video.webm",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/clarafi/How Enzymes Work (from PDB-101).mp4",
+      "label": "How Enzymes Work (from PDB-101).mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/highdef/Self-pollination in a flower of thymeleaf speedwell Veronica ser.mp4",
+      "label": "Self-pollination in a flower of thymeleaf speedwell Veronica ser.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/highdef/zoom-swim-paracetamol cut.mp4",
+      "label": "zoom-swim-paracetamol cut.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/ArtBeats - Centrifusion/CLIPS/CFU110.mp4",
+      "label": "CFU110.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/ArtBeats - Centrifusion/CLIPS/CFU118.mp4",
+      "label": "CFU118.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/ArtBeats - Centrifusion/CLIPS/CFU136.mp4",
+      "label": "CFU136.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats Ocean Water Effects PAL/CWE101.mp4",
+      "label": "CWE101.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats Ocean Water Effects PAL/CWE102.mp4",
+      "label": "CWE102.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats Ocean Water Effects PAL/CWE103.mp4",
+      "label": "CWE103.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats Ocean Water Effects PAL/CWE104.mp4",
+      "label": "CWE104.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats Ocean Water Effects PAL/CWE105.mp4",
+      "label": "CWE105.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats Ocean Water Effects PAL/CWE111.mp4",
+      "label": "CWE111.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats Ocean Water Effects PAL/CWE112.mp4",
+      "label": "CWE112.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats Ocean Water Effects PAL/CWE114.mp4",
+      "label": "CWE114.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats Ocean Water Effects PAL/CWE115.mp4",
+      "label": "CWE115.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats Ocean Water Effects PAL/CWE117.mp4",
+      "label": "CWE117.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats Ocean Water Effects PAL/CWE121.mp4",
+      "label": "CWE121.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats-OceanWaterEffects/CWE101.mp4",
+      "label": "CWE101.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats-OceanWaterEffects/CWE102.mp4",
+      "label": "CWE102.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats-OceanWaterEffects/CWE103.mp4",
+      "label": "CWE103.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats-OceanWaterEffects/CWE104.mp4",
+      "label": "CWE104.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats-OceanWaterEffects/CWE105.mp4",
+      "label": "CWE105.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats-OceanWaterEffects/CWE111.mp4",
+      "label": "CWE111.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats-OceanWaterEffects/CWE112.mp4",
+      "label": "CWE112.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats-OceanWaterEffects/CWE114.mp4",
+      "label": "CWE114.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats-OceanWaterEffects/CWE115.mp4",
+      "label": "CWE115.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats-OceanWaterEffects/CWE117.mp4",
+      "label": "CWE117.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats-OceanWaterEffects/CWE121.mp4",
+      "label": "CWE121.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats-WaterEffects2/Clips/WE209.mp4",
+      "label": "WE209.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats.Alien.Atmospheres/Clips/AM102.mp4",
+      "label": "AM102.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats.Alien.Atmospheres/Clips/AM103.mp4",
+      "label": "AM103.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats.Alien.Atmospheres/Clips/AM110.mp4",
+      "label": "AM110.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats.Alien.Atmospheres/Clips/AM113.mp4",
+      "label": "AM113.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats.Alien.Atmospheres/Clips/AM115.mp4",
+      "label": "AM115.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats_CyberJourneysHD/Clips/CJ101H.mp4",
+      "label": "CJ101H.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats_CyberJourneysHD/Clips/CJ106H.mp4",
+      "label": "CJ106H.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats_CyberJourneysHD/Clips/CJ108H.mp4",
+      "label": "CJ108H.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats_CyberJourneysHD/Clips/CJ112H.mp4",
+      "label": "CJ112H.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats_CyberJourneysHD/Clips/CJ116H.mp4",
+      "label": "CJ116H.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats_CyberJourneysHD/Clips/CJ119H.mp4",
+      "label": "CJ119H.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats_CyberJourneysHD/Clips/CJ121H.mp4",
+      "label": "CJ121H.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats_CyberJourneysHD/Clips/CJ122H.mp4",
+      "label": "CJ122H.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats_CyberJourneysHD/Clips/CJ126H.mp4",
+      "label": "CJ126H.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats_CyberJourneysHD/Clips/CJ128H.mp4",
+      "label": "CJ128H.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Triangle vids/[4K] DJ Visuals - Triangle VJ Loop.mp4",
+      "label": "[4K] DJ Visuals - Triangle VJ Loop.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/cells1/is.mp4",
+      "label": "is.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/clarafi/How Tumors Grow _ HHMI BioInteractive Video.mp4",
+      "label": "How Tumors Grow _ HHMI BioInteractive Video.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/ArtBeats - Centrifusion/CLIPS/CFU103.mp4",
+      "label": "CFU103.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/ArtBeats - Centrifusion/CLIPS/CFU113.mp4",
+      "label": "CFU113.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/ArtBeats - Centrifusion/CLIPS/CFU116.mp4",
+      "label": "CFU116.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/ArtBeats - Centrifusion/CLIPS/CFU117.mp4",
+      "label": "CFU117.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/ArtBeats - Centrifusion/CLIPS/CFU120.mp4",
+      "label": "CFU120.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/ArtBeats - Centrifusion/CLIPS/CFU121.mp4",
+      "label": "CFU121.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/ArtBeats - Centrifusion/CLIPS/CFU124.mp4",
+      "label": "CFU124.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/ArtBeats - Centrifusion/CLIPS/CFU135.mp4",
+      "label": "CFU135.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/ArtBeats - Code Rage HD Vol.1/CDA111H1.mp4",
+      "label": "CDA111H1.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats Ocean Water Effects PAL/CWE113.mp4",
+      "label": "CWE113.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats Ocean Water Effects PAL/CWE116.mp4",
+      "label": "CWE116.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats-OceanWaterEffects/CWE113.mp4",
+      "label": "CWE113.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats-OceanWaterEffects/CWE116.mp4",
+      "label": "CWE116.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats-WaterEffects2/Clips/WE201A.mp4",
+      "label": "WE201A.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats-WaterEffects2/Clips/WE201B.mp4",
+      "label": "WE201B.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats-WaterEffects2/Clips/WE202.mp4",
+      "label": "WE202.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats-WaterEffects2/Clips/WE203.mp4",
+      "label": "WE203.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats-WaterEffects2/Clips/WE204.mp4",
+      "label": "WE204.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats-WaterEffects2/Clips/WE210.mp4",
+      "label": "WE210.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats-WaterEffects2/Clips/WE218.mp4",
+      "label": "WE218.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats.Alien.Atmospheres/Clips/AM101.mp4",
+      "label": "AM101.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats.Alien.Atmospheres/Clips/AM108.mp4",
+      "label": "AM108.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats.Alien.Atmospheres/Clips/AM109.mp4",
+      "label": "AM109.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats.Alien.Atmospheres/Clips/AM111.mp4",
+      "label": "AM111.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats.Alien.Atmospheres/Clips/AM116.mp4",
+      "label": "AM116.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats.Alien.Atmospheres/Clips/AM117.mp4",
+      "label": "AM117.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats.Alien.Atmospheres/Clips/AM119.mp4",
+      "label": "AM119.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats.Alien.Atmospheres/Clips/AM120.mp4",
+      "label": "AM120.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats_CyberJourneysHD/Clips/CJ110H.mp4",
+      "label": "CJ110H.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats_CyberJourneysHD/Clips/CJ114H.mp4",
+      "label": "CJ114H.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats_CyberJourneysHD/Clips/CJ117H.mp4",
+      "label": "CJ117H.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Triangle vids/4K Vj Loop. Triangular Tunnel..mp4",
+      "label": "4K Vj Loop. Triangular Tunnel..mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/cells1/cell-reproduction-2026-01-28-04-16-06-utc.mp4",
+      "label": "cell-reproduction-2026-01-28-04-16-06-utc.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/cells2/vecteezy_cell-division-effect-on-blur-background_3145462.mp4",
+      "label": "vecteezy_cell-division-effect-on-blur-background_3145462.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/clarafi/Electron Transport Chain _ HHMI BioInteractive Video.mp4",
+      "label": "Electron Transport Chain _ HHMI BioInteractive Video.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/clarafi/The Structure of DNA.mp4",
+      "label": "The Structure of DNA.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/clarafi/hemoglobin3.mov",
+      "label": "hemoglobin3.mov",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/highdef/Actin and mitochondria in mouse brain tumor cells 2025 Small Wor.mp4",
+      "label": "Actin and mitochondria in mouse brain tumor cells 2025 Small Wor.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/highdef/zoom-swim-rotifers cut.mp4",
+      "label": "zoom-swim-rotifers cut.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/prepped/clarafi-crop80-possible/009-hemoglobin3.mp4",
+      "label": "009-hemoglobin3.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/ArtBeats - Centrifusion/CLIPS/CFU111.mp4",
+      "label": "CFU111.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/ArtBeats - Centrifusion/CLIPS/CFU114.mp4",
+      "label": "CFU114.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/ArtBeats - Centrifusion/CLIPS/CFU127.mp4",
+      "label": "CFU127.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats-TimelapseFlowers3/TF301.mp4",
+      "label": "TF301.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats.Alien.Atmospheres/Clips/AM118.mp4",
+      "label": "AM118.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats_CyberJourneysHD/Clips/CJ115H.mp4",
+      "label": "CJ115H.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats_CyberJourneysHD/Clips/CJ120H.mp4",
+      "label": "CJ120H.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Triangle vids/4K Abstract Tunnel VJ Motion Background __ Free VJ Loops __ 4K VJ Loops.mp4",
+      "label": "4K Abstract Tunnel VJ Motion Background __ Free VJ Loops __ 4K VJ Loops.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/cells2/vecteezy_the-purple-glowing-energy-spheres-divide-like-cells-in-a_59486657.mp4",
+      "label": "vecteezy_the-purple-glowing-energy-spheres-divide-like-cells-in-a_59486657.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/highdef/Mitotic waves in the embryo of a fruit fly 2024 Small World in M.mp4",
+      "label": "Mitotic waves in the embryo of a fruit fly 2024 Small World in M.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/morpholib/turing_patterns_loop30.mp4",
+      "label": "turing_patterns_loop30.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/reactions/cell-image-library/4cbe64dc737c-hue-loop.mp4",
+      "label": "4cbe64dc737c-hue-loop.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/ArtBeats - Centrifusion/CLIPS/CFU104.mp4",
+      "label": "CFU104.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/ArtBeats - Centrifusion/CLIPS/CFU109.mp4",
+      "label": "CFU109.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/ArtBeats - Centrifusion/CLIPS/CFU112.mp4",
+      "label": "CFU112.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/ArtBeats - Centrifusion/CLIPS/CFU133.mp4",
+      "label": "CFU133.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/ArtBeats - Centrifusion/CLIPS/CFU139.mp4",
+      "label": "CFU139.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats-TimelapsePlants/TP116.mp4",
+      "label": "TP116.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Triangle vids/VJ three-dimensional triangle.mp4",
+      "label": "VJ three-dimensional triangle.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/cells1/cell-division-cellular-therapy-2026-01-28-05-03-42-utc.mp4",
+      "label": "cell-division-cellular-therapy-2026-01-28-05-03-42-utc.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/cells2/microscopic-sample-spinal-cord-cell-ts-200x-magnif-2025-12-17-05-34-16-utc.mov",
+      "label": "microscopic-sample-spinal-cord-cell-ts-200x-magnif-2025-12-17-05-34-16-utc.mov",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/cells2/molecular-binding-on-cellular-membrane-surface-2026-04-13-00-47-52-utc.mp4",
+      "label": "molecular-binding-on-cellular-membrane-surface-2026-04-13-00-47-52-utc.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/highdef/48-hour time-lapse of developing neurons connecting the opposite.mp4",
+      "label": "48-hour time-lapse of developing neurons connecting the opposite.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/ArtBeats - Centrifusion/CLIPS/CFU105.mp4",
+      "label": "CFU105.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/ArtBeats - Centrifusion/CLIPS/CFU107.mp4",
+      "label": "CFU107.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/ArtBeats - Centrifusion/CLIPS/CFU115.mp4",
+      "label": "CFU115.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/ArtBeats - Centrifusion/CLIPS/CFU128.mp4",
+      "label": "CFU128.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/ArtBeats - Centrifusion/CLIPS/CFU131.mp4",
+      "label": "CFU131.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/ArtBeats - Centrifusion/CLIPS/CFU138.mp4",
+      "label": "CFU138.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/ArtBeats - Centrifusion/CLIPS/CFU141.mp4",
+      "label": "CFU141.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats - Nature Underwater HD (1080i)/UN101H.mp4",
+      "label": "UN101H.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats - Nature Underwater HD (1080i)/UN102H.mp4",
+      "label": "UN102H.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats - Nature Underwater HD (1080i)/UN103H.mp4",
+      "label": "UN103H.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats - Nature Underwater HD (1080i)/UN104H.mp4",
+      "label": "UN104H.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats - Nature Underwater HD (1080i)/UN106H.mp4",
+      "label": "UN106H.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats - Nature Underwater HD (1080i)/UN107H.mp4",
+      "label": "UN107H.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats - Nature Underwater HD (1080i)/UN108H.mp4",
+      "label": "UN108H.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats - Nature Underwater HD (1080i)/UN109H.mp4",
+      "label": "UN109H.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats - Nature Underwater HD (1080i)/UN110H.mp4",
+      "label": "UN110H.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats - Nature Underwater HD (1080i)/UN111H.mp4",
+      "label": "UN111H.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats - Nature Underwater HD (1080i)/UN112H.mp4",
+      "label": "UN112H.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats - Nature Underwater HD (1080i)/UN113H.mp4",
+      "label": "UN113H.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats - Nature Underwater HD (1080i)/UN114H.mp4",
+      "label": "UN114H.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats - Nature Underwater HD (1080i)/UN115H.mp4",
+      "label": "UN115H.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats Ocean Water Effects PAL/CWE106.mp4",
+      "label": "CWE106.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats Ocean Water Effects PAL/CWE107.mp4",
+      "label": "CWE107.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats Ocean Water Effects PAL/CWE108.mp4",
+      "label": "CWE108.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats Ocean Water Effects PAL/CWE109.mp4",
+      "label": "CWE109.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats Ocean Water Effects PAL/CWE110.mp4",
+      "label": "CWE110.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats Ocean Water Effects PAL/CWE118.mp4",
+      "label": "CWE118.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats Ocean Water Effects PAL/CWE119.mp4",
+      "label": "CWE119.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats Ocean Water Effects PAL/CWE120.mp4",
+      "label": "CWE120.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats Ocean Water Effects PAL/CWE122.mp4",
+      "label": "CWE122.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats Ocean Water Effects PAL/CWE123.mp4",
+      "label": "CWE123.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats-OceanWaterEffects/CWE106.mp4",
+      "label": "CWE106.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats-OceanWaterEffects/CWE107.mp4",
+      "label": "CWE107.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats-OceanWaterEffects/CWE108.mp4",
+      "label": "CWE108.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats-OceanWaterEffects/CWE109.mp4",
+      "label": "CWE109.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats-OceanWaterEffects/CWE110.mp4",
+      "label": "CWE110.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats-OceanWaterEffects/CWE118.mp4",
+      "label": "CWE118.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats-OceanWaterEffects/CWE119.mp4",
+      "label": "CWE119.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats-OceanWaterEffects/CWE120.mp4",
+      "label": "CWE120.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats-OceanWaterEffects/CWE122.mp4",
+      "label": "CWE122.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats-OceanWaterEffects/CWE123.mp4",
+      "label": "CWE123.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats.Alien.Atmospheres/Clips/AM105.mp4",
+      "label": "AM105.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats.Alien.Atmospheres/Clips/AM112.mp4",
+      "label": "AM112.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats_CyberJourneysHD/Clips/CJ129H.mp4",
+      "label": "CJ129H.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Triangle vids/When you stand up too fast.mp4",
+      "label": "When you stand up too fast.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/cells1/3191573-uhd_3840_2160_25fps.mp4",
+      "label": "3191573-uhd_3840_2160_25fps.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/cells1/8739082-uhd_1920_1440_18fps.mp4",
+      "label": "8739082-uhd_1920_1440_18fps.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/cells1/AETHER 002.mp4",
+      "label": "AETHER 002.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/cells1/cell-division-loop-background-2026-01-28-02-43-48-utc.mov",
+      "label": "cell-division-loop-background-2026-01-28-02-43-48-utc.mov",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/cells2/large-numbers-of-cells-gather-together-2026-01-28-03-23-59-utc.mov",
+      "label": "large-numbers-of-cells-gather-together-2026-01-28-03-23-59-utc.mov",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/cells2/output_video 2_1.mp4",
+      "label": "output_video 2_1.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/cells2/vecteezy_microscopic-world-of-cells-scientific-illustration-of_72642324.mp4",
+      "label": "vecteezy_microscopic-world-of-cells-scientific-illustration-of_72642324.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/clarafi/Bordetella pertussis and Whooping Cough.mp4",
+      "label": "Bordetella pertussis and Whooping Cough.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/clarafi/Citric Acid Cycle _ HHMI BioInteractive Video.webm",
+      "label": "Citric Acid Cycle _ HHMI BioInteractive Video.webm",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/clarafi/How Enzymes Work (from PDB-101).mp4",
+      "label": "How Enzymes Work (from PDB-101).mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/highdef/Self-pollination in a flower of thymeleaf speedwell Veronica ser.mp4",
+      "label": "Self-pollination in a flower of thymeleaf speedwell Veronica ser.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/highdef/zoom-swim-paracetamol cut.mp4",
+      "label": "zoom-swim-paracetamol cut.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/ArtBeats - Centrifusion/CLIPS/CFU110.mp4",
+      "label": "CFU110.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/ArtBeats - Centrifusion/CLIPS/CFU118.mp4",
+      "label": "CFU118.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/ArtBeats - Centrifusion/CLIPS/CFU136.mp4",
+      "label": "CFU136.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats Ocean Water Effects PAL/CWE101.mp4",
+      "label": "CWE101.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats Ocean Water Effects PAL/CWE102.mp4",
+      "label": "CWE102.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats Ocean Water Effects PAL/CWE103.mp4",
+      "label": "CWE103.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats Ocean Water Effects PAL/CWE104.mp4",
+      "label": "CWE104.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats Ocean Water Effects PAL/CWE105.mp4",
+      "label": "CWE105.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats Ocean Water Effects PAL/CWE111.mp4",
+      "label": "CWE111.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats Ocean Water Effects PAL/CWE112.mp4",
+      "label": "CWE112.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats Ocean Water Effects PAL/CWE114.mp4",
+      "label": "CWE114.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats Ocean Water Effects PAL/CWE115.mp4",
+      "label": "CWE115.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats Ocean Water Effects PAL/CWE117.mp4",
+      "label": "CWE117.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats Ocean Water Effects PAL/CWE121.mp4",
+      "label": "CWE121.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats-OceanWaterEffects/CWE101.mp4",
+      "label": "CWE101.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats-OceanWaterEffects/CWE102.mp4",
+      "label": "CWE102.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats-OceanWaterEffects/CWE103.mp4",
+      "label": "CWE103.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats-OceanWaterEffects/CWE104.mp4",
+      "label": "CWE104.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats-OceanWaterEffects/CWE105.mp4",
+      "label": "CWE105.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats-OceanWaterEffects/CWE111.mp4",
+      "label": "CWE111.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats-OceanWaterEffects/CWE112.mp4",
+      "label": "CWE112.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats-OceanWaterEffects/CWE114.mp4",
+      "label": "CWE114.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats-OceanWaterEffects/CWE115.mp4",
+      "label": "CWE115.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats-OceanWaterEffects/CWE117.mp4",
+      "label": "CWE117.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats-OceanWaterEffects/CWE121.mp4",
+      "label": "CWE121.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats-WaterEffects2/Clips/WE209.mp4",
+      "label": "WE209.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats.Alien.Atmospheres/Clips/AM102.mp4",
+      "label": "AM102.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats.Alien.Atmospheres/Clips/AM103.mp4",
+      "label": "AM103.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats.Alien.Atmospheres/Clips/AM110.mp4",
+      "label": "AM110.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats.Alien.Atmospheres/Clips/AM113.mp4",
+      "label": "AM113.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats.Alien.Atmospheres/Clips/AM115.mp4",
+      "label": "AM115.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats_CyberJourneysHD/Clips/CJ101H.mp4",
+      "label": "CJ101H.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats_CyberJourneysHD/Clips/CJ106H.mp4",
+      "label": "CJ106H.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats_CyberJourneysHD/Clips/CJ108H.mp4",
+      "label": "CJ108H.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats_CyberJourneysHD/Clips/CJ112H.mp4",
+      "label": "CJ112H.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats_CyberJourneysHD/Clips/CJ116H.mp4",
+      "label": "CJ116H.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats_CyberJourneysHD/Clips/CJ119H.mp4",
+      "label": "CJ119H.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats_CyberJourneysHD/Clips/CJ121H.mp4",
+      "label": "CJ121H.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats_CyberJourneysHD/Clips/CJ122H.mp4",
+      "label": "CJ122H.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats_CyberJourneysHD/Clips/CJ126H.mp4",
+      "label": "CJ126H.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats_CyberJourneysHD/Clips/CJ128H.mp4",
+      "label": "CJ128H.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Triangle vids/[4K] DJ Visuals - Triangle VJ Loop.mp4",
+      "label": "[4K] DJ Visuals - Triangle VJ Loop.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/cells1/is.mp4",
+      "label": "is.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/clarafi/How Tumors Grow _ HHMI BioInteractive Video.mp4",
+      "label": "How Tumors Grow _ HHMI BioInteractive Video.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/ArtBeats - Centrifusion/CLIPS/CFU103.mp4",
+      "label": "CFU103.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/ArtBeats - Centrifusion/CLIPS/CFU113.mp4",
+      "label": "CFU113.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/ArtBeats - Centrifusion/CLIPS/CFU116.mp4",
+      "label": "CFU116.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/ArtBeats - Centrifusion/CLIPS/CFU117.mp4",
+      "label": "CFU117.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/ArtBeats - Centrifusion/CLIPS/CFU120.mp4",
+      "label": "CFU120.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/ArtBeats - Centrifusion/CLIPS/CFU121.mp4",
+      "label": "CFU121.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/ArtBeats - Centrifusion/CLIPS/CFU124.mp4",
+      "label": "CFU124.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/ArtBeats - Centrifusion/CLIPS/CFU135.mp4",
+      "label": "CFU135.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/ArtBeats - Code Rage HD Vol.1/CDA111H1.mp4",
+      "label": "CDA111H1.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats Ocean Water Effects PAL/CWE113.mp4",
+      "label": "CWE113.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats Ocean Water Effects PAL/CWE116.mp4",
+      "label": "CWE116.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats-OceanWaterEffects/CWE113.mp4",
+      "label": "CWE113.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats-OceanWaterEffects/CWE116.mp4",
+      "label": "CWE116.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats-WaterEffects2/Clips/WE201A.mp4",
+      "label": "WE201A.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats-WaterEffects2/Clips/WE201B.mp4",
+      "label": "WE201B.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats-WaterEffects2/Clips/WE202.mp4",
+      "label": "WE202.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats-WaterEffects2/Clips/WE203.mp4",
+      "label": "WE203.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats-WaterEffects2/Clips/WE204.mp4",
+      "label": "WE204.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats-WaterEffects2/Clips/WE210.mp4",
+      "label": "WE210.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats-WaterEffects2/Clips/WE218.mp4",
+      "label": "WE218.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats.Alien.Atmospheres/Clips/AM101.mp4",
+      "label": "AM101.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats.Alien.Atmospheres/Clips/AM108.mp4",
+      "label": "AM108.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats.Alien.Atmospheres/Clips/AM109.mp4",
+      "label": "AM109.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats.Alien.Atmospheres/Clips/AM111.mp4",
+      "label": "AM111.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats.Alien.Atmospheres/Clips/AM116.mp4",
+      "label": "AM116.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats.Alien.Atmospheres/Clips/AM117.mp4",
+      "label": "AM117.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats.Alien.Atmospheres/Clips/AM119.mp4",
+      "label": "AM119.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats.Alien.Atmospheres/Clips/AM120.mp4",
+      "label": "AM120.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats_CyberJourneysHD/Clips/CJ110H.mp4",
+      "label": "CJ110H.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats_CyberJourneysHD/Clips/CJ114H.mp4",
+      "label": "CJ114H.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats_CyberJourneysHD/Clips/CJ117H.mp4",
+      "label": "CJ117H.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Triangle vids/4K Vj Loop. Triangular Tunnel..mp4",
+      "label": "4K Vj Loop. Triangular Tunnel..mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/cells1/cell-reproduction-2026-01-28-04-16-06-utc.mp4",
+      "label": "cell-reproduction-2026-01-28-04-16-06-utc.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/cells2/vecteezy_cell-division-effect-on-blur-background_3145462.mp4",
+      "label": "vecteezy_cell-division-effect-on-blur-background_3145462.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/clarafi/Electron Transport Chain _ HHMI BioInteractive Video.mp4",
+      "label": "Electron Transport Chain _ HHMI BioInteractive Video.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/clarafi/The Structure of DNA.mp4",
+      "label": "The Structure of DNA.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/clarafi/hemoglobin3.mov",
+      "label": "hemoglobin3.mov",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/highdef/Actin and mitochondria in mouse brain tumor cells 2025 Small Wor.mp4",
+      "label": "Actin and mitochondria in mouse brain tumor cells 2025 Small Wor.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/highdef/zoom-swim-rotifers cut.mp4",
+      "label": "zoom-swim-rotifers cut.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/prepped/clarafi-crop80-possible/009-hemoglobin3.mp4",
+      "label": "009-hemoglobin3.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/ArtBeats - Centrifusion/CLIPS/CFU111.mp4",
+      "label": "CFU111.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/ArtBeats - Centrifusion/CLIPS/CFU114.mp4",
+      "label": "CFU114.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/ArtBeats - Centrifusion/CLIPS/CFU127.mp4",
+      "label": "CFU127.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats-TimelapseFlowers3/TF301.mp4",
+      "label": "TF301.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats.Alien.Atmospheres/Clips/AM118.mp4",
+      "label": "AM118.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats_CyberJourneysHD/Clips/CJ115H.mp4",
+      "label": "CJ115H.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats_CyberJourneysHD/Clips/CJ120H.mp4",
+      "label": "CJ120H.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Triangle vids/4K Abstract Tunnel VJ Motion Background __ Free VJ Loops __ 4K VJ Loops.mp4",
+      "label": "4K Abstract Tunnel VJ Motion Background __ Free VJ Loops __ 4K VJ Loops.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/cells2/vecteezy_the-purple-glowing-energy-spheres-divide-like-cells-in-a_59486657.mp4",
+      "label": "vecteezy_the-purple-glowing-energy-spheres-divide-like-cells-in-a_59486657.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/highdef/Mitotic waves in the embryo of a fruit fly 2024 Small World in M.mp4",
+      "label": "Mitotic waves in the embryo of a fruit fly 2024 Small World in M.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/morpholib/turing_patterns_loop30.mp4",
+      "label": "turing_patterns_loop30.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/reactions/cell-image-library/4cbe64dc737c-hue-loop.mp4",
+      "label": "4cbe64dc737c-hue-loop.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/ArtBeats - Centrifusion/CLIPS/CFU104.mp4",
+      "label": "CFU104.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/ArtBeats - Centrifusion/CLIPS/CFU109.mp4",
+      "label": "CFU109.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/ArtBeats - Centrifusion/CLIPS/CFU112.mp4",
+      "label": "CFU112.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/ArtBeats - Centrifusion/CLIPS/CFU133.mp4",
+      "label": "CFU133.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/ArtBeats - Centrifusion/CLIPS/CFU139.mp4",
+      "label": "CFU139.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats-TimelapsePlants/TP116.mp4",
+      "label": "TP116.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Triangle vids/VJ three-dimensional triangle.mp4",
+      "label": "VJ three-dimensional triangle.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/cells1/cell-division-cellular-therapy-2026-01-28-05-03-42-utc.mp4",
+      "label": "cell-division-cellular-therapy-2026-01-28-05-03-42-utc.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/cells2/microscopic-sample-spinal-cord-cell-ts-200x-magnif-2025-12-17-05-34-16-utc.mov",
+      "label": "microscopic-sample-spinal-cord-cell-ts-200x-magnif-2025-12-17-05-34-16-utc.mov",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/cells2/molecular-binding-on-cellular-membrane-surface-2026-04-13-00-47-52-utc.mp4",
+      "label": "molecular-binding-on-cellular-membrane-surface-2026-04-13-00-47-52-utc.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/highdef/48-hour time-lapse of developing neurons connecting the opposite.mp4",
+      "label": "48-hour time-lapse of developing neurons connecting the opposite.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/ArtBeats - Centrifusion/CLIPS/CFU105.mp4",
+      "label": "CFU105.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/ArtBeats - Centrifusion/CLIPS/CFU107.mp4",
+      "label": "CFU107.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/ArtBeats - Centrifusion/CLIPS/CFU115.mp4",
+      "label": "CFU115.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/ArtBeats - Centrifusion/CLIPS/CFU128.mp4",
+      "label": "CFU128.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/ArtBeats - Centrifusion/CLIPS/CFU131.mp4",
+      "label": "CFU131.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/ArtBeats - Centrifusion/CLIPS/CFU138.mp4",
+      "label": "CFU138.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/ArtBeats - Centrifusion/CLIPS/CFU141.mp4",
+      "label": "CFU141.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats - Nature Underwater HD (1080i)/UN101H.mp4",
+      "label": "UN101H.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats - Nature Underwater HD (1080i)/UN102H.mp4",
+      "label": "UN102H.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats - Nature Underwater HD (1080i)/UN103H.mp4",
+      "label": "UN103H.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats - Nature Underwater HD (1080i)/UN104H.mp4",
+      "label": "UN104H.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats - Nature Underwater HD (1080i)/UN106H.mp4",
+      "label": "UN106H.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats - Nature Underwater HD (1080i)/UN107H.mp4",
+      "label": "UN107H.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats - Nature Underwater HD (1080i)/UN108H.mp4",
+      "label": "UN108H.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats - Nature Underwater HD (1080i)/UN109H.mp4",
+      "label": "UN109H.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats - Nature Underwater HD (1080i)/UN110H.mp4",
+      "label": "UN110H.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats - Nature Underwater HD (1080i)/UN111H.mp4",
+      "label": "UN111H.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats - Nature Underwater HD (1080i)/UN112H.mp4",
+      "label": "UN112H.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats - Nature Underwater HD (1080i)/UN113H.mp4",
+      "label": "UN113H.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats - Nature Underwater HD (1080i)/UN114H.mp4",
+      "label": "UN114H.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats - Nature Underwater HD (1080i)/UN115H.mp4",
+      "label": "UN115H.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats Ocean Water Effects PAL/CWE106.mp4",
+      "label": "CWE106.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats Ocean Water Effects PAL/CWE107.mp4",
+      "label": "CWE107.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats Ocean Water Effects PAL/CWE108.mp4",
+      "label": "CWE108.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats Ocean Water Effects PAL/CWE109.mp4",
+      "label": "CWE109.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats Ocean Water Effects PAL/CWE110.mp4",
+      "label": "CWE110.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats Ocean Water Effects PAL/CWE118.mp4",
+      "label": "CWE118.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats Ocean Water Effects PAL/CWE119.mp4",
+      "label": "CWE119.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats Ocean Water Effects PAL/CWE120.mp4",
+      "label": "CWE120.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats Ocean Water Effects PAL/CWE122.mp4",
+      "label": "CWE122.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats Ocean Water Effects PAL/CWE123.mp4",
+      "label": "CWE123.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats-OceanWaterEffects/CWE106.mp4",
+      "label": "CWE106.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats-OceanWaterEffects/CWE107.mp4",
+      "label": "CWE107.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats-OceanWaterEffects/CWE108.mp4",
+      "label": "CWE108.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats-OceanWaterEffects/CWE109.mp4",
+      "label": "CWE109.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats-OceanWaterEffects/CWE110.mp4",
+      "label": "CWE110.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats-OceanWaterEffects/CWE118.mp4",
+      "label": "CWE118.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats-OceanWaterEffects/CWE119.mp4",
+      "label": "CWE119.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats-OceanWaterEffects/CWE120.mp4",
+      "label": "CWE120.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats-OceanWaterEffects/CWE122.mp4",
+      "label": "CWE122.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats-OceanWaterEffects/CWE123.mp4",
+      "label": "CWE123.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats.Alien.Atmospheres/Clips/AM105.mp4",
+      "label": "AM105.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats.Alien.Atmospheres/Clips/AM112.mp4",
+      "label": "AM112.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats_CyberJourneysHD/Clips/CJ129H.mp4",
+      "label": "CJ129H.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Triangle vids/When you stand up too fast.mp4",
+      "label": "When you stand up too fast.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/cells1/3191573-uhd_3840_2160_25fps.mp4",
+      "label": "3191573-uhd_3840_2160_25fps.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/cells1/8739082-uhd_1920_1440_18fps.mp4",
+      "label": "8739082-uhd_1920_1440_18fps.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/cells1/AETHER 002.mp4",
+      "label": "AETHER 002.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/cells1/cell-division-loop-background-2026-01-28-02-43-48-utc.mov",
+      "label": "cell-division-loop-background-2026-01-28-02-43-48-utc.mov",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/cells2/large-numbers-of-cells-gather-together-2026-01-28-03-23-59-utc.mov",
+      "label": "large-numbers-of-cells-gather-together-2026-01-28-03-23-59-utc.mov",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/cells2/output_video 2_1.mp4",
+      "label": "output_video 2_1.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/cells2/vecteezy_microscopic-world-of-cells-scientific-illustration-of_72642324.mp4",
+      "label": "vecteezy_microscopic-world-of-cells-scientific-illustration-of_72642324.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/clarafi/Bordetella pertussis and Whooping Cough.mp4",
+      "label": "Bordetella pertussis and Whooping Cough.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/clarafi/Citric Acid Cycle _ HHMI BioInteractive Video.webm",
+      "label": "Citric Acid Cycle _ HHMI BioInteractive Video.webm",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/clarafi/How Enzymes Work (from PDB-101).mp4",
+      "label": "How Enzymes Work (from PDB-101).mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/highdef/Self-pollination in a flower of thymeleaf speedwell Veronica ser.mp4",
+      "label": "Self-pollination in a flower of thymeleaf speedwell Veronica ser.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    }
+  ]
+}

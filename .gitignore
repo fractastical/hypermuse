@@ -2,6 +2,6 @@ creds.js
 images
 node_modules/
 loops/
-artifacts/*.webm
-artifacts/*.mp4
-artifacts/videos/*.webm
+
+# Generated exports, caches, datasets, PDFs, and media (videos, wav, LED samples, DJ cache, …)
+artifacts/

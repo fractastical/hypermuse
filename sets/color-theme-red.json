@@ -1,0 +1,259 @@
+{
+  "generatedAt": "2026-05-07T19:50:19.834Z",
+  "query": {
+    "tags": [
+      "red"
+    ],
+    "minRatio": 0.15,
+    "maxItems": 120,
+    "includeEffects": true
+  },
+  "counts": {
+    "matched": 60,
+    "videos": 60,
+    "effects": 0
+  },
+  "matchedEffects": [],
+  "entries": [
+    {
+      "url": "loops/ArtBeats - Centrifusion/CLIPS/CFU122.mp4",
+      "label": "red"
+    },
+    {
+      "url": "loops/ArtBeats - Centrifusion/CLIPS/CFU123.mp4",
+      "label": "red"
+    },
+    {
+      "url": "loops/cells1/bio-cell-animation-2026-01-28-04-15-42-utc.mp4",
+      "label": "red/red-orange"
+    },
+    {
+      "url": "loops/clarafi/Differentiation and the Fate of Cells _ HHMI BioInteractive Video.mp4",
+      "label": "red/red-blue"
+    },
+    {
+      "url": "loops/ArtBeats - Centrifusion/CLIPS/CFU132.mp4",
+      "label": "red/red-magenta"
+    },
+    {
+      "url": "loops/ArtBeats - Centrifusion/CLIPS/CFU129.mp4",
+      "label": "red/red-magenta"
+    },
+    {
+      "url": "loops/ArtBeats - Centrifusion/CLIPS/CFU125.mp4",
+      "label": "red/red-magenta"
+    },
+    {
+      "url": "loops/Artbeats_CyberJourneysHD/Clips/CJ125H.mp4",
+      "label": "red/red-orange"
+    },
+    {
+      "url": "loops/Artbeats_CyberJourneysHD/Clips/CJ102H.mp4",
+      "label": "red/red-black"
+    },
+    {
+      "url": "loops/clarafi/Apoptosis _WATERMARK_ (2006)  by Drew Berry wehi.tv, sound design Franc Tétaz.mp4",
+      "label": "red/red-magenta"
+    },
+    {
+      "url": "loops/ArtBeats - Centrifusion/CLIPS/CFU134.mp4",
+      "label": "red/red-orange"
+    },
+    {
+      "url": "loops/Artbeats-TimelapsePlants/TP114.mp4",
+      "label": "red/red-black"
+    },
+    {
+      "url": "loops/ArtBeats - Code Rage HD Vol.1/CDA109H1.mp4",
+      "label": "red/red-black"
+    },
+    {
+      "url": "loops/Artbeats-TimelapsePlants/TP113.mp4",
+      "label": "red/red-black"
+    },
+    {
+      "url": "loops/Artbeats-TimelapseFlowers3/TF317.mp4",
+      "label": "red/red-black"
+    },
+    {
+      "url": "loops/cells1/infected-cell-attack-healthy-cell-2026-02-18-09-40-51-utc.mov",
+      "label": "red/red-black"
+    },
+    {
+      "url": "loops/Artbeats-TimelapseFlowers3/TF314.mp4",
+      "label": "red/red-black"
+    },
+    {
+      "url": "loops/clarafi/Human Embryonic Development _ HHMI BioInteractive Video.mp4",
+      "label": "red/red-black"
+    },
+    {
+      "url": "loops/prepped/clarafi-crop80-possible/007-hemoglobin1b.mp4",
+      "label": "red/red-blue"
+    },
+    {
+      "url": "loops/clarafi/fantastic vesicle traffic.mp4",
+      "label": "red/red-yellow"
+    },
+    {
+      "url": "loops/clarafi/videoplayback.mp4",
+      "label": "red/red-yellow"
+    },
+    {
+      "url": "loops/Artbeats-TimelapseFlowers3/TF315.mp4",
+      "label": "red/red-magenta"
+    },
+    {
+      "url": "loops/prepped/clarafi-crop80-possible/008-hemoglobin2.mp4",
+      "label": "red/red-blue"
+    },
+    {
+      "url": "loops/clarafi/hemoglobin2.mov",
+      "label": "red/red-black"
+    },
+    {
+      "url": "loops/cells1/human-eukaryotic-cell-structure-2026-01-28-02-58-49-utc.mp4",
+      "label": "red/red-black"
+    },
+    {
+      "url": "loops/prepped/clarafi-crop80-possible/006-hemoglobin1.mp4",
+      "label": "red/red-blue"
+    },
+    {
+      "url": "loops/ArtBeats - Centrifusion/CLIPS/CFU139.mp4",
+      "label": "red/red-black"
+    },
+    {
+      "url": "loops/ArtBeats - Code Rage HD Vol.1/CDA102H1.mp4",
+      "label": "red/red-black"
+    },
+    {
+      "url": "loops/Artbeats-TimelapseFlowers3/TF303.mp4",
+      "label": "black/black-red"
+    },
+    {
+      "url": "loops/Artbeats-TimelapseFlowers3/TF318.mp4",
+      "label": "black/black-red"
+    },
+    {
+      "url": "loops/Artbeats-TimelapsePlants/TP121.mp4",
+      "label": "red/red-black"
+    },
+    {
+      "url": "loops/Artbeats_CyberJourneysHD/Clips/CJ107H.mp4",
+      "label": "orange/orange-red"
+    },
+    {
+      "url": "loops/cells2/molecular-binding-on-cellular-membrane-surface-2026-04-13-00-47-52-utc.mp4",
+      "label": "red/red-magenta"
+    },
+    {
+      "url": "loops/Artbeats_CyberJourneysHD/Clips/CJ118H.mp4",
+      "label": "orange/orange-red"
+    },
+    {
+      "url": "loops/Artbeats-TimelapsePlants/TP115.mp4",
+      "label": "green/green-red"
+    },
+    {
+      "url": "loops/clarafi/1198.mp4",
+      "label": "yellow/yellow-black"
+    },
+    {
+      "url": "loops/Artbeats-TimelapseFlowers3/TF309.mp4",
+      "label": "black/black-red"
+    },
+    {
+      "url": "loops/Artbeats-TimelapseFlowers3/TF316.mp4",
+      "label": "black/black-red"
+    },
+    {
+      "url": "loops/prepped/clarafi-crop80-possible/009-hemoglobin3.mp4",
+      "label": "blue/blue-red"
+    },
+    {
+      "url": "loops/Triangle vids/4K Vj Loop. Triangular Tunnel..mp4",
+      "label": "blue/blue-red"
+    },
+    {
+      "url": "loops/clarafi/28234_web.mp4",
+      "label": "green/green-red"
+    },
+    {
+      "url": "loops/clarafi/hemoglobin1b.mov",
+      "label": "black/black-red"
+    },
+    {
+      "url": "loops/ArtBeats - Code Rage HD Vol.1/CDA106H1.mp4",
+      "label": "orange/orange-red"
+    },
+    {
+      "url": "loops/Artbeats - Nature Underwater HD (1080i)/UN105H.mp4",
+      "label": "orange/orange-red"
+    },
+    {
+      "url": "loops/ArtBeats - Code Rage HD Vol.1/CDA103H1.mp4",
+      "label": "yellow/yellow-red"
+    },
+    {
+      "url": "loops/highdef/48-hour time-lapse of developing neurons connecting the opposite.mp4",
+      "label": "magenta/magenta-red"
+    },
+    {
+      "url": "loops/cells1/cell-division-cellular-therapy-2026-01-28-05-03-42-utc.mp4",
+      "label": "black/black-magenta"
+    },
+    {
+      "url": "loops/reactions/cell-image-library/06e6ddf798df-hue-loop.mp4",
+      "label": "green/green-blue"
+    },
+    {
+      "url": "loops/cells2/output_video 2_1.mp4",
+      "label": "cyan/cyan-red"
+    },
+    {
+      "url": "loops/ArtBeats - Code Rage HD Vol.1/CDA105H1.mp4",
+      "label": "black/black-yellow"
+    },
+    {
+      "url": "loops/ArtBeats - Centrifusion/CLIPS/CFU104.mp4",
+      "label": "magenta/magenta-red"
+    },
+    {
+      "url": "loops/highdef/A newborn sea urchin walking along the seabed 2025 Small World i.mp4",
+      "label": "black/black-magenta"
+    },
+    {
+      "url": "loops/ArtBeats - Code Rage HD Vol.1/CDA113H1.mp4",
+      "label": "yellow/yellow-orange"
+    },
+    {
+      "url": "loops/prepped/clarafi-crop80-possible/001-274971978.mp4",
+      "label": "orange/orange-white"
+    },
+    {
+      "url": "loops/clarafi/Entomology Animated Episode 1_ RIFA Madness!.mp4",
+      "label": "white/white-red"
+    },
+    {
+      "url": "loops/clarafi/Insulin Production and Type 1 Diabetes (2009) by Etsuko Uno wehi.tv.mp4",
+      "label": "orange/orange-red"
+    },
+    {
+      "url": "loops/Artbeats_CyberJourneysHD/Clips/CJ111H.mp4",
+      "label": "orange/orange-red"
+    },
+    {
+      "url": "loops/ArtBeats - Code Rage HD Vol.1/CDA114H1.mp4",
+      "label": "yellow/yellow-orange"
+    },
+    {
+      "url": "loops/Artbeats-TimelapsePlants/TP111.mp4",
+      "label": "green/green-black"
+    },
+    {
+      "url": "loops/Artbeats-TimelapsePlants/TP122.mp4",
+      "label": "orange/orange-black"
+    }
+  ]
+}

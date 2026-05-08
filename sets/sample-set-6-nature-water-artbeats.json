@@ -1,0 +1,4120 @@
+{
+  "setName": "sample-set-6-nature-water-artbeats",
+  "sourceDirectory": "loops",
+  "sourceDirectories": [
+    "loops/Artbeats-OceanWaterEffects",
+    "loops/Artbeats-TimelapsePlants",
+    "loops/Artbeats-TimelapseFlowers3",
+    "loops/Artbeats-WaterEffects2",
+    "loops/highdef"
+  ],
+  "generatedAt": "2026-05-08T00:11:32.636Z",
+  "count": 407,
+  "playbackMode": "loop",
+  "effectTimeline": {
+    "enabled": true,
+    "phases": [
+      {
+        "name": "classic",
+        "durationSec": 14
+      },
+      {
+        "name": "kuramoto",
+        "durationSec": 16
+      },
+      {
+        "name": "gray-scott",
+        "durationSec": 18
+      },
+      {
+        "name": "physarum",
+        "durationSec": 18
+      },
+      {
+        "name": "stacked",
+        "durationSec": 16
+      },
+      {
+        "name": "word-cloud",
+        "durationSec": 14
+      }
+    ]
+  },
+  "defaultTransition": {
+    "type": "fade",
+    "durationMs": 650,
+    "holdMs": 8200
+  },
+  "loops": [
+    {
+      "url": "loops/Artbeats-OceanWaterEffects/CWE101.mp4",
+      "label": "CWE101.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats-TimelapsePlants/TP101.mp4",
+      "label": "TP101.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats-TimelapseFlowers3/TF301.mp4",
+      "label": "TF301.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats-WaterEffects2/Clips/WE201A.mp4",
+      "label": "WE201A.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/highdef/2021 Small World in Motion Competition.mp4",
+      "label": "2021 Small World in Motion Competition.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats-OceanWaterEffects/CWE102.mp4",
+      "label": "CWE102.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats-TimelapsePlants/TP102.mp4",
+      "label": "TP102.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats-TimelapseFlowers3/TF302.mp4",
+      "label": "TF302.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats-WaterEffects2/Clips/WE201B.mp4",
+      "label": "WE201B.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/highdef/2024 Small World in Motion Competition.mp4",
+      "label": "2024 Small World in Motion Competition.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats-OceanWaterEffects/CWE103.mp4",
+      "label": "CWE103.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats-TimelapsePlants/TP103.mp4",
+      "label": "TP103.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats-TimelapseFlowers3/TF303.mp4",
+      "label": "TF303.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats-WaterEffects2/Clips/WE202.mp4",
+      "label": "WE202.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/highdef/48-hour time-lapse of developing neurons connecting the opposite.mp4",
+      "label": "48-hour time-lapse of developing neurons connecting the opposite.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats-OceanWaterEffects/CWE104.mp4",
+      "label": "CWE104.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats-TimelapsePlants/TP104.mp4",
+      "label": "TP104.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats-TimelapseFlowers3/TF304.mp4",
+      "label": "TF304.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats-WaterEffects2/Clips/WE203.mp4",
+      "label": "WE203.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/highdef/A newborn sea urchin walking along the seabed 2025 Small World i.mp4",
+      "label": "A newborn sea urchin walking along the seabed 2025 Small World i.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats-OceanWaterEffects/CWE105.mp4",
+      "label": "CWE105.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats-TimelapsePlants/TP105.mp4",
+      "label": "TP105.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats-TimelapseFlowers3/TF305.mp4",
+      "label": "TF305.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats-WaterEffects2/Clips/WE204.mp4",
+      "label": "WE204.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/highdef/A tardigrade moving around a volvox algae colony 2025 Small Worl.mp4",
+      "label": "A tardigrade moving around a volvox algae colony 2025 Small Worl.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats-OceanWaterEffects/CWE106.mp4",
+      "label": "CWE106.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats-TimelapsePlants/TP106.mp4",
+      "label": "TP106.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats-TimelapseFlowers3/TF306.mp4",
+      "label": "TF306.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats-WaterEffects2/Clips/WE205.mp4",
+      "label": "WE205.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/highdef/Actin and mitochondria in mouse brain tumor cells 2025 Small Wor.mp4",
+      "label": "Actin and mitochondria in mouse brain tumor cells 2025 Small Wor.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats-OceanWaterEffects/CWE107.mp4",
+      "label": "CWE107.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats-TimelapsePlants/TP107.mp4",
+      "label": "TP107.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats-TimelapseFlowers3/TF307.mp4",
+      "label": "TF307.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats-WaterEffects2/Clips/WE206.mp4",
+      "label": "WE206.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/highdef/Lateral line cells and melanocytes migrating in a zebrafish embr.mp4",
+      "label": "Lateral line cells and melanocytes migrating in a zebrafish embr.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats-OceanWaterEffects/CWE108.mp4",
+      "label": "CWE108.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats-TimelapsePlants/TP108.mp4",
+      "label": "TP108.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats-TimelapseFlowers3/TF308.mp4",
+      "label": "TF308.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats-WaterEffects2/Clips/WE207.mp4",
+      "label": "WE207.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/highdef/Mitotic waves in the embryo of a fruit fly 2024 Small World in M.mp4",
+      "label": "Mitotic waves in the embryo of a fruit fly 2024 Small World in M.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats-OceanWaterEffects/CWE109.mp4",
+      "label": "CWE109.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats-TimelapsePlants/TP109.mp4",
+      "label": "TP109.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats-TimelapseFlowers3/TF309.mp4",
+      "label": "TF309.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats-WaterEffects2/Clips/WE208.mp4",
+      "label": "WE208.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/highdef/Oligodendrocyte precursor cell in the spinal cord of a zebrafish.mp4",
+      "label": "Oligodendrocyte precursor cell in the spinal cord of a zebrafish.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats-OceanWaterEffects/CWE110.mp4",
+      "label": "CWE110.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats-TimelapsePlants/TP110.mp4",
+      "label": "TP110.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats-TimelapseFlowers3/TF310.mp4",
+      "label": "TF310.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats-WaterEffects2/Clips/WE209.mp4",
+      "label": "WE209.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/highdef/Self-pollination in a flower of thymeleaf speedwell Veronica ser.mp4",
+      "label": "Self-pollination in a flower of thymeleaf speedwell Veronica ser.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats-OceanWaterEffects/CWE111.mp4",
+      "label": "CWE111.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats-TimelapsePlants/TP111.mp4",
+      "label": "TP111.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats-TimelapseFlowers3/TF311.mp4",
+      "label": "TF311.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats-WaterEffects2/Clips/WE210.mp4",
+      "label": "WE210.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/highdef/Triangles_BG.mp4",
+      "label": "Triangles_BG.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats-OceanWaterEffects/CWE112.mp4",
+      "label": "CWE112.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats-TimelapsePlants/TP112.mp4",
+      "label": "TP112.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats-TimelapseFlowers3/TF312.mp4",
+      "label": "TF312.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats-WaterEffects2/Clips/WE211.mp4",
+      "label": "WE211.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/highdef/Volvox algae swimming in water drop 2025 Small World in Motion C.mp4",
+      "label": "Volvox algae swimming in water drop 2025 Small World in Motion C.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats-OceanWaterEffects/CWE113.mp4",
+      "label": "CWE113.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats-TimelapsePlants/TP113.mp4",
+      "label": "TP113.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats-TimelapseFlowers3/TF313.mp4",
+      "label": "TF313.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats-WaterEffects2/Clips/WE212.mp4",
+      "label": "WE212.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/highdef/Water droplets evaporating from the wing scales of a peacock but.mp4",
+      "label": "Water droplets evaporating from the wing scales of a peacock but.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats-OceanWaterEffects/CWE114.mp4",
+      "label": "CWE114.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats-TimelapsePlants/TP114.mp4",
+      "label": "TP114.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats-TimelapseFlowers3/TF314.mp4",
+      "label": "TF314.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats-WaterEffects2/Clips/WE213.mp4",
+      "label": "WE213.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/highdef/zoom-swim-laser-soap cut.mp4",
+      "label": "zoom-swim-laser-soap cut.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats-OceanWaterEffects/CWE115.mp4",
+      "label": "CWE115.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats-TimelapsePlants/TP115.mp4",
+      "label": "TP115.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats-TimelapseFlowers3/TF315.mp4",
+      "label": "TF315.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats-WaterEffects2/Clips/WE214.mp4",
+      "label": "WE214.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/highdef/zoom-swim-paracetamol cut.mp4",
+      "label": "zoom-swim-paracetamol cut.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats-OceanWaterEffects/CWE116.mp4",
+      "label": "CWE116.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats-TimelapsePlants/TP116.mp4",
+      "label": "TP116.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats-TimelapseFlowers3/TF316.mp4",
+      "label": "TF316.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats-WaterEffects2/Clips/WE215.mp4",
+      "label": "WE215.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/highdef/zoom-swim-rotifers cut.mp4",
+      "label": "zoom-swim-rotifers cut.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats-OceanWaterEffects/CWE117.mp4",
+      "label": "CWE117.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats-TimelapsePlants/TP117.mp4",
+      "label": "TP117.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats-TimelapseFlowers3/TF317.mp4",
+      "label": "TF317.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats-WaterEffects2/Clips/WE216.mp4",
+      "label": "WE216.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/highdef/zoom-swim-trachelius cut.mp4",
+      "label": "zoom-swim-trachelius cut.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats-OceanWaterEffects/CWE118.mp4",
+      "label": "CWE118.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats-TimelapsePlants/TP118.mp4",
+      "label": "TP118.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats-TimelapseFlowers3/TF318.mp4",
+      "label": "TF318.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats-WaterEffects2/Clips/WE217.mp4",
+      "label": "WE217.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats-OceanWaterEffects/CWE119.mp4",
+      "label": "CWE119.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats-TimelapsePlants/TP119.mp4",
+      "label": "TP119.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats-WaterEffects2/Clips/WE218.mp4",
+      "label": "WE218.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats-OceanWaterEffects/CWE120.mp4",
+      "label": "CWE120.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats-TimelapsePlants/TP120.mp4",
+      "label": "TP120.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats-WaterEffects2/Clips/WE219.mp4",
+      "label": "WE219.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats-OceanWaterEffects/CWE121.mp4",
+      "label": "CWE121.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats-TimelapsePlants/TP121.mp4",
+      "label": "TP121.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats-WaterEffects2/Clips/WE220.mp4",
+      "label": "WE220.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats-OceanWaterEffects/CWE122.mp4",
+      "label": "CWE122.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats-TimelapsePlants/TP122.mp4",
+      "label": "TP122.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats-WaterEffects2/Mattes/WE201AM.mp4",
+      "label": "WE201AM.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats-OceanWaterEffects/CWE123.mp4",
+      "label": "CWE123.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats-TimelapsePlants/TP123.mp4",
+      "label": "TP123.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats-WaterEffects2/Mattes/WE201BM.mp4",
+      "label": "WE201BM.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats-WaterEffects2/Mattes/WE203M.mp4",
+      "label": "WE203M.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats-WaterEffects2/Mattes/WE204M.mp4",
+      "label": "WE204M.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats-WaterEffects2/Mattes/WE205M.mp4",
+      "label": "WE205M.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats-WaterEffects2/Mattes/WE212M.mp4",
+      "label": "WE212M.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats-WaterEffects2/Mattes/WE213M.mp4",
+      "label": "WE213M.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats-WaterEffects2/Mattes/WE215M.mp4",
+      "label": "WE215M.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats-WaterEffects2/Mattes/WE216M.mp4",
+      "label": "WE216M.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats-WaterEffects2/Mattes/WE217M.mp4",
+      "label": "WE217M.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats-WaterEffects2/Mattes/WE221M.mp4",
+      "label": "WE221M.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats-OceanWaterEffects/CWE101.mp4",
+      "label": "CWE101.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats-TimelapsePlants/TP101.mp4",
+      "label": "TP101.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats-TimelapseFlowers3/TF301.mp4",
+      "label": "TF301.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats-WaterEffects2/Clips/WE201A.mp4",
+      "label": "WE201A.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/highdef/2021 Small World in Motion Competition.mp4",
+      "label": "2021 Small World in Motion Competition.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats-OceanWaterEffects/CWE102.mp4",
+      "label": "CWE102.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats-TimelapsePlants/TP102.mp4",
+      "label": "TP102.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats-TimelapseFlowers3/TF302.mp4",
+      "label": "TF302.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats-WaterEffects2/Clips/WE201B.mp4",
+      "label": "WE201B.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/highdef/2024 Small World in Motion Competition.mp4",
+      "label": "2024 Small World in Motion Competition.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats-OceanWaterEffects/CWE103.mp4",
+      "label": "CWE103.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats-TimelapsePlants/TP103.mp4",
+      "label": "TP103.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats-TimelapseFlowers3/TF303.mp4",
+      "label": "TF303.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats-WaterEffects2/Clips/WE202.mp4",
+      "label": "WE202.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/highdef/48-hour time-lapse of developing neurons connecting the opposite.mp4",
+      "label": "48-hour time-lapse of developing neurons connecting the opposite.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats-OceanWaterEffects/CWE104.mp4",
+      "label": "CWE104.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats-TimelapsePlants/TP104.mp4",
+      "label": "TP104.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats-TimelapseFlowers3/TF304.mp4",
+      "label": "TF304.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats-WaterEffects2/Clips/WE203.mp4",
+      "label": "WE203.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/highdef/A newborn sea urchin walking along the seabed 2025 Small World i.mp4",
+      "label": "A newborn sea urchin walking along the seabed 2025 Small World i.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats-OceanWaterEffects/CWE105.mp4",
+      "label": "CWE105.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats-TimelapsePlants/TP105.mp4",
+      "label": "TP105.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats-TimelapseFlowers3/TF305.mp4",
+      "label": "TF305.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats-WaterEffects2/Clips/WE204.mp4",
+      "label": "WE204.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/highdef/A tardigrade moving around a volvox algae colony 2025 Small Worl.mp4",
+      "label": "A tardigrade moving around a volvox algae colony 2025 Small Worl.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats-OceanWaterEffects/CWE106.mp4",
+      "label": "CWE106.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats-TimelapsePlants/TP106.mp4",
+      "label": "TP106.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats-TimelapseFlowers3/TF306.mp4",
+      "label": "TF306.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats-WaterEffects2/Clips/WE205.mp4",
+      "label": "WE205.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/highdef/Actin and mitochondria in mouse brain tumor cells 2025 Small Wor.mp4",
+      "label": "Actin and mitochondria in mouse brain tumor cells 2025 Small Wor.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats-OceanWaterEffects/CWE107.mp4",
+      "label": "CWE107.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats-TimelapsePlants/TP107.mp4",
+      "label": "TP107.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats-TimelapseFlowers3/TF307.mp4",
+      "label": "TF307.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats-WaterEffects2/Clips/WE206.mp4",
+      "label": "WE206.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/highdef/Lateral line cells and melanocytes migrating in a zebrafish embr.mp4",
+      "label": "Lateral line cells and melanocytes migrating in a zebrafish embr.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats-OceanWaterEffects/CWE108.mp4",
+      "label": "CWE108.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats-TimelapsePlants/TP108.mp4",
+      "label": "TP108.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats-TimelapseFlowers3/TF308.mp4",
+      "label": "TF308.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats-WaterEffects2/Clips/WE207.mp4",
+      "label": "WE207.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/highdef/Mitotic waves in the embryo of a fruit fly 2024 Small World in M.mp4",
+      "label": "Mitotic waves in the embryo of a fruit fly 2024 Small World in M.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats-OceanWaterEffects/CWE109.mp4",
+      "label": "CWE109.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats-TimelapsePlants/TP109.mp4",
+      "label": "TP109.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats-TimelapseFlowers3/TF309.mp4",
+      "label": "TF309.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats-WaterEffects2/Clips/WE208.mp4",
+      "label": "WE208.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/highdef/Oligodendrocyte precursor cell in the spinal cord of a zebrafish.mp4",
+      "label": "Oligodendrocyte precursor cell in the spinal cord of a zebrafish.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats-OceanWaterEffects/CWE110.mp4",
+      "label": "CWE110.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats-TimelapsePlants/TP110.mp4",
+      "label": "TP110.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats-TimelapseFlowers3/TF310.mp4",
+      "label": "TF310.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats-WaterEffects2/Clips/WE209.mp4",
+      "label": "WE209.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/highdef/Self-pollination in a flower of thymeleaf speedwell Veronica ser.mp4",
+      "label": "Self-pollination in a flower of thymeleaf speedwell Veronica ser.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats-OceanWaterEffects/CWE111.mp4",
+      "label": "CWE111.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats-TimelapsePlants/TP111.mp4",
+      "label": "TP111.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats-TimelapseFlowers3/TF311.mp4",
+      "label": "TF311.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats-WaterEffects2/Clips/WE210.mp4",
+      "label": "WE210.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/highdef/Triangles_BG.mp4",
+      "label": "Triangles_BG.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats-OceanWaterEffects/CWE112.mp4",
+      "label": "CWE112.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats-TimelapsePlants/TP112.mp4",
+      "label": "TP112.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats-TimelapseFlowers3/TF312.mp4",
+      "label": "TF312.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats-WaterEffects2/Clips/WE211.mp4",
+      "label": "WE211.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/highdef/Volvox algae swimming in water drop 2025 Small World in Motion C.mp4",
+      "label": "Volvox algae swimming in water drop 2025 Small World in Motion C.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats-OceanWaterEffects/CWE113.mp4",
+      "label": "CWE113.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats-TimelapsePlants/TP113.mp4",
+      "label": "TP113.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats-TimelapseFlowers3/TF313.mp4",
+      "label": "TF313.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats-WaterEffects2/Clips/WE212.mp4",
+      "label": "WE212.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/highdef/Water droplets evaporating from the wing scales of a peacock but.mp4",
+      "label": "Water droplets evaporating from the wing scales of a peacock but.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats-OceanWaterEffects/CWE114.mp4",
+      "label": "CWE114.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats-TimelapsePlants/TP114.mp4",
+      "label": "TP114.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats-TimelapseFlowers3/TF314.mp4",
+      "label": "TF314.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats-WaterEffects2/Clips/WE213.mp4",
+      "label": "WE213.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/highdef/zoom-swim-laser-soap cut.mp4",
+      "label": "zoom-swim-laser-soap cut.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats-OceanWaterEffects/CWE115.mp4",
+      "label": "CWE115.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats-TimelapsePlants/TP115.mp4",
+      "label": "TP115.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats-TimelapseFlowers3/TF315.mp4",
+      "label": "TF315.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats-WaterEffects2/Clips/WE214.mp4",
+      "label": "WE214.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/highdef/zoom-swim-paracetamol cut.mp4",
+      "label": "zoom-swim-paracetamol cut.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats-OceanWaterEffects/CWE116.mp4",
+      "label": "CWE116.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats-TimelapsePlants/TP116.mp4",
+      "label": "TP116.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats-TimelapseFlowers3/TF316.mp4",
+      "label": "TF316.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats-WaterEffects2/Clips/WE215.mp4",
+      "label": "WE215.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/highdef/zoom-swim-rotifers cut.mp4",
+      "label": "zoom-swim-rotifers cut.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats-OceanWaterEffects/CWE117.mp4",
+      "label": "CWE117.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats-TimelapsePlants/TP117.mp4",
+      "label": "TP117.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats-TimelapseFlowers3/TF317.mp4",
+      "label": "TF317.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats-WaterEffects2/Clips/WE216.mp4",
+      "label": "WE216.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/highdef/zoom-swim-trachelius cut.mp4",
+      "label": "zoom-swim-trachelius cut.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats-OceanWaterEffects/CWE118.mp4",
+      "label": "CWE118.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats-TimelapsePlants/TP118.mp4",
+      "label": "TP118.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats-TimelapseFlowers3/TF318.mp4",
+      "label": "TF318.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats-WaterEffects2/Clips/WE217.mp4",
+      "label": "WE217.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats-OceanWaterEffects/CWE119.mp4",
+      "label": "CWE119.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats-TimelapsePlants/TP119.mp4",
+      "label": "TP119.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats-WaterEffects2/Clips/WE218.mp4",
+      "label": "WE218.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats-OceanWaterEffects/CWE120.mp4",
+      "label": "CWE120.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats-TimelapsePlants/TP120.mp4",
+      "label": "TP120.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats-WaterEffects2/Clips/WE219.mp4",
+      "label": "WE219.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats-OceanWaterEffects/CWE121.mp4",
+      "label": "CWE121.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats-TimelapsePlants/TP121.mp4",
+      "label": "TP121.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats-WaterEffects2/Clips/WE220.mp4",
+      "label": "WE220.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats-OceanWaterEffects/CWE122.mp4",
+      "label": "CWE122.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats-TimelapsePlants/TP122.mp4",
+      "label": "TP122.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats-WaterEffects2/Mattes/WE201AM.mp4",
+      "label": "WE201AM.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats-OceanWaterEffects/CWE123.mp4",
+      "label": "CWE123.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats-TimelapsePlants/TP123.mp4",
+      "label": "TP123.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats-WaterEffects2/Mattes/WE201BM.mp4",
+      "label": "WE201BM.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats-WaterEffects2/Mattes/WE203M.mp4",
+      "label": "WE203M.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats-WaterEffects2/Mattes/WE204M.mp4",
+      "label": "WE204M.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats-WaterEffects2/Mattes/WE205M.mp4",
+      "label": "WE205M.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats-WaterEffects2/Mattes/WE212M.mp4",
+      "label": "WE212M.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats-WaterEffects2/Mattes/WE213M.mp4",
+      "label": "WE213M.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats-WaterEffects2/Mattes/WE215M.mp4",
+      "label": "WE215M.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats-WaterEffects2/Mattes/WE216M.mp4",
+      "label": "WE216M.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats-WaterEffects2/Mattes/WE217M.mp4",
+      "label": "WE217M.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats-WaterEffects2/Mattes/WE221M.mp4",
+      "label": "WE221M.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats-OceanWaterEffects/CWE101.mp4",
+      "label": "CWE101.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats-TimelapsePlants/TP101.mp4",
+      "label": "TP101.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats-TimelapseFlowers3/TF301.mp4",
+      "label": "TF301.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats-WaterEffects2/Clips/WE201A.mp4",
+      "label": "WE201A.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/highdef/2021 Small World in Motion Competition.mp4",
+      "label": "2021 Small World in Motion Competition.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats-OceanWaterEffects/CWE102.mp4",
+      "label": "CWE102.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats-TimelapsePlants/TP102.mp4",
+      "label": "TP102.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats-TimelapseFlowers3/TF302.mp4",
+      "label": "TF302.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats-WaterEffects2/Clips/WE201B.mp4",
+      "label": "WE201B.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/highdef/2024 Small World in Motion Competition.mp4",
+      "label": "2024 Small World in Motion Competition.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats-OceanWaterEffects/CWE103.mp4",
+      "label": "CWE103.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats-TimelapsePlants/TP103.mp4",
+      "label": "TP103.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats-TimelapseFlowers3/TF303.mp4",
+      "label": "TF303.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats-WaterEffects2/Clips/WE202.mp4",
+      "label": "WE202.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/highdef/48-hour time-lapse of developing neurons connecting the opposite.mp4",
+      "label": "48-hour time-lapse of developing neurons connecting the opposite.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats-OceanWaterEffects/CWE104.mp4",
+      "label": "CWE104.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats-TimelapsePlants/TP104.mp4",
+      "label": "TP104.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats-TimelapseFlowers3/TF304.mp4",
+      "label": "TF304.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats-WaterEffects2/Clips/WE203.mp4",
+      "label": "WE203.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/highdef/A newborn sea urchin walking along the seabed 2025 Small World i.mp4",
+      "label": "A newborn sea urchin walking along the seabed 2025 Small World i.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats-OceanWaterEffects/CWE105.mp4",
+      "label": "CWE105.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats-TimelapsePlants/TP105.mp4",
+      "label": "TP105.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats-TimelapseFlowers3/TF305.mp4",
+      "label": "TF305.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats-WaterEffects2/Clips/WE204.mp4",
+      "label": "WE204.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/highdef/A tardigrade moving around a volvox algae colony 2025 Small Worl.mp4",
+      "label": "A tardigrade moving around a volvox algae colony 2025 Small Worl.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats-OceanWaterEffects/CWE106.mp4",
+      "label": "CWE106.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats-TimelapsePlants/TP106.mp4",
+      "label": "TP106.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats-TimelapseFlowers3/TF306.mp4",
+      "label": "TF306.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats-WaterEffects2/Clips/WE205.mp4",
+      "label": "WE205.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/highdef/Actin and mitochondria in mouse brain tumor cells 2025 Small Wor.mp4",
+      "label": "Actin and mitochondria in mouse brain tumor cells 2025 Small Wor.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats-OceanWaterEffects/CWE107.mp4",
+      "label": "CWE107.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats-TimelapsePlants/TP107.mp4",
+      "label": "TP107.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats-TimelapseFlowers3/TF307.mp4",
+      "label": "TF307.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats-WaterEffects2/Clips/WE206.mp4",
+      "label": "WE206.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/highdef/Lateral line cells and melanocytes migrating in a zebrafish embr.mp4",
+      "label": "Lateral line cells and melanocytes migrating in a zebrafish embr.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats-OceanWaterEffects/CWE108.mp4",
+      "label": "CWE108.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats-TimelapsePlants/TP108.mp4",
+      "label": "TP108.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats-TimelapseFlowers3/TF308.mp4",
+      "label": "TF308.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats-WaterEffects2/Clips/WE207.mp4",
+      "label": "WE207.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/highdef/Mitotic waves in the embryo of a fruit fly 2024 Small World in M.mp4",
+      "label": "Mitotic waves in the embryo of a fruit fly 2024 Small World in M.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats-OceanWaterEffects/CWE109.mp4",
+      "label": "CWE109.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats-TimelapsePlants/TP109.mp4",
+      "label": "TP109.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats-TimelapseFlowers3/TF309.mp4",
+      "label": "TF309.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats-WaterEffects2/Clips/WE208.mp4",
+      "label": "WE208.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/highdef/Oligodendrocyte precursor cell in the spinal cord of a zebrafish.mp4",
+      "label": "Oligodendrocyte precursor cell in the spinal cord of a zebrafish.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats-OceanWaterEffects/CWE110.mp4",
+      "label": "CWE110.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats-TimelapsePlants/TP110.mp4",
+      "label": "TP110.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats-TimelapseFlowers3/TF310.mp4",
+      "label": "TF310.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats-WaterEffects2/Clips/WE209.mp4",
+      "label": "WE209.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/highdef/Self-pollination in a flower of thymeleaf speedwell Veronica ser.mp4",
+      "label": "Self-pollination in a flower of thymeleaf speedwell Veronica ser.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats-OceanWaterEffects/CWE111.mp4",
+      "label": "CWE111.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats-TimelapsePlants/TP111.mp4",
+      "label": "TP111.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats-TimelapseFlowers3/TF311.mp4",
+      "label": "TF311.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats-WaterEffects2/Clips/WE210.mp4",
+      "label": "WE210.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/highdef/Triangles_BG.mp4",
+      "label": "Triangles_BG.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats-OceanWaterEffects/CWE112.mp4",
+      "label": "CWE112.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats-TimelapsePlants/TP112.mp4",
+      "label": "TP112.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats-TimelapseFlowers3/TF312.mp4",
+      "label": "TF312.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats-WaterEffects2/Clips/WE211.mp4",
+      "label": "WE211.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/highdef/Volvox algae swimming in water drop 2025 Small World in Motion C.mp4",
+      "label": "Volvox algae swimming in water drop 2025 Small World in Motion C.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats-OceanWaterEffects/CWE113.mp4",
+      "label": "CWE113.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats-TimelapsePlants/TP113.mp4",
+      "label": "TP113.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats-TimelapseFlowers3/TF313.mp4",
+      "label": "TF313.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats-WaterEffects2/Clips/WE212.mp4",
+      "label": "WE212.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/highdef/Water droplets evaporating from the wing scales of a peacock but.mp4",
+      "label": "Water droplets evaporating from the wing scales of a peacock but.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats-OceanWaterEffects/CWE114.mp4",
+      "label": "CWE114.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats-TimelapsePlants/TP114.mp4",
+      "label": "TP114.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats-TimelapseFlowers3/TF314.mp4",
+      "label": "TF314.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats-WaterEffects2/Clips/WE213.mp4",
+      "label": "WE213.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/highdef/zoom-swim-laser-soap cut.mp4",
+      "label": "zoom-swim-laser-soap cut.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats-OceanWaterEffects/CWE115.mp4",
+      "label": "CWE115.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats-TimelapsePlants/TP115.mp4",
+      "label": "TP115.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats-TimelapseFlowers3/TF315.mp4",
+      "label": "TF315.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats-WaterEffects2/Clips/WE214.mp4",
+      "label": "WE214.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/highdef/zoom-swim-paracetamol cut.mp4",
+      "label": "zoom-swim-paracetamol cut.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats-OceanWaterEffects/CWE116.mp4",
+      "label": "CWE116.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats-TimelapsePlants/TP116.mp4",
+      "label": "TP116.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats-TimelapseFlowers3/TF316.mp4",
+      "label": "TF316.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats-WaterEffects2/Clips/WE215.mp4",
+      "label": "WE215.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/highdef/zoom-swim-rotifers cut.mp4",
+      "label": "zoom-swim-rotifers cut.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats-OceanWaterEffects/CWE117.mp4",
+      "label": "CWE117.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats-TimelapsePlants/TP117.mp4",
+      "label": "TP117.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats-TimelapseFlowers3/TF317.mp4",
+      "label": "TF317.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats-WaterEffects2/Clips/WE216.mp4",
+      "label": "WE216.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/highdef/zoom-swim-trachelius cut.mp4",
+      "label": "zoom-swim-trachelius cut.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats-OceanWaterEffects/CWE118.mp4",
+      "label": "CWE118.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats-TimelapsePlants/TP118.mp4",
+      "label": "TP118.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats-TimelapseFlowers3/TF318.mp4",
+      "label": "TF318.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats-WaterEffects2/Clips/WE217.mp4",
+      "label": "WE217.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats-OceanWaterEffects/CWE119.mp4",
+      "label": "CWE119.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats-TimelapsePlants/TP119.mp4",
+      "label": "TP119.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats-WaterEffects2/Clips/WE218.mp4",
+      "label": "WE218.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats-OceanWaterEffects/CWE120.mp4",
+      "label": "CWE120.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats-TimelapsePlants/TP120.mp4",
+      "label": "TP120.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats-WaterEffects2/Clips/WE219.mp4",
+      "label": "WE219.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats-OceanWaterEffects/CWE121.mp4",
+      "label": "CWE121.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats-TimelapsePlants/TP121.mp4",
+      "label": "TP121.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats-WaterEffects2/Clips/WE220.mp4",
+      "label": "WE220.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats-OceanWaterEffects/CWE122.mp4",
+      "label": "CWE122.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats-TimelapsePlants/TP122.mp4",
+      "label": "TP122.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats-WaterEffects2/Mattes/WE201AM.mp4",
+      "label": "WE201AM.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats-OceanWaterEffects/CWE123.mp4",
+      "label": "CWE123.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats-TimelapsePlants/TP123.mp4",
+      "label": "TP123.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats-WaterEffects2/Mattes/WE201BM.mp4",
+      "label": "WE201BM.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats-WaterEffects2/Mattes/WE203M.mp4",
+      "label": "WE203M.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats-WaterEffects2/Mattes/WE204M.mp4",
+      "label": "WE204M.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats-WaterEffects2/Mattes/WE205M.mp4",
+      "label": "WE205M.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats-WaterEffects2/Mattes/WE212M.mp4",
+      "label": "WE212M.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats-WaterEffects2/Mattes/WE213M.mp4",
+      "label": "WE213M.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats-WaterEffects2/Mattes/WE215M.mp4",
+      "label": "WE215M.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats-WaterEffects2/Mattes/WE216M.mp4",
+      "label": "WE216M.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats-WaterEffects2/Mattes/WE217M.mp4",
+      "label": "WE217M.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats-WaterEffects2/Mattes/WE221M.mp4",
+      "label": "WE221M.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats-OceanWaterEffects/CWE101.mp4",
+      "label": "CWE101.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats-TimelapsePlants/TP101.mp4",
+      "label": "TP101.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats-TimelapseFlowers3/TF301.mp4",
+      "label": "TF301.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats-WaterEffects2/Clips/WE201A.mp4",
+      "label": "WE201A.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/highdef/2021 Small World in Motion Competition.mp4",
+      "label": "2021 Small World in Motion Competition.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats-OceanWaterEffects/CWE102.mp4",
+      "label": "CWE102.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats-TimelapsePlants/TP102.mp4",
+      "label": "TP102.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats-TimelapseFlowers3/TF302.mp4",
+      "label": "TF302.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats-WaterEffects2/Clips/WE201B.mp4",
+      "label": "WE201B.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/highdef/2024 Small World in Motion Competition.mp4",
+      "label": "2024 Small World in Motion Competition.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats-OceanWaterEffects/CWE103.mp4",
+      "label": "CWE103.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats-TimelapsePlants/TP103.mp4",
+      "label": "TP103.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats-TimelapseFlowers3/TF303.mp4",
+      "label": "TF303.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats-WaterEffects2/Clips/WE202.mp4",
+      "label": "WE202.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/highdef/48-hour time-lapse of developing neurons connecting the opposite.mp4",
+      "label": "48-hour time-lapse of developing neurons connecting the opposite.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats-OceanWaterEffects/CWE104.mp4",
+      "label": "CWE104.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats-TimelapsePlants/TP104.mp4",
+      "label": "TP104.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats-TimelapseFlowers3/TF304.mp4",
+      "label": "TF304.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats-WaterEffects2/Clips/WE203.mp4",
+      "label": "WE203.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/highdef/A newborn sea urchin walking along the seabed 2025 Small World i.mp4",
+      "label": "A newborn sea urchin walking along the seabed 2025 Small World i.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats-OceanWaterEffects/CWE105.mp4",
+      "label": "CWE105.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats-TimelapsePlants/TP105.mp4",
+      "label": "TP105.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats-TimelapseFlowers3/TF305.mp4",
+      "label": "TF305.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats-WaterEffects2/Clips/WE204.mp4",
+      "label": "WE204.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/highdef/A tardigrade moving around a volvox algae colony 2025 Small Worl.mp4",
+      "label": "A tardigrade moving around a volvox algae colony 2025 Small Worl.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats-OceanWaterEffects/CWE106.mp4",
+      "label": "CWE106.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats-TimelapsePlants/TP106.mp4",
+      "label": "TP106.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats-TimelapseFlowers3/TF306.mp4",
+      "label": "TF306.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats-WaterEffects2/Clips/WE205.mp4",
+      "label": "WE205.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/highdef/Actin and mitochondria in mouse brain tumor cells 2025 Small Wor.mp4",
+      "label": "Actin and mitochondria in mouse brain tumor cells 2025 Small Wor.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats-OceanWaterEffects/CWE107.mp4",
+      "label": "CWE107.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats-TimelapsePlants/TP107.mp4",
+      "label": "TP107.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats-TimelapseFlowers3/TF307.mp4",
+      "label": "TF307.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats-WaterEffects2/Clips/WE206.mp4",
+      "label": "WE206.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/highdef/Lateral line cells and melanocytes migrating in a zebrafish embr.mp4",
+      "label": "Lateral line cells and melanocytes migrating in a zebrafish embr.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats-OceanWaterEffects/CWE108.mp4",
+      "label": "CWE108.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats-TimelapsePlants/TP108.mp4",
+      "label": "TP108.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats-TimelapseFlowers3/TF308.mp4",
+      "label": "TF308.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats-WaterEffects2/Clips/WE207.mp4",
+      "label": "WE207.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/highdef/Mitotic waves in the embryo of a fruit fly 2024 Small World in M.mp4",
+      "label": "Mitotic waves in the embryo of a fruit fly 2024 Small World in M.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats-OceanWaterEffects/CWE109.mp4",
+      "label": "CWE109.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats-TimelapsePlants/TP109.mp4",
+      "label": "TP109.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats-TimelapseFlowers3/TF309.mp4",
+      "label": "TF309.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats-WaterEffects2/Clips/WE208.mp4",
+      "label": "WE208.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/highdef/Oligodendrocyte precursor cell in the spinal cord of a zebrafish.mp4",
+      "label": "Oligodendrocyte precursor cell in the spinal cord of a zebrafish.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats-OceanWaterEffects/CWE110.mp4",
+      "label": "CWE110.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats-TimelapsePlants/TP110.mp4",
+      "label": "TP110.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats-TimelapseFlowers3/TF310.mp4",
+      "label": "TF310.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats-WaterEffects2/Clips/WE209.mp4",
+      "label": "WE209.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/highdef/Self-pollination in a flower of thymeleaf speedwell Veronica ser.mp4",
+      "label": "Self-pollination in a flower of thymeleaf speedwell Veronica ser.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats-OceanWaterEffects/CWE111.mp4",
+      "label": "CWE111.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats-TimelapsePlants/TP111.mp4",
+      "label": "TP111.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats-TimelapseFlowers3/TF311.mp4",
+      "label": "TF311.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats-WaterEffects2/Clips/WE210.mp4",
+      "label": "WE210.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/highdef/Triangles_BG.mp4",
+      "label": "Triangles_BG.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats-OceanWaterEffects/CWE112.mp4",
+      "label": "CWE112.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats-TimelapsePlants/TP112.mp4",
+      "label": "TP112.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats-TimelapseFlowers3/TF312.mp4",
+      "label": "TF312.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats-WaterEffects2/Clips/WE211.mp4",
+      "label": "WE211.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/highdef/Volvox algae swimming in water drop 2025 Small World in Motion C.mp4",
+      "label": "Volvox algae swimming in water drop 2025 Small World in Motion C.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats-OceanWaterEffects/CWE113.mp4",
+      "label": "CWE113.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats-TimelapsePlants/TP113.mp4",
+      "label": "TP113.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats-TimelapseFlowers3/TF313.mp4",
+      "label": "TF313.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats-WaterEffects2/Clips/WE212.mp4",
+      "label": "WE212.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/highdef/Water droplets evaporating from the wing scales of a peacock but.mp4",
+      "label": "Water droplets evaporating from the wing scales of a peacock but.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats-OceanWaterEffects/CWE114.mp4",
+      "label": "CWE114.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats-TimelapsePlants/TP114.mp4",
+      "label": "TP114.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats-TimelapseFlowers3/TF314.mp4",
+      "label": "TF314.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    }
+  ]
+}

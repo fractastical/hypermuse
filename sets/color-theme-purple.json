@@ -1,0 +1,146 @@
+{
+  "generatedAt": "2026-05-07T19:50:19.991Z",
+  "query": {
+    "tags": [
+      "purple"
+    ],
+    "minRatio": 0.15,
+    "maxItems": 120,
+    "includeEffects": true
+  },
+  "counts": {
+    "matched": 22,
+    "videos": 20,
+    "effects": 2
+  },
+  "matchedEffects": [
+    {
+      "id": "effect:physarum:spheres",
+      "effect": "physarum",
+      "layout": "spheres",
+      "topFamilies": [
+        {
+          "name": "green",
+          "ratio": 0.3298
+        },
+        {
+          "name": "orange",
+          "ratio": 0.2561
+        },
+        {
+          "name": "purple",
+          "ratio": 0.2152
+        },
+        {
+          "name": "cyan",
+          "ratio": 0.1989
+        }
+      ]
+    },
+    {
+      "id": "effect:physarum:thirds-2d",
+      "effect": "physarum",
+      "layout": "thirds-2d",
+      "topFamilies": [
+        {
+          "name": "green",
+          "ratio": 0.3298
+        },
+        {
+          "name": "orange",
+          "ratio": 0.2561
+        },
+        {
+          "name": "purple",
+          "ratio": 0.2152
+        },
+        {
+          "name": "cyan",
+          "ratio": 0.1989
+        }
+      ]
+    }
+  ],
+  "entries": [
+    {
+      "url": "loops/Artbeats.Alien.Atmospheres/Clips/AM118.mp4",
+      "label": "purple/purple-white"
+    },
+    {
+      "url": "loops/ArtBeats - Centrifusion/CLIPS/CFU127.mp4",
+      "label": "purple/purple-black"
+    },
+    {
+      "url": "loops/Triangle vids/4K Abstract Tunnel VJ Motion Background __ Free VJ Loops __ 4K VJ Loops.mp4",
+      "label": "purple/purple-magenta"
+    },
+    {
+      "url": "loops/Artbeats_CyberJourneysHD/Clips/CJ120H.mp4",
+      "label": "purple/purple-magenta"
+    },
+    {
+      "url": "loops/morpholib/turing_patterns_loop30.mp4",
+      "label": "purple/purple-white"
+    },
+    {
+      "url": "loops/ArtBeats - Centrifusion/CLIPS/CFU111.mp4",
+      "label": "purple/purple-magenta"
+    },
+    {
+      "url": "loops/Artbeats_CyberJourneysHD/Clips/CJ115H.mp4",
+      "label": "purple/purple-blue"
+    },
+    {
+      "url": "loops/ArtBeats - Centrifusion/CLIPS/CFU114.mp4",
+      "label": "purple/purple-blue"
+    },
+    {
+      "url": "loops/highdef/Mitotic waves in the embryo of a fruit fly 2024 Small World in M.mp4",
+      "label": "purple/purple-blue"
+    },
+    {
+      "url": "loops/cells2/vecteezy_the-purple-glowing-energy-spheres-divide-like-cells-in-a_59486657.mp4",
+      "label": "purple/purple-black"
+    },
+    {
+      "url": "loops/reactions/cell-image-library/4cbe64dc737c-hue-loop.mp4",
+      "label": "purple/purple-cyan"
+    },
+    {
+      "url": "loops/Artbeats-TimelapseFlowers3/TF301.mp4",
+      "label": "green/green-purple"
+    },
+    {
+      "url": "loops/ArtBeats - Centrifusion/CLIPS/CFU109.mp4",
+      "label": "magenta/magenta-purple"
+    },
+    {
+      "url": "loops/cells2/molecular-binding-on-cellular-membrane-surface-2026-04-13-00-47-52-utc.mp4",
+      "label": "red/red-magenta"
+    },
+    {
+      "url": "loops/Artbeats-TimelapseFlowers3/TF313.mp4",
+      "label": "black/black-purple"
+    },
+    {
+      "url": "loops/clarafi/1 Long Term Potentiation introduction.mp4",
+      "label": "black/black-blue"
+    },
+    {
+      "url": "loops/ArtBeats - Centrifusion/CLIPS/CFU103.mp4",
+      "label": "blue/blue-purple"
+    },
+    {
+      "url": "loops/cells2/vibrant-cell-structure-with-colorful-organelles-an-2026-03-12-02-01-33-utc.mp4",
+      "label": "black/black-purple"
+    },
+    {
+      "url": "loops/highdef/Actin and mitochondria in mouse brain tumor cells 2025 Small Wor.mp4",
+      "label": "blue/blue-black"
+    },
+    {
+      "url": "loops/ArtBeats - Centrifusion/CLIPS/CFU116.mp4",
+      "label": "blue/blue-purple"
+    }
+  ]
+}

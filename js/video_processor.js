@@ -39,6 +39,7 @@ const originalVideos = [];
 const allVideoLoops = [];
 window.__hypermuseLoadedSetCount = 0;
 window.__hypermuseCurrentLoopLabel = "";
+window.__hypermuseSetUrls = [];
 
 const videoElement = document.getElementById('videoElement');
 const supportedVideoExtensions = new Set([
@@ -49,6 +50,36 @@ let currentSetIndex = -1;
 let setAdvanceTimer = null;
 let currentSetDirection = 1;
 let currentSetPlaybackMode = 'pingpong';
+let activeClipWindowHandler = null;
+const sampleSetPresets = [
+    { id: 'bio1', label: 'Bio 1 (default)', manifest: 'sets/bio1.json' },
+    { id: 'tonight1', label: 'Sample 1h — Betse + cells', manifest: 'sets/tonight-set-1-betse-cells.json' },
+    { id: 'tonight2', label: 'Sample 1h — Morphogenesis', manifest: 'sets/tonight-set-2-morphogenesis.json' },
+    { id: 'tonight3', label: 'Sample 1h — High energy mix', manifest: 'sets/tonight-set-3-high-energy-mix.json' },
+    { id: 'sample4', label: 'Sample 1h — Reaction / microscopy', manifest: 'sets/sample-set-4-reaction-microscopy.json' },
+    { id: 'sample5', label: 'Sample 1h — Cells + morpho', manifest: 'sets/sample-set-5-cells-morpho.json' },
+    { id: 'creativeStream', label: 'Infinitestreams journey (backdrop tour)', manifest: 'sets/set-infinitestreams-journey.json' },
+    { id: 'creativeRedRoundtrip', label: 'Color arc — red → diffusion → back', manifest: 'sets/set-color-red-diffusion-roundtrip.json' },
+    { id: 'creativePurpleTeal', label: 'Color arc — purple / magenta / teal-cyan', manifest: 'sets/set-color-purple-teal-arc.json' },
+];
+
+function populateSetPresets() {
+const presetSelect = document.getElementById('videoSetPreset');
+if (!presetSelect) {
+    return;
+}
+presetSelect.innerHTML = '';
+for (const preset of sampleSetPresets) {
+    const option = document.createElement('option');
+    option.value = preset.manifest;
+    option.textContent = preset.label;
+    presetSelect.appendChild(option);
+}
+const manifestInput = document.getElementById('videoSetManifest');
+const currentManifest = manifestInput && manifestInput.value ? String(manifestInput.value).trim() : '';
+const match = sampleSetPresets.find((preset) => preset.manifest === currentManifest);
+presetSelect.value = match ? match.manifest : sampleSetPresets[0].manifest;
+}
 
 function clearVideoList() {
 const videoList = document.getElementById('videoListContents');
@@ -64,18 +95,32 @@ if (setAdvanceTimer !== null) {
 }
 }
 
+function clearClipWindowHandler() {
+if (activeClipWindowHandler) {
+    videoElement.removeEventListener('timeupdate', activeClipWindowHandler);
+    activeClipWindowHandler = null;
+}
+}
+
 function normalizeSetEntries(urls, labels = [], transitions = [], defaults = {}) {
 const entries = [];
 for (let i = 0; i < urls.length; i++) {
     const url = urls[i];
     if (!url) continue;
+    const sourceTransition = transitions[i] || {};
+    const clipStartSec = Number.isFinite(sourceTransition.clipStartSec) ? Math.max(0, sourceTransition.clipStartSec) : null;
+    const clipEndSec = Number.isFinite(sourceTransition.clipEndSec) ? Math.max(0, sourceTransition.clipEndSec) : null;
     entries.push({
         url,
         label: labels[i] || url.split('/').pop(),
         transition: {
-            type: (transitions[i] && transitions[i].type) || defaults.type || 'cut',
-            durationMs: (transitions[i] && transitions[i].durationMs) || defaults.durationMs || 700,
-            holdMs: (transitions[i] && transitions[i].holdMs) || defaults.holdMs || 8000
+            type: sourceTransition.type || defaults.type || 'cut',
+            durationMs: sourceTransition.durationMs || defaults.durationMs || 700,
+            holdMs: sourceTransition.holdMs || defaults.holdMs || 8000,
+            clipStartSec,
+            clipEndSec,
+            crop: sourceTransition.crop || null,
+            holdLastFrameOnClipEnd: sourceTransition.holdLastFrameOnClipEnd !== false
         }
     });
 }
@@ -87,12 +132,79 @@ clearSetAdvanceTimer();
 if (!entry || !entry.transition || !Number.isFinite(entry.transition.holdMs)) {
     return;
 }
-if (entry.transition.holdMs <= 0) {
+let effectiveHoldMs = entry.transition.holdMs;
+if (Number.isFinite(entry.transition.clipStartSec) && Number.isFinite(entry.transition.clipEndSec)) {
+    const clipSpanMs = Math.max(250, (entry.transition.clipEndSec - entry.transition.clipStartSec) * 1000);
+    if (!entry.transition.holdLastFrameOnClipEnd) {
+        effectiveHoldMs = Math.min(effectiveHoldMs, clipSpanMs);
+    }
+}
+if (effectiveHoldMs <= 0) {
     return;
 }
 setAdvanceTimer = setTimeout(function() {
     playNextSetEntry();
-}, entry.transition.holdMs);
+}, effectiveHoldMs);
+}
+
+function applyClipWindow(entry) {
+clearClipWindowHandler();
+if (!entry || !entry.transition) {
+    return;
+}
+const startSec = Number.isFinite(entry.transition.clipStartSec) ? Math.max(0, entry.transition.clipStartSec) : null;
+const endSec = Number.isFinite(entry.transition.clipEndSec) ? Math.max(0, entry.transition.clipEndSec) : null;
+if (startSec === null && endSec === null) {
+    return;
+}
+const setStart = function() {
+    if (!Number.isFinite(videoElement.duration) || videoElement.duration <= 0 || startSec === null) {
+        return;
+    }
+    const maxStart = Math.max(0, Math.min(startSec, Math.max(0, videoElement.duration - 0.05)));
+    try {
+        videoElement.currentTime = maxStart;
+    } catch (error) {
+        console.warn(error);
+    }
+};
+if (startSec !== null) {
+    if (videoElement.readyState >= 1) {
+        setStart();
+    } else {
+        videoElement.addEventListener('loadedmetadata', setStart, { once: true });
+    }
+}
+if (endSec !== null) {
+    activeClipWindowHandler = function() {
+        if (videoElement.currentTime >= (endSec - 0.04)) {
+            clearClipWindowHandler();
+            clearSetAdvanceTimer();
+            const shouldHoldLastFrame = !!entry.transition.holdLastFrameOnClipEnd;
+            if (!shouldHoldLastFrame) {
+                playNextSetEntry();
+                return;
+            }
+            const startRef = startSec !== null ? startSec : 0;
+            const elapsedClipMs = Math.max(0, (Math.max(startRef, endSec) - startRef) * 1000);
+            const targetHoldMs = Number.isFinite(entry.transition.holdMs) ? Math.max(0, entry.transition.holdMs) : 0;
+            const remainingHoldMs = Math.max(0, targetHoldMs - elapsedClipMs);
+            try {
+                videoElement.pause();
+            } catch (error) {
+                console.warn(error);
+            }
+            if (remainingHoldMs > 0) {
+                setAdvanceTimer = setTimeout(function() {
+                    playNextSetEntry();
+                }, remainingHoldMs);
+            } else {
+                playNextSetEntry();
+            }
+        }
+    };
+    videoElement.addEventListener('timeupdate', activeClipWindowHandler);
+}
 }
 
 function setSetPlaybackTiming(holdMs, transitionMs) {
@@ -115,6 +227,9 @@ if (!entry) {
     return;
 }
 const transition = entry.transition || {};
+if (window.setVideoBackdropCrop) {
+    window.setVideoBackdropCrop(transition.crop || null);
+}
 const transitionType = transition.type || 'cut';
 const durationMs = Math.max(0, parseInt(transition.durationMs || 0));
 
@@ -124,6 +239,7 @@ if (transitionType === 'fade' && durationMs > 0) {
     videoElement.style.opacity = '0';
     setTimeout(function() {
         videoElement.src = entry.url;
+        applyClipWindow(entry);
         videoElement.playbackRate = playbackRate;
         videoElement.play();
         videoElement.style.opacity = '1';
@@ -132,6 +248,7 @@ if (transitionType === 'fade' && durationMs > 0) {
     videoElement.style.transition = '';
     videoElement.style.opacity = '1';
     videoElement.src = entry.url;
+    applyClipWindow(entry);
     videoElement.playbackRate = playbackRate;
     videoElement.play();
 }
@@ -175,6 +292,7 @@ activeVideoQueue.length = 0;
 originalVideos.length = 0;
 clearVideoList();
 clearSetAdvanceTimer();
+clearClipWindowHandler();
 currentSetDirection = 1;
 currentSetPlaybackMode = defaults.playbackMode || 'pingpong';
 
@@ -191,6 +309,7 @@ allVideoLoops.push([...originalVideos]);
 currentSetEntries = normalizeSetEntries(urls, labels, transitions, defaults);
 window.__hypermuseLoadedSetCount = currentSetEntries.length;
 window.__hypermuseCurrentLoopLabel = "";
+window.__hypermuseSetUrls = currentSetEntries.map((entry) => entry.url).filter(Boolean);
 if (currentSetEntries.length > 0) {
     playSetEntryAt(0);
 }
@@ -277,6 +396,9 @@ return urls.length;
 
 window.loadVideoSetManifest = loadVideoSetManifest;
 window.setSetPlaybackTiming = setSetPlaybackTiming;
+window.getLoadedSetUrls = function() {
+    return Array.isArray(window.__hypermuseSetUrls) ? window.__hypermuseSetUrls.slice() : [];
+};
 
 document.getElementById('videoInput').addEventListener('change', function(event) {
 
@@ -325,6 +447,38 @@ if (videoSetButton) {
         }
     });
 }
+
+const loadVideoSetPresetButton = document.getElementById('loadVideoSetPresetButton');
+if (loadVideoSetPresetButton) {
+    loadVideoSetPresetButton.addEventListener('click', async function() {
+        const presetSelect = document.getElementById('videoSetPreset');
+        const manifestInput = document.getElementById('videoSetManifest');
+        const manifestPath = presetSelect && presetSelect.value
+            ? String(presetSelect.value)
+            : 'sets/bio1.json';
+        if (manifestInput) {
+            manifestInput.value = manifestPath;
+        }
+        try {
+            const total = await loadVideoSetManifest(manifestPath);
+            console.log(`Loaded preset ${manifestPath} (${total} loops)`);
+        } catch (error) {
+            console.error(error);
+        }
+    });
+}
+
+const videoSetPresetSelect = document.getElementById('videoSetPreset');
+if (videoSetPresetSelect) {
+    videoSetPresetSelect.addEventListener('change', function() {
+        const manifestInput = document.getElementById('videoSetManifest');
+        if (manifestInput) {
+            manifestInput.value = videoSetPresetSelect.value;
+        }
+    });
+}
+
+populateSetPresets();
 
 function appendFilenameToList(filename) {
 const videoList = document.getElementById('videoListContents');

@@ -1,0 +1,83 @@
+{
+  "generatedAt": "2026-05-06T02:56:09.685Z",
+  "sourceDirectory": "assets/cell-image-library/raw",
+  "loops": [
+    {
+      "url": "loops/reactions/cell-image-library/03cdb0002d6c-hue-loop.mp4",
+      "title": "03cdb0002d6c hue loop",
+      "sourceImage": "assets/cell-image-library/raw/03cdb0002d6c.jpg",
+      "transition": {
+        "holdMs": 2200,
+        "fadeInMs": 350,
+        "fadeOutMs": 300,
+        "playbackRate": 1,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/reactions/cell-image-library/06e6ddf798df-hue-loop.mp4",
+      "title": "06e6ddf798df hue loop",
+      "sourceImage": "assets/cell-image-library/raw/06e6ddf798df.jpg",
+      "transition": {
+        "holdMs": 2200,
+        "fadeInMs": 350,
+        "fadeOutMs": 300,
+        "playbackRate": 1,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/reactions/cell-image-library/3ed6f7529ea7-hue-loop.mp4",
+      "title": "3ed6f7529ea7 hue loop",
+      "sourceImage": "assets/cell-image-library/raw/3ed6f7529ea7.jpg",
+      "transition": {
+        "holdMs": 2200,
+        "fadeInMs": 350,
+        "fadeOutMs": 300,
+        "playbackRate": 1,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/reactions/cell-image-library/4cbe64dc737c-hue-loop.mp4",
+      "title": "4cbe64dc737c hue loop",
+      "sourceImage": "assets/cell-image-library/raw/4cbe64dc737c.jpg",
+      "transition": {
+        "holdMs": 2200,
+        "fadeInMs": 350,
+        "fadeOutMs": 300,
+        "playbackRate": 1,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/reactions/cell-image-library/9e4a91e86967-hue-loop.mp4",
+      "title": "9e4a91e86967 hue loop",
+      "sourceImage": "assets/cell-image-library/raw/9e4a91e86967.jpg",
+      "transition": {
+        "holdMs": 2200,
+        "fadeInMs": 350,
+        "fadeOutMs": 300,
+        "playbackRate": 1,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/reactions/cell-image-library/bb2d08e011cc-hue-loop.mp4",
+      "title": "bb2d08e011cc hue loop",
+      "sourceImage": "assets/cell-image-library/raw/bb2d08e011cc.jpg",
+      "transition": {
+        "holdMs": 2200,
+        "fadeInMs": 350,
+        "fadeOutMs": 300,
+        "playbackRate": 1,
+        "holdLastFrameOnClipEnd": true
+      }
+    }
+  ],
+  "transitionDefaults": {
+    "holdMs": 2200,
+    "fadeInMs": 350,
+    "fadeOutMs": 300
+  }
+}

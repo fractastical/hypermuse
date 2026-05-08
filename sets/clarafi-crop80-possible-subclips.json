@@ -1,0 +1,95 @@
+{
+  "generatedAt": "2026-04-27T15:56:54.235Z",
+  "sourceDirectory": "loops/clarafi",
+  "scanConfig": {
+    "maxScanSec": 60,
+    "stepSec": 1,
+    "minCleanSec": 5,
+    "titleSkipSec": 2
+  },
+  "totalVideosScanned": 43,
+  "acceptedCount": 10,
+  "rejectedCount": 33,
+  "whitelist": [
+    {
+      "url": "loops/clarafi/274971978.mp4",
+      "label": "274971978.mp4",
+      "clipStartSec": 4.8,
+      "clipEndSec": 10.8,
+      "cleanDurationSec": 6,
+      "durationSec": 174.04
+    },
+    {
+      "url": "loops/clarafi/Alzheimer's Enigma.mp4",
+      "label": "Alzheimer's Enigma.mp4",
+      "clipStartSec": 18.8,
+      "clipEndSec": 23.8,
+      "cleanDurationSec": 5,
+      "durationSec": 230.06
+    },
+    {
+      "url": "loops/clarafi/Entomology Animated Episode 1_ RIFA Madness!.mp4",
+      "label": "Entomology Animated Episode 1_ RIFA Madness!.mp4",
+      "clipStartSec": 13.8,
+      "clipEndSec": 20.8,
+      "cleanDurationSec": 7,
+      "durationSec": 510.02
+    },
+    {
+      "url": "loops/clarafi/Metastatic bone pain.mp4",
+      "label": "Metastatic bone pain.mp4",
+      "clipStartSec": 42.8,
+      "clipEndSec": 50.8,
+      "cleanDurationSec": 8,
+      "durationSec": 360.04
+    },
+    {
+      "url": "loops/clarafi/Si(111) Surface 7&times;7 Reconstruction.mp4",
+      "label": "Si(111) Surface 7&times;7 Reconstruction.mp4",
+      "clipStartSec": 23.8,
+      "clipEndSec": 28.8,
+      "cleanDurationSec": 5,
+      "durationSec": 240
+    },
+    {
+      "url": "loops/clarafi/hemoglobin1.mov",
+      "label": "hemoglobin1.mov",
+      "clipStartSec": 26.8,
+      "clipEndSec": 41.8,
+      "cleanDurationSec": 15,
+      "durationSec": 51.17
+    },
+    {
+      "url": "loops/clarafi/hemoglobin1b.mov",
+      "label": "hemoglobin1b.mov",
+      "clipStartSec": 10.8,
+      "clipEndSec": 22.3,
+      "cleanDurationSec": 11.5,
+      "durationSec": 22.3
+    },
+    {
+      "url": "loops/clarafi/hemoglobin2.mov",
+      "label": "hemoglobin2.mov",
+      "clipStartSec": 1.8,
+      "clipEndSec": 19.33,
+      "cleanDurationSec": 17.53,
+      "durationSec": 19.33
+    },
+    {
+      "url": "loops/clarafi/hemoglobin3.mov",
+      "label": "hemoglobin3.mov",
+      "clipStartSec": 4.8,
+      "clipEndSec": 13.03,
+      "cleanDurationSec": 8.23,
+      "durationSec": 13.03
+    },
+    {
+      "url": "loops/clarafi/videoplayback.mp4",
+      "label": "videoplayback.mp4",
+      "clipStartSec": 33.8,
+      "clipEndSec": 43.8,
+      "cleanDurationSec": 10,
+      "durationSec": 144.73
+    }
+  ]
+}

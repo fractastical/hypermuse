@@ -1,0 +1,4118 @@
+{
+  "setName": "set-color-warm-spectrum",
+  "sourceDirectory": "loops",
+  "generatedAt": "2026-05-08T01:13:02.491Z",
+  "count": 407,
+  "playbackMode": "loop",
+  "setNotes": "Warm arc: red / orange / yellow tagged clips from color-dataset.json.",
+  "effectTimeline": {
+    "enabled": true,
+    "phases": [
+      {
+        "name": "classic",
+        "durationSec": 14
+      },
+      {
+        "name": "physarum",
+        "durationSec": 18
+      },
+      {
+        "name": "kuramoto",
+        "durationSec": 14
+      },
+      {
+        "name": "gray-scott",
+        "durationSec": 20
+      },
+      {
+        "name": "molecule",
+        "durationSec": 16
+      },
+      {
+        "name": "classic",
+        "durationSec": 14
+      },
+      {
+        "name": "kuramoto",
+        "durationSec": 16
+      }
+    ]
+  },
+  "defaultTransition": {
+    "type": "fade",
+    "durationMs": 650,
+    "holdMs": 8200
+  },
+  "loops": [
+    {
+      "url": "loops/ArtBeats - Centrifusion/CLIPS/CFU122.mp4",
+      "label": "CFU122.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/ArtBeats - Centrifusion/CLIPS/CFU123.mp4",
+      "label": "CFU123.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/ArtBeats - Centrifusion/CLIPS/CFU125.mp4",
+      "label": "CFU125.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/ArtBeats - Centrifusion/CLIPS/CFU129.mp4",
+      "label": "CFU129.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/ArtBeats - Centrifusion/CLIPS/CFU132.mp4",
+      "label": "CFU132.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/ArtBeats - Centrifusion/CLIPS/CFU134.mp4",
+      "label": "CFU134.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/ArtBeats - Code Rage HD Vol.1/CDA109H1.mp4",
+      "label": "CDA109H1.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats-TimelapseFlowers3/TF314.mp4",
+      "label": "TF314.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats-TimelapseFlowers3/TF315.mp4",
+      "label": "TF315.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats-TimelapseFlowers3/TF317.mp4",
+      "label": "TF317.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats-TimelapsePlants/TP113.mp4",
+      "label": "TP113.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats-TimelapsePlants/TP114.mp4",
+      "label": "TP114.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats-TimelapsePlants/TP115.mp4",
+      "label": "TP115.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats-TimelapsePlants/TP121.mp4",
+      "label": "TP121.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats_CyberJourneysHD/Clips/CJ102H.mp4",
+      "label": "CJ102H.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats_CyberJourneysHD/Clips/CJ125H.mp4",
+      "label": "CJ125H.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/cells1/bio-cell-animation-2026-01-28-04-15-42-utc.mp4",
+      "label": "bio-cell-animation-2026-01-28-04-15-42-utc.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/cells1/human-eukaryotic-cell-structure-2026-01-28-02-58-49-utc.mp4",
+      "label": "human-eukaryotic-cell-structure-2026-01-28-02-58-49-utc.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/cells1/infected-cell-attack-healthy-cell-2026-02-18-09-40-51-utc.mov",
+      "label": "infected-cell-attack-healthy-cell-2026-02-18-09-40-51-utc.mov",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/clarafi/Apoptosis _WATERMARK_ (2006)  by Drew Berry wehi.tv, sound design Franc Tétaz.mp4",
+      "label": "Apoptosis _WATERMARK_ (2006)  by Drew Berry wehi.tv, sound design Franc Tétaz.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/clarafi/Differentiation and the Fate of Cells _ HHMI BioInteractive Video.mp4",
+      "label": "Differentiation and the Fate of Cells _ HHMI BioInteractive Video.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/clarafi/Human Embryonic Development _ HHMI BioInteractive Video.mp4",
+      "label": "Human Embryonic Development _ HHMI BioInteractive Video.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/clarafi/fantastic vesicle traffic.mp4",
+      "label": "fantastic vesicle traffic.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/clarafi/hemoglobin2.mov",
+      "label": "hemoglobin2.mov",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/clarafi/videoplayback.mp4",
+      "label": "videoplayback.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/prepped/clarafi-crop80-possible/006-hemoglobin1.mp4",
+      "label": "006-hemoglobin1.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/prepped/clarafi-crop80-possible/007-hemoglobin1b.mp4",
+      "label": "007-hemoglobin1b.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/prepped/clarafi-crop80-possible/008-hemoglobin2.mp4",
+      "label": "008-hemoglobin2.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/ArtBeats - Centrifusion/CLIPS/CFU140.mp4",
+      "label": "CFU140.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/ArtBeats - Code Rage HD Vol.1/CDA106H1.mp4",
+      "label": "CDA106H1.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats - Nature Underwater HD (1080i)/UN105H.mp4",
+      "label": "UN105H.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats-TimelapsePlants/TP101.mp4",
+      "label": "TP101.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats-TimelapsePlants/TP106.mp4",
+      "label": "TP106.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats-TimelapsePlants/TP108.mp4",
+      "label": "TP108.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats-TimelapsePlants/TP112.mp4",
+      "label": "TP112.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats-TimelapsePlants/TP118.mp4",
+      "label": "TP118.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats.Alien.Atmospheres/Clips/AM104.mp4",
+      "label": "AM104.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats_CyberJourneysHD/Clips/CJ105H.mp4",
+      "label": "CJ105H.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats_CyberJourneysHD/Clips/CJ107H.mp4",
+      "label": "CJ107H.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats_CyberJourneysHD/Clips/CJ109H.mp4",
+      "label": "CJ109H.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats_CyberJourneysHD/Clips/CJ111H.mp4",
+      "label": "CJ111H.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats_CyberJourneysHD/Clips/CJ113H.mp4",
+      "label": "CJ113H.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats_CyberJourneysHD/Clips/CJ118H.mp4",
+      "label": "CJ118H.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats_CyberJourneysHD/Clips/CJ123H.mp4",
+      "label": "CJ123H.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/cells2/vecteezy_ai-generated-3d-illustration-of-human-blood-cells-in-color_42474251.mp4",
+      "label": "vecteezy_ai-generated-3d-illustration-of-human-blood-cells-in-color_42474251.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/cells2/vecteezy_intricate-view-of-a-living-cell-s-inner-world_50600544.mp4",
+      "label": "vecteezy_intricate-view-of-a-living-cell-s-inner-world_50600544.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/cells2/vecteezy_scene-presents-dynamic-array-of-spherical-and-ring-shaped_72165849.mp4",
+      "label": "vecteezy_scene-presents-dynamic-array-of-spherical-and-ring-shaped_72165849.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/clarafi/Cancer Is Not One Disease.mp4",
+      "label": "Cancer Is Not One Disease.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/clarafi/Chicken Embryo Development.webm",
+      "label": "Chicken Embryo Development.webm",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/clarafi/Clostridium tetani and Tetanus.mp4",
+      "label": "Clostridium tetani and Tetanus.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/clarafi/Entomology Animated Episode 1_ RIFA Madness!.mp4",
+      "label": "Entomology Animated Episode 1_ RIFA Madness!.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/clarafi/Entomology Animated Episode 2_ Chemistry Must Be Respected!.mp4",
+      "label": "Entomology Animated Episode 2_ Chemistry Must Be Respected!.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/clarafi/Insulin Production and Type 1 Diabetes (2009) by Etsuko Uno wehi.tv.mp4",
+      "label": "Insulin Production and Type 1 Diabetes (2009) by Etsuko Uno wehi.tv.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/clarafi/Insulin Receptor and Type 2 Diabetes.mp4",
+      "label": "Insulin Receptor and Type 2 Diabetes.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/highdef/Water droplets evaporating from the wing scales of a peacock but.mp4",
+      "label": "Water droplets evaporating from the wing scales of a peacock but.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/highdef/zoom-swim-laser-soap cut.mp4",
+      "label": "zoom-swim-laser-soap cut.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/prepped/clarafi-crop80-possible/001-274971978.mp4",
+      "label": "001-274971978.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/reactions/nikon-smallworld/nikon-laser-soap.mp4",
+      "label": "nikon-laser-soap.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/ArtBeats - Code Rage HD Vol.1/CDA103H1.mp4",
+      "label": "CDA103H1.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/ArtBeats - Code Rage HD Vol.1/CDA108H1.mp4",
+      "label": "CDA108H1.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/ArtBeats - Code Rage HD Vol.1/CDA110H1.mp4",
+      "label": "CDA110H1.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/ArtBeats - Code Rage HD Vol.1/CDA113H1.mp4",
+      "label": "CDA113H1.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/ArtBeats - Code Rage HD Vol.1/CDA114H1.mp4",
+      "label": "CDA114H1.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats-TimelapsePlants/TP102.mp4",
+      "label": "TP102.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/clarafi/1184.mp4",
+      "label": "1184.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/clarafi/1198.mp4",
+      "label": "1198.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/clarafi/Immune System - Fighting Infection by Clonal Selection (2009) Etsuko Uno wehi.tv.mp4",
+      "label": "Immune System - Fighting Infection by Clonal Selection (2009) Etsuko Uno wehi.tv.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/highdef/zoom-swim-trachelius cut.mp4",
+      "label": "zoom-swim-trachelius cut.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/reactions/nikon-smallworld/nikon-rotifers.mp4",
+      "label": "nikon-rotifers.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/reactions/nikon-smallworld/nikon-trachelius.mp4",
+      "label": "nikon-trachelius.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/ArtBeats - Centrifusion/CLIPS/CFU104.mp4",
+      "label": "CFU104.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/ArtBeats - Centrifusion/CLIPS/CFU109.mp4",
+      "label": "CFU109.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/ArtBeats - Centrifusion/CLIPS/CFU112.mp4",
+      "label": "CFU112.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/ArtBeats - Centrifusion/CLIPS/CFU133.mp4",
+      "label": "CFU133.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/ArtBeats - Centrifusion/CLIPS/CFU139.mp4",
+      "label": "CFU139.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats-TimelapsePlants/TP116.mp4",
+      "label": "TP116.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Triangle vids/VJ three-dimensional triangle.mp4",
+      "label": "VJ three-dimensional triangle.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/cells1/cell-division-cellular-therapy-2026-01-28-05-03-42-utc.mp4",
+      "label": "cell-division-cellular-therapy-2026-01-28-05-03-42-utc.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/cells2/microscopic-sample-spinal-cord-cell-ts-200x-magnif-2025-12-17-05-34-16-utc.mov",
+      "label": "microscopic-sample-spinal-cord-cell-ts-200x-magnif-2025-12-17-05-34-16-utc.mov",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/cells2/molecular-binding-on-cellular-membrane-surface-2026-04-13-00-47-52-utc.mp4",
+      "label": "molecular-binding-on-cellular-membrane-surface-2026-04-13-00-47-52-utc.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/highdef/48-hour time-lapse of developing neurons connecting the opposite.mp4",
+      "label": "48-hour time-lapse of developing neurons connecting the opposite.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/ArtBeats - Centrifusion/CLIPS/CFU122.mp4",
+      "label": "CFU122.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/ArtBeats - Centrifusion/CLIPS/CFU123.mp4",
+      "label": "CFU123.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/ArtBeats - Centrifusion/CLIPS/CFU125.mp4",
+      "label": "CFU125.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/ArtBeats - Centrifusion/CLIPS/CFU129.mp4",
+      "label": "CFU129.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/ArtBeats - Centrifusion/CLIPS/CFU132.mp4",
+      "label": "CFU132.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/ArtBeats - Centrifusion/CLIPS/CFU134.mp4",
+      "label": "CFU134.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/ArtBeats - Code Rage HD Vol.1/CDA109H1.mp4",
+      "label": "CDA109H1.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats-TimelapseFlowers3/TF314.mp4",
+      "label": "TF314.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats-TimelapseFlowers3/TF315.mp4",
+      "label": "TF315.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats-TimelapseFlowers3/TF317.mp4",
+      "label": "TF317.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats-TimelapsePlants/TP113.mp4",
+      "label": "TP113.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats-TimelapsePlants/TP114.mp4",
+      "label": "TP114.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats-TimelapsePlants/TP115.mp4",
+      "label": "TP115.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats-TimelapsePlants/TP121.mp4",
+      "label": "TP121.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats_CyberJourneysHD/Clips/CJ102H.mp4",
+      "label": "CJ102H.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats_CyberJourneysHD/Clips/CJ125H.mp4",
+      "label": "CJ125H.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/cells1/bio-cell-animation-2026-01-28-04-15-42-utc.mp4",
+      "label": "bio-cell-animation-2026-01-28-04-15-42-utc.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/cells1/human-eukaryotic-cell-structure-2026-01-28-02-58-49-utc.mp4",
+      "label": "human-eukaryotic-cell-structure-2026-01-28-02-58-49-utc.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/cells1/infected-cell-attack-healthy-cell-2026-02-18-09-40-51-utc.mov",
+      "label": "infected-cell-attack-healthy-cell-2026-02-18-09-40-51-utc.mov",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/clarafi/Apoptosis _WATERMARK_ (2006)  by Drew Berry wehi.tv, sound design Franc Tétaz.mp4",
+      "label": "Apoptosis _WATERMARK_ (2006)  by Drew Berry wehi.tv, sound design Franc Tétaz.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/clarafi/Differentiation and the Fate of Cells _ HHMI BioInteractive Video.mp4",
+      "label": "Differentiation and the Fate of Cells _ HHMI BioInteractive Video.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/clarafi/Human Embryonic Development _ HHMI BioInteractive Video.mp4",
+      "label": "Human Embryonic Development _ HHMI BioInteractive Video.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/clarafi/fantastic vesicle traffic.mp4",
+      "label": "fantastic vesicle traffic.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/clarafi/hemoglobin2.mov",
+      "label": "hemoglobin2.mov",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/clarafi/videoplayback.mp4",
+      "label": "videoplayback.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/prepped/clarafi-crop80-possible/006-hemoglobin1.mp4",
+      "label": "006-hemoglobin1.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/prepped/clarafi-crop80-possible/007-hemoglobin1b.mp4",
+      "label": "007-hemoglobin1b.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/prepped/clarafi-crop80-possible/008-hemoglobin2.mp4",
+      "label": "008-hemoglobin2.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/ArtBeats - Centrifusion/CLIPS/CFU140.mp4",
+      "label": "CFU140.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/ArtBeats - Code Rage HD Vol.1/CDA106H1.mp4",
+      "label": "CDA106H1.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats - Nature Underwater HD (1080i)/UN105H.mp4",
+      "label": "UN105H.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats-TimelapsePlants/TP101.mp4",
+      "label": "TP101.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats-TimelapsePlants/TP106.mp4",
+      "label": "TP106.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats-TimelapsePlants/TP108.mp4",
+      "label": "TP108.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats-TimelapsePlants/TP112.mp4",
+      "label": "TP112.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats-TimelapsePlants/TP118.mp4",
+      "label": "TP118.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats.Alien.Atmospheres/Clips/AM104.mp4",
+      "label": "AM104.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats_CyberJourneysHD/Clips/CJ105H.mp4",
+      "label": "CJ105H.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats_CyberJourneysHD/Clips/CJ107H.mp4",
+      "label": "CJ107H.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats_CyberJourneysHD/Clips/CJ109H.mp4",
+      "label": "CJ109H.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats_CyberJourneysHD/Clips/CJ111H.mp4",
+      "label": "CJ111H.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats_CyberJourneysHD/Clips/CJ113H.mp4",
+      "label": "CJ113H.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats_CyberJourneysHD/Clips/CJ118H.mp4",
+      "label": "CJ118H.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats_CyberJourneysHD/Clips/CJ123H.mp4",
+      "label": "CJ123H.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/cells2/vecteezy_ai-generated-3d-illustration-of-human-blood-cells-in-color_42474251.mp4",
+      "label": "vecteezy_ai-generated-3d-illustration-of-human-blood-cells-in-color_42474251.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/cells2/vecteezy_intricate-view-of-a-living-cell-s-inner-world_50600544.mp4",
+      "label": "vecteezy_intricate-view-of-a-living-cell-s-inner-world_50600544.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/cells2/vecteezy_scene-presents-dynamic-array-of-spherical-and-ring-shaped_72165849.mp4",
+      "label": "vecteezy_scene-presents-dynamic-array-of-spherical-and-ring-shaped_72165849.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/clarafi/Cancer Is Not One Disease.mp4",
+      "label": "Cancer Is Not One Disease.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/clarafi/Chicken Embryo Development.webm",
+      "label": "Chicken Embryo Development.webm",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/clarafi/Clostridium tetani and Tetanus.mp4",
+      "label": "Clostridium tetani and Tetanus.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/clarafi/Entomology Animated Episode 1_ RIFA Madness!.mp4",
+      "label": "Entomology Animated Episode 1_ RIFA Madness!.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/clarafi/Entomology Animated Episode 2_ Chemistry Must Be Respected!.mp4",
+      "label": "Entomology Animated Episode 2_ Chemistry Must Be Respected!.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/clarafi/Insulin Production and Type 1 Diabetes (2009) by Etsuko Uno wehi.tv.mp4",
+      "label": "Insulin Production and Type 1 Diabetes (2009) by Etsuko Uno wehi.tv.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/clarafi/Insulin Receptor and Type 2 Diabetes.mp4",
+      "label": "Insulin Receptor and Type 2 Diabetes.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/highdef/Water droplets evaporating from the wing scales of a peacock but.mp4",
+      "label": "Water droplets evaporating from the wing scales of a peacock but.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/highdef/zoom-swim-laser-soap cut.mp4",
+      "label": "zoom-swim-laser-soap cut.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/prepped/clarafi-crop80-possible/001-274971978.mp4",
+      "label": "001-274971978.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/reactions/nikon-smallworld/nikon-laser-soap.mp4",
+      "label": "nikon-laser-soap.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/ArtBeats - Code Rage HD Vol.1/CDA103H1.mp4",
+      "label": "CDA103H1.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/ArtBeats - Code Rage HD Vol.1/CDA108H1.mp4",
+      "label": "CDA108H1.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/ArtBeats - Code Rage HD Vol.1/CDA110H1.mp4",
+      "label": "CDA110H1.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/ArtBeats - Code Rage HD Vol.1/CDA113H1.mp4",
+      "label": "CDA113H1.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/ArtBeats - Code Rage HD Vol.1/CDA114H1.mp4",
+      "label": "CDA114H1.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats-TimelapsePlants/TP102.mp4",
+      "label": "TP102.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/clarafi/1184.mp4",
+      "label": "1184.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/clarafi/1198.mp4",
+      "label": "1198.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/clarafi/Immune System - Fighting Infection by Clonal Selection (2009) Etsuko Uno wehi.tv.mp4",
+      "label": "Immune System - Fighting Infection by Clonal Selection (2009) Etsuko Uno wehi.tv.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/highdef/zoom-swim-trachelius cut.mp4",
+      "label": "zoom-swim-trachelius cut.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/reactions/nikon-smallworld/nikon-rotifers.mp4",
+      "label": "nikon-rotifers.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/reactions/nikon-smallworld/nikon-trachelius.mp4",
+      "label": "nikon-trachelius.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/ArtBeats - Centrifusion/CLIPS/CFU104.mp4",
+      "label": "CFU104.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/ArtBeats - Centrifusion/CLIPS/CFU109.mp4",
+      "label": "CFU109.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/ArtBeats - Centrifusion/CLIPS/CFU112.mp4",
+      "label": "CFU112.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/ArtBeats - Centrifusion/CLIPS/CFU133.mp4",
+      "label": "CFU133.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/ArtBeats - Centrifusion/CLIPS/CFU139.mp4",
+      "label": "CFU139.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats-TimelapsePlants/TP116.mp4",
+      "label": "TP116.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Triangle vids/VJ three-dimensional triangle.mp4",
+      "label": "VJ three-dimensional triangle.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/cells1/cell-division-cellular-therapy-2026-01-28-05-03-42-utc.mp4",
+      "label": "cell-division-cellular-therapy-2026-01-28-05-03-42-utc.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/cells2/microscopic-sample-spinal-cord-cell-ts-200x-magnif-2025-12-17-05-34-16-utc.mov",
+      "label": "microscopic-sample-spinal-cord-cell-ts-200x-magnif-2025-12-17-05-34-16-utc.mov",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/cells2/molecular-binding-on-cellular-membrane-surface-2026-04-13-00-47-52-utc.mp4",
+      "label": "molecular-binding-on-cellular-membrane-surface-2026-04-13-00-47-52-utc.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/highdef/48-hour time-lapse of developing neurons connecting the opposite.mp4",
+      "label": "48-hour time-lapse of developing neurons connecting the opposite.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/ArtBeats - Centrifusion/CLIPS/CFU122.mp4",
+      "label": "CFU122.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/ArtBeats - Centrifusion/CLIPS/CFU123.mp4",
+      "label": "CFU123.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/ArtBeats - Centrifusion/CLIPS/CFU125.mp4",
+      "label": "CFU125.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/ArtBeats - Centrifusion/CLIPS/CFU129.mp4",
+      "label": "CFU129.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/ArtBeats - Centrifusion/CLIPS/CFU132.mp4",
+      "label": "CFU132.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/ArtBeats - Centrifusion/CLIPS/CFU134.mp4",
+      "label": "CFU134.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/ArtBeats - Code Rage HD Vol.1/CDA109H1.mp4",
+      "label": "CDA109H1.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats-TimelapseFlowers3/TF314.mp4",
+      "label": "TF314.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats-TimelapseFlowers3/TF315.mp4",
+      "label": "TF315.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats-TimelapseFlowers3/TF317.mp4",
+      "label": "TF317.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats-TimelapsePlants/TP113.mp4",
+      "label": "TP113.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats-TimelapsePlants/TP114.mp4",
+      "label": "TP114.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats-TimelapsePlants/TP115.mp4",
+      "label": "TP115.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats-TimelapsePlants/TP121.mp4",
+      "label": "TP121.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats_CyberJourneysHD/Clips/CJ102H.mp4",
+      "label": "CJ102H.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats_CyberJourneysHD/Clips/CJ125H.mp4",
+      "label": "CJ125H.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/cells1/bio-cell-animation-2026-01-28-04-15-42-utc.mp4",
+      "label": "bio-cell-animation-2026-01-28-04-15-42-utc.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/cells1/human-eukaryotic-cell-structure-2026-01-28-02-58-49-utc.mp4",
+      "label": "human-eukaryotic-cell-structure-2026-01-28-02-58-49-utc.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/cells1/infected-cell-attack-healthy-cell-2026-02-18-09-40-51-utc.mov",
+      "label": "infected-cell-attack-healthy-cell-2026-02-18-09-40-51-utc.mov",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/clarafi/Apoptosis _WATERMARK_ (2006)  by Drew Berry wehi.tv, sound design Franc Tétaz.mp4",
+      "label": "Apoptosis _WATERMARK_ (2006)  by Drew Berry wehi.tv, sound design Franc Tétaz.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/clarafi/Differentiation and the Fate of Cells _ HHMI BioInteractive Video.mp4",
+      "label": "Differentiation and the Fate of Cells _ HHMI BioInteractive Video.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/clarafi/Human Embryonic Development _ HHMI BioInteractive Video.mp4",
+      "label": "Human Embryonic Development _ HHMI BioInteractive Video.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/clarafi/fantastic vesicle traffic.mp4",
+      "label": "fantastic vesicle traffic.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/clarafi/hemoglobin2.mov",
+      "label": "hemoglobin2.mov",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/clarafi/videoplayback.mp4",
+      "label": "videoplayback.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/prepped/clarafi-crop80-possible/006-hemoglobin1.mp4",
+      "label": "006-hemoglobin1.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/prepped/clarafi-crop80-possible/007-hemoglobin1b.mp4",
+      "label": "007-hemoglobin1b.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/prepped/clarafi-crop80-possible/008-hemoglobin2.mp4",
+      "label": "008-hemoglobin2.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/ArtBeats - Centrifusion/CLIPS/CFU140.mp4",
+      "label": "CFU140.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/ArtBeats - Code Rage HD Vol.1/CDA106H1.mp4",
+      "label": "CDA106H1.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats - Nature Underwater HD (1080i)/UN105H.mp4",
+      "label": "UN105H.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats-TimelapsePlants/TP101.mp4",
+      "label": "TP101.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats-TimelapsePlants/TP106.mp4",
+      "label": "TP106.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats-TimelapsePlants/TP108.mp4",
+      "label": "TP108.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats-TimelapsePlants/TP112.mp4",
+      "label": "TP112.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats-TimelapsePlants/TP118.mp4",
+      "label": "TP118.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats.Alien.Atmospheres/Clips/AM104.mp4",
+      "label": "AM104.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats_CyberJourneysHD/Clips/CJ105H.mp4",
+      "label": "CJ105H.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats_CyberJourneysHD/Clips/CJ107H.mp4",
+      "label": "CJ107H.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats_CyberJourneysHD/Clips/CJ109H.mp4",
+      "label": "CJ109H.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats_CyberJourneysHD/Clips/CJ111H.mp4",
+      "label": "CJ111H.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats_CyberJourneysHD/Clips/CJ113H.mp4",
+      "label": "CJ113H.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats_CyberJourneysHD/Clips/CJ118H.mp4",
+      "label": "CJ118H.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats_CyberJourneysHD/Clips/CJ123H.mp4",
+      "label": "CJ123H.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/cells2/vecteezy_ai-generated-3d-illustration-of-human-blood-cells-in-color_42474251.mp4",
+      "label": "vecteezy_ai-generated-3d-illustration-of-human-blood-cells-in-color_42474251.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/cells2/vecteezy_intricate-view-of-a-living-cell-s-inner-world_50600544.mp4",
+      "label": "vecteezy_intricate-view-of-a-living-cell-s-inner-world_50600544.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/cells2/vecteezy_scene-presents-dynamic-array-of-spherical-and-ring-shaped_72165849.mp4",
+      "label": "vecteezy_scene-presents-dynamic-array-of-spherical-and-ring-shaped_72165849.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/clarafi/Cancer Is Not One Disease.mp4",
+      "label": "Cancer Is Not One Disease.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/clarafi/Chicken Embryo Development.webm",
+      "label": "Chicken Embryo Development.webm",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/clarafi/Clostridium tetani and Tetanus.mp4",
+      "label": "Clostridium tetani and Tetanus.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/clarafi/Entomology Animated Episode 1_ RIFA Madness!.mp4",
+      "label": "Entomology Animated Episode 1_ RIFA Madness!.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/clarafi/Entomology Animated Episode 2_ Chemistry Must Be Respected!.mp4",
+      "label": "Entomology Animated Episode 2_ Chemistry Must Be Respected!.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/clarafi/Insulin Production and Type 1 Diabetes (2009) by Etsuko Uno wehi.tv.mp4",
+      "label": "Insulin Production and Type 1 Diabetes (2009) by Etsuko Uno wehi.tv.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/clarafi/Insulin Receptor and Type 2 Diabetes.mp4",
+      "label": "Insulin Receptor and Type 2 Diabetes.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/highdef/Water droplets evaporating from the wing scales of a peacock but.mp4",
+      "label": "Water droplets evaporating from the wing scales of a peacock but.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/highdef/zoom-swim-laser-soap cut.mp4",
+      "label": "zoom-swim-laser-soap cut.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/prepped/clarafi-crop80-possible/001-274971978.mp4",
+      "label": "001-274971978.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/reactions/nikon-smallworld/nikon-laser-soap.mp4",
+      "label": "nikon-laser-soap.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/ArtBeats - Code Rage HD Vol.1/CDA103H1.mp4",
+      "label": "CDA103H1.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/ArtBeats - Code Rage HD Vol.1/CDA108H1.mp4",
+      "label": "CDA108H1.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/ArtBeats - Code Rage HD Vol.1/CDA110H1.mp4",
+      "label": "CDA110H1.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/ArtBeats - Code Rage HD Vol.1/CDA113H1.mp4",
+      "label": "CDA113H1.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/ArtBeats - Code Rage HD Vol.1/CDA114H1.mp4",
+      "label": "CDA114H1.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats-TimelapsePlants/TP102.mp4",
+      "label": "TP102.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/clarafi/1184.mp4",
+      "label": "1184.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/clarafi/1198.mp4",
+      "label": "1198.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/clarafi/Immune System - Fighting Infection by Clonal Selection (2009) Etsuko Uno wehi.tv.mp4",
+      "label": "Immune System - Fighting Infection by Clonal Selection (2009) Etsuko Uno wehi.tv.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/highdef/zoom-swim-trachelius cut.mp4",
+      "label": "zoom-swim-trachelius cut.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/reactions/nikon-smallworld/nikon-rotifers.mp4",
+      "label": "nikon-rotifers.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/reactions/nikon-smallworld/nikon-trachelius.mp4",
+      "label": "nikon-trachelius.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/ArtBeats - Centrifusion/CLIPS/CFU104.mp4",
+      "label": "CFU104.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/ArtBeats - Centrifusion/CLIPS/CFU109.mp4",
+      "label": "CFU109.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/ArtBeats - Centrifusion/CLIPS/CFU112.mp4",
+      "label": "CFU112.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/ArtBeats - Centrifusion/CLIPS/CFU133.mp4",
+      "label": "CFU133.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/ArtBeats - Centrifusion/CLIPS/CFU139.mp4",
+      "label": "CFU139.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats-TimelapsePlants/TP116.mp4",
+      "label": "TP116.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Triangle vids/VJ three-dimensional triangle.mp4",
+      "label": "VJ three-dimensional triangle.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/cells1/cell-division-cellular-therapy-2026-01-28-05-03-42-utc.mp4",
+      "label": "cell-division-cellular-therapy-2026-01-28-05-03-42-utc.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/cells2/microscopic-sample-spinal-cord-cell-ts-200x-magnif-2025-12-17-05-34-16-utc.mov",
+      "label": "microscopic-sample-spinal-cord-cell-ts-200x-magnif-2025-12-17-05-34-16-utc.mov",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/cells2/molecular-binding-on-cellular-membrane-surface-2026-04-13-00-47-52-utc.mp4",
+      "label": "molecular-binding-on-cellular-membrane-surface-2026-04-13-00-47-52-utc.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/highdef/48-hour time-lapse of developing neurons connecting the opposite.mp4",
+      "label": "48-hour time-lapse of developing neurons connecting the opposite.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/ArtBeats - Centrifusion/CLIPS/CFU122.mp4",
+      "label": "CFU122.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/ArtBeats - Centrifusion/CLIPS/CFU123.mp4",
+      "label": "CFU123.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/ArtBeats - Centrifusion/CLIPS/CFU125.mp4",
+      "label": "CFU125.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/ArtBeats - Centrifusion/CLIPS/CFU129.mp4",
+      "label": "CFU129.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/ArtBeats - Centrifusion/CLIPS/CFU132.mp4",
+      "label": "CFU132.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/ArtBeats - Centrifusion/CLIPS/CFU134.mp4",
+      "label": "CFU134.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/ArtBeats - Code Rage HD Vol.1/CDA109H1.mp4",
+      "label": "CDA109H1.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats-TimelapseFlowers3/TF314.mp4",
+      "label": "TF314.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats-TimelapseFlowers3/TF315.mp4",
+      "label": "TF315.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats-TimelapseFlowers3/TF317.mp4",
+      "label": "TF317.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats-TimelapsePlants/TP113.mp4",
+      "label": "TP113.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats-TimelapsePlants/TP114.mp4",
+      "label": "TP114.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats-TimelapsePlants/TP115.mp4",
+      "label": "TP115.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats-TimelapsePlants/TP121.mp4",
+      "label": "TP121.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats_CyberJourneysHD/Clips/CJ102H.mp4",
+      "label": "CJ102H.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats_CyberJourneysHD/Clips/CJ125H.mp4",
+      "label": "CJ125H.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/cells1/bio-cell-animation-2026-01-28-04-15-42-utc.mp4",
+      "label": "bio-cell-animation-2026-01-28-04-15-42-utc.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/cells1/human-eukaryotic-cell-structure-2026-01-28-02-58-49-utc.mp4",
+      "label": "human-eukaryotic-cell-structure-2026-01-28-02-58-49-utc.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/cells1/infected-cell-attack-healthy-cell-2026-02-18-09-40-51-utc.mov",
+      "label": "infected-cell-attack-healthy-cell-2026-02-18-09-40-51-utc.mov",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/clarafi/Apoptosis _WATERMARK_ (2006)  by Drew Berry wehi.tv, sound design Franc Tétaz.mp4",
+      "label": "Apoptosis _WATERMARK_ (2006)  by Drew Berry wehi.tv, sound design Franc Tétaz.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/clarafi/Differentiation and the Fate of Cells _ HHMI BioInteractive Video.mp4",
+      "label": "Differentiation and the Fate of Cells _ HHMI BioInteractive Video.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/clarafi/Human Embryonic Development _ HHMI BioInteractive Video.mp4",
+      "label": "Human Embryonic Development _ HHMI BioInteractive Video.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/clarafi/fantastic vesicle traffic.mp4",
+      "label": "fantastic vesicle traffic.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/clarafi/hemoglobin2.mov",
+      "label": "hemoglobin2.mov",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/clarafi/videoplayback.mp4",
+      "label": "videoplayback.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/prepped/clarafi-crop80-possible/006-hemoglobin1.mp4",
+      "label": "006-hemoglobin1.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/prepped/clarafi-crop80-possible/007-hemoglobin1b.mp4",
+      "label": "007-hemoglobin1b.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/prepped/clarafi-crop80-possible/008-hemoglobin2.mp4",
+      "label": "008-hemoglobin2.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/ArtBeats - Centrifusion/CLIPS/CFU140.mp4",
+      "label": "CFU140.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/ArtBeats - Code Rage HD Vol.1/CDA106H1.mp4",
+      "label": "CDA106H1.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats - Nature Underwater HD (1080i)/UN105H.mp4",
+      "label": "UN105H.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats-TimelapsePlants/TP101.mp4",
+      "label": "TP101.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats-TimelapsePlants/TP106.mp4",
+      "label": "TP106.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats-TimelapsePlants/TP108.mp4",
+      "label": "TP108.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats-TimelapsePlants/TP112.mp4",
+      "label": "TP112.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats-TimelapsePlants/TP118.mp4",
+      "label": "TP118.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats.Alien.Atmospheres/Clips/AM104.mp4",
+      "label": "AM104.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats_CyberJourneysHD/Clips/CJ105H.mp4",
+      "label": "CJ105H.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats_CyberJourneysHD/Clips/CJ107H.mp4",
+      "label": "CJ107H.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats_CyberJourneysHD/Clips/CJ109H.mp4",
+      "label": "CJ109H.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats_CyberJourneysHD/Clips/CJ111H.mp4",
+      "label": "CJ111H.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats_CyberJourneysHD/Clips/CJ113H.mp4",
+      "label": "CJ113H.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats_CyberJourneysHD/Clips/CJ118H.mp4",
+      "label": "CJ118H.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats_CyberJourneysHD/Clips/CJ123H.mp4",
+      "label": "CJ123H.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/cells2/vecteezy_ai-generated-3d-illustration-of-human-blood-cells-in-color_42474251.mp4",
+      "label": "vecteezy_ai-generated-3d-illustration-of-human-blood-cells-in-color_42474251.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/cells2/vecteezy_intricate-view-of-a-living-cell-s-inner-world_50600544.mp4",
+      "label": "vecteezy_intricate-view-of-a-living-cell-s-inner-world_50600544.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/cells2/vecteezy_scene-presents-dynamic-array-of-spherical-and-ring-shaped_72165849.mp4",
+      "label": "vecteezy_scene-presents-dynamic-array-of-spherical-and-ring-shaped_72165849.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/clarafi/Cancer Is Not One Disease.mp4",
+      "label": "Cancer Is Not One Disease.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/clarafi/Chicken Embryo Development.webm",
+      "label": "Chicken Embryo Development.webm",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/clarafi/Clostridium tetani and Tetanus.mp4",
+      "label": "Clostridium tetani and Tetanus.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/clarafi/Entomology Animated Episode 1_ RIFA Madness!.mp4",
+      "label": "Entomology Animated Episode 1_ RIFA Madness!.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/clarafi/Entomology Animated Episode 2_ Chemistry Must Be Respected!.mp4",
+      "label": "Entomology Animated Episode 2_ Chemistry Must Be Respected!.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/clarafi/Insulin Production and Type 1 Diabetes (2009) by Etsuko Uno wehi.tv.mp4",
+      "label": "Insulin Production and Type 1 Diabetes (2009) by Etsuko Uno wehi.tv.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/clarafi/Insulin Receptor and Type 2 Diabetes.mp4",
+      "label": "Insulin Receptor and Type 2 Diabetes.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/highdef/Water droplets evaporating from the wing scales of a peacock but.mp4",
+      "label": "Water droplets evaporating from the wing scales of a peacock but.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/highdef/zoom-swim-laser-soap cut.mp4",
+      "label": "zoom-swim-laser-soap cut.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/prepped/clarafi-crop80-possible/001-274971978.mp4",
+      "label": "001-274971978.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/reactions/nikon-smallworld/nikon-laser-soap.mp4",
+      "label": "nikon-laser-soap.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/ArtBeats - Code Rage HD Vol.1/CDA103H1.mp4",
+      "label": "CDA103H1.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/ArtBeats - Code Rage HD Vol.1/CDA108H1.mp4",
+      "label": "CDA108H1.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/ArtBeats - Code Rage HD Vol.1/CDA110H1.mp4",
+      "label": "CDA110H1.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/ArtBeats - Code Rage HD Vol.1/CDA113H1.mp4",
+      "label": "CDA113H1.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/ArtBeats - Code Rage HD Vol.1/CDA114H1.mp4",
+      "label": "CDA114H1.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats-TimelapsePlants/TP102.mp4",
+      "label": "TP102.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/clarafi/1184.mp4",
+      "label": "1184.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/clarafi/1198.mp4",
+      "label": "1198.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/clarafi/Immune System - Fighting Infection by Clonal Selection (2009) Etsuko Uno wehi.tv.mp4",
+      "label": "Immune System - Fighting Infection by Clonal Selection (2009) Etsuko Uno wehi.tv.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/highdef/zoom-swim-trachelius cut.mp4",
+      "label": "zoom-swim-trachelius cut.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/reactions/nikon-smallworld/nikon-rotifers.mp4",
+      "label": "nikon-rotifers.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/reactions/nikon-smallworld/nikon-trachelius.mp4",
+      "label": "nikon-trachelius.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/ArtBeats - Centrifusion/CLIPS/CFU104.mp4",
+      "label": "CFU104.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/ArtBeats - Centrifusion/CLIPS/CFU109.mp4",
+      "label": "CFU109.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/ArtBeats - Centrifusion/CLIPS/CFU112.mp4",
+      "label": "CFU112.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/ArtBeats - Centrifusion/CLIPS/CFU133.mp4",
+      "label": "CFU133.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/ArtBeats - Centrifusion/CLIPS/CFU139.mp4",
+      "label": "CFU139.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats-TimelapsePlants/TP116.mp4",
+      "label": "TP116.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Triangle vids/VJ three-dimensional triangle.mp4",
+      "label": "VJ three-dimensional triangle.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/cells1/cell-division-cellular-therapy-2026-01-28-05-03-42-utc.mp4",
+      "label": "cell-division-cellular-therapy-2026-01-28-05-03-42-utc.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/cells2/microscopic-sample-spinal-cord-cell-ts-200x-magnif-2025-12-17-05-34-16-utc.mov",
+      "label": "microscopic-sample-spinal-cord-cell-ts-200x-magnif-2025-12-17-05-34-16-utc.mov",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/cells2/molecular-binding-on-cellular-membrane-surface-2026-04-13-00-47-52-utc.mp4",
+      "label": "molecular-binding-on-cellular-membrane-surface-2026-04-13-00-47-52-utc.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/highdef/48-hour time-lapse of developing neurons connecting the opposite.mp4",
+      "label": "48-hour time-lapse of developing neurons connecting the opposite.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/ArtBeats - Centrifusion/CLIPS/CFU122.mp4",
+      "label": "CFU122.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/ArtBeats - Centrifusion/CLIPS/CFU123.mp4",
+      "label": "CFU123.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/ArtBeats - Centrifusion/CLIPS/CFU125.mp4",
+      "label": "CFU125.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/ArtBeats - Centrifusion/CLIPS/CFU129.mp4",
+      "label": "CFU129.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/ArtBeats - Centrifusion/CLIPS/CFU132.mp4",
+      "label": "CFU132.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/ArtBeats - Centrifusion/CLIPS/CFU134.mp4",
+      "label": "CFU134.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/ArtBeats - Code Rage HD Vol.1/CDA109H1.mp4",
+      "label": "CDA109H1.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats-TimelapseFlowers3/TF314.mp4",
+      "label": "TF314.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats-TimelapseFlowers3/TF315.mp4",
+      "label": "TF315.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats-TimelapseFlowers3/TF317.mp4",
+      "label": "TF317.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats-TimelapsePlants/TP113.mp4",
+      "label": "TP113.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats-TimelapsePlants/TP114.mp4",
+      "label": "TP114.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats-TimelapsePlants/TP115.mp4",
+      "label": "TP115.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats-TimelapsePlants/TP121.mp4",
+      "label": "TP121.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats_CyberJourneysHD/Clips/CJ102H.mp4",
+      "label": "CJ102H.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats_CyberJourneysHD/Clips/CJ125H.mp4",
+      "label": "CJ125H.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/cells1/bio-cell-animation-2026-01-28-04-15-42-utc.mp4",
+      "label": "bio-cell-animation-2026-01-28-04-15-42-utc.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/cells1/human-eukaryotic-cell-structure-2026-01-28-02-58-49-utc.mp4",
+      "label": "human-eukaryotic-cell-structure-2026-01-28-02-58-49-utc.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/cells1/infected-cell-attack-healthy-cell-2026-02-18-09-40-51-utc.mov",
+      "label": "infected-cell-attack-healthy-cell-2026-02-18-09-40-51-utc.mov",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/clarafi/Apoptosis _WATERMARK_ (2006)  by Drew Berry wehi.tv, sound design Franc Tétaz.mp4",
+      "label": "Apoptosis _WATERMARK_ (2006)  by Drew Berry wehi.tv, sound design Franc Tétaz.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/clarafi/Differentiation and the Fate of Cells _ HHMI BioInteractive Video.mp4",
+      "label": "Differentiation and the Fate of Cells _ HHMI BioInteractive Video.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/clarafi/Human Embryonic Development _ HHMI BioInteractive Video.mp4",
+      "label": "Human Embryonic Development _ HHMI BioInteractive Video.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/clarafi/fantastic vesicle traffic.mp4",
+      "label": "fantastic vesicle traffic.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/clarafi/hemoglobin2.mov",
+      "label": "hemoglobin2.mov",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/clarafi/videoplayback.mp4",
+      "label": "videoplayback.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/prepped/clarafi-crop80-possible/006-hemoglobin1.mp4",
+      "label": "006-hemoglobin1.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/prepped/clarafi-crop80-possible/007-hemoglobin1b.mp4",
+      "label": "007-hemoglobin1b.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/prepped/clarafi-crop80-possible/008-hemoglobin2.mp4",
+      "label": "008-hemoglobin2.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/ArtBeats - Centrifusion/CLIPS/CFU140.mp4",
+      "label": "CFU140.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/ArtBeats - Code Rage HD Vol.1/CDA106H1.mp4",
+      "label": "CDA106H1.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats - Nature Underwater HD (1080i)/UN105H.mp4",
+      "label": "UN105H.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats-TimelapsePlants/TP101.mp4",
+      "label": "TP101.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats-TimelapsePlants/TP106.mp4",
+      "label": "TP106.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats-TimelapsePlants/TP108.mp4",
+      "label": "TP108.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats-TimelapsePlants/TP112.mp4",
+      "label": "TP112.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats-TimelapsePlants/TP118.mp4",
+      "label": "TP118.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats.Alien.Atmospheres/Clips/AM104.mp4",
+      "label": "AM104.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats_CyberJourneysHD/Clips/CJ105H.mp4",
+      "label": "CJ105H.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats_CyberJourneysHD/Clips/CJ107H.mp4",
+      "label": "CJ107H.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats_CyberJourneysHD/Clips/CJ109H.mp4",
+      "label": "CJ109H.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats_CyberJourneysHD/Clips/CJ111H.mp4",
+      "label": "CJ111H.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats_CyberJourneysHD/Clips/CJ113H.mp4",
+      "label": "CJ113H.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats_CyberJourneysHD/Clips/CJ118H.mp4",
+      "label": "CJ118H.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats_CyberJourneysHD/Clips/CJ123H.mp4",
+      "label": "CJ123H.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/cells2/vecteezy_ai-generated-3d-illustration-of-human-blood-cells-in-color_42474251.mp4",
+      "label": "vecteezy_ai-generated-3d-illustration-of-human-blood-cells-in-color_42474251.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/cells2/vecteezy_intricate-view-of-a-living-cell-s-inner-world_50600544.mp4",
+      "label": "vecteezy_intricate-view-of-a-living-cell-s-inner-world_50600544.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/cells2/vecteezy_scene-presents-dynamic-array-of-spherical-and-ring-shaped_72165849.mp4",
+      "label": "vecteezy_scene-presents-dynamic-array-of-spherical-and-ring-shaped_72165849.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/clarafi/Cancer Is Not One Disease.mp4",
+      "label": "Cancer Is Not One Disease.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/clarafi/Chicken Embryo Development.webm",
+      "label": "Chicken Embryo Development.webm",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/clarafi/Clostridium tetani and Tetanus.mp4",
+      "label": "Clostridium tetani and Tetanus.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/clarafi/Entomology Animated Episode 1_ RIFA Madness!.mp4",
+      "label": "Entomology Animated Episode 1_ RIFA Madness!.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/clarafi/Entomology Animated Episode 2_ Chemistry Must Be Respected!.mp4",
+      "label": "Entomology Animated Episode 2_ Chemistry Must Be Respected!.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/clarafi/Insulin Production and Type 1 Diabetes (2009) by Etsuko Uno wehi.tv.mp4",
+      "label": "Insulin Production and Type 1 Diabetes (2009) by Etsuko Uno wehi.tv.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/clarafi/Insulin Receptor and Type 2 Diabetes.mp4",
+      "label": "Insulin Receptor and Type 2 Diabetes.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/highdef/Water droplets evaporating from the wing scales of a peacock but.mp4",
+      "label": "Water droplets evaporating from the wing scales of a peacock but.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/highdef/zoom-swim-laser-soap cut.mp4",
+      "label": "zoom-swim-laser-soap cut.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/prepped/clarafi-crop80-possible/001-274971978.mp4",
+      "label": "001-274971978.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/reactions/nikon-smallworld/nikon-laser-soap.mp4",
+      "label": "nikon-laser-soap.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/ArtBeats - Code Rage HD Vol.1/CDA103H1.mp4",
+      "label": "CDA103H1.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/ArtBeats - Code Rage HD Vol.1/CDA108H1.mp4",
+      "label": "CDA108H1.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/ArtBeats - Code Rage HD Vol.1/CDA110H1.mp4",
+      "label": "CDA110H1.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/ArtBeats - Code Rage HD Vol.1/CDA113H1.mp4",
+      "label": "CDA113H1.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/ArtBeats - Code Rage HD Vol.1/CDA114H1.mp4",
+      "label": "CDA114H1.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats-TimelapsePlants/TP102.mp4",
+      "label": "TP102.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/clarafi/1184.mp4",
+      "label": "1184.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/clarafi/1198.mp4",
+      "label": "1198.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/clarafi/Immune System - Fighting Infection by Clonal Selection (2009) Etsuko Uno wehi.tv.mp4",
+      "label": "Immune System - Fighting Infection by Clonal Selection (2009) Etsuko Uno wehi.tv.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/highdef/zoom-swim-trachelius cut.mp4",
+      "label": "zoom-swim-trachelius cut.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/reactions/nikon-smallworld/nikon-rotifers.mp4",
+      "label": "nikon-rotifers.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/reactions/nikon-smallworld/nikon-trachelius.mp4",
+      "label": "nikon-trachelius.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/ArtBeats - Centrifusion/CLIPS/CFU104.mp4",
+      "label": "CFU104.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/ArtBeats - Centrifusion/CLIPS/CFU109.mp4",
+      "label": "CFU109.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/ArtBeats - Centrifusion/CLIPS/CFU112.mp4",
+      "label": "CFU112.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/ArtBeats - Centrifusion/CLIPS/CFU133.mp4",
+      "label": "CFU133.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/ArtBeats - Centrifusion/CLIPS/CFU139.mp4",
+      "label": "CFU139.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Artbeats-TimelapsePlants/TP116.mp4",
+      "label": "TP116.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/Triangle vids/VJ three-dimensional triangle.mp4",
+      "label": "VJ three-dimensional triangle.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/cells1/cell-division-cellular-therapy-2026-01-28-05-03-42-utc.mp4",
+      "label": "cell-division-cellular-therapy-2026-01-28-05-03-42-utc.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/cells2/microscopic-sample-spinal-cord-cell-ts-200x-magnif-2025-12-17-05-34-16-utc.mov",
+      "label": "microscopic-sample-spinal-cord-cell-ts-200x-magnif-2025-12-17-05-34-16-utc.mov",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/cells2/molecular-binding-on-cellular-membrane-surface-2026-04-13-00-47-52-utc.mp4",
+      "label": "molecular-binding-on-cellular-membrane-surface-2026-04-13-00-47-52-utc.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/highdef/48-hour time-lapse of developing neurons connecting the opposite.mp4",
+      "label": "48-hour time-lapse of developing neurons connecting the opposite.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/ArtBeats - Centrifusion/CLIPS/CFU122.mp4",
+      "label": "CFU122.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    },
+    {
+      "url": "loops/ArtBeats - Centrifusion/CLIPS/CFU123.mp4",
+      "label": "CFU123.mp4",
+      "transition": {
+        "type": "fade",
+        "durationMs": 650,
+        "holdMs": 8200,
+        "holdLastFrameOnClipEnd": true
+      }
+    }
+  ]
+}
