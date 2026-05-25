@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>hyperstition · moon cubes</title>
+  <style>
+    html, body {
+      margin: 0;
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+      background: #000;
+    }
+    canvas {
+      display: block;
+      width: 100vw;
+      height: 100vh;
+    }
+  </style>
+</head>
+<body>
+  <canvas id="stage"></canvas>
+  <script>
+    const WORD = String(new URLSearchParams(location.search).get("word") || "hyperstition").toLowerCase();
+    const INDEX_URL = "artifacts/moon-cube-index.json";
+    const TILE_GAP = 1;
+    const GLYPH_W = 5;
+    const GLYPH_H = 7;
+    const LETTER_GAP = 2;
+
+    /** 5-bit rows, MSB = left column */
+    const GLYPHS = {
+      h: [0x11, 0x11, 0x11, 0x1f, 0x11, 0x11, 0x11],
+      y: [0x11, 0x11, 0x11, 0x0a, 0x04, 0x04, 0x04],
+      p: [0x1e, 0x11, 0x11, 0x1e, 0x10, 0x10, 0x10],
+      e: [0x0e, 0x11, 0x10, 0x1e, 0x10, 0x11, 0x0e],
+      r: [0x1e, 0x11, 0x11, 0x1e, 0x14, 0x12, 0x11],
+      s: [0x0e, 0x11, 0x10, 0x0e, 0x01, 0x11, 0x0e],
+      t: [0x1f, 0x04, 0x04, 0x04, 0x04, 0x04, 0x04],
+      i: [0x04, 0x00, 0x04, 0x04, 0x04, 0x04, 0x0e],
+      o: [0x0e, 0x11, 0x11, 0x11, 0x11, 0x11, 0x0e],
+      n: [0x11, 0x19, 0x15, 0x13, 0x11, 0x11, 0x11],
+      " ": [0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00]
+    };
+
+    const LETTER_COLORS_BY_INDEX = [
+      "silver", "yellow", "purple", "cyan", "red", "silver",
+      "white", "white", "cyan", "magenta", "orange", "blue"
+    ];
+
+    const REFERENCE_SWATCHES = {
+      black: "#1c1c1e",
+      silver: "#c0c0c8",
+      gray: "#8e8e93",
+      white: "#f5f5f7",
+      red: "#ff3b30",
+      orange: "#ff9500",
+      yellow: "#ffd60a",
+      green: "#34c759",
+      cyan: "#32d3ff",
+      blue: "#0a84ff",
+      purple: "#bf5af2",
+      magenta: "#ff2d92"
+    };
+
+    const FALLBACK_CHAIN = {
+      black: ["black", "gray", "silver"],
+      silver: ["silver", "gray", "white", "black"],
+      gray: ["gray", "silver", "black", "white"],
+      white: ["white", "silver", "gray"],
+      red: ["red", "orange", "gray", "silver"],
+      orange: ["orange", "yellow", "gray", "silver"],
+      yellow: ["yellow", "gray", "silver", "white"],
+      green: ["green", "gray", "silver"],
+      cyan: ["cyan", "blue", "gray", "silver"],
+      blue: ["blue", "cyan", "gray", "silver"],
+      purple: ["purple", "magenta", "gray", "silver"],
+      magenta: ["magenta", "purple", "gray", "silver"]
+    };
+
+    const canvas = document.getElementById("stage");
+    const ctx = canvas.getContext("2d");
+    let moonIndex = null;
+    let imagePools = {};
+    let cells = [];
+    let frameIdx = 0;
+    let tilePx = 24;
+    let offsetX = 0;
+    let offsetY = 0;
+
+    function letterColorAt(index) {
+      return LETTER_COLORS_BY_INDEX[index] || "silver";
+    }
+
+    function buildCells() {
+      cells = [];
+      let cursorX = 0;
+      for (let li = 0; li < WORD.length; li++) {
+        const ch = WORD[li];
+        const rows = GLYPHS[ch] || GLYPHS[" "];
+        const color = letterColorAt(li);
+        for (let gy = 0; gy < GLYPH_H; gy++) {
+          const rowBits = rows[gy] || 0;
+          for (let gx = 0; gx < GLYPH_W; gx++) {
+            const bit = (rowBits >> (GLYPH_W - 1 - gx)) & 1;
+            if (!bit) continue;
+            cells.push({
+              gx: cursorX + gx,
+              gy: gy,
+              color: color,
+              seed: li * 97 + gx * 13 + gy * 31
+            });
+          }
+        }
+        cursorX += GLYPH_W + LETTER_GAP;
+      }
+      const gridW = cursorX - LETTER_GAP;
+      const gridH = GLYPH_H;
+      tilePx = Math.floor(Math.min(
+        (canvas.width * 0.92) / gridW,
+        (canvas.height * 0.72) / gridH
+      ));
+      tilePx = Math.max(8, tilePx);
+      const drawW = gridW * tilePx + (gridW - 1) * TILE_GAP;
+      const drawH = gridH * tilePx + (GLYPH_H - 1) * TILE_GAP;
+      offsetX = Math.floor((canvas.width - drawW) / 2);
+      offsetY = Math.floor((canvas.height - drawH) / 2);
+    }
+
+    function resize() {
+      const dpr = Math.min(2, window.devicePixelRatio || 1);
+      canvas.width = Math.floor(window.innerWidth * dpr);
+      canvas.height = Math.floor(window.innerHeight * dpr);
+      ctx.setTransform(1, 0, 0, 1, 0, 0);
+      buildCells();
+    }
+
+    async function loadImage(url) {
+      return new Promise((resolve) => {
+        const img = new Image();
+        img.onload = () => resolve(img);
+        img.onerror = () => resolve(null);
+        img.src = url;
+      });
+    }
+
+    async function buildPools(index) {
+      imagePools = { any: [] };
+      const families = index && index.families ? index.families : {};
+      const keys = Object.keys(families);
+      for (let k = 0; k < keys.length; k++) {
+        const family = keys[k];
+        const list = families[family] || [];
+        imagePools[family] = [];
+        for (let i = 0; i < list.length; i++) {
+          const row = list[i];
+          if (!row || !row.cubeUrl) continue;
+          const img = await loadImage(row.cubeUrl);
+          if (img) {
+            imagePools[family].push(img);
+            imagePools.any.push(img);
+          }
+        }
+      }
+    }
+
+    function pickImage(family, seed) {
+      const chain = FALLBACK_CHAIN[family] || [family, "silver", "gray", "any"];
+      for (let i = 0; i < chain.length; i++) {
+        const pool = imagePools[chain[i]];
+        if (pool && pool.length > 0) {
+          const idx = Math.abs((frameIdx * 7 + seed * 17) % pool.length);
+          return pool[idx];
+        }
+      }
+      return imagePools.any && imagePools.any.length ? imagePools.any[0] : null;
+    }
+
+    function drawFrame() {
+      ctx.fillStyle = "#000";
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+      for (let i = 0; i < cells.length; i++) {
+        const cell = cells[i];
+        const x = offsetX + cell.gx * (tilePx + TILE_GAP);
+        const y = offsetY + cell.gy * (tilePx + TILE_GAP);
+        const img = pickImage(cell.color, cell.seed);
+        if (img) {
+          ctx.drawImage(img, x, y, tilePx, tilePx);
+        } else {
+          ctx.fillStyle = REFERENCE_SWATCHES[cell.color] || "#666";
+          ctx.fillRect(x, y, tilePx, tilePx);
+        }
+        ctx.strokeStyle = "rgba(255,255,255,0.08)";
+        ctx.strokeRect(x + 0.5, y + 0.5, tilePx - 1, tilePx - 1);
+      }
+
+      frameIdx += 1;
+      requestAnimationFrame(drawFrame);
+    }
+
+    async function boot() {
+      resize();
+      window.addEventListener("resize", resize);
+      try {
+        const res = await fetch(INDEX_URL, { cache: "no-store" });
+        if (res.ok) {
+          moonIndex = await res.json();
+          await buildPools(moonIndex);
+        }
+      } catch (err) {
+        console.warn(err);
+      }
+      window.__hyperstitionReady = true;
+      window.__hyperstitionStats = {
+        word: WORD,
+        cells: cells.length,
+        pools: Object.keys(imagePools).map((k) => ({ family: k, count: (imagePools[k] || []).length }))
+      };
+      drawFrame();
+    }
+
+    boot();
+  </script>
+</body>
+</html>

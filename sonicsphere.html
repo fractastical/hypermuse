@@ -266,13 +266,43 @@ button:hover {
             <label for="fibonacciMosaicOpacity">mosaic opacity:</label>
             <input type="range" id="fibonacciMosaicOpacity" min="0" max="1" step="0.01" value="0.65" />
             <label>
+              <input type="checkbox" id="colorSnapshotTilerToggle" />
+              color snapshot tiler
+            </label>
+            <label for="colorSnapshotTilerOpacity">tile opacity:</label>
+            <input type="range" id="colorSnapshotTilerOpacity" min="0" max="1" step="0.01" value="0.75" />
+            <label for="colorSnapshotTileSize">tile size:</label>
+            <input type="range" id="colorSnapshotTileSize" min="40" max="260" step="2" value="120" />
+            <label for="colorSnapshotTrackTolerance">tracking tolerance:</label>
+            <input type="range" id="colorSnapshotTrackTolerance" min="30" max="220" step="1" value="120" />
+            <label>
+              <input type="checkbox" id="colorSnapshotAutoCapture" checked />
+              auto refresh
+            </label>
+            <label for="colorSnapshotPalette">palette:</label>
+            <input type="text" id="colorSnapshotPalette" value="#ff3b30,#ffd60a,#34c759,#0a84ff,#bf5af2" />
+            <button id="colorSnapshotCaptureButton" type="button">Capture color tiles</button>
+            <span id="colorSnapshotStatus" style="font-size:12px;opacity:0.8;grid-column:1 / -1;"></span>
+            <label>
+              <input type="checkbox" id="colorCubeBoardToggle" />
+              color cube board (rows per family)
+            </label>
+            <label for="colorCubeBoardOpacity">cube board opacity:</label>
+            <input type="range" id="colorCubeBoardOpacity" min="0" max="1" step="0.01" value="0.88" />
+            <label>
+              <input type="checkbox" id="colorCubeBoardLiveCapture" checked />
+              live cube capture from video
+            </label>
+            <button id="colorCubeBoardReloadButton" type="button">Reload cube index</button>
+            <span id="colorCubeBoardStatus" style="font-size:12px;opacity:0.8;grid-column:1 / -1;"></span>
+            <label>
               <input type="checkbox" id="infinitestreamsEmbedToggle" />
               embed infinitestreams.io
             </label>
             <label for="infinitestreamsEmbedOpacity">embed opacity:</label>
             <input type="range" id="infinitestreamsEmbedOpacity" min="0" max="1" step="0.01" value="0.7" />
             <label for="infinitestreamsEmbedUrl">embed URL:</label>
-            <input type="text" id="infinitestreamsEmbedUrl" value="https://infinitestreams.io/" />
+            <input type="text" id="infinitestreamsEmbedUrl" value="https://infinitestreams.io/?embed=1&hideui=1" />
           </div>
           <div class="file-input-group">
             <button id="startExportButton">Start Export</button>
@@ -350,11 +380,73 @@ button:hover {
         let fibonacciMosaicTiles = [];
         let fibonacciMosaicLastSwapMs = 0;
         let fibonacciMosaicFxIndex = 0;
+        let colorSnapshotTilerEnabled = false;
+        let colorSnapshotTilerOpacity = 0.75;
+        let colorSnapshotTileSize = 120;
+        let colorSnapshotTrackTolerance = 120;
+        let colorSnapshotAutoCapture = true;
+        let colorSnapshotCaptureMs = 1200;
+        let colorSnapshotLastCaptureMs = 0;
+        let colorSnapshotPaletteText = '#ff3b30,#ffd60a,#34c759,#0a84ff,#bf5af2';
+        let colorSnapshotPalette = [];
+        let colorSnapshotTileSlots = [];
+        let colorSnapshotTiles = [];
+        let colorSnapshotLayer = null;
+        let colorSnapshotLayerCtx = null;
+        const colorSnapshotAnalysisCanvas = document.createElement('canvas');
+        const colorSnapshotAnalysisCtx = colorSnapshotAnalysisCanvas.getContext('2d', { willReadFrequently: true });
+        let colorCubeBoardEnabled = false;
+        let colorCubeBoardOpacity = 0.88;
+        let colorCubeBoardLiveCapture = true;
+        let colorCubeBoardCaptureMs = 1400;
+        let colorCubeBoardLastCaptureMs = 0;
+        let colorCubeIndex = null;
+        let colorCubeIndexLoadPromise = null;
+        let colorCubeImageCache = {};
+        let colorCubeLiveByFamily = {};
+        let colorCubeBoardLayer = null;
+        let colorCubeBoardLayerCtx = null;
+        const colorCubeLiveAnalysisCanvas = document.createElement('canvas');
+        const colorCubeLiveAnalysisCtx = colorCubeLiveAnalysisCanvas.getContext('2d', { willReadFrequently: true });
+        const COLOR_CUBE_BOARD_FAMILY_ORDER = [
+            'black', 'silver', 'gray', 'white',
+            'red', 'orange', 'yellow', 'green', 'cyan', 'blue', 'purple', 'magenta'
+        ];
         let infinitestreamsEmbedEnabled = false;
         let infinitestreamsEmbedOpacity = 0.7;
-        let infinitestreamsEmbedUrl = 'https://infinitestreams.io/';
+        let infinitestreamsEmbedUrl = 'https://infinitestreams.io/?embed=1&hideui=1';
         let infinitestreamsEmbedBlendMode = 'screen';
         let infinitestreamsEmbedIframe = null;
+        let infinitestreamsEmbedSkipCleanQuery = false;
+
+        function resolveInfinitestreamsEmbedSrc(urlString) {
+            const raw = String(urlString || '').trim();
+            if (!raw || infinitestreamsEmbedSkipCleanQuery) {
+                return raw;
+            }
+            if (!/^https?:\/\//i.test(raw)) {
+                return raw;
+            }
+            try {
+                const u = new URL(raw);
+                if (!/infinitestreams/i.test(u.hostname)) {
+                    return raw;
+                }
+                const off = (v) => String(v || '').trim() === '0' || String(v || '').toLowerCase() === 'false';
+                if (off(u.searchParams.get('embed')) || off(u.searchParams.get('hideui'))) {
+                    return raw;
+                }
+                if (!u.searchParams.has('embed')) {
+                    u.searchParams.set('embed', '1');
+                }
+                if (!u.searchParams.has('hideui')) {
+                    u.searchParams.set('hideui', '1');
+                }
+                return u.toString();
+            } catch (err) {
+                return raw;
+            }
+        }
         let basicVideoModeEnabled = false;
         let basicVideoModeSnapshot = null;
         let backgroundEngine;
@@ -761,6 +853,7 @@ button:hover {
             }
             camera.updateProjectionMatrix();
             updateVideoBackdropFit();
+            resizeColorSnapshotLayer();
         }
 
         function enableDemoModeLayout() {
@@ -2392,6 +2485,656 @@ button:hover {
         }
         window.setFibonacciMosaic = setFibonacciMosaicConfig;
 
+        function parseHexColorToken(token) {
+            const compact = String(token || '').trim().replace(/^#/, '');
+            if (!compact) return null;
+            const normalized = compact.length === 3
+                ? `${compact[0]}${compact[0]}${compact[1]}${compact[1]}${compact[2]}${compact[2]}`
+                : compact;
+            if (!/^[0-9a-fA-F]{6}$/.test(normalized)) {
+                return null;
+            }
+            return [
+                Number.parseInt(normalized.slice(0, 2), 16),
+                Number.parseInt(normalized.slice(2, 4), 16),
+                Number.parseInt(normalized.slice(4, 6), 16)
+            ];
+        }
+
+        function normalizeColorSnapshotPalette(input) {
+            return String(input || '')
+                .split(',')
+                .map((token) => token.trim())
+                .filter(Boolean)
+                .map((token) => parseHexColorToken(token))
+                .filter((rgb) => Array.isArray(rgb) && rgb.length === 3)
+                .slice(0, 12);
+        }
+
+        function setColorSnapshotStatus(message) {
+            const el = document.getElementById('colorSnapshotStatus');
+            if (!el) return;
+            el.textContent = String(message || '');
+        }
+
+        function ensureColorSnapshotLayer() {
+            if (!colorSnapshotLayer) {
+                colorSnapshotLayer = document.createElement('canvas');
+                colorSnapshotLayer.id = 'colorSnapshotLayer';
+                colorSnapshotLayer.style.position = 'fixed';
+                colorSnapshotLayer.style.left = '0';
+                colorSnapshotLayer.style.top = '0';
+                colorSnapshotLayer.style.width = '100vw';
+                colorSnapshotLayer.style.height = '100vh';
+                colorSnapshotLayer.style.pointerEvents = 'none';
+                colorSnapshotLayer.style.zIndex = '2';
+                colorSnapshotLayer.style.display = 'none';
+                colorSnapshotLayerCtx = colorSnapshotLayer.getContext('2d');
+                document.body.appendChild(colorSnapshotLayer);
+            }
+            resizeColorSnapshotLayer();
+            return colorSnapshotLayer;
+        }
+
+        function resizeColorSnapshotLayer() {
+            if (!colorSnapshotLayer || !colorSnapshotLayerCtx) return;
+            const dpr = Math.max(1, Math.min(2, window.devicePixelRatio || 1));
+            const width = Math.max(1, Math.floor(window.innerWidth * dpr));
+            const height = Math.max(1, Math.floor(window.innerHeight * dpr));
+            if (colorSnapshotLayer.width !== width || colorSnapshotLayer.height !== height) {
+                colorSnapshotLayer.width = width;
+                colorSnapshotLayer.height = height;
+            }
+        }
+
+        function captureColorSnapshotsFromFrame(options = {}) {
+            if (!renderer || !renderer.domElement || !colorSnapshotAnalysisCtx) {
+                return 0;
+            }
+            const force = !!options.force;
+            if (!force && !colorSnapshotTilerEnabled) {
+                return 0;
+            }
+            if (colorSnapshotPalette.length === 0) {
+                setColorSnapshotStatus('palette is empty');
+                return 0;
+            }
+            const sourceCanvas = renderer.domElement;
+            const sourceWidth = Math.max(1, sourceCanvas.width || 0);
+            const sourceHeight = Math.max(1, sourceCanvas.height || 0);
+            if (sourceWidth < 2 || sourceHeight < 2) {
+                return 0;
+            }
+            const analysisSize = Math.max(80, Math.min(192, Math.floor(Math.min(sourceWidth, sourceHeight) / 4)));
+            if (colorSnapshotAnalysisCanvas.width !== analysisSize || colorSnapshotAnalysisCanvas.height !== analysisSize) {
+                colorSnapshotAnalysisCanvas.width = analysisSize;
+                colorSnapshotAnalysisCanvas.height = analysisSize;
+            }
+            try {
+                colorSnapshotAnalysisCtx.drawImage(sourceCanvas, 0, 0, analysisSize, analysisSize);
+                const imageData = colorSnapshotAnalysisCtx.getImageData(0, 0, analysisSize, analysisSize);
+                const pixels = imageData.data;
+                const nextTiles = new Array(colorSnapshotPalette.length).fill(null);
+                const sampleCaptureSize = 96;
+                for (let colorIndex = 0; colorIndex < colorSnapshotPalette.length; colorIndex++) {
+                    const target = colorSnapshotPalette[colorIndex];
+                    const targetFamily = typeof window.classifyRgbColorFamily === 'function'
+                        ? window.classifyRgbColorFamily(target[0], target[1], target[2])
+                        : null;
+                    if (targetFamily && typeof window.isColorFamilyEnabled === 'function'
+                        && !window.isColorFamilyEnabled(targetFamily)) {
+                        continue;
+                    }
+                    let bestDistance = Number.POSITIVE_INFINITY;
+                    let bestX = 0;
+                    let bestY = 0;
+                    for (let y = 0; y < analysisSize; y++) {
+                        const rowOffset = y * analysisSize * 4;
+                        for (let x = 0; x < analysisSize; x++) {
+                            const idx = rowOffset + x * 4;
+                            const alpha = pixels[idx + 3];
+                            if (alpha < 28) continue;
+                            const r = pixels[idx];
+                            const g = pixels[idx + 1];
+                            const b = pixels[idx + 2];
+                            const luminance = (r + g + b) / 3;
+                            if (luminance < 12) continue;
+                            const dr = r - target[0];
+                            const dg = g - target[1];
+                            const db = b - target[2];
+                            const distance = Math.sqrt(dr * dr + dg * dg + db * db);
+                            if (distance < bestDistance) {
+                                bestDistance = distance;
+                                bestX = x;
+                                bestY = y;
+                            }
+                        }
+                    }
+                    if (bestDistance > colorSnapshotTrackTolerance) {
+                        continue;
+                    }
+                    const sourceX = Math.round((bestX / Math.max(1, analysisSize - 1)) * sourceWidth);
+                    const sourceY = Math.round((bestY / Math.max(1, analysisSize - 1)) * sourceHeight);
+                    const cropSize = Math.max(18, Math.min(Math.floor(Math.min(sourceWidth, sourceHeight) * 0.22), Math.round(colorSnapshotTileSize * 1.4)));
+                    const halfCrop = Math.floor(cropSize / 2);
+                    const cropX = Math.max(0, Math.min(sourceWidth - cropSize, sourceX - halfCrop));
+                    const cropY = Math.max(0, Math.min(sourceHeight - cropSize, sourceY - halfCrop));
+                    const sampleCanvas = document.createElement('canvas');
+                    sampleCanvas.width = sampleCaptureSize;
+                    sampleCanvas.height = sampleCaptureSize;
+                    const sampleCtx = sampleCanvas.getContext('2d');
+                    if (!sampleCtx) continue;
+                    sampleCtx.imageSmoothingEnabled = true;
+                    sampleCtx.drawImage(
+                        sourceCanvas,
+                        cropX,
+                        cropY,
+                        cropSize,
+                        cropSize,
+                        0,
+                        0,
+                        sampleCaptureSize,
+                        sampleCaptureSize
+                    );
+                    nextTiles[colorIndex] = {
+                        canvas: sampleCanvas,
+                        color: target,
+                        family: targetFamily,
+                        distance: bestDistance
+                    };
+                }
+                const merged = nextTiles.map((tile, idx) => tile || colorSnapshotTileSlots[idx] || null);
+                colorSnapshotTileSlots = merged;
+                colorSnapshotTiles = merged.filter(Boolean);
+                if (colorSnapshotTiles.length > 0) {
+                    setColorSnapshotStatus(`captured ${colorSnapshotTiles.length} color tiles`);
+                } else {
+                    setColorSnapshotStatus('no color matches found');
+                }
+                return colorSnapshotTiles.length;
+            } catch (error) {
+                setColorSnapshotStatus('capture blocked (cross-origin video/security)');
+                return 0;
+            }
+        }
+
+        function drawColorSnapshotTiles(nowMs = performance.now()) {
+            if (!colorSnapshotLayer || !colorSnapshotLayerCtx) return;
+            const canvasWidth = colorSnapshotLayer.width;
+            const canvasHeight = colorSnapshotLayer.height;
+            colorSnapshotLayerCtx.clearRect(0, 0, canvasWidth, canvasHeight);
+            if (colorSnapshotTiles.length === 0) {
+                return;
+            }
+            const dpr = Math.max(1, Math.min(2, window.devicePixelRatio || 1));
+            const tileSize = Math.max(20, Math.round(colorSnapshotTileSize * dpr));
+            const cols = Math.ceil(canvasWidth / tileSize) + 1;
+            const rows = Math.ceil(canvasHeight / tileSize) + 1;
+            const enabledTiles = colorSnapshotTiles.filter((tile) => {
+                if (!tile || !tile.canvas) return false;
+                if (!tile.family || typeof window.isColorFamilyEnabled !== 'function') {
+                    return true;
+                }
+                return window.isColorFamilyEnabled(tile.family);
+            });
+            if (enabledTiles.length === 0) {
+                return;
+            }
+            for (let row = 0; row < rows; row++) {
+                for (let col = 0; col < cols; col++) {
+                    const tileIndex = (row * cols + col) % enabledTiles.length;
+                    const tile = enabledTiles[tileIndex];
+                    if (!tile || !tile.canvas) continue;
+                    const wobble = Math.sin((row * 0.38 + col * 0.47) + nowMs * 0.0018) * (tileSize * 0.04);
+                    const drawX = col * tileSize + wobble;
+                    const drawY = row * tileSize - wobble;
+                    colorSnapshotLayerCtx.drawImage(tile.canvas, drawX, drawY, tileSize + 1, tileSize + 1);
+                }
+            }
+        }
+
+        function updateColorSnapshotTiler(nowMs = performance.now()) {
+            if (!colorSnapshotTilerEnabled) {
+                if (colorSnapshotLayer) {
+                    colorSnapshotLayer.style.display = 'none';
+                }
+                return;
+            }
+            ensureColorSnapshotLayer();
+            if (!colorSnapshotLayer) {
+                return;
+            }
+            colorSnapshotLayer.style.display = 'block';
+            colorSnapshotLayer.style.opacity = String(colorSnapshotTilerOpacity);
+            if (colorSnapshotAutoCapture && (nowMs - colorSnapshotLastCaptureMs) >= colorSnapshotCaptureMs) {
+                colorSnapshotLastCaptureMs = nowMs;
+                captureColorSnapshotsFromFrame();
+            }
+            drawColorSnapshotTiles(nowMs);
+        }
+
+        function setColorSnapshotTilerConfig(config = {}) {
+            if (typeof config.enabled === 'boolean') {
+                colorSnapshotTilerEnabled = !!config.enabled;
+            }
+            if (Number.isFinite(config.opacity)) {
+                colorSnapshotTilerOpacity = Math.max(0, Math.min(1, Number(config.opacity)));
+            }
+            if (Number.isFinite(config.tileSize)) {
+                colorSnapshotTileSize = Math.max(40, Math.min(260, Number(config.tileSize)));
+            }
+            if (Number.isFinite(config.trackTolerance)) {
+                colorSnapshotTrackTolerance = Math.max(20, Math.min(260, Number(config.trackTolerance)));
+            }
+            if (typeof config.autoCapture === 'boolean') {
+                colorSnapshotAutoCapture = !!config.autoCapture;
+            }
+            if (Number.isFinite(config.captureMs)) {
+                colorSnapshotCaptureMs = Math.max(150, Math.min(10000, Number(config.captureMs)));
+            }
+            if (typeof config.palette === 'string') {
+                const parsedPalette = normalizeColorSnapshotPalette(config.palette);
+                colorSnapshotPaletteText = config.palette;
+                if (parsedPalette.length > 0) {
+                    colorSnapshotPalette = parsedPalette;
+                    colorSnapshotTileSlots = new Array(colorSnapshotPalette.length).fill(null);
+                    colorSnapshotTiles = [];
+                }
+            }
+            const toggle = document.getElementById('colorSnapshotTilerToggle');
+            if (toggle) toggle.checked = colorSnapshotTilerEnabled;
+            const opacityInput = document.getElementById('colorSnapshotTilerOpacity');
+            if (opacityInput) opacityInput.value = String(colorSnapshotTilerOpacity);
+            const tileSizeInput = document.getElementById('colorSnapshotTileSize');
+            if (tileSizeInput) tileSizeInput.value = String(colorSnapshotTileSize);
+            const toleranceInput = document.getElementById('colorSnapshotTrackTolerance');
+            if (toleranceInput) toleranceInput.value = String(colorSnapshotTrackTolerance);
+            const autoCaptureInput = document.getElementById('colorSnapshotAutoCapture');
+            if (autoCaptureInput) autoCaptureInput.checked = colorSnapshotAutoCapture;
+            const paletteInput = document.getElementById('colorSnapshotPalette');
+            if (paletteInput && paletteInput.value !== colorSnapshotPaletteText) {
+                paletteInput.value = colorSnapshotPaletteText;
+            }
+            if (colorSnapshotTilerEnabled && colorSnapshotTiles.length === 0) {
+                captureColorSnapshotsFromFrame({ force: true });
+            }
+            updateColorSnapshotTiler();
+            updateEffectOverlay();
+        }
+        window.setColorSnapshotTiler = setColorSnapshotTilerConfig;
+        window.captureColorSnapshotTiles = function() {
+            const count = captureColorSnapshotsFromFrame({ force: true });
+            updateColorSnapshotTiler();
+            return count;
+        };
+        window.addEventListener('hypermuse:colorGroupsChanged', function() {
+            updateColorSnapshotTiler(performance.now());
+        });
+        colorSnapshotPalette = normalizeColorSnapshotPalette(colorSnapshotPaletteText);
+        colorSnapshotTileSlots = new Array(colorSnapshotPalette.length).fill(null);
+
+        function setColorCubeBoardStatus(message) {
+            const el = document.getElementById('colorCubeBoardStatus');
+            if (!el) return;
+            el.textContent = String(message || '');
+        }
+
+        function getActiveColorCubeFamilies() {
+            return COLOR_CUBE_BOARD_FAMILY_ORDER.filter((family) => {
+                if (typeof window.isColorFamilyEnabled === 'function') {
+                    return window.isColorFamilyEnabled(family);
+                }
+                return true;
+            });
+        }
+
+        async function loadColorCubeIndex(force = false) {
+            if (colorCubeIndexLoadPromise && !force) {
+                return colorCubeIndexLoadPromise;
+            }
+            colorCubeIndexLoadPromise = (async function() {
+                try {
+                    const response = await fetch('artifacts/color-cube-index.json', { cache: 'no-store' });
+                    if (!response.ok) {
+                        setColorCubeBoardStatus('no cube index — run npm run build:color:cubes');
+                        colorCubeIndex = null;
+                        return null;
+                    }
+                    colorCubeIndex = await response.json();
+                    colorCubeImageCache = {};
+                    const stats = colorCubeIndex && colorCubeIndex.stats ? colorCubeIndex.stats : {};
+                    const parts = COLOR_CUBE_BOARD_FAMILY_ORDER
+                        .map((f) => `${f}:${stats[f] || 0}`)
+                        .join(' · ');
+                    setColorCubeBoardStatus(`index loaded (${colorCubeIndex.videosScanned || 0} videos) — ${parts}`);
+                    return colorCubeIndex;
+                } catch (err) {
+                    setColorCubeBoardStatus('cube index load failed');
+                    colorCubeIndex = null;
+                    return null;
+                }
+            })();
+            return colorCubeIndexLoadPromise;
+        }
+
+        function ensureColorCubeBoardLayer() {
+            if (!colorCubeBoardLayer) {
+                colorCubeBoardLayer = document.createElement('canvas');
+                colorCubeBoardLayer.id = 'colorCubeBoardLayer';
+                colorCubeBoardLayer.style.position = 'fixed';
+                colorCubeBoardLayer.style.left = '0';
+                colorCubeBoardLayer.style.top = '0';
+                colorCubeBoardLayer.style.width = '100vw';
+                colorCubeBoardLayer.style.height = '100vh';
+                colorCubeBoardLayer.style.pointerEvents = 'none';
+                colorCubeBoardLayer.style.zIndex = '3';
+                colorCubeBoardLayer.style.display = 'none';
+                colorCubeBoardLayerCtx = colorCubeBoardLayer.getContext('2d');
+                document.body.appendChild(colorCubeBoardLayer);
+            }
+            resizeColorSnapshotLayer();
+            if (colorCubeBoardLayer) {
+                const dpr = Math.max(1, Math.min(2, window.devicePixelRatio || 1));
+                const width = Math.max(1, Math.floor(window.innerWidth * dpr));
+                const height = Math.max(1, Math.floor(window.innerHeight * dpr));
+                if (colorCubeBoardLayer.width !== width || colorCubeBoardLayer.height !== height) {
+                    colorCubeBoardLayer.width = width;
+                    colorCubeBoardLayer.height = height;
+                }
+            }
+            return colorCubeBoardLayer;
+        }
+
+        function getIndexedCubesForFamily(family) {
+            if (!colorCubeIndex || !colorCubeIndex.families) {
+                return [];
+            }
+            return Array.isArray(colorCubeIndex.families[family]) ? colorCubeIndex.families[family] : [];
+        }
+
+        function loadCubeImage(url) {
+            return new Promise(function(resolve) {
+                const img = new Image();
+                img.onload = function() { resolve(img); };
+                img.onerror = function() { resolve(null); };
+                img.src = url;
+            });
+        }
+
+        async function ensureCubeImagesForFamily(family) {
+            if (!colorCubeImageCache[family]) {
+                colorCubeImageCache[family] = { loading: null, images: [] };
+            }
+            const bucket = colorCubeImageCache[family];
+            if (bucket.images.length > 0) {
+                return bucket.images;
+            }
+            if (bucket.loading) {
+                return bucket.loading;
+            }
+            bucket.loading = (async function() {
+                const entries = getIndexedCubesForFamily(family);
+                const loaded = [];
+                for (let i = 0; i < entries.length; i++) {
+                    const row = entries[i];
+                    if (!row || !row.cubeUrl) continue;
+                    const img = await loadCubeImage(row.cubeUrl);
+                    if (img) loaded.push(img);
+                }
+                bucket.images = loaded;
+                bucket.loading = null;
+                return loaded;
+            })();
+            return bucket.loading;
+        }
+
+        function captureLiveCubesFromSource(sourceEl, width, height) {
+            if (!sourceEl || !colorCubeLiveAnalysisCtx || width < 8 || height < 8) {
+                return 0;
+            }
+            const analysisSize = Math.max(96, Math.min(160, Math.floor(Math.min(width, height) / 3)));
+            if (colorCubeLiveAnalysisCanvas.width !== analysisSize || colorCubeLiveAnalysisCanvas.height !== analysisSize) {
+                colorCubeLiveAnalysisCanvas.width = analysisSize;
+                colorCubeLiveAnalysisCanvas.height = analysisSize;
+            }
+            try {
+                colorCubeLiveAnalysisCtx.drawImage(sourceEl, 0, 0, analysisSize, analysisSize);
+                const imageData = colorCubeLiveAnalysisCtx.getImageData(0, 0, analysisSize, analysisSize);
+                const pixels = imageData.data;
+                const families = getActiveColorCubeFamilies();
+                let captured = 0;
+                const cubeOut = 72;
+                for (let fi = 0; fi < families.length; fi++) {
+                    const family = families[fi];
+                    let bestScore = -1;
+                    let bestX = 0;
+                    let bestY = 0;
+                    for (let y = 0; y < analysisSize; y++) {
+                        const rowOffset = y * analysisSize * 4;
+                        for (let x = 0; x < analysisSize; x++) {
+                            const idx = rowOffset + x * 4;
+                            if (pixels[idx + 3] < 28) continue;
+                            const r = pixels[idx];
+                            const g = pixels[idx + 1];
+                            const b = pixels[idx + 2];
+                            const fam = typeof window.classifyRgbColorFamily === 'function'
+                                ? window.classifyRgbColorFamily(r, g, b)
+                                : null;
+                            if (fam !== family) continue;
+                            const lum = (r + g + b) / 3;
+                            if (lum < 10) continue;
+                            const score = lum;
+                            if (score > bestScore) {
+                                bestScore = score;
+                                bestX = x;
+                                bestY = y;
+                            }
+                        }
+                    }
+                    if (bestScore < 0) continue;
+                    const cropSize = Math.max(16, Math.floor(analysisSize * 0.28));
+                    const half = Math.floor(cropSize / 2);
+                    const sx = Math.max(0, Math.min(analysisSize - cropSize, bestX - half));
+                    const sy = Math.max(0, Math.min(analysisSize - cropSize, bestY - half));
+                    const sampleCanvas = document.createElement('canvas');
+                    sampleCanvas.width = cubeOut;
+                    sampleCanvas.height = cubeOut;
+                    const sampleCtx = sampleCanvas.getContext('2d');
+                    if (!sampleCtx) continue;
+                    sampleCtx.drawImage(
+                        colorCubeLiveAnalysisCanvas,
+                        sx, sy, cropSize, cropSize,
+                        0, 0, cubeOut, cubeOut
+                    );
+                    if (!colorCubeLiveByFamily[family]) {
+                        colorCubeLiveByFamily[family] = [];
+                    }
+                    const liveList = colorCubeLiveByFamily[family];
+                    liveList.push({ canvas: sampleCanvas, family: family });
+                    if (liveList.length > 8) {
+                        liveList.shift();
+                    }
+                    captured += 1;
+                }
+                return captured;
+            } catch (_) {
+                return 0;
+            }
+        }
+
+        function captureLiveColorCubes() {
+            const video = document.getElementById('videoElement');
+            if (video && video.readyState >= 2 && (video.videoWidth || 0) > 0) {
+                return captureLiveCubesFromSource(video, video.videoWidth, video.videoHeight);
+            }
+            if (renderer && renderer.domElement) {
+                const c = renderer.domElement;
+                return captureLiveCubesFromSource(c, c.width || 0, c.height || 0);
+            }
+            return 0;
+        }
+
+        async function drawColorCubeBoard(nowMs = performance.now()) {
+            if (!colorCubeBoardLayer || !colorCubeBoardLayerCtx) return;
+            const canvasWidth = colorCubeBoardLayer.width;
+            const canvasHeight = colorCubeBoardLayer.height;
+            colorCubeBoardLayerCtx.clearRect(0, 0, canvasWidth, canvasHeight);
+
+            const families = getActiveColorCubeFamilies();
+            if (families.length === 0) return;
+
+            const rowHeight = Math.floor(canvasHeight / families.length);
+            const labelWidth = Math.max(48, Math.floor(canvasWidth * 0.07));
+            const drift = Math.sin(nowMs * 0.0007) * 4;
+
+            for (let row = 0; row < families.length; row++) {
+                const family = families[row];
+                const y0 = row * rowHeight;
+                const indexed = getIndexedCubesForFamily(family);
+                const cached = colorCubeImageCache[family] && colorCubeImageCache[family].images
+                    ? colorCubeImageCache[family].images
+                    : [];
+                if (cached.length === 0 && indexed.length > 0) {
+                    ensureCubeImagesForFamily(family).then(function() {
+                        updateColorCubeBoard(nowMs);
+                    });
+                }
+                const live = colorCubeLiveByFamily[family] || [];
+                const tileSize = Math.max(18, Math.floor(rowHeight * 0.92));
+                const drawables = [];
+                cached.forEach(function(img) { drawables.push({ kind: 'img', img: img }); });
+                live.forEach(function(entry) {
+                    if (entry && entry.canvas) drawables.push({ kind: 'canvas', canvas: entry.canvas });
+                });
+                if (drawables.length === 0) {
+                    colorCubeBoardLayerCtx.fillStyle = 'rgba(255,255,255,0.06)';
+                    colorCubeBoardLayerCtx.fillRect(0, y0, canvasWidth, rowHeight);
+                    continue;
+                }
+
+                const swatch = (typeof window.getColorGroupsSnapshot === 'function')
+                    ? (window.getColorGroupsSnapshot().find(function(g) { return g.id === family; }) || {}).swatch
+                    : null;
+                colorCubeBoardLayerCtx.fillStyle = swatch || '#666';
+                colorCubeBoardLayerCtx.fillRect(0, y0 + 2, labelWidth - 4, rowHeight - 4);
+                colorCubeBoardLayerCtx.fillStyle = 'rgba(255,255,255,0.85)';
+                colorCubeBoardLayerCtx.font = `${Math.max(10, Math.floor(rowHeight * 0.18))}px sans-serif`;
+                colorCubeBoardLayerCtx.fillText(family, 6, y0 + rowHeight * 0.55);
+
+                const usableWidth = canvasWidth - labelWidth;
+                const cols = Math.ceil(usableWidth / tileSize) + 1;
+                for (let col = 0; col < cols; col++) {
+                    const drawable = drawables[(col + row) % drawables.length];
+                    const x = labelWidth + col * tileSize + drift * (row % 2 === 0 ? 1 : -1);
+                    const y = y0 + Math.floor((rowHeight - tileSize) / 2);
+                    if (drawable.kind === 'img' && drawable.img) {
+                        colorCubeBoardLayerCtx.drawImage(drawable.img, x, y, tileSize, tileSize);
+                    } else if (drawable.kind === 'canvas' && drawable.canvas) {
+                        colorCubeBoardLayerCtx.drawImage(drawable.canvas, x, y, tileSize, tileSize);
+                    }
+                    colorCubeBoardLayerCtx.strokeStyle = 'rgba(255,255,255,0.15)';
+                    colorCubeBoardLayerCtx.strokeRect(x, y, tileSize, tileSize);
+                }
+                colorCubeBoardLayerCtx.strokeStyle = 'rgba(120,255,220,0.25)';
+                colorCubeBoardLayerCtx.beginPath();
+                colorCubeBoardLayerCtx.moveTo(0, y0 + rowHeight);
+                colorCubeBoardLayerCtx.lineTo(canvasWidth, y0 + rowHeight);
+                colorCubeBoardLayerCtx.stroke();
+            }
+        }
+
+        function updateColorCubeBoard(nowMs = performance.now()) {
+            if (!colorCubeBoardEnabled) {
+                if (colorCubeBoardLayer) {
+                    colorCubeBoardLayer.style.display = 'none';
+                }
+                return;
+            }
+            ensureColorCubeBoardLayer();
+            if (!colorCubeBoardLayer) return;
+            colorCubeBoardLayer.style.display = 'block';
+            colorCubeBoardLayer.style.opacity = String(colorCubeBoardOpacity);
+            if (colorCubeBoardLiveCapture && (nowMs - colorCubeBoardLastCaptureMs) >= colorCubeBoardCaptureMs) {
+                colorCubeBoardLastCaptureMs = nowMs;
+                captureLiveColorCubes();
+            }
+            drawColorCubeBoard(nowMs);
+        }
+
+        function broadcastColorCubeStats() {
+            const stats = {};
+            COLOR_CUBE_BOARD_FAMILY_ORDER.forEach(function(family) {
+                const indexed = getIndexedCubesForFamily(family).length;
+                const live = (colorCubeLiveByFamily[family] || []).length;
+                stats[family] = { indexed: indexed, live: live, total: indexed + live };
+            });
+            const payload = {
+                type: 'vjColorCubeStats',
+                stats: stats,
+                indexLoaded: !!colorCubeIndex,
+                revision: Date.now()
+            };
+            try {
+                if (window.opener && !window.opener.closed) {
+                    window.opener.postMessage(payload, '*');
+                }
+            } catch (_) {}
+            try {
+                if (window.parent && window.parent !== window) {
+                    window.parent.postMessage(payload, '*');
+                }
+            } catch (_) {}
+        }
+
+        function setColorCubeBoardConfig(config = {}) {
+            if (typeof config.enabled === 'boolean') {
+                colorCubeBoardEnabled = !!config.enabled;
+            }
+            if (Number.isFinite(config.opacity)) {
+                colorCubeBoardOpacity = Math.max(0, Math.min(1, Number(config.opacity)));
+            }
+            if (typeof config.liveCapture === 'boolean') {
+                colorCubeBoardLiveCapture = !!config.liveCapture;
+            }
+            if (Number.isFinite(config.captureMs)) {
+                colorCubeBoardCaptureMs = Math.max(200, Math.min(10000, Number(config.captureMs)));
+            }
+            const toggle = document.getElementById('colorCubeBoardToggle');
+            if (toggle) toggle.checked = colorCubeBoardEnabled;
+            const opacityInput = document.getElementById('colorCubeBoardOpacity');
+            if (opacityInput) opacityInput.value = String(colorCubeBoardOpacity);
+            const liveInput = document.getElementById('colorCubeBoardLiveCapture');
+            if (liveInput) liveInput.checked = colorCubeBoardLiveCapture;
+            if (colorCubeBoardEnabled && !colorCubeIndex) {
+                loadColorCubeIndex();
+            }
+            updateColorCubeBoard();
+            broadcastColorCubeStats();
+            updateEffectOverlay();
+        }
+        window.setColorCubeBoard = setColorCubeBoardConfig;
+        window.reloadColorCubeIndex = function() {
+            return loadColorCubeIndex(true).then(function() {
+                updateColorCubeBoard(performance.now());
+                broadcastColorCubeStats();
+                return colorCubeIndex;
+            });
+        };
+        window.getColorCubeBoardStats = function() {
+            const stats = {};
+            COLOR_CUBE_BOARD_FAMILY_ORDER.forEach(function(family) {
+                stats[family] = {
+                    indexed: getIndexedCubesForFamily(family).length,
+                    live: (colorCubeLiveByFamily[family] || []).length
+                };
+            });
+            return stats;
+        };
+        loadColorCubeIndex();
+        window.addEventListener('hypermuse:colorGroupsChanged', function() {
+            updateColorCubeBoard(performance.now());
+        });
+
         function updateFibonacciMosaic(nowMs = performance.now()) {
             if (!fibonacciMosaicEnabled || fibonacciMosaicTiles.length === 0) return;
             if ((nowMs - fibonacciMosaicLastSwapMs) < 7000) return;
@@ -2442,8 +3185,9 @@ button:hover {
             }
             ensureInfinitestreamsEmbedLayer();
             if (infinitestreamsEmbedIframe) {
-                if (infinitestreamsEmbedIframe.src !== infinitestreamsEmbedUrl) {
-                    infinitestreamsEmbedIframe.src = infinitestreamsEmbedUrl;
+                const nextSrc = resolveInfinitestreamsEmbedSrc(infinitestreamsEmbedUrl);
+                if (infinitestreamsEmbedIframe.src !== nextSrc) {
+                    infinitestreamsEmbedIframe.src = nextSrc;
                 }
                 infinitestreamsEmbedIframe.style.display = infinitestreamsEmbedEnabled ? 'block' : 'none';
                 infinitestreamsEmbedIframe.style.opacity = infinitestreamsEmbedEnabled ? String(infinitestreamsEmbedOpacity) : '0';
@@ -3518,6 +4262,73 @@ button:hover {
                 setFibonacciMosaicConfig({ opacity: parseFloat(fibonacciMosaicOpacityInput.value) });
             });
         }
+        const colorSnapshotTilerToggle = document.getElementById('colorSnapshotTilerToggle');
+        if (colorSnapshotTilerToggle) {
+            colorSnapshotTilerToggle.addEventListener('change', function() {
+                setColorSnapshotTilerConfig({ enabled: !!colorSnapshotTilerToggle.checked });
+            });
+        }
+        const colorSnapshotTilerOpacityInput = document.getElementById('colorSnapshotTilerOpacity');
+        if (colorSnapshotTilerOpacityInput) {
+            colorSnapshotTilerOpacityInput.addEventListener('input', function() {
+                setColorSnapshotTilerConfig({ opacity: parseFloat(colorSnapshotTilerOpacityInput.value) });
+            });
+        }
+        const colorSnapshotTileSizeInput = document.getElementById('colorSnapshotTileSize');
+        if (colorSnapshotTileSizeInput) {
+            colorSnapshotTileSizeInput.addEventListener('input', function() {
+                setColorSnapshotTilerConfig({ tileSize: parseFloat(colorSnapshotTileSizeInput.value) });
+            });
+        }
+        const colorSnapshotTrackToleranceInput = document.getElementById('colorSnapshotTrackTolerance');
+        if (colorSnapshotTrackToleranceInput) {
+            colorSnapshotTrackToleranceInput.addEventListener('input', function() {
+                setColorSnapshotTilerConfig({ trackTolerance: parseFloat(colorSnapshotTrackToleranceInput.value) });
+            });
+        }
+        const colorSnapshotAutoCaptureInput = document.getElementById('colorSnapshotAutoCapture');
+        if (colorSnapshotAutoCaptureInput) {
+            colorSnapshotAutoCaptureInput.addEventListener('change', function() {
+                setColorSnapshotTilerConfig({ autoCapture: !!colorSnapshotAutoCaptureInput.checked });
+            });
+        }
+        const colorSnapshotPaletteInput = document.getElementById('colorSnapshotPalette');
+        if (colorSnapshotPaletteInput) {
+            colorSnapshotPaletteInput.addEventListener('change', function() {
+                setColorSnapshotTilerConfig({ palette: colorSnapshotPaletteInput.value });
+                captureColorSnapshotsFromFrame({ force: true });
+            });
+        }
+        const colorSnapshotCaptureButton = document.getElementById('colorSnapshotCaptureButton');
+        if (colorSnapshotCaptureButton) {
+            colorSnapshotCaptureButton.addEventListener('click', function() {
+                window.captureColorSnapshotTiles();
+            });
+        }
+        const colorCubeBoardToggle = document.getElementById('colorCubeBoardToggle');
+        if (colorCubeBoardToggle) {
+            colorCubeBoardToggle.addEventListener('change', function() {
+                setColorCubeBoardConfig({ enabled: !!colorCubeBoardToggle.checked });
+            });
+        }
+        const colorCubeBoardOpacityInput = document.getElementById('colorCubeBoardOpacity');
+        if (colorCubeBoardOpacityInput) {
+            colorCubeBoardOpacityInput.addEventListener('input', function() {
+                setColorCubeBoardConfig({ opacity: parseFloat(colorCubeBoardOpacityInput.value) });
+            });
+        }
+        const colorCubeBoardLiveCaptureInput = document.getElementById('colorCubeBoardLiveCapture');
+        if (colorCubeBoardLiveCaptureInput) {
+            colorCubeBoardLiveCaptureInput.addEventListener('change', function() {
+                setColorCubeBoardConfig({ liveCapture: !!colorCubeBoardLiveCaptureInput.checked });
+            });
+        }
+        const colorCubeBoardReloadButton = document.getElementById('colorCubeBoardReloadButton');
+        if (colorCubeBoardReloadButton) {
+            colorCubeBoardReloadButton.addEventListener('click', function() {
+                window.reloadColorCubeIndex();
+            });
+        }
         const infinitestreamsEmbedToggle = document.getElementById('infinitestreamsEmbedToggle');
         if (infinitestreamsEmbedToggle) {
             infinitestreamsEmbedToggle.addEventListener('change', function() {
@@ -3582,6 +4393,19 @@ button:hover {
             enabled: fibonacciMosaicToggle ? !!fibonacciMosaicToggle.checked : fibonacciMosaicEnabled,
             fx: fibonacciMosaicFxToggle ? !!fibonacciMosaicFxToggle.checked : fibonacciMosaicFxEnabled,
             opacity: fibonacciMosaicOpacityInput ? parseFloat(fibonacciMosaicOpacityInput.value) : fibonacciMosaicOpacity
+        });
+        setColorSnapshotTilerConfig({
+            enabled: colorSnapshotTilerToggle ? !!colorSnapshotTilerToggle.checked : colorSnapshotTilerEnabled,
+            opacity: colorSnapshotTilerOpacityInput ? parseFloat(colorSnapshotTilerOpacityInput.value) : colorSnapshotTilerOpacity,
+            tileSize: colorSnapshotTileSizeInput ? parseFloat(colorSnapshotTileSizeInput.value) : colorSnapshotTileSize,
+            trackTolerance: colorSnapshotTrackToleranceInput ? parseFloat(colorSnapshotTrackToleranceInput.value) : colorSnapshotTrackTolerance,
+            autoCapture: colorSnapshotAutoCaptureInput ? !!colorSnapshotAutoCaptureInput.checked : colorSnapshotAutoCapture,
+            palette: colorSnapshotPaletteInput ? colorSnapshotPaletteInput.value : colorSnapshotPaletteText
+        });
+        setColorCubeBoardConfig({
+            enabled: colorCubeBoardToggle ? !!colorCubeBoardToggle.checked : colorCubeBoardEnabled,
+            opacity: colorCubeBoardOpacityInput ? parseFloat(colorCubeBoardOpacityInput.value) : colorCubeBoardOpacity,
+            liveCapture: colorCubeBoardLiveCaptureInput ? !!colorCubeBoardLiveCaptureInput.checked : colorCubeBoardLiveCapture
         });
         setInfinitestreamsEmbedConfig({
             enabled: infinitestreamsEmbedToggle ? !!infinitestreamsEmbedToggle.checked : infinitestreamsEmbedEnabled,
@@ -3994,6 +4818,8 @@ button:hover {
             if (basicVideoModeEnabled && videoBackdropScene && videoBackdropCamera && videoBackdropMaterial && hasPlayableVideoSource) {
                 videoBackdropMaterial.opacity = 1;
                 renderer.render(videoBackdropScene, videoBackdropCamera);
+                updateColorSnapshotTiler(performance.now());
+                updateColorCubeBoard(performance.now());
                 updateEffectOverlay();
                 return;
             }
@@ -4005,6 +4831,8 @@ button:hover {
                 renderer.render(simulationBackdropScene, simulationBackdropCamera);
             }
             renderer.render(scene, camera);
+            updateColorSnapshotTiler(performance.now());
+            updateColorCubeBoard(performance.now());
             updateEffectOverlay();
         }
 
@@ -4360,6 +5188,47 @@ button:hover {
         if (typeof cmd.infinitestreamsBlend === 'string') {
             setInfinitestreamsEmbedConfig({ blendMode: cmd.infinitestreamsBlend });
         }
+        if (typeof cmd.infinitestreamsNoClean === 'boolean') {
+            infinitestreamsEmbedSkipCleanQuery = !!cmd.infinitestreamsNoClean;
+            setInfinitestreamsEmbedConfig({ url: infinitestreamsEmbedUrl });
+        }
+        if (typeof cmd.colorTiles === 'boolean') {
+            setColorSnapshotTilerConfig({ enabled: cmd.colorTiles });
+        }
+        if (typeof cmd.colorTilesAuto === 'boolean') {
+            setColorSnapshotTilerConfig({ autoCapture: cmd.colorTilesAuto });
+        }
+        if (Number.isFinite(cmd.colorTilesOpacity)) {
+            setColorSnapshotTilerConfig({ opacity: cmd.colorTilesOpacity });
+        }
+        if (Number.isFinite(cmd.colorTilesSize)) {
+            setColorSnapshotTilerConfig({ tileSize: cmd.colorTilesSize });
+        }
+        if (Number.isFinite(cmd.colorTilesTrackTolerance)) {
+            setColorSnapshotTilerConfig({ trackTolerance: cmd.colorTilesTrackTolerance });
+        }
+        if (Number.isFinite(cmd.colorTilesCaptureMs)) {
+            setColorSnapshotTilerConfig({ captureMs: cmd.colorTilesCaptureMs });
+        }
+        if (typeof cmd.colorTilesPalette === 'string') {
+            setColorSnapshotTilerConfig({ palette: cmd.colorTilesPalette });
+        }
+        if (cmd.colorTilesCapture === true) {
+            captureColorSnapshotsFromFrame({ force: true });
+            updateColorSnapshotTiler(performance.now());
+        }
+        if (typeof cmd.colorCubeBoard === 'boolean') {
+            setColorCubeBoardConfig({ enabled: cmd.colorCubeBoard });
+        }
+        if (Number.isFinite(cmd.colorCubeBoardOpacity)) {
+            setColorCubeBoardConfig({ opacity: cmd.colorCubeBoardOpacity });
+        }
+        if (typeof cmd.colorCubeBoardLive === 'boolean') {
+            setColorCubeBoardConfig({ liveCapture: cmd.colorCubeBoardLive });
+        }
+        if (cmd.colorCubeBoardReload === true && typeof window.reloadColorCubeIndex === 'function') {
+            window.reloadColorCubeIndex();
+        }
         if (typeof cmd.blackout === 'boolean') {
             setBlackoutLevel(cmd.blackout ? 1 : 0, cmd.blackoutFadeMs);
         } else if (typeof cmd.blackout === 'number') {
@@ -4383,6 +5252,13 @@ button:hover {
         if (typeof cmd.loopGroupId === 'string' && typeof cmd.loopGroupEnabled === 'boolean'
             && typeof window.setLoopGroupEnabled === 'function') {
             window.setLoopGroupEnabled(String(cmd.loopGroupId).trim(), cmd.loopGroupEnabled);
+        }
+        if (cmd.colorGroups && typeof cmd.colorGroups === 'object' && typeof window.applyColorGroupToggleMap === 'function') {
+            window.applyColorGroupToggleMap(cmd.colorGroups);
+        }
+        if (typeof cmd.colorGroupId === 'string' && typeof cmd.colorGroupEnabled === 'boolean'
+            && typeof window.setColorGroupEnabled === 'function') {
+            window.setColorGroupEnabled(String(cmd.colorGroupId).trim(), cmd.colorGroupEnabled);
         }
         if (typeof cmd.clipDrift === 'boolean' && typeof window.setProgressiveClipWindowConfig === 'function') {
             window.setProgressiveClipWindowConfig({
@@ -4431,7 +5307,11 @@ button:hover {
             wordList: activeWordCloudListName,
             infinitestreams: infinitestreamsEmbedEnabled,
             mosaic: fibonacciMosaicEnabled,
-            mosaicFx: fibonacciMosaicFxEnabled
+            mosaicFx: fibonacciMosaicFxEnabled,
+            colorTiles: colorSnapshotTilerEnabled,
+            colorGroups: typeof window.getColorGroupsSnapshot === 'function'
+                ? window.getColorGroupsSnapshot()
+                : []
         };
     }
 
@@ -4451,6 +5331,34 @@ button:hover {
                         event.source.postMessage({
                             type: 'vjLoopGroups',
                             groups: window.getLoopGroupsSnapshot(),
+                            revision: Date.now()
+                        }, '*');
+                    }
+                } catch (error) {
+                    console.warn(error);
+                }
+            }
+            if (event.data.requestColorGroups && typeof window.getColorGroupsSnapshot === 'function') {
+                try {
+                    if (event.source && typeof event.source.postMessage === 'function') {
+                        event.source.postMessage({
+                            type: 'vjColorGroups',
+                            groups: window.getColorGroupsSnapshot(),
+                            revision: Date.now()
+                        }, '*');
+                    }
+                } catch (error) {
+                    console.warn(error);
+                }
+            }
+            if (event.data.requestColorCubeStats && typeof window.getColorCubeBoardStats === 'function') {
+                try {
+                    if (typeof broadcastColorCubeStats === 'function') {
+                        broadcastColorCubeStats();
+                    } else if (event.source && typeof event.source.postMessage === 'function') {
+                        event.source.postMessage({
+                            type: 'vjColorCubeStats',
+                            stats: window.getColorCubeBoardStats(),
                             revision: Date.now()
                         }, '*');
                     }
@@ -4621,9 +5529,20 @@ button:hover {
     const bootInfinitestreams = vjBootParams.get('infinitestreams');
     const bootInfinitestreamsOpacity = Number(vjBootParams.get('infinitestreamsopacity'));
     const bootInfinitestreamsUrl = vjBootParams.get('infinitestreamsurl');
+    const bootInfinitestreamsNoClean = vjBootParams.get('infinitestreamsnoclean');
+    const bootColorTiles = vjBootParams.get('colortiles');
+    const bootColorTilesOpacity = Number(vjBootParams.get('colortilesopacity'));
+    const bootColorTilesSize = Number(vjBootParams.get('colortilessize'));
+    const bootColorTilesTrackTolerance = Number(vjBootParams.get('colortilestracktolerance'));
+    const bootColorTilesCaptureMs = Number(vjBootParams.get('colortilescapturems'));
+    const bootColorTilesAuto = vjBootParams.get('colortilesauto');
+    const bootColorTilesPalette = vjBootParams.get('colortilespalette');
     const bootLogo = vjBootParams.get('logo');
     const bootLogoOpacity = Number(vjBootParams.get('logoopacity'));
     const bootLogoPosition = vjBootParams.get('logoposition');
+    if (bootInfinitestreamsNoClean === '1' || bootInfinitestreamsNoClean === 'true') {
+        infinitestreamsEmbedSkipCleanQuery = true;
+    }
     applyVjCommand({
         mode: bootMode || undefined,
         speed: Number.isFinite(bootSpeed) ? bootSpeed : undefined,
@@ -4634,6 +5553,13 @@ button:hover {
         infinitestreams: bootInfinitestreams === null ? undefined : (bootInfinitestreams === 'true' || bootInfinitestreams === '1'),
         infinitestreamsOpacity: Number.isFinite(bootInfinitestreamsOpacity) ? bootInfinitestreamsOpacity : undefined,
         infinitestreamsUrl: bootInfinitestreamsUrl || undefined,
+        colorTiles: bootColorTiles === null ? undefined : (bootColorTiles === 'true' || bootColorTiles === '1'),
+        colorTilesOpacity: Number.isFinite(bootColorTilesOpacity) ? bootColorTilesOpacity : undefined,
+        colorTilesSize: Number.isFinite(bootColorTilesSize) ? bootColorTilesSize : undefined,
+        colorTilesTrackTolerance: Number.isFinite(bootColorTilesTrackTolerance) ? bootColorTilesTrackTolerance : undefined,
+        colorTilesCaptureMs: Number.isFinite(bootColorTilesCaptureMs) ? bootColorTilesCaptureMs : undefined,
+        colorTilesAuto: bootColorTilesAuto === null ? undefined : (bootColorTilesAuto === 'true' || bootColorTilesAuto === '1'),
+        colorTilesPalette: bootColorTilesPalette || undefined,
         logo: bootLogo === null ? undefined : (bootLogo === 'true' || bootLogo === '1'),
         logoOpacity: Number.isFinite(bootLogoOpacity) ? bootLogoOpacity : undefined,
         logoPosition: bootLogoPosition || undefined

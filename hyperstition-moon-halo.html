@@ -1,0 +1,401 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>hyperstition · moon halo</title>
+  <style>
+    html, body {
+      margin: 0;
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+      background: #000;
+    }
+    canvas {
+      display: block;
+      width: 100vw;
+      height: 100vh;
+    }
+    video {
+      display: none;
+    }
+  </style>
+</head>
+<body>
+  <video id="moonVideo" muted playsinline loop preload="auto"></video>
+  <canvas id="stage"></canvas>
+  <script>
+    const params = new URLSearchParams(location.search);
+    const WORD = String(params.get("word") || "hyperstition").toLowerCase();
+    const INDEX_URL = "artifacts/moon-cube-index.json";
+    const DEFAULT_MOON = "loops/Moon and Astronauts/Moon Loops/moon-surface-close-up-animation-in-space-2025-12-17-11-34-44-utc.mp4";
+    const MOON_SRC = params.get("moon") || DEFAULT_MOON;
+    const moonFocusX = clamp01(Number(params.get("focusX") ?? params.get("moonFocusX") ?? "0.5"));
+    const moonFocusY = clamp01(Number(params.get("focusY") ?? params.get("moonFocusY") ?? "0.5"));
+    const moonFit = String(params.get("moonFit") || "contain").toLowerCase();
+    const moonScale = clampNum(Number(params.get("moonScale") ?? "0.72"), 0.25, 1.25);
+    const TILE_GAP = 1;
+    const GLYPH_W = 5;
+    const GLYPH_H = 7;
+
+    const GLYPHS = {
+      h: [0x11, 0x11, 0x11, 0x1f, 0x11, 0x11, 0x11],
+      y: [0x11, 0x11, 0x11, 0x0a, 0x04, 0x04, 0x04],
+      p: [0x1e, 0x11, 0x11, 0x1e, 0x10, 0x10, 0x10],
+      e: [0x0e, 0x11, 0x10, 0x1e, 0x10, 0x11, 0x0e],
+      r: [0x1e, 0x11, 0x11, 0x1e, 0x14, 0x12, 0x11],
+      s: [0x0e, 0x11, 0x10, 0x0e, 0x01, 0x11, 0x0e],
+      t: [0x1f, 0x04, 0x04, 0x04, 0x04, 0x04, 0x04],
+      i: [0x04, 0x00, 0x04, 0x04, 0x04, 0x04, 0x0e],
+      o: [0x0e, 0x11, 0x11, 0x11, 0x11, 0x11, 0x0e],
+      n: [0x11, 0x19, 0x15, 0x13, 0x11, 0x11, 0x11]
+    };
+
+    const LETTER_COLORS_BY_INDEX = [
+      "silver", "yellow", "purple", "cyan", "red", "silver",
+      "white", "white", "cyan", "magenta", "orange", "blue"
+    ];
+
+    const REFERENCE_SWATCHES = {
+      black: "#1c1c1e", silver: "#c0c0c8", gray: "#8e8e93", white: "#f5f5f7",
+      red: "#ff3b30", orange: "#ff9500", yellow: "#ffd60a", green: "#34c759",
+      cyan: "#32d3ff", blue: "#0a84ff", purple: "#bf5af2", magenta: "#ff2d92"
+    };
+
+    const FALLBACK_CHAIN = {
+      black: ["black", "gray", "silver"],
+      silver: ["silver", "gray", "white", "black"],
+      gray: ["gray", "silver", "black", "white"],
+      white: ["white", "silver", "gray"],
+      red: ["red", "orange", "gray", "silver"],
+      orange: ["orange", "yellow", "gray", "silver"],
+      yellow: ["yellow", "gray", "silver", "white"],
+      green: ["green", "gray", "silver"],
+      cyan: ["cyan", "blue", "gray", "silver"],
+      blue: ["blue", "cyan", "gray", "silver"],
+      purple: ["purple", "magenta", "gray", "silver"],
+      magenta: ["magenta", "purple", "gray", "silver"]
+    };
+
+    const canvas = document.getElementById("stage");
+    const ctx = canvas.getContext("2d");
+    const moonVideo = document.getElementById("moonVideo");
+    let imagePools = {};
+    let frameIdx = 0;
+    let moonReady = false;
+    let centerX = 0;
+    let centerY = 0;
+    let moonRadius = 200;
+    let haloRadiusX = 520;
+    let haloRadiusY = 160;
+
+    function clamp01(value) {
+      if (!Number.isFinite(value)) return 0.5;
+      return Math.max(0, Math.min(1, value));
+    }
+
+    function clampNum(value, lo, hi) {
+      if (!Number.isFinite(value)) return lo;
+      return Math.max(lo, Math.min(hi, value));
+    }
+
+    function letterColorAt(index) {
+      return LETTER_COLORS_BY_INDEX[index] || "silver";
+    }
+
+    function resize() {
+      const dpr = Math.min(2, window.devicePixelRatio || 1);
+      canvas.width = Math.floor(window.innerWidth * dpr);
+      canvas.height = Math.floor(window.innerHeight * dpr);
+      centerX = canvas.width * 0.5;
+      centerY = canvas.height * 0.5;
+      const minDim = Math.min(canvas.width, canvas.height);
+      moonRadius = minDim * 0.19;
+      haloRadiusX = minDim * 0.36;
+      haloRadiusY = minDim * 0.11;
+    }
+
+    async function loadImage(url) {
+      return new Promise((resolve) => {
+        const img = new Image();
+        img.onload = () => resolve(img);
+        img.onerror = () => resolve(null);
+        img.src = url;
+      });
+    }
+
+    async function buildPools(index) {
+      imagePools = { any: [] };
+      const families = index && index.families ? index.families : {};
+      for (const family of Object.keys(families)) {
+        imagePools[family] = [];
+        for (const row of families[family] || []) {
+          if (!row || !row.cubeUrl) continue;
+          const img = await loadImage(row.cubeUrl);
+          if (img) {
+            imagePools[family].push(img);
+            imagePools.any.push(img);
+          }
+        }
+      }
+    }
+
+    function pickImage(family, seed) {
+      const chain = FALLBACK_CHAIN[family] || [family, "silver", "gray", "any"];
+      for (let i = 0; i < chain.length; i++) {
+        const pool = imagePools[chain[i]];
+        if (pool && pool.length > 0) {
+          return pool[Math.abs((frameIdx * 5 + seed * 19) % pool.length)];
+        }
+      }
+      return imagePools.any && imagePools.any.length ? imagePools.any[0] : null;
+    }
+
+    function loadMoonVideo() {
+      return new Promise((resolve) => {
+        moonVideo.src = MOON_SRC;
+        moonVideo.muted = true;
+        moonVideo.playsInline = true;
+        let settled = false;
+        const finish = (ok) => {
+          if (settled) return;
+          settled = true;
+          moonReady = ok && moonVideo.readyState >= 2 && moonVideo.videoWidth > 0;
+          resolve(moonReady);
+        };
+        moonVideo.addEventListener("loadeddata", () => finish(true), { once: true });
+        moonVideo.addEventListener("canplay", () => finish(true), { once: true });
+        moonVideo.addEventListener("error", () => finish(false), { once: true });
+        const playPromise = moonVideo.play();
+        if (playPromise && typeof playPromise.catch === "function") {
+          playPromise.catch(() => {});
+        }
+        setTimeout(() => finish(moonVideo.readyState >= 2 && moonVideo.videoWidth > 0), 8000);
+      });
+    }
+
+    function drawBackground() {
+      const bg = ctx.createRadialGradient(centerX, centerY, moonRadius * 0.4, centerX, centerY, canvas.width * 0.65);
+      bg.addColorStop(0, "#0a1020");
+      bg.addColorStop(0.45, "#03050c");
+      bg.addColorStop(1, "#000");
+      ctx.fillStyle = bg;
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+    }
+
+    function drawHaloGuides(rotation) {
+      ctx.save();
+      ctx.translate(centerX, centerY);
+      ctx.rotate(rotation * 0.08);
+      ctx.strokeStyle = "rgba(140,190,255,0.12)";
+      ctx.lineWidth = Math.max(1, canvas.width * 0.0015);
+      ctx.beginPath();
+      ctx.ellipse(0, 0, haloRadiusX, haloRadiusY, 0, 0, Math.PI * 2);
+      ctx.stroke();
+      const glow = ctx.createRadialGradient(0, 0, moonRadius * 1.05, 0, 0, haloRadiusX * 1.05);
+      glow.addColorStop(0, "rgba(120,180,255,0.08)");
+      glow.addColorStop(0.55, "rgba(80,140,255,0.04)");
+      glow.addColorStop(1, "rgba(0,0,0,0)");
+      ctx.fillStyle = glow;
+      ctx.beginPath();
+      ctx.ellipse(0, 0, haloRadiusX * 1.08, haloRadiusY * 1.25, 0, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.restore();
+    }
+
+    function drawCenterMoon() {
+      if (!moonReady) {
+        ctx.fillStyle = "#222";
+        ctx.beginPath();
+        ctx.arc(centerX, centerY, moonRadius, 0, Math.PI * 2);
+        ctx.fill();
+        return;
+      }
+      ctx.save();
+      ctx.beginPath();
+      ctx.arc(centerX, centerY, moonRadius, 0, Math.PI * 2);
+      ctx.clip();
+      ctx.fillStyle = "#030308";
+      ctx.fillRect(centerX - moonRadius, centerY - moonRadius, moonRadius * 2, moonRadius * 2);
+      const vw = moonVideo.videoWidth;
+      const vh = moonVideo.videoHeight;
+      const diameter = moonRadius * 2;
+      const fitScale = moonFit === "cover"
+        ? Math.max(diameter / vw, diameter / vh)
+        : Math.min(diameter / vw, diameter / vh);
+      const scale = fitScale * moonScale;
+      const dw = vw * scale;
+      const dh = vh * scale;
+      const dx = centerX - moonFocusX * dw;
+      const dy = centerY - moonFocusY * dh;
+      ctx.drawImage(moonVideo, dx, dy, dw, dh);
+
+      const vignette = ctx.createRadialGradient(
+        centerX,
+        centerY,
+        moonRadius * 0.58,
+        centerX,
+        centerY,
+        moonRadius
+      );
+      vignette.addColorStop(0, "rgba(0,0,0,0)");
+      vignette.addColorStop(1, "rgba(0,0,0,0.5)");
+      ctx.fillStyle = vignette;
+      ctx.fillRect(centerX - moonRadius, centerY - moonRadius, moonRadius * 2, moonRadius * 2);
+
+      const specX = centerX - moonRadius * 0.26;
+      const specY = centerY - moonRadius * 0.3;
+      const specular = ctx.createRadialGradient(specX, specY, 0, specX, specY, moonRadius * 0.72);
+      specular.addColorStop(0, "rgba(255,255,255,0.28)");
+      specular.addColorStop(0.42, "rgba(255,255,255,0)");
+      specular.addColorStop(1, "rgba(0,0,0,0)");
+      ctx.fillStyle = specular;
+      ctx.fillRect(centerX - moonRadius, centerY - moonRadius, moonRadius * 2, moonRadius * 2);
+      ctx.restore();
+
+      ctx.save();
+      ctx.shadowColor = "rgba(180,210,255,0.45)";
+      ctx.shadowBlur = moonRadius * 0.35;
+      ctx.strokeStyle = "rgba(210,230,255,0.28)";
+      ctx.lineWidth = Math.max(2, moonRadius * 0.015);
+      ctx.beginPath();
+      ctx.arc(centerX, centerY, moonRadius * 1.02, 0, Math.PI * 2);
+      ctx.stroke();
+      ctx.restore();
+    }
+
+    function drawLetterMosaic(ch, color, cx, cy, tilePx, rotation, depth, seedBase) {
+      const rows = GLYPHS[ch];
+      if (!rows) return;
+      const blockW = GLYPH_W * (tilePx + TILE_GAP) - TILE_GAP;
+      const blockH = GLYPH_H * (tilePx + TILE_GAP) - TILE_GAP;
+      ctx.save();
+      ctx.translate(cx, cy);
+      ctx.rotate(rotation);
+      ctx.globalAlpha = 0.5 + depth * 0.5;
+      ctx.translate(-blockW * 0.5, -blockH * 0.5);
+      for (let gy = 0; gy < GLYPH_H; gy++) {
+        const rowBits = rows[gy] || 0;
+        for (let gx = 0; gx < GLYPH_W; gx++) {
+          const bit = (rowBits >> (GLYPH_W - 1 - gx)) & 1;
+          if (!bit) continue;
+          const x = gx * (tilePx + TILE_GAP);
+          const y = gy * (tilePx + TILE_GAP);
+          const img = pickImage(color, seedBase + gx * 17 + gy * 29);
+          if (img) {
+            ctx.drawImage(img, x, y, tilePx, tilePx);
+          } else {
+            ctx.fillStyle = REFERENCE_SWATCHES[color] || "#888";
+            ctx.fillRect(x, y, tilePx, tilePx);
+          }
+          ctx.strokeStyle = "rgba(255,255,255,0.1)";
+          ctx.strokeRect(x + 0.5, y + 0.5, tilePx - 1, tilePx - 1);
+        }
+      }
+      ctx.restore();
+    }
+
+    function computeLetterSlots(rotation) {
+      const slots = [];
+      const n = WORD.length;
+      for (let i = 0; i < n; i++) {
+        const angle = (i / n) * Math.PI * 2 - Math.PI * 0.5 + rotation;
+        const depth = (Math.sin(angle) + 1) * 0.5;
+        const cx = centerX + Math.cos(angle) * haloRadiusX;
+        const cy = centerY + Math.sin(angle) * haloRadiusY;
+        const scale = 0.62 + depth * 0.55;
+        const tilePx = Math.max(6, Math.floor(Math.min(canvas.width, canvas.height) * 0.011 * scale));
+        slots.push({
+          i,
+          ch: WORD[i],
+          color: letterColorAt(i),
+          cx,
+          cy,
+          rotation: angle + Math.PI * 0.5,
+          depth,
+          tilePx,
+          seedBase: i * 131
+        });
+      }
+      slots.sort((a, b) => a.depth - b.depth);
+      return slots;
+    }
+
+    function drawFrame() {
+      const rotation = frameIdx * 0.0045;
+      drawBackground();
+      drawHaloGuides(rotation);
+      drawCenterMoon();
+      const slots = computeLetterSlots(rotation);
+      for (let s = 0; s < slots.length; s++) {
+        const slot = slots[s];
+        drawLetterMosaic(
+          slot.ch,
+          slot.color,
+          slot.cx,
+          slot.cy,
+          slot.tilePx,
+          slot.rotation,
+          slot.depth,
+          slot.seedBase
+        );
+      }
+      frameIdx += 1;
+      requestAnimationFrame(drawFrame);
+    }
+
+    async function boot() {
+      resize();
+      window.addEventListener("resize", resize);
+      window.__hyperstitionStats = {
+        layout: "halo",
+        word: WORD,
+        moonVideo: MOON_SRC,
+        moonFocusX,
+        moonFocusY,
+        moonFit,
+        moonScale,
+        moonReady: false,
+        letterCount: WORD.length,
+        pools: []
+      };
+
+      const syncStats = () => {
+        window.__hyperstitionStats = {
+          layout: "halo",
+          word: WORD,
+          moonVideo: MOON_SRC,
+          moonFocusX,
+          moonFocusY,
+          moonFit,
+          moonScale,
+          moonReady,
+          letterCount: WORD.length,
+          pools: Object.keys(imagePools).map((k) => ({ family: k, count: (imagePools[k] || []).length }))
+        };
+      };
+
+      const moonTask = loadMoonVideo().then(() => syncStats());
+      const poolTask = (async () => {
+        try {
+          const res = await fetch(INDEX_URL, { cache: "no-store" });
+          if (res.ok) {
+            await buildPools(await res.json());
+          }
+        } catch (err) {
+          console.warn(err);
+        }
+        syncStats();
+      })();
+
+      await Promise.all([moonTask, poolTask]);
+      window.__hyperstitionReady = true;
+      syncStats();
+      drawFrame();
+    }
+
+    boot();
+  </script>
+</body>
+</html>

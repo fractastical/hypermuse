@@ -88,6 +88,7 @@ function rgbToHsv(r, g, b) {
 
 function hueFamily(hue, saturation, value) {
   if (value < 0.14) return "black";
+  if (saturation < 0.10 && value >= 0.42 && value <= 0.82) return "silver";
   if (saturation < 0.16 && value > 0.78) return "white";
   if (saturation < 0.16) return "gray";
   if (hue < 15 || hue >= 345) return "red";

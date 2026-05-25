@@ -79,6 +79,189 @@ const loopFolderGroupEnabledMap = new Map();
 const loopFolderGroupLabelsMap = new Map();
 const FOLDER_GROUP_ROOT_PLACEHOLDER = '__root__';
 
+/** Hue-family tags from artifacts/color-dataset.json (build-color-dataset.mjs). */
+const COLOR_FAMILY_ORDER = [
+    'black', 'silver', 'gray', 'white',
+    'red', 'orange', 'yellow', 'green', 'cyan', 'blue', 'purple', 'magenta'
+];
+const COLOR_FAMILY_SWATCHES = {
+    black: '#1c1c1e',
+    silver: '#c0c0c8',
+    gray: '#8e8e93',
+    white: '#f5f5f7',
+    red: '#ff3b30',
+    orange: '#ff9500',
+    yellow: '#ffd60a',
+    green: '#34c759',
+    cyan: '#32d3ff',
+    blue: '#0a84ff',
+    purple: '#bf5af2',
+    magenta: '#ff2d92'
+};
+const colorGroupEnabledMap = new Map();
+const colorDatasetByUrl = new Map();
+let colorDatasetLoadPromise = null;
+
+COLOR_FAMILY_ORDER.forEach((family) => {
+    colorGroupEnabledMap.set(family, true);
+});
+
+function normalizeColorDatasetUrlKey(url) {
+    return String(url || '').trim().replace(/\\/g, '/').replace(/^\/+/, '');
+}
+
+function rgbToHsv(r, g, b) {
+    const rn = r / 255;
+    const gn = g / 255;
+    const bn = b / 255;
+    const max = Math.max(rn, gn, bn);
+    const min = Math.min(rn, gn, bn);
+    const delta = max - min;
+    let h = 0;
+    if (delta !== 0) {
+        if (max === rn) h = ((gn - bn) / delta) % 6;
+        else if (max === gn) h = ((bn - rn) / delta) + 2;
+        else h = ((rn - gn) / delta) + 4;
+        h *= 60;
+        if (h < 0) h += 360;
+    }
+    const s = max === 0 ? 0 : (delta / max);
+    const v = max;
+    return { h, s, v };
+}
+
+function classifyRgbColorFamily(r, g, b) {
+    const hsv = rgbToHsv(r, g, b);
+    if (hsv.v < 0.14) return 'black';
+    if (hsv.s < 0.10 && hsv.v >= 0.42 && hsv.v <= 0.82) return 'silver';
+    if (hsv.s < 0.16 && hsv.v > 0.78) return 'white';
+    if (hsv.s < 0.16) return 'gray';
+    if (hsv.h < 15 || hsv.h >= 345) return 'red';
+    if (hsv.h < 40) return 'orange';
+    if (hsv.h < 70) return 'yellow';
+    if (hsv.h < 160) return 'green';
+    if (hsv.h < 205) return 'cyan';
+    if (hsv.h < 255) return 'blue';
+    if (hsv.h < 300) return 'purple';
+    if (hsv.h < 345) return 'magenta';
+    return 'red';
+}
+
+function expandColorTagsToFamilies(tags) {
+    const families = new Set();
+    (Array.isArray(tags) ? tags : []).forEach((tagRaw) => {
+        const tag = String(tagRaw || '').trim().toLowerCase();
+        if (!tag) return;
+        tag.split('-').forEach((part) => {
+            if (COLOR_FAMILY_ORDER.includes(part)) {
+                families.add(part);
+            }
+        });
+    });
+    return [...families];
+}
+
+function ingestColorDatasetItem(item) {
+    if (!item || item.type !== 'video' || !item.path) {
+        return;
+    }
+    const key = normalizeColorDatasetUrlKey(item.path);
+    const families = expandColorTagsToFamilies(item.tags);
+    if (Array.isArray(item.topFamilies)) {
+        item.topFamilies.forEach((row) => {
+            if (row && row.name && COLOR_FAMILY_ORDER.includes(row.name)) {
+                families.push(row.name);
+            }
+        });
+    }
+    const uniqueFamilies = [...new Set(families)];
+    colorDatasetByUrl.set(key, {
+        tags: Array.isArray(item.tags) ? item.tags.slice() : [],
+        families: uniqueFamilies,
+        primary: uniqueFamilies[0] || null,
+        avgRgb: Array.isArray(item.avgRgb) ? item.avgRgb.slice(0, 3) : null
+    });
+}
+
+async function ensureColorDatasetLoaded(force = false) {
+    if (colorDatasetLoadPromise && !force) {
+        return colorDatasetLoadPromise;
+    }
+    colorDatasetLoadPromise = (async function() {
+        try {
+            const response = await fetch('artifacts/color-dataset.json', { cache: 'no-store' });
+            if (!response.ok) {
+                return false;
+            }
+            const payload = await response.json();
+            colorDatasetByUrl.clear();
+            if (Array.isArray(payload.items)) {
+                payload.items.forEach(ingestColorDatasetItem);
+            }
+            return colorDatasetByUrl.size > 0;
+        } catch (_) {
+            return false;
+        }
+    })();
+    return colorDatasetLoadPromise;
+}
+
+function getColorFamiliesForUrl(url) {
+    const key = normalizeColorDatasetUrlKey(url);
+    const row = colorDatasetByUrl.get(key);
+    if (row && Array.isArray(row.families) && row.families.length > 0) {
+        return row.families.slice();
+    }
+    return [];
+}
+
+function isColorGroupEntryEnabled(entry) {
+    const families = entry && Array.isArray(entry.colorFamilies) ? entry.colorFamilies : [];
+    if (families.length === 0) {
+        return true;
+    }
+    return families.some((family) => colorGroupEnabledMap.get(family) !== false);
+}
+
+function skipPlaybackIfColorGroupBlocked() {
+    if (currentSetEntries.length === 0 || currentSetIndex < 0) {
+        return;
+    }
+    const entry = currentSetEntries[currentSetIndex];
+    if (!entry || isSetEntryEligible(entry)) {
+        return;
+    }
+    playNextSetEntry();
+}
+
+function broadcastColorGroupsSnapshot() {
+    if (typeof window.getColorGroupsSnapshot !== 'function') {
+        return;
+    }
+    const payload = {
+        type: 'vjColorGroups',
+        groups: window.getColorGroupsSnapshot(),
+        revision: Date.now()
+    };
+    try {
+        if (window.opener && !window.opener.closed && typeof window.opener.postMessage === 'function') {
+            window.opener.postMessage(payload, '*');
+        }
+    } catch (_) {
+        // ignore
+    }
+    try {
+        if (window.parent && window.parent !== window && typeof window.parent.postMessage === 'function') {
+            window.parent.postMessage(payload, '*');
+        }
+    } catch (_) {
+        // ignore
+    }
+    if (typeof window.dispatchEvent === 'function') {
+        window.dispatchEvent(new CustomEvent('hypermuse:colorGroupsChanged'));
+    }
+}
+
 function normalizeUrlPathSegments(url) {
     let s = String(url || '').trim().replace(/\\/g, '/');
     if (!s) {
@@ -168,6 +351,50 @@ function resetFolderLoopGroupsState() {
     loopFolderGroupLabelsMap.clear();
 }
 
+function registerFolderLoopGroup(groupId, labelHint) {
+    const gid = String(groupId || '').trim();
+    if (!gid) {
+        return;
+    }
+    const basename = gid.split('/').filter(Boolean).pop() || gid;
+    const label = String(labelHint || '').trim()
+        || loopFolderGroupLabelsMap.get(gid)
+        || basename;
+    if (basename === FOLDER_GROUP_ROOT_PLACEHOLDER) {
+        loopFolderGroupLabelsMap.set(gid, label || defaultLabelForSyntheticRootGroup(gid));
+    } else {
+        loopFolderGroupLabelsMap.set(gid, label);
+    }
+    if (!loopFolderGroupEnabledMap.has(gid)) {
+        loopFolderGroupEnabledMap.set(gid, true);
+    }
+}
+
+function broadcastLoopGroupsSnapshot() {
+    if (typeof window.getLoopGroupsSnapshot !== 'function') {
+        return;
+    }
+    const payload = {
+        type: 'vjLoopGroups',
+        groups: window.getLoopGroupsSnapshot(),
+        revision: Date.now()
+    };
+    try {
+        if (window.opener && !window.opener.closed && typeof window.opener.postMessage === 'function') {
+            window.opener.postMessage(payload, '*');
+        }
+    } catch (_) {
+        // ignore cross-origin opener failures
+    }
+    try {
+        if (window.parent && window.parent !== window && typeof window.parent.postMessage === 'function') {
+            window.parent.postMessage(payload, '*');
+        }
+    } catch (_) {
+        // ignore cross-origin parent failures
+    }
+}
+
 function syncFolderLoopGroupsFromEntries(entries, manifestExtras = {}) {
     resetFolderLoopGroupsState();
     const presetLabels = manifestExtras.loopGroupLabels && typeof manifestExtras.loopGroupLabels === 'object'
@@ -184,6 +411,16 @@ function syncFolderLoopGroupsFromEntries(entries, manifestExtras = {}) {
         }
         loopFolderGroupLabelsMap.set(key, String(presetLabels[idKey]));
         loopFolderGroupEnabledMap.set(key, true);
+    });
+
+    const registered = Array.isArray(manifestExtras.registeredLoopGroups)
+        ? manifestExtras.registeredLoopGroups
+        : [];
+    registered.forEach((row) => {
+        if (!row) {
+            return;
+        }
+        registerFolderLoopGroup(row.id || row.groupId, row.label || row.loopGroupLabel);
     });
 
     entries.forEach((entry) => {
@@ -257,6 +494,7 @@ if (!key || !loopFolderGroupEnabledMap.has(key)) {
 }
 loopFolderGroupEnabledMap.set(key, !!enabled);
 skipPlaybackIfDisabledGroupBlocked();
+broadcastLoopGroupsSnapshot();
 return true;
 };
 
@@ -275,6 +513,9 @@ Object.keys(map).forEach((idRaw) => {
     changed += 1;
 });
 skipPlaybackIfDisabledGroupBlocked();
+if (changed > 0) {
+    broadcastLoopGroupsSnapshot();
+}
 return changed;
 };
 
@@ -314,6 +555,76 @@ return ids.map((id) => ({
     isCurrent: !!(currentGroupId && currentGroupId === id)
 }));
 };
+
+window.setColorGroupEnabled = function(groupId, enabled) {
+    const key = String(groupId || '').trim().toLowerCase();
+    if (!key || !COLOR_FAMILY_ORDER.includes(key)) {
+        return false;
+    }
+    colorGroupEnabledMap.set(key, !!enabled);
+    skipPlaybackIfColorGroupBlocked();
+    broadcastColorGroupsSnapshot();
+    return true;
+};
+
+window.applyColorGroupToggleMap = function(map) {
+    if (!map || typeof map !== 'object') {
+        return 0;
+    }
+    let changed = 0;
+    Object.keys(map).forEach((idRaw) => {
+        const key = String(idRaw || '').trim().toLowerCase();
+        if (!key || !COLOR_FAMILY_ORDER.includes(key)) {
+            return;
+        }
+        colorGroupEnabledMap.set(key, !!map[idRaw]);
+        changed += 1;
+    });
+    skipPlaybackIfColorGroupBlocked();
+    if (changed > 0) {
+        broadcastColorGroupsSnapshot();
+    }
+    return changed;
+};
+
+window.getColorGroupsSnapshot = function() {
+    const counts = {};
+    currentSetEntries.forEach((entry) => {
+        if (!entry || !Array.isArray(entry.colorFamilies)) {
+            return;
+        }
+        entry.colorFamilies.forEach((family) => {
+            counts[family] = (counts[family] || 0) + 1;
+        });
+    });
+
+    let currentFamilies = [];
+    if (currentSetIndex >= 0 && currentSetIndex < currentSetEntries.length) {
+        const cur = currentSetEntries[currentSetIndex];
+        currentFamilies = cur && Array.isArray(cur.colorFamilies) ? cur.colorFamilies : [];
+    }
+
+    return COLOR_FAMILY_ORDER.map((id) => ({
+        id,
+        label: id,
+        swatch: COLOR_FAMILY_SWATCHES[id] || '#888',
+        enabled: colorGroupEnabledMap.get(id) !== false,
+        clipCount: counts[id] || 0,
+        isCurrent: currentFamilies.includes(id)
+    }));
+};
+
+window.isColorFamilyEnabled = function(family) {
+    const key = String(family || '').trim().toLowerCase();
+    if (!key || !COLOR_FAMILY_ORDER.includes(key)) {
+        return true;
+    }
+    return colorGroupEnabledMap.get(key) !== false;
+};
+
+window.classifyRgbColorFamily = classifyRgbColorFamily;
+window.ensureColorDatasetLoaded = ensureColorDatasetLoaded;
+
 const sampleSetPresets = [
     { id: 'bio1', label: 'Bio 1 (default)', manifest: 'sets/bio1.json' },
     { id: 'tonight1', label: 'Sample 1h — Betse + cells', manifest: 'sets/tonight-set-1-betse-cells.json' },
@@ -396,6 +707,9 @@ const groupIds = Array.isArray(manifestMeta.groupIds) ? manifestMeta.groupIds : 
 const rowGroupLabels = Array.isArray(manifestMeta.loopGroupRowLabels)
     ? manifestMeta.loopGroupRowLabels
     : [];
+const colorTagsByUrl = manifestMeta.colorTagsByUrl && typeof manifestMeta.colorTagsByUrl === 'object'
+    ? manifestMeta.colorTagsByUrl
+    : null;
 const entries = [];
 for (let i = 0; i < urls.length; i++) {
     const url = urls[i];
@@ -419,6 +733,14 @@ for (let i = 0; i < urls.length; i++) {
         loopGroupLabel = loopGroupRowLabel;
     }
 
+    let colorFamilies = getColorFamiliesForUrl(url);
+    if (colorTagsByUrl && colorTagsByUrl[url]) {
+        const fromManifest = expandColorTagsToFamilies(colorTagsByUrl[url]);
+        if (fromManifest.length > 0) {
+            colorFamilies = fromManifest;
+        }
+    }
+
     entries.push({
         url,
         label: labels[i] || url.split('/').pop(),
@@ -432,7 +754,8 @@ for (let i = 0; i < urls.length; i++) {
             holdLastFrameOnClipEnd: sourceTransition.holdLastFrameOnClipEnd !== false
         },
         loopGroupId,
-        loopGroupLabel
+        loopGroupLabel,
+        colorFamilies
     });
 }
 return entries;
@@ -633,7 +956,9 @@ videoElementActive = true;
 
 function isSetEntryEligible(entry) {
 if (!entry || !entry.url) return false;
-return loopPreferenceByUrl.get(entry.url) !== 'dislike' && isLoopFolderGroupEntryEnabled(entry);
+return loopPreferenceByUrl.get(entry.url) !== 'dislike'
+    && isLoopFolderGroupEntryEnabled(entry)
+    && isColorGroupEntryEnabled(entry);
 }
 
 function applyLoopPreferenceForUrl(url, preference) {
@@ -767,9 +1092,12 @@ const startIdx = firstEligibleEntryIndex();
 if (startIdx >= 0) {
     playSetEntryAt(startIdx);
 }
+broadcastLoopGroupsSnapshot();
+broadcastColorGroupsSnapshot();
 }
 
 async function loadVideoSetManifest(manifestPath) {
+await ensureColorDatasetLoaded();
 const response = await fetch(manifestPath, { cache: 'no-store' });
 if (!response.ok) {
     throw new Error(`Could not load video set manifest: ${manifestPath}`);
@@ -788,8 +1116,36 @@ const folderLoopRoot = manifest && typeof manifest.folderLoopRoot === 'string' &
 const manifestMeta = {
     groupIds: [],
     loopGroupLabels: presetLoopGroupLabels,
-    loopGroupRowLabels: []
+    loopGroupRowLabels: [],
+    registeredLoopGroups: [],
+    colorTagsByUrl: {}
 };
+
+if (Array.isArray(manifest.sourceDirectories)) {
+    manifest.sourceDirectories.forEach((dirRaw) => {
+        const dir = String(dirRaw || '').trim().replace(/\\/g, '/');
+        if (!dir) {
+            return;
+        }
+        const label = presetLoopGroupLabels[dir]
+            || dir.split('/').filter(Boolean).pop()
+            || dir;
+        manifestMeta.registeredLoopGroups.push({ id: dir, label });
+    });
+}
+if (Array.isArray(manifest.loopGroupCatalog)) {
+    manifest.loopGroupCatalog.forEach((row) => {
+        if (!row || typeof row !== 'object') {
+            return;
+        }
+        const id = String(row.id || row.groupId || row.loopGroup || '').trim();
+        if (!id) {
+            return;
+        }
+        const label = row.label || row.loopGroupLabel || presetLoopGroupLabels[id] || id.split('/').pop();
+        manifestMeta.registeredLoopGroups.push({ id, label });
+    });
+}
 
 const rowsRaw = [];
 
@@ -848,12 +1204,20 @@ if (Array.isArray(manifest)) {
 
         const groupIdMerged = explicitGroupId || loopGroupDerived || '';
 
+        let colorTags = [];
+        if (obj && Array.isArray(obj.colorTags)) {
+            colorTags = obj.colorTags;
+        } else if (obj && Array.isArray(obj.colorFamilies)) {
+            colorTags = obj.colorFamilies;
+        }
+
         rowsRaw.push({
             url,
             label,
             transition,
             groupId: groupIdMerged,
-            loopGroupRowLabel: rowGroupDisplayLabel
+            loopGroupRowLabel: rowGroupDisplayLabel,
+            colorTags
         });
     });
 } else {
@@ -879,6 +1243,12 @@ for (let r = 0; r < rowsRaw.length; r++) {
     }
     filteredRows.push(row);
 }
+
+filteredRows.forEach((row) => {
+    if (row && row.url && Array.isArray(row.colorTags) && row.colorTags.length > 0) {
+        manifestMeta.colorTagsByUrl[row.url] = row.colorTags;
+    }
+});
 
 const urls = filteredRows.map((row) => row.url);
 const labels = filteredRows.map((row) => row.label);
@@ -1088,6 +1458,7 @@ if (videoSetPresetSelect) {
 }
 
 populateSetPresets();
+ensureColorDatasetLoaded();
 
 function appendFilenameToList(filename) {
 const videoList = document.getElementById('videoListContents');

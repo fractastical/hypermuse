@@ -166,6 +166,63 @@
         font-size: 10px;
     }
 
+    .color-board {
+        margin-top: 8px;
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(92px, 1fr));
+        gap: 8px;
+        padding: 8px;
+        border-radius: 8px;
+        border: 1px solid rgba(118, 230, 255, 0.28);
+        background: rgba(4, 10, 28, 0.65);
+    }
+
+    .color-board.empty {
+        color: rgba(207, 233, 255, 0.55);
+        font-style: italic;
+        display: block;
+        font-size: 11px;
+        line-height: 1.35;
+    }
+
+    .color-board label.color-chip {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 4px;
+        padding: 6px 4px;
+        border-radius: 8px;
+        border: 1px solid rgba(88, 246, 255, 0.18);
+        background: rgba(7, 16, 40, 0.55);
+        cursor: pointer;
+        font-size: 10px;
+        text-transform: capitalize;
+    }
+
+    .color-board label.color-chip.is-current {
+        box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.55);
+    }
+
+    .color-board label.color-chip.is-disabled {
+        opacity: 0.38;
+        filter: grayscale(0.85);
+    }
+
+    .color-board span.swatch {
+        width: 34px;
+        height: 34px;
+        border-radius: 6px;
+        border: 1px solid rgba(255, 255, 255, 0.35);
+        box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.25);
+    }
+
+    .color-board span.chip-meta {
+        color: rgba(207, 233, 255, 0.55);
+        font-size: 9px;
+        line-height: 1.2;
+        text-align: center;
+    }
+
     </style>
     <script src="js/threejs.org_build_three.js"></script>
     <!-- <script src="js/cdn.jsdelivr.net_npm_@tonejs_midi.js"></script>
@@ -220,6 +277,30 @@
           <input type="button" id="loopGroupsEnableAllButton" value="enable all folders"/>
           <input type="button" id="loopGroupsDisableAllButton" value="disable all folders"/>
         </div>
+    </div>
+    <div class="input-group">
+        Color board (playlist filter):
+        <div class="muted" style="font-size:11px;color:rgba(207,233,255,0.62);margin:4px 0 8px;line-height:1.4;">
+          Toggle hue families from <code>artifacts/color-dataset.json</code>. Only clips tagged with an enabled color play.
+          Run <code>node scripts/build-color-dataset.mjs</code> to refresh tags.
+        </div>
+        <div id="colorBoardHost" class="color-board empty"></div>
+        <div style="display:flex;flex-wrap:wrap;gap:8px;margin-top:8px;">
+          <input type="button" id="colorBoardRefreshButton" value="refresh color board"/>
+          <input type="button" id="colorBoardEnableAllButton" value="enable all colors"/>
+          <input type="button" id="colorBoardDisableAllButton" value="disable all colors"/>
+        </div>
+    </div>
+    <div class="input-group">
+        Color cube board (tiled rows):
+        <div class="muted" style="font-size:11px;color:rgba(207,233,255,0.62);margin:4px 0 8px;line-height:1.4;">
+          One horizontal band per color family (black, silver, gray, …). Cubes come from
+          <code>npm run build:color:cubes</code> plus live capture from the playing loop.
+        </div>
+        <input type="button" id="colorCubeBoardOnButton" value="cube board on"/>
+        <input type="button" id="colorCubeBoardOffButton" value="cube board off"/>
+        <input type="button" id="colorCubeBoardStatsButton" value="refresh cube stats"/>
+        <div id="colorCubeStatsHost" class="muted" style="font-size:11px;margin-top:8px;line-height:1.5;"></div>
     </div>
     <div class="input-group">
         Bridge:
@@ -796,6 +877,7 @@ function sendMessage(name, value) {
 
 
 let __vjLoopGroupsLast = [];
+let __vjColorGroupsLast = [];
 let __loopGroupsPollTimer = null;
 
 function restartLoopGroupsPoller() {
@@ -809,10 +891,77 @@ function restartLoopGroupsPoller() {
             __loopGroupsPollTimer = null;
             return;
         }
-        sendMessageToVisual({ type: 'vj', requestLoopGroups: true });
+        sendMessageToVisual({ type: 'vj', requestLoopGroups: true, requestColorGroups: true, requestColorCubeStats: true });
     };
     tick();
     __loopGroupsPollTimer = setInterval(tick, 2200);
+}
+
+function renderColorBoardPanel(groups) {
+    __vjColorGroupsLast = Array.isArray(groups) ? groups.slice() : [];
+    const host = document.getElementById('colorBoardHost');
+    if (!host) return;
+    host.classList.toggle('empty', __vjColorGroupsLast.length === 0);
+    if (__vjColorGroupsLast.length === 0) {
+        host.textContent = 'No color groups yet — open the visual, load a set, and build artifacts/color-dataset.json if needed.';
+        return;
+    }
+    host.innerHTML = '';
+    __vjColorGroupsLast.forEach(function(groupRow, index) {
+        const gid = groupRow.id;
+        if (!gid) return;
+        const label = document.createElement('label');
+        label.className = 'color-chip';
+        if (!groupRow.enabled) {
+            label.classList.add('is-disabled');
+        }
+        if (groupRow.isCurrent) {
+            label.classList.add('is-current');
+        }
+
+        const input = document.createElement('input');
+        input.type = 'checkbox';
+        input.className = 'color-group-enable';
+        input.checked = !!groupRow.enabled;
+        input.dataset.colorIndex = String(index);
+        input.style.display = 'none';
+        label.appendChild(input);
+
+        const swatch = document.createElement('span');
+        swatch.className = 'swatch';
+        swatch.style.background = groupRow.swatch || '#888';
+        label.appendChild(swatch);
+
+        const name = document.createElement('span');
+        name.textContent = groupRow.label || gid;
+        label.appendChild(name);
+
+        const meta = document.createElement('span');
+        meta.className = 'chip-meta';
+        meta.textContent = String(groupRow.clipCount || 0) + ' clips'
+            + (groupRow.isCurrent ? ' · live' : '');
+        label.appendChild(meta);
+
+        host.appendChild(label);
+    });
+}
+
+function renderColorCubeStatsPanel(payload) {
+    const host = document.getElementById('colorCubeStatsHost');
+    if (!host) return;
+    const stats = payload && payload.stats ? payload.stats : {};
+    const keys = Object.keys(stats);
+    if (keys.length === 0) {
+        host.textContent = 'No cube stats yet — run npm run build:color:cubes, then refresh.';
+        return;
+    }
+    host.innerHTML = keys.map(function(key) {
+        const row = stats[key] || {};
+        const indexed = row.indexed != null ? row.indexed : (row.total || 0);
+        const live = row.live != null ? row.live : 0;
+        return '<span style="display:inline-block;margin:0 10px 4px 0;"><strong style="text-transform:capitalize;">'
+            + key + '</strong>: ' + indexed + ' indexed' + (live ? (' + ' + live + ' live') : '') + '</span>';
+    }).join('');
 }
 
 function renderFolderLoopGroupPanel(groups) {
@@ -821,7 +970,7 @@ function renderFolderLoopGroupPanel(groups) {
     if (!host) return;
     host.classList.toggle('empty', __vjLoopGroupsLast.length === 0);
     if (__vjLoopGroupsLast.length === 0) {
-        host.textContent = "No folder-loop groups loaded yet — open the visual and load a manifest with folderLoopRoot or loopGroup.";
+        host.textContent = "No folder-loop groups loaded yet — open the visual and load a manifest with folderLoopRoot (e.g. sets/set-live-default-all-loops.json).";
         return;
     }
     host.innerHTML = '';
@@ -899,7 +1048,13 @@ inputs.forEach(input => {
         input.id === 'triangleOffButton' ||
         input.id === 'loopGroupsRefreshButton' ||
         input.id === 'loopGroupsEnableAllButton' ||
-        input.id === 'loopGroupsDisableAllButton') {
+        input.id === 'loopGroupsDisableAllButton' ||
+        input.id === 'colorBoardRefreshButton' ||
+        input.id === 'colorBoardEnableAllButton' ||
+        input.id === 'colorBoardDisableAllButton' ||
+        input.id === 'colorCubeBoardOnButton' ||
+        input.id === 'colorCubeBoardOffButton' ||
+        input.id === 'colorCubeBoardStatsButton') {
         return;
     }
 
@@ -1192,6 +1347,82 @@ if (loopGroupsDisableAllButton) {
     });
 }
 
+const colorBoardHostRoot = document.getElementById('colorBoardHost');
+if (colorBoardHostRoot) {
+    colorBoardHostRoot.addEventListener('change', function(event) {
+        const target = event.target;
+        if (!target || !target.matches('input.color-group-enable')) {
+            return;
+        }
+        const idx = parseInt(target.dataset.colorIndex, 10);
+        if (!Number.isFinite(idx)) {
+            return;
+        }
+        const row = __vjColorGroupsLast[idx];
+        if (!row || !row.id) {
+            return;
+        }
+        sendMessageToVisual({ type: 'vj', colorGroupId: row.id, colorGroupEnabled: !!target.checked });
+    });
+}
+
+function applyColorBoardBulkToggle(enableAll) {
+    if (__vjColorGroupsLast.length === 0) {
+        return;
+    }
+    const toggleMap = {};
+    __vjColorGroupsLast.forEach(function(row) {
+        if (!row || !row.id) {
+            return;
+        }
+        toggleMap[row.id] = !!enableAll;
+    });
+    sendMessageToVisual({ type: 'vj', colorGroups: toggleMap });
+    setTimeout(function() {
+        sendMessageToVisual({ type: 'vj', requestColorGroups: true });
+    }, 200);
+}
+
+const colorBoardRefreshButton = document.getElementById('colorBoardRefreshButton');
+if (colorBoardRefreshButton) {
+    colorBoardRefreshButton.addEventListener('click', function() {
+        sendMessageToVisual({ type: 'vj', requestColorGroups: true });
+    });
+}
+
+const colorBoardEnableAllButton = document.getElementById('colorBoardEnableAllButton');
+if (colorBoardEnableAllButton) {
+    colorBoardEnableAllButton.addEventListener('click', function() {
+        applyColorBoardBulkToggle(true);
+    });
+}
+
+const colorBoardDisableAllButton = document.getElementById('colorBoardDisableAllButton');
+if (colorBoardDisableAllButton) {
+    colorBoardDisableAllButton.addEventListener('click', function() {
+        applyColorBoardBulkToggle(false);
+    });
+}
+
+const colorCubeBoardOnButton = document.getElementById('colorCubeBoardOnButton');
+if (colorCubeBoardOnButton) {
+    colorCubeBoardOnButton.addEventListener('click', function() {
+        sendMessageToVisual({ type: 'vj', colorCubeBoard: true });
+    });
+}
+const colorCubeBoardOffButton = document.getElementById('colorCubeBoardOffButton');
+if (colorCubeBoardOffButton) {
+    colorCubeBoardOffButton.addEventListener('click', function() {
+        sendMessageToVisual({ type: 'vj', colorCubeBoard: false });
+    });
+}
+const colorCubeBoardStatsButton = document.getElementById('colorCubeBoardStatsButton');
+if (colorCubeBoardStatsButton) {
+    colorCubeBoardStatsButton.addEventListener('click', function() {
+        sendMessageToVisual({ type: 'vj', requestColorCubeStats: true });
+    });
+}
+
 let val = document.getElementById("changelog").value;
 document.getElementById("changelog").value = val + "{ timestamp:" + new Date().getTime() + ", name: start, value: start }"; 
 
@@ -1390,6 +1621,18 @@ window.addEventListener('message', function(event) {
     const data = event.data;
     if (data && data.type === 'vjLoopGroups') {
         renderFolderLoopGroupPanel(data.groups || []);
+        return;
+    }
+    if (data && data.type === 'vjColorGroups') {
+        renderColorBoardPanel(data.groups || []);
+        return;
+    }
+    if (data && data.type === 'vjColorCubeStats') {
+        renderColorCubeStatsPanel(data);
+        return;
+    }
+    if (data && data.type === 'vj' && data.event === 'ready') {
+        sendMessageToVisual({ type: 'vj', requestLoopGroups: true, requestColorGroups: true, requestColorCubeStats: true });
         return;
     }
 
