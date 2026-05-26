@@ -24,17 +24,47 @@
 </head>
 <body>
   <video id="moonVideo" muted playsinline loop preload="auto"></video>
+  <div id="vajraVideos" aria-hidden="true"></div>
   <canvas id="stage"></canvas>
   <script>
     const params = new URLSearchParams(location.search);
     const WORD = String(params.get("word") || "hyperstition").toLowerCase();
     const INDEX_URL = "artifacts/moon-cube-index.json";
-    const DEFAULT_MOON = "loops/Moon and Astronauts/Moon Loops/moon-surface-close-up-animation-in-space-2025-12-17-11-34-44-utc.mp4";
+    const DEFAULT_MOON = "loops/Moon and Astronauts/Moon Loops/approach-and-flight-around-the-moon-2025-12-17-22-46-49-utc.mp4";
     const MOON_SRC = params.get("moon") || DEFAULT_MOON;
     const moonFocusX = clamp01(Number(params.get("focusX") ?? params.get("moonFocusX") ?? "0.5"));
     const moonFocusY = clamp01(Number(params.get("focusY") ?? params.get("moonFocusY") ?? "0.5"));
     const moonFit = String(params.get("moonFit") || "contain").toLowerCase();
-    const moonScale = clampNum(Number(params.get("moonScale") ?? "0.72"), 0.25, 1.25);
+    const moonScale = clampNum(Number(params.get("moonScale") ?? "0.9"), 0.25, 1.25);
+    const haloSpin = clampNum(Number(params.get("haloSpin") ?? "0.00135"), 0, 0.02);
+    const haloStartParam = params.get("haloStart");
+    const haloStart = haloStartParam != null && haloStartParam !== "" && Number.isFinite(Number(haloStartParam))
+      ? Number(haloStartParam)
+      : 0;
+    const letterLeadBack = clampNum(Number(params.get("letterLead") ?? String(Math.PI * 0.11)), 0, Math.PI * 0.4);
+    const orbitTiltStep = clampNum(Number(params.get("orbitTiltStep") ?? "0.00042"), 0, 0.002);
+    const orbitTiltStartParam = params.get("orbitTiltStart");
+    const orbitTiltStart = orbitTiltStartParam != null && orbitTiltStartParam !== "" && Number.isFinite(Number(orbitTiltStartParam))
+      ? Number(orbitTiltStartParam)
+      : (Math.random() * 2 - 1) * 0.35;
+    const orbitShape = String(params.get("orbit") || params.get("orbitShape") || "ellipse").toLowerCase();
+    const showVajras = params.get("vajras") === "1" || params.get("showVajras") === "1";
+    const VAJRA_DIR = "loops/VAJRA DORJE ANIMATIONS";
+    const VAJRA_CLIPS = [
+      `${VAJRA_DIR}/DORJE 3D ROTATING 1.mp4`,
+      `${VAJRA_DIR}/DORJE 3D ROTATING 2.mp4`,
+      `${VAJRA_DIR}/DORJE 3D ROTATING 3.mp4`,
+      `${VAJRA_DIR}/DORJE 3D ROTATING 4.mp4`,
+      `${VAJRA_DIR}/DORJE 3D ROTATING 5.mp4`,
+      `${VAJRA_DIR}/Hitem3d-1779724467167.mp4`,
+      `${VAJRA_DIR}/Hitem3d-1779724467167_2.mp4`
+    ];
+    const vajraParam = params.get("vajra");
+    const vajraCount = clampNum(Number(params.get("vajraCount") ?? "1"), 1, VAJRA_CLIPS.length);
+    const vajraScale = clampNum(Number(params.get("vajraScale") ?? "0.085"), 0.04, 0.22);
+    const vajraSources = vajraParam
+      ? [vajraParam]
+      : VAJRA_CLIPS.slice(0, vajraCount);
     const TILE_GAP = 1;
     const GLYPH_W = 5;
     const GLYPH_H = 7;
@@ -81,6 +111,10 @@
     const canvas = document.getElementById("stage");
     const ctx = canvas.getContext("2d");
     const moonVideo = document.getElementById("moonVideo");
+    const vajraVideoRoot = document.getElementById("vajraVideos");
+    let vajraVideos = [];
+    let vajraLanes = [];
+    let vajraReady = false;
     let imagePools = {};
     let frameIdx = 0;
     let moonReady = false;
@@ -112,8 +146,26 @@
       centerY = canvas.height * 0.5;
       const minDim = Math.min(canvas.width, canvas.height);
       moonRadius = minDim * 0.19;
-      haloRadiusX = minDim * 0.36;
-      haloRadiusY = minDim * 0.11;
+      haloRadiusX = minDim * 0.38;
+      haloRadiusY = minDim * 0.28;
+      rebuildVajraLanes();
+    }
+
+    function rebuildVajraLanes() {
+      const n = vajraVideos.length;
+      vajraLanes = [];
+      for (let i = 0; i < n; i++) {
+        const mid = (n - 1) * 0.5;
+        const offset = n > 1 ? (i - mid) / Math.max(1, mid) : 0;
+        vajraLanes.push({
+          radiusX: haloRadiusX * (1 + offset * 0.09),
+          radiusY: haloRadiusY * (1 - offset * 0.07 + (i % 2) * 0.05),
+          tilt: offset * 0.2 + i * 0.04,
+          phase: (i / Math.max(1, n)) * Math.PI * 2 + Math.PI * 0.2,
+          spin: 1.06 + i * 0.03,
+          scale: 1 - Math.abs(offset) * 0.07
+        });
+      }
     }
 
     async function loadImage(url) {
@@ -175,6 +227,89 @@
       });
     }
 
+    function loadVajraVideoElement(src) {
+      return new Promise((resolve) => {
+        const video = document.createElement("video");
+        video.muted = true;
+        video.playsInline = true;
+        video.loop = true;
+        video.preload = "auto";
+        vajraVideoRoot.appendChild(video);
+        let settled = false;
+        const finish = (ok) => {
+          if (settled) return;
+          settled = true;
+          resolve({
+            src,
+            video,
+            ready: ok && video.readyState >= 2 && video.videoWidth > 0
+          });
+        };
+        video.addEventListener("loadeddata", () => finish(true), { once: true });
+        video.addEventListener("canplay", () => finish(true), { once: true });
+        video.addEventListener("error", () => finish(false), { once: true });
+        video.src = src;
+        const playPromise = video.play();
+        if (playPromise && typeof playPromise.catch === "function") {
+          playPromise.catch(() => {});
+        }
+        setTimeout(() => finish(video.readyState >= 2 && video.videoWidth > 0), 15000);
+      });
+    }
+
+    async function loadVajraVideos() {
+      if (!showVajras) {
+        vajraVideos = [];
+        vajraReady = false;
+        return;
+      }
+      const loaded = await Promise.all(vajraSources.map((src) => loadVajraVideoElement(src)));
+      vajraVideos = loaded.filter((row) => row.ready);
+      vajraReady = vajraVideos.length > 0;
+      rebuildVajraLanes();
+    }
+
+    function drawVajraVideoAt(video, cx, cy, size) {
+      const vw = video.videoWidth;
+      const vh = video.videoHeight;
+      if (!vw || !vh) return;
+      const scale = Math.min(size / vw, size / vh);
+      const dw = vw * scale;
+      const dh = vh * scale;
+      ctx.save();
+      ctx.globalAlpha = 0.92;
+      ctx.globalCompositeOperation = "screen";
+      ctx.drawImage(video, cx - dw * 0.5, cy - dh * 0.5, dw, dh);
+      ctx.restore();
+    }
+
+    function orbitPointLane(angle, orbitTilt, lane) {
+      const x = Math.cos(angle) * lane.radiusX;
+      const y = Math.sin(angle) * lane.radiusY;
+      const tilt = orbitTilt + lane.tilt;
+      const cosT = Math.cos(tilt);
+      const sinT = Math.sin(tilt);
+      return {
+        cx: centerX + x * cosT - y * sinT,
+        cy: centerY + x * sinT + y * cosT,
+        depth: (Math.sin(angle + tilt * 0.65) + 1) * 0.5
+      };
+    }
+
+    function drawOrbitingVajra(rotation, orbitTilt) {
+      if (!vajraReady || vajraVideos.length === 0) return;
+      const minDim = Math.min(canvas.width, canvas.height);
+      const n = vajraVideos.length;
+      for (let i = 0; i < n; i++) {
+        const lane = vajraLanes[i];
+        if (!lane) continue;
+        const angle = rotation * lane.spin + orbitTilt * 0.32 + lane.phase;
+        const point = orbitPointLane(angle, orbitTilt, lane);
+        const size = minDim * vajraScale * lane.scale;
+        drawVajraVideoAt(vajraVideos[i].video, point.cx, point.cy, size);
+      }
+    }
+
     function drawBackground() {
       const bg = ctx.createRadialGradient(centerX, centerY, moonRadius * 0.4, centerX, centerY, canvas.width * 0.65);
       bg.addColorStop(0, "#0a1020");
@@ -184,14 +319,63 @@
       ctx.fillRect(0, 0, canvas.width, canvas.height);
     }
 
-    function drawHaloGuides(rotation) {
+    function orbitTiltAt(frame) {
+      return orbitTiltStart + frame * orbitTiltStep;
+    }
+
+    function orbitPoint(angle, orbitTilt) {
+      const x = Math.cos(angle) * haloRadiusX;
+      const y = Math.sin(angle) * haloRadiusY;
+      const cosT = Math.cos(orbitTilt);
+      const sinT = Math.sin(orbitTilt);
+      return {
+        cx: centerX + x * cosT - y * sinT,
+        cy: centerY + x * sinT + y * cosT,
+        depth: (Math.sin(angle + orbitTilt * 0.65) + 1) * 0.5
+      };
+    }
+
+    function orbitPointForShape(angle, orbitTilt) {
+      return orbitPoint(angle, orbitTilt);
+    }
+
+    function drawVajraOrbitGuides(orbitTilt) {
+      if (!showVajras || vajraLanes.length === 0) return;
+      ctx.save();
+      ctx.lineWidth = Math.max(1, canvas.width * 0.001);
+      for (let i = 0; i < vajraLanes.length; i++) {
+        const lane = vajraLanes[i];
+        ctx.strokeStyle = `rgba(140, 180, 255, ${0.05 + i * 0.015})`;
+        ctx.beginPath();
+        ctx.ellipse(
+          centerX,
+          centerY,
+          lane.radiusX,
+          lane.radiusY,
+          orbitTilt + lane.tilt,
+          0,
+          Math.PI * 2
+        );
+        ctx.stroke();
+      }
+      ctx.restore();
+    }
+
+    function drawOrbitGuides(rotation, orbitTilt) {
+      drawHaloGuides(rotation, orbitTilt);
+      if (showVajras) {
+        drawVajraOrbitGuides(orbitTilt);
+      }
+    }
+
+    function drawHaloGuides(rotation, orbitTilt) {
       ctx.save();
       ctx.translate(centerX, centerY);
       ctx.rotate(rotation * 0.08);
       ctx.strokeStyle = "rgba(140,190,255,0.12)";
       ctx.lineWidth = Math.max(1, canvas.width * 0.0015);
       ctx.beginPath();
-      ctx.ellipse(0, 0, haloRadiusX, haloRadiusY, 0, 0, Math.PI * 2);
+      ctx.ellipse(0, 0, haloRadiusX, haloRadiusY, orbitTilt, 0, Math.PI * 2);
       ctx.stroke();
       const glow = ctx.createRadialGradient(0, 0, moonRadius * 1.05, 0, 0, haloRadiusX * 1.05);
       glow.addColorStop(0, "rgba(120,180,255,0.08)");
@@ -199,7 +383,7 @@
       glow.addColorStop(1, "rgba(0,0,0,0)");
       ctx.fillStyle = glow;
       ctx.beginPath();
-      ctx.ellipse(0, 0, haloRadiusX * 1.08, haloRadiusY * 1.25, 0, 0, Math.PI * 2);
+      ctx.ellipse(0, 0, haloRadiusX * 1.08, haloRadiusY * 1.25, orbitTilt, 0, Math.PI * 2);
       ctx.fill();
       ctx.restore();
     }
@@ -296,24 +480,25 @@
       ctx.restore();
     }
 
-    function computeLetterSlots(rotation) {
+    function computeLetterSlots(rotation, orbitTilt) {
       const slots = [];
       const n = WORD.length;
+      const arcCenter = Math.PI * 0.5;
+      const arcSpan = Math.PI * 0.52;
+      const angleStep = n > 1 ? arcSpan / (n - 1) : 0;
       for (let i = 0; i < n; i++) {
-        const angle = (i / n) * Math.PI * 2 - Math.PI * 0.5 + rotation;
-        const depth = (Math.sin(angle) + 1) * 0.5;
-        const cx = centerX + Math.cos(angle) * haloRadiusX;
-        const cy = centerY + Math.sin(angle) * haloRadiusY;
-        const scale = 0.62 + depth * 0.55;
-        const tilePx = Math.max(6, Math.floor(Math.min(canvas.width, canvas.height) * 0.011 * scale));
+        const angle = arcCenter - i * angleStep + rotation - letterLeadBack;
+        const point = orbitPointForShape(angle, orbitTilt);
+        const scale = 0.72 + point.depth * 0.38;
+        const tilePx = Math.max(6, Math.floor(Math.min(canvas.width, canvas.height) * 0.0105 * scale));
         slots.push({
           i,
           ch: WORD[i],
           color: letterColorAt(i),
-          cx,
-          cy,
-          rotation: angle + Math.PI * 0.5,
-          depth,
+          cx: point.cx,
+          cy: point.cy,
+          rotation: 0,
+          depth: point.depth,
           tilePx,
           seedBase: i * 131
         });
@@ -323,11 +508,12 @@
     }
 
     function drawFrame() {
-      const rotation = frameIdx * 0.0045;
+      const rotation = haloStart + frameIdx * haloSpin;
+      const orbitTilt = orbitTiltAt(frameIdx);
       drawBackground();
-      drawHaloGuides(rotation);
+      drawOrbitGuides(rotation, orbitTilt);
       drawCenterMoon();
-      const slots = computeLetterSlots(rotation);
+      const slots = computeLetterSlots(rotation, orbitTilt);
       for (let s = 0; s < slots.length; s++) {
         const slot = slots[s];
         drawLetterMosaic(
@@ -340,6 +526,9 @@
           slot.depth,
           slot.seedBase
         );
+      }
+      if (showVajras) {
+        drawOrbitingVajra(rotation, orbitTilt);
       }
       frameIdx += 1;
       requestAnimationFrame(drawFrame);
@@ -356,6 +545,16 @@
         moonFocusY,
         moonFit,
         moonScale,
+        haloStart,
+        haloSpin,
+        letterLeadBack,
+        orbitTiltStart,
+        orbitTiltStep,
+        orbitShape,
+        showVajras,
+        vajraSources,
+        vajraCount: vajraSources.length,
+        vajraReady: false,
         moonReady: false,
         letterCount: WORD.length,
         pools: []
@@ -368,15 +567,26 @@
           moonVideo: MOON_SRC,
           moonFocusX,
           moonFocusY,
-          moonFit,
-          moonScale,
-          moonReady,
+        moonFit,
+        moonScale,
+        haloStart,
+        haloSpin,
+        letterLeadBack,
+        orbitTiltStart,
+        orbitTiltStep,
+        orbitShape,
+        showVajras,
+        vajraSources,
+        vajraCount: vajraSources.length,
+        vajraReady,
+        moonReady,
           letterCount: WORD.length,
           pools: Object.keys(imagePools).map((k) => ({ family: k, count: (imagePools[k] || []).length }))
         };
       };
 
       const moonTask = loadMoonVideo().then(() => syncStats());
+      const vajraTask = loadVajraVideos().then(() => syncStats());
       const poolTask = (async () => {
         try {
           const res = await fetch(INDEX_URL, { cache: "no-store" });
@@ -389,7 +599,7 @@
         syncStats();
       })();
 
-      await Promise.all([moonTask, poolTask]);
+      await Promise.all([moonTask, vajraTask, poolTask]);
       window.__hyperstitionReady = true;
       syncStats();
       drawFrame();

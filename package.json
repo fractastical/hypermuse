@@ -34,7 +34,8 @@
     "build:color:cubes": "node scripts/build-color-cube-index.mjs",
     "build:moon:cubes": "node scripts/build-moon-cube-index.mjs",
     "export:hyperstition:moon": "node scripts/export-hyperstition-moon-video.mjs",
-    "export:hyperstition:moon:halo": "CAPTURE_MS=10000 MOON_VIDEO=\"loops/Moon and Astronauts/Moon Loops/moon-surface-close-up-animation-in-space-2025-12-17-11-34-44-utc.mp4\" HYPERSTITION_PAGE=hyperstition-moon-halo.html node scripts/export-hyperstition-moon-video.mjs",
+    "export:hyperstition:moon:halo": "CAPTURE_MS=25000 MOON_VIDEO=\"loops/Moon and Astronauts/Moon Loops/approach-and-flight-around-the-moon-2025-12-17-22-46-49-utc.mp4\" HYPERSTITION_PAGE=hyperstition-moon-halo.html node scripts/export-hyperstition-moon-video.mjs",
+    "export:hyperstition:moon:vajra": "CAPTURE_MS=25000 VAJRAS=1 VAJRA_COUNT=3 MOON_VIDEO=\"loops/Moon and Astronauts/Moon Loops/approach-and-flight-around-the-moon-2025-12-17-22-46-49-utc.mp4\" HYPERSTITION_PAGE=hyperstition-moon-halo.html node scripts/export-hyperstition-moon-video.mjs",
     "build:color:theme-set": "node scripts/build-color-theme-set.mjs"
   },
   "devDependencies": {

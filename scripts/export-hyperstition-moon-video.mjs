@@ -9,6 +9,7 @@
  *   EXPORT_WIDTH=1920  EXPORT_HEIGHT=1080
  *   BUILD_MOON_CUBES=1  (default: build index if missing)
  *   HYPERSTITION_PAGE=hyperstition-moon-halo.html  (or hyperstition-moon.html)
+ *   ORBIT_SHAPE=vajra  (ellipse default)
  */
 
 import fs from "node:fs";
@@ -28,11 +29,18 @@ const SERVER_PORT = Number.parseInt(process.env.SERVER_PORT || "8080", 10);
 const BUILD_MOON_CUBES = process.env.BUILD_MOON_CUBES !== "0";
 const HYPERSTITION_PAGE = String(process.env.HYPERSTITION_PAGE || "hyperstition-moon.html").trim();
 const MOON_VIDEO = String(process.env.MOON_VIDEO || "").trim();
+const ORBIT_SHAPE = String(process.env.ORBIT_SHAPE || "").trim().toLowerCase();
+const VAJRAS = process.env.VAJRAS === "1";
+const VAJRA_COUNT = String(process.env.VAJRA_COUNT || "").trim();
 const OUTPUT_VIDEO = process.env.OUTPUT_VIDEO
   ? path.resolve(PROJECT_ROOT, process.env.OUTPUT_VIDEO)
   : path.join(
     ARTIFACTS_DIR,
-    HYPERSTITION_PAGE.includes("halo") ? "hyperstition-moon-halo.mp4" : "hyperstition-moon.mp4"
+    VAJRAS
+      ? "hyperstition-moon-vajra.mp4"
+      : HYPERSTITION_PAGE.includes("halo")
+        ? "hyperstition-moon-halo.mp4"
+        : "hyperstition-moon.mp4"
   );
 const WORD = process.env.HYPERSTITION_WORD || "hyperstition";
 const EXPORT_FPS = Number.parseInt(process.env.EXPORT_FPS || "30", 10);
@@ -119,6 +127,15 @@ async function runExport() {
   if (MOON_VIDEO) {
     query.set("moon", MOON_VIDEO);
   }
+  if (ORBIT_SHAPE) {
+    query.set("orbit", ORBIT_SHAPE);
+  }
+  if (VAJRAS) {
+    query.set("vajras", "1");
+  }
+  if (VAJRA_COUNT) {
+    query.set("vajraCount", VAJRA_COUNT);
+  }
   const pageUrl = `http://127.0.0.1:${SERVER_PORT}/${HYPERSTITION_PAGE}?${query.toString()}`;
   let server = null;
   const probe = `http://127.0.0.1:${SERVER_PORT}/${HYPERSTITION_PAGE}`;
@@ -155,6 +172,12 @@ async function runExport() {
         const stats = window.__hyperstitionStats || {};
         return stats.moonReady === true;
       }, undefined, { timeout: 90000 });
+      if (ORBIT_SHAPE === "vajra" || VAJRAS) {
+        await page.waitForFunction(() => {
+          const stats = window.__hyperstitionStats || {};
+          return stats.vajraReady === true;
+        }, undefined, { timeout: 120000 });
+      }
       await page.waitForTimeout(800);
     }
     const stats = await page.evaluate(() => window.__hyperstitionStats || {});
@@ -181,6 +204,7 @@ async function runExport() {
       output: path.relative(PROJECT_ROOT, OUTPUT_VIDEO),
       page: HYPERSTITION_PAGE,
       word: WORD,
+      orbitShape: ORBIT_SHAPE || null,
       moonVideo: MOON_VIDEO || null,
       width: EXPORT_WIDTH,
       height: EXPORT_HEIGHT,
