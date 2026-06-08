@@ -108,6 +108,7 @@ button:hover {
     <script src="infinitestreams/p5_background_engine.js"></script>
     <script src="js/simulations/life_sim.js"></script>
     <script src="js/simulations/hierarchical_life_sim.js"></script>
+    <script src="js/simulations/hex_life_sim.js"></script>
     <script src="js/simulations/kuramoto_sim.js"></script>
     <script src="js/simulations/gray_scott_sim.js"></script>
     <script src="js/simulations/physarum_sim.js"></script>
@@ -501,6 +502,7 @@ button:hover {
         let moleculeSideSphere;
         let moleculeSimulationPlugin;
         let hierarchicalLifePlugin;
+        let hexLifePlugin;
         let grayScottPrimaryPlugin;
         let grayScottAltPlugin;
         let grayScottPresetName = 'nexus';
@@ -510,7 +512,29 @@ button:hover {
         let effectTimelineEnabled = true;
         let lastAppliedEffectPhase = '';
         let activeEffectProfile = 'molecule';
-        const VALID_EFFECT_PROFILES = new Set(['classic', 'life', 'hierarchical-life', 'kuramoto', 'gray-scott', 'physarum', 'molecule', 'rewrite', 'word-cloud', 'stacked']);
+        const VALID_EFFECT_PROFILES = new Set(['classic', 'life', 'hierarchical-life', 'hex-life', 'kuramoto', 'gray-scott', 'physarum', 'molecule', 'rewrite', 'word-cloud', 'stacked']);
+        const HEX_CA_PALETTES = Object.freeze({
+            aurora: [116, 255, 214],
+            magma: [255, 154, 94],
+            violet: [190, 146, 255],
+            mono: [238, 244, 255],
+            neon: [98, 255, 140]
+        });
+        const HEX_CA_RULES = Object.freeze({
+            hexlife: { label: 'hexlife', rule: 'B2/S34' },
+            bloom: { label: 'bloom', rule: 'B2/S3' },
+            maze: { label: 'maze', rule: 'B3/S12345' },
+            pulse: { label: 'pulse', rule: 'B13/S24' },
+            coral: { label: 'coral', rule: 'B2/S2' }
+        });
+        const HEX_CA_RULE_SEQUENCE = ['hexlife', 'bloom', 'maze', 'pulse', 'coral'];
+        let hexCaPaletteName = 'aurora';
+        let hexCaSpeed = 1;
+        let hexCaSyncToAudio = true;
+        let hexCaSweepRows = 2;
+        let hexCaRuleName = 'hexlife';
+        let hexCaRuleSpec = 'B2/S34';
+        let hexCaAperiodicMix = 0;
         let vjSpeedMultiplier = 1;
         let vjPaused = false;
         let vjWs = null;
@@ -643,6 +667,30 @@ button:hover {
         const camera = new THREE.PerspectiveCamera(75, window.innerWidth/window.innerHeight, 0.1, 100);
         camera.position.z = 2;
         const renderQuery = new URLSearchParams(window.location.search);
+        hexCaPaletteName = normalizeHexCaPaletteName(renderQuery.get('hexpalette'));
+        const hexSpeedRaw = Number.parseFloat(String(renderQuery.get('hexspeed') || '1'));
+        hexCaSpeed = Number.isFinite(hexSpeedRaw) ? Math.max(0.1, Math.min(6, hexSpeedRaw)) : 1;
+        const hexSyncRaw = String(renderQuery.get('hexsync') || '').trim().toLowerCase();
+        if (hexSyncRaw === '0' || hexSyncRaw === 'false' || hexSyncRaw === 'off') {
+            hexCaSyncToAudio = false;
+        } else if (hexSyncRaw === '1' || hexSyncRaw === 'true' || hexSyncRaw === 'on') {
+            hexCaSyncToAudio = true;
+        }
+        const hexSweepRaw = Number.parseInt(String(renderQuery.get('hexsweeprows') || '2'), 10);
+        hexCaSweepRows = Number.isFinite(hexSweepRaw) ? Math.max(1, Math.min(16, hexSweepRaw)) : 2;
+        const hexRuleRaw = String(renderQuery.get('hexrule') || '').trim();
+        if (hexRuleRaw) {
+            const normalizedRuleText = hexRuleRaw.toUpperCase().replace(/\s+/g, '');
+            if (/^B[0-6]*\/S[0-6]*$/.test(normalizedRuleText)) {
+                hexCaRuleName = 'custom';
+                hexCaRuleSpec = normalizedRuleText;
+            } else {
+                hexCaRuleName = normalizeHexCaRuleName(hexRuleRaw);
+                hexCaRuleSpec = getHexCaRuleSpec(hexCaRuleName);
+            }
+        }
+        const hexAperiodicRaw = Number.parseFloat(String(renderQuery.get('hexaperiodic') || '0'));
+        hexCaAperiodicMix = Number.isFinite(hexAperiodicRaw) ? Math.max(0, Math.min(1, hexAperiodicRaw)) : 0;
         const DEMO_CAMERA_Z = 2.45;
         const DEMO_CAMERA_Y = 0.0;
         const demoVisualOffsetXRaw = Number.parseFloat(String(renderQuery.get('visualoffsetx') || '0'));
@@ -1820,6 +1868,12 @@ button:hover {
                 opacity: 0.85,
                 color: [70, 180, 255]
             });
+            hexLifePlugin = new HypermuseHexLifeSimulationPlugin("hex-life-primary");
+            simCompositor.registerPlugin(hexLifePlugin, {
+                opacity: 0.08,
+                color: getHexCaPaletteColor(hexCaPaletteName)
+            });
+            applyHexLifeTuning();
             hierarchicalLifePlugin = new HypermuseHierarchicalLifeSimulationPlugin("hierarchical-life-primary");
             simCompositor.registerPlugin(hierarchicalLifePlugin, {
                 opacity: 0.05,
@@ -2376,7 +2430,7 @@ button:hover {
         }
 
         function getMosaicFxModes() {
-            return ['life', 'hierarchical-life', 'kuramoto', 'gray-scott', 'physarum', 'word-cloud'];
+            return ['life', 'hierarchical-life', 'hex-life', 'kuramoto', 'gray-scott', 'physarum', 'word-cloud'];
         }
 
         function ensureFibonacciMosaicLayer() {
@@ -3245,6 +3299,7 @@ button:hover {
             const isClassic = activeEffectProfile === 'classic';
             const isLife = activeEffectProfile === 'life';
             const isHierLife = activeEffectProfile === 'hierarchical-life';
+            const isHexLife = activeEffectProfile === 'hex-life';
             const isKuramoto = activeEffectProfile === 'kuramoto';
             const isGrayScott = activeEffectProfile === 'gray-scott';
             const isPhysarum = activeEffectProfile === 'physarum';
@@ -3252,7 +3307,7 @@ button:hover {
             const isRewrite = activeEffectProfile === 'rewrite';
             const isWordCloud = activeEffectProfile === 'word-cloud';
             const isStacked = activeEffectProfile === 'stacked';
-            const isSecondaryCellular = isGrayScott || isPhysarum;
+            const isSecondaryCellular = isGrayScott || isPhysarum || isHexLife;
 
             simulationShell.visible = !thirdsLayout;
             if (thirdsLayout) {
@@ -3272,7 +3327,7 @@ button:hover {
                 }
             }
             if (lifeSideSphere) {
-                lifeSideSphere.visible = concurrentSideEffects ? !isClassic : (isLife || isStacked);
+                lifeSideSphere.visible = concurrentSideEffects ? !isClassic : (isLife || isHexLife || isStacked);
                 if (thirdsLayout && !isClassic) {
                     lifeSideSphere.visible = false;
                 } else {
@@ -3281,6 +3336,8 @@ button:hover {
                 }
                 if (isLife) {
                     lifeSideSphere.material.opacity = 0.82;
+                } else if (isHexLife) {
+                    lifeSideSphere.material.opacity = 0.88;
                 } else if (isHierLife) {
                     lifeSideSphere.material.opacity = 0.86;
                 } else if (isGrayScott) {
@@ -3473,6 +3530,111 @@ button:hover {
         }
         window.setGrayScottPreset = setGrayScottPreset;
 
+        function normalizeHexCaPaletteName(name) {
+            const normalized = String(name || '').trim().toLowerCase();
+            if (Object.prototype.hasOwnProperty.call(HEX_CA_PALETTES, normalized)) {
+                return normalized;
+            }
+            return 'aurora';
+        }
+
+        function getHexCaPaletteColor(name) {
+            const paletteName = normalizeHexCaPaletteName(name);
+            return HEX_CA_PALETTES[paletteName].slice();
+        }
+
+        function normalizeHexCaRuleName(name) {
+            const normalized = String(name || '').trim().toLowerCase();
+            if (Object.prototype.hasOwnProperty.call(HEX_CA_RULES, normalized)) {
+                return normalized;
+            }
+            const byLabel = HEX_CA_RULE_SEQUENCE.find(function(key) {
+                const row = HEX_CA_RULES[key];
+                return row && row.label === normalized;
+            });
+            return byLabel || 'hexlife';
+        }
+
+        function getHexCaRuleSpec(name) {
+            const ruleName = normalizeHexCaRuleName(name);
+            const row = HEX_CA_RULES[ruleName];
+            return row ? row.rule : 'B2/S34';
+        }
+
+        function setHexCaRule(ruleNameOrSpec) {
+            const raw = String(ruleNameOrSpec || '').trim();
+            if (!raw) return hexCaRuleSpec;
+            const normalizedRuleText = raw.toUpperCase().replace(/\s+/g, '');
+            if (/^B[0-6]*\/S[0-6]*$/.test(normalizedRuleText)) {
+                hexCaRuleName = 'custom';
+                hexCaRuleSpec = normalizedRuleText;
+            } else {
+                hexCaRuleName = normalizeHexCaRuleName(raw);
+                hexCaRuleSpec = getHexCaRuleSpec(hexCaRuleName);
+            }
+            applyHexLifeTuning();
+            return hexCaRuleSpec;
+        }
+        window.setHexCaRule = setHexCaRule;
+
+        function cycleHexCaRule(step = 1) {
+            const current = normalizeHexCaRuleName(hexCaRuleName);
+            const index = HEX_CA_RULE_SEQUENCE.indexOf(current);
+            const nextIndex = (index + Math.max(1, Math.floor(step))) % HEX_CA_RULE_SEQUENCE.length;
+            hexCaRuleName = HEX_CA_RULE_SEQUENCE[nextIndex];
+            hexCaRuleSpec = getHexCaRuleSpec(hexCaRuleName);
+            applyHexLifeTuning();
+            return { name: hexCaRuleName, rule: hexCaRuleSpec };
+        }
+        window.cycleHexCaRule = cycleHexCaRule;
+
+        function setHexCaPalette(name) {
+            hexCaPaletteName = normalizeHexCaPaletteName(name);
+            if (simCompositor) {
+                simCompositor.setPluginColor('hex-life-primary', getHexCaPaletteColor(hexCaPaletteName));
+            }
+            return hexCaPaletteName;
+        }
+        window.setHexCaPalette = setHexCaPalette;
+
+        function applyHexLifeTuning() {
+            if (!hexLifePlugin || typeof hexLifePlugin.configure !== 'function') {
+                return;
+            }
+            hexLifePlugin.configure({
+                speed: hexCaSpeed,
+                syncToAudio: hexCaSyncToAudio,
+                sweepRows: hexCaSweepRows,
+                rule: hexCaRuleSpec,
+                aperiodicMix: hexCaAperiodicMix
+            });
+        }
+        window.setHexLifeTuning = function(options = {}) {
+            if (Number.isFinite(options.speed)) {
+                hexCaSpeed = Math.max(0.1, Math.min(6, Number(options.speed)));
+            }
+            if (typeof options.syncToAudio === 'boolean') {
+                hexCaSyncToAudio = !!options.syncToAudio;
+            }
+            if (Number.isFinite(options.sweepRows)) {
+                hexCaSweepRows = Math.max(1, Math.min(16, Math.floor(Number(options.sweepRows))));
+            }
+            if (typeof options.rule === 'string') {
+                setHexCaRule(options.rule);
+            }
+            if (Number.isFinite(options.aperiodicMix)) {
+                hexCaAperiodicMix = Math.max(0, Math.min(1, Number(options.aperiodicMix)));
+            }
+            applyHexLifeTuning();
+            return {
+                speed: hexCaSpeed,
+                syncToAudio: hexCaSyncToAudio,
+                sweepRows: hexCaSweepRows,
+                rule: hexCaRuleSpec,
+                aperiodicMix: hexCaAperiodicMix
+            };
+        };
+
         function normalizeEffectProfileName(name) {
             const normalized = String(name || '').trim().toLowerCase();
             return VALID_EFFECT_PROFILES.has(normalized) ? normalized : 'classic';
@@ -3492,6 +3654,8 @@ button:hover {
             // Baseline before profile-specific boosts.
             simCompositor.setPluginOpacity('hierarchical-life-primary', 0.04);
             simCompositor.setPluginColor('hierarchical-life-primary', [118, 228, 255]);
+            simCompositor.setPluginOpacity('hex-life-primary', 0.03);
+            simCompositor.setPluginColor('hex-life-primary', getHexCaPaletteColor(hexCaPaletteName));
 
             if (normalizedProfile === 'classic') {
                 activeEffectProfile = 'classic';
@@ -3540,6 +3704,32 @@ button:hover {
                 simulationShellBaseOpacity = 0.28;
                 effectActivationFactor = 0.78;
                 simulationBackdropBaseOpacity = 0.24;
+            } else if (normalizedProfile === 'hex-life') {
+                activeEffectProfile = 'hex-life';
+                simCompositor.setPluginOpacity('life-primary', 0.36);
+                simCompositor.setPluginOpacity('hierarchical-life-primary', 0.24);
+                simCompositor.setPluginOpacity('hex-life-primary', 1.0);
+                simCompositor.setPluginOpacity('kuramoto-primary', 0.2);
+                simCompositor.setPluginOpacity('gray-scott-primary', 0.3);
+                simCompositor.setPluginOpacity('gray-scott-alt', 0.22);
+                simCompositor.setPluginOpacity('physarum-primary', 0.24);
+                simCompositor.setPluginOpacity('molecule-primary', 0.2);
+                simCompositor.setPluginColor('hex-life-primary', getHexCaPaletteColor(hexCaPaletteName));
+                simCompositor.setPluginColor('life-primary', [128, 248, 176]);
+                simCompositor.setPluginColor('kuramoto-primary', [110, 235, 196]);
+                simCompositor.setPluginColor('gray-scott-primary', [176, 246, 238]);
+                simCompositor.setPluginColor('gray-scott-alt', [160, 230, 255]);
+                simCompositor.setPluginColor('physarum-primary', [170, 255, 208]);
+                simCompositor.setPluginColor('molecule-primary', [220, 255, 236]);
+                innerTriangleActive = false;
+                hueOffsetSpeed = 0.2;
+                Y_ROTATION_SPEED = 0.0007;
+                X_ROTATION_SPEED = 0.00025;
+                saturation = 102;
+                brightness = 58;
+                simulationShellBaseOpacity = 0.38;
+                effectActivationFactor = 0.76;
+                simulationBackdropBaseOpacity = 0.35;
             } else if (normalizedProfile === 'hierarchical-life') {
                 activeEffectProfile = 'hierarchical-life';
                 simCompositor.setPluginOpacity('life-primary', 0.38);
@@ -5087,20 +5277,22 @@ button:hover {
         if (normalized === 'darcy') return 'kuramoto';
         if (normalized === 'turing') return 'gray-scott';
         if (normalized === 'voltage') return 'physarum';
-            if (normalized === 'hierarchical' || normalized === 'hierarchical-life' || normalized === 'hierlife') return 'hierarchical-life';
-            if (normalized === 'rewrite' || normalized === 'chemlambda' || normalized === 'lambda') return 'rewrite';
+        if (normalized === 'hex' || normalized === 'hexlife' || normalized === 'hex-life' || normalized === 'cellular') return 'hex-life';
+        if (normalized === 'hierarchical' || normalized === 'hierarchical-life' || normalized === 'hierlife') return 'hierarchical-life';
+        if (normalized === 'rewrite' || normalized === 'chemlambda' || normalized === 'lambda') return 'rewrite';
         if (normalized === 'words' || normalized === 'wordcloud' || normalized === 'word-cloud') return 'word-cloud';
         return 'classic';
     }
 
     function getNextVjMode() {
-        const sequence = ['morphospace', 'darcy', 'turing', 'voltage'];
+        const sequence = ['morphospace', 'darcy', 'turing', 'voltage', 'hex'];
         const current = activeEffectProfile;
         const reverseMap = {
             molecule: 'morphospace',
             kuramoto: 'darcy',
             'gray-scott': 'turing',
-            physarum: 'voltage'
+            physarum: 'voltage',
+            'hex-life': 'hex'
         };
         const currentMode = reverseMap[current] || 'morphospace';
         const idx = sequence.indexOf(currentMode);
@@ -5120,6 +5312,31 @@ button:hover {
             const effectName = mapVjModeToEffect(resolvedMode);
             applyEffectProfile(effectName);
             lastAppliedEffectPhase = effectName;
+        }
+        if (typeof cmd.palette === 'string') {
+            setHexCaPalette(cmd.palette);
+        }
+        if (Number.isFinite(cmd.hexSpeed)) {
+            hexCaSpeed = Math.max(0.1, Math.min(6, Number(cmd.hexSpeed)));
+            applyHexLifeTuning();
+        }
+        if (typeof cmd.hexSync === 'boolean') {
+            hexCaSyncToAudio = !!cmd.hexSync;
+            applyHexLifeTuning();
+        }
+        if (Number.isFinite(cmd.hexSweepRows)) {
+            hexCaSweepRows = Math.max(1, Math.min(16, Math.floor(Number(cmd.hexSweepRows))));
+            applyHexLifeTuning();
+        }
+        if (typeof cmd.hexRule === 'string') {
+            setHexCaRule(cmd.hexRule);
+        }
+        if (cmd.hexRuleCycle === true) {
+            cycleHexCaRule(1);
+        }
+        if (Number.isFinite(cmd.hexAperiodic)) {
+            hexCaAperiodicMix = Math.max(0, Math.min(1, Number(cmd.hexAperiodic)));
+            applyHexLifeTuning();
         }
         if (Number.isFinite(cmd.speed)) {
             const nextSpeed = Math.max(0.1, Math.min(4, Number(cmd.speed)));
@@ -5295,6 +5512,13 @@ button:hover {
         updateEffectOverlay();
         return {
             mode: activeEffectProfile,
+            hexPalette: hexCaPaletteName,
+            hexSpeed: hexCaSpeed,
+            hexSync: hexCaSyncToAudio,
+            hexSweepRows: hexCaSweepRows,
+            hexRuleName: hexCaRuleName,
+            hexRule: hexCaRuleSpec,
+            hexAperiodic: hexCaAperiodicMix,
             speed: vjSpeedMultiplier,
             hue: hueoffset,
             intensity: backdropOpacityMultiplier,

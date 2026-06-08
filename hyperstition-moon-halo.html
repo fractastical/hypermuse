@@ -42,6 +42,9 @@
       ? Number(haloStartParam)
       : 0;
     const letterLeadBack = clampNum(Number(params.get("letterLead") ?? String(Math.PI * 0.11)), 0, Math.PI * 0.4);
+    const animFps = clampNum(Number(params.get("fps") ?? "30"), 12, 60);
+    const slowReadSec = clampNum(Number(params.get("slowReadSec") ?? "3"), 0, 15);
+    const slowReadFactor = clampNum(Number(params.get("slowReadFactor") ?? String(1 / 3)), 0.05, 1);
     const orbitTiltStep = clampNum(Number(params.get("orbitTiltStep") ?? "0.00042"), 0, 0.002);
     const orbitTiltStartParam = params.get("orbitTiltStart");
     const orbitTiltStart = orbitTiltStartParam != null && orbitTiltStartParam !== "" && Number.isFinite(Number(orbitTiltStartParam))
@@ -319,8 +322,25 @@
       ctx.fillRect(0, 0, canvas.width, canvas.height);
     }
 
+    function cumulativeSpin(frame, ratePerFrame) {
+      const slowFrames = Math.round(animFps * slowReadSec);
+      if (frame <= 0 || slowFrames <= 0) return 0;
+      const rampSpan = 1 - slowReadFactor;
+      if (frame <= slowFrames) {
+        const f = frame;
+        return ratePerFrame * (slowReadFactor * f + (rampSpan * f * (f - 1)) / (2 * slowFrames));
+      }
+      const rampTotal =
+        ratePerFrame * (slowReadFactor * slowFrames + (rampSpan * (slowFrames - 1)) / 2);
+      return rampTotal + ratePerFrame * (frame - slowFrames);
+    }
+
+    function haloRotationAt(frame) {
+      return haloStart + cumulativeSpin(frame, haloSpin);
+    }
+
     function orbitTiltAt(frame) {
-      return orbitTiltStart + frame * orbitTiltStep;
+      return orbitTiltStart + cumulativeSpin(frame, orbitTiltStep);
     }
 
     function orbitPoint(angle, orbitTilt) {
@@ -508,7 +528,7 @@
     }
 
     function drawFrame() {
-      const rotation = haloStart + frameIdx * haloSpin;
+      const rotation = haloRotationAt(frameIdx);
       const orbitTilt = orbitTiltAt(frameIdx);
       drawBackground();
       drawOrbitGuides(rotation, orbitTilt);
@@ -548,6 +568,9 @@
         haloStart,
         haloSpin,
         letterLeadBack,
+        animFps,
+        slowReadSec,
+        slowReadFactor,
         orbitTiltStart,
         orbitTiltStep,
         orbitShape,
@@ -572,6 +595,9 @@
         haloStart,
         haloSpin,
         letterLeadBack,
+        animFps,
+        slowReadSec,
+        slowReadFactor,
         orbitTiltStart,
         orbitTiltStep,
         orbitShape,

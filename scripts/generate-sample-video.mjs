@@ -38,6 +38,13 @@ const EFFECT_TIMELINE_PHASES = (EFFECT_TIMELINE_PHASES_RAW || "")
 const BASIC_VIDEO_RATIO = Number.parseFloat(process.env.BASIC_VIDEO_RATIO || "0");
 const BASIC_VIDEO_CYCLE_MS = Number.parseInt(process.env.BASIC_VIDEO_CYCLE_MS || "12000", 10);
 const FX_LAYOUT = String(process.env.FX_LAYOUT || "").trim();
+const HUE_CYCLE = process.env.HUE_CYCLE === "1";
+const HUE_CYCLE_MS = Number.parseInt(process.env.HUE_CYCLE_MS || "3600", 10);
+const HEX_RULE_CYCLE_MS = Number.parseInt(process.env.HEX_RULE_CYCLE_MS || "9000", 10);
+const HEX_PALETTES = String(process.env.HEX_PALETTES || "aurora,magma,violet,neon,mono")
+  .split(",")
+  .map((value) => value.trim())
+  .filter(Boolean);
 const SERVER_PORT = Number.parseInt(process.env.SAMPLE_SERVER_PORT || process.env.SERVER_PORT || "8080", 10);
 /** Classic + fullscreen video layers only — no sphere/triangle FX or effect-timeline hops (venue MP4 reels). */
 const EXPORT_VIDEO_REEL = process.env.EXPORT_VIDEO_REEL === "1";
@@ -458,6 +465,56 @@ async function runCapture() {
   const audioInput = page.locator("#audioInput");
   await audioInput.setInputFiles(audioFileForCapture);
   elapsedSince(globalT0, "audio attached · starting viewport recording window");
+
+  if (HUE_CYCLE && !EXPORT_VIDEO_REEL) {
+    await page.evaluate(({ cycleMs, ruleCycleMs, palettes }) => {
+      const hueSequence = [-120, -90, -60, -30, 0, 30, 60, 90, 120, 150];
+      let hueIndex = 0;
+      let paletteIndex = 0;
+      if (window.__hypermuseHueCycleTimer) {
+        clearInterval(window.__hypermuseHueCycleTimer);
+      }
+      if (window.__hypermuseHexRuleCycleTimer) {
+        clearInterval(window.__hypermuseHexRuleCycleTimer);
+      }
+      if (window.vjControl) {
+        window.vjControl({
+          mode: "hex-life",
+          play: true,
+          audio: true,
+          hexSync: true,
+          hexSpeed: 1.15,
+          hexSweepRows: 2,
+          hexAperiodic: 0.32
+        });
+      }
+      window.__hypermuseHueCycleTimer = setInterval(() => {
+        if (!window.vjControl) {
+          return;
+        }
+        const hue = hueSequence[hueIndex % hueSequence.length];
+        const palette = palettes[paletteIndex % palettes.length] || "aurora";
+        window.vjControl({
+          mode: "hex-life",
+          hue,
+          palette
+        });
+        hueIndex += 1;
+        paletteIndex += 1;
+      }, Math.max(800, Number(cycleMs) || 3600));
+      if ((Number(ruleCycleMs) || 0) > 0) {
+        window.__hypermuseHexRuleCycleTimer = setInterval(() => {
+          if (window.vjControl) {
+            window.vjControl({ mode: "hex-life", hexRuleCycle: true });
+          }
+        }, Math.max(1500, Number(ruleCycleMs) || 9000));
+      }
+    }, {
+      cycleMs: HUE_CYCLE_MS,
+      ruleCycleMs: HEX_RULE_CYCLE_MS,
+      palettes: HEX_PALETTES
+    });
+  }
 
   // Optional distributed basic-mode capture across the full render (ignored when EXPORT_VIDEO_REEL; already in basic video).
   const basicRatio = EXPORT_VIDEO_REEL

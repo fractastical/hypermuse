@@ -7,7 +7,9 @@ especially when labeling a physical mixer/OSC/MIDI board.
 
 - **Left sphere**: base/low tone energy lane
 - **Right sphere**: mid + high energy lane
-- **Simulation shell**: layered CA/oscillator/molecule field over both lanes
+- **Simulation shell**: layered field over both lanes, blending the active
+  simulation plugins (Life, Hierarchical-Life, Hex-Life, Kuramoto, Gray-Scott,
+  Physarum, Molecule-Graph)
 
 ## Recommended board labels (16 channels)
 
@@ -21,9 +23,9 @@ Use this as a default label strip on the board:
 6. `BRIGHT`
 7. `X ROT`
 8. `Y ROT`
-9. `SIM LIFE`
-10. `SIM KURA`
-11. `SIM MOLECULE`
+9. `FX MODE / NEXT`
+10. `HEX RULE / CYCLE`
+11. `HEX SPEED`
 12. `SHELL OPACITY`
 13. `VIDEO HOLD`
 14. `VIDEO XFADE`
@@ -45,7 +47,7 @@ These are visible directly in `sonicsphere.html`:
 
 ## Message/automation control names
 
-If controlling via `postMessage` bridge (`js/message_controller.js`), use:
+### Legacy name/value bridge (`js/message_controller.js`)
 
 - `master`
 - `xrotation`, `yrotation`
@@ -54,9 +56,25 @@ If controlling via `postMessage` bridge (`js/message_controller.js`), use:
 - `activegeometrieslimit`, `activegeometriesagedeath`, `activegeometriesopacityreduction`
 - `pointlightx`, `pointlighty`, `pointlightz`, `pointlightintensity`
 - `cxposition`, `cyposition`, `czposition`
-- `mode` (`color`, `video`, `mixed`)
 - `videochange`, `videochangeloop`, `playbackrate`
 - `threshold0..threshold47`
+
+### VJ command bridge (`postMessage({ type: 'vj', ... })`)
+
+This is the primary live-control path. `window.vjControl(cmd)` does the same in-page.
+
+- `mode` -> effect profile / alias: `classic`, `life`, `hierarchical-life`,
+  `hex-life` (alias `hex`), `kuramoto`, `gray-scott`, `physarum`,
+  `molecule` (alias `morphospace`), `rewrite`, `word-cloud`, or `next`
+- Hex CA: `hexRule`, `hexRuleCycle`, `hexSpeed`, `hexSync`, `hexSweepRows`,
+  `hexAperiodic`, `palette` (`aurora`/`magma`/`violet`/`mono`/`neon`)
+- Look/playback: `speed`, `hue`, `intensity`, `paused`/`play`/`pause`
+- Layers/overlays: `basicVideo`, `mosaic`, `mosaicFx`, `blackout`/`blackoutFadeMs`,
+  `logo`/`logoOpacity`/`logoPosition`
+- Curation: `loopPreference` (`like`/`dislike`), `wordList`
+
+> Note: the old `mode` values `color`/`video`/`mixed` are deprecated. Mode now
+> selects an effect profile (see list above).
 
 ## Setlist controls that affect live playback
 

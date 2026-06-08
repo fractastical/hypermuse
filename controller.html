@@ -308,6 +308,43 @@
         <input type="button" id="bridgeFadeInButton" value="fade in"/>
     </div>
     <div class="input-group">
+        FX Mode:
+        <input type="button" id="modeClassicButton" value="classic"/>
+        <input type="button" id="modeLifeButton" value="life"/>
+        <input type="button" id="modeHierLifeButton" value="hier life"/>
+        <input type="button" id="modeHexLifeButton" value="hex life"/>
+        <input type="button" id="modeKuramotoButton" value="kuramoto"/>
+        <input type="button" id="modeGrayScottButton" value="gray-scott"/>
+        <input type="button" id="modePhysarumButton" value="physarum"/>
+        <input type="button" id="modeMoleculeButton" value="molecule"/>
+        <input type="button" id="modeNextButton" value="next mode"/>
+    </div>
+    <div class="input-group">
+        Hex CA:
+        speed <input type="text" id="hexSpeedInput" value="1.0" size="4"/>
+        sync audio <input type="checkbox" id="hexSyncInput" checked/>
+        sweep rows <input type="text" id="hexSweepRowsInput" value="2" size="3"/>
+        rule
+        <select id="hexRuleSelect">
+            <option value="hexlife">hexlife (B2/S34)</option>
+            <option value="bloom">bloom (B2/S3)</option>
+            <option value="maze">maze (B3/S12345)</option>
+            <option value="pulse">pulse (B13/S24)</option>
+            <option value="coral">coral (B2/S2)</option>
+        </select>
+        <input type="button" id="hexRuleCycleButton" value="cycle rule"/>
+        aperiodic <input type="text" id="hexAperiodicInput" value="0.0" size="4"/>
+        palette
+        <select id="hexPaletteSelect">
+            <option value="aurora">aurora</option>
+            <option value="magma">magma</option>
+            <option value="violet">violet</option>
+            <option value="mono">mono</option>
+            <option value="neon">neon</option>
+        </select>
+        <input type="button" id="applyHexCaButton" value="apply hex"/>
+    </div>
+    <div class="input-group">
         Basic Video Mode:
         <input type="button" id="basicVideoOnButton" value="basic on"/>
         <input type="button" id="basicVideoOffButton" value="basic off"/>
@@ -358,7 +395,7 @@
          Video loop change: <input  type="button"  id="videochangeloop" value="change"/>
     </div>
     <div class="input-group">    
-    Mode ("color","video","lines"): <input type="text" id="mode" value="color"/>
+    Mode (classic/life/hierarchical-life/hex-life/kuramoto/gray-scott/physarum/morphospace): <input type="text" id="mode" value="classic"/>
     </div>
     <div class="input-group">
     Xrotationspeed: <input type="text" id="xrotation" value="0.0001"/>
@@ -1085,6 +1122,9 @@ inputs.forEach(input => {
         console.log("id"+ id + "value" + value);
         // Send the message
         sendMessage(id, value);
+        if (id === 'mode') {
+            sendMessageToVisual({ type: 'vj', mode: value });
+        }
     });
 
     }
@@ -1113,6 +1153,126 @@ const bridgeFadeInButton = document.getElementById('bridgeFadeInButton');
 if (bridgeFadeInButton) {
     bridgeFadeInButton.addEventListener('click', function() {
         sendMessageToVisual({ type: 'vj', blackout: 0, blackoutFadeMs: 1200 });
+    });
+}
+
+function bindModeButton(buttonId, modeName) {
+    const btn = document.getElementById(buttonId);
+    if (!btn) return;
+    btn.addEventListener('click', function() {
+        sendMessageToVisual({ type: 'vj', mode: modeName });
+    });
+}
+
+bindModeButton('modeClassicButton', 'classic');
+bindModeButton('modeLifeButton', 'life');
+bindModeButton('modeHierLifeButton', 'hierarchical-life');
+bindModeButton('modeHexLifeButton', 'hex-life');
+bindModeButton('modeKuramotoButton', 'kuramoto');
+bindModeButton('modeGrayScottButton', 'gray-scott');
+bindModeButton('modePhysarumButton', 'physarum');
+bindModeButton('modeMoleculeButton', 'morphospace');
+bindModeButton('modeNextButton', 'next');
+
+function readHexSpeedValue() {
+    const raw = parseFloat(document.getElementById('hexSpeedInput')?.value);
+    return Number.isFinite(raw) ? Math.max(0.1, Math.min(6, raw)) : 1;
+}
+
+function readHexSweepRowsValue() {
+    const raw = parseInt(document.getElementById('hexSweepRowsInput')?.value, 10);
+    return Number.isFinite(raw) ? Math.max(1, Math.min(16, raw)) : 2;
+}
+
+function readHexSyncValue() {
+    const checkbox = document.getElementById('hexSyncInput');
+    return !!(checkbox && checkbox.checked);
+}
+
+function readHexPaletteValue() {
+    const select = document.getElementById('hexPaletteSelect');
+    return select && select.value ? String(select.value) : 'aurora';
+}
+
+function readHexRuleValue() {
+    const select = document.getElementById('hexRuleSelect');
+    return select && select.value ? String(select.value) : 'hexlife';
+}
+
+function readHexAperiodicValue() {
+    const raw = parseFloat(document.getElementById('hexAperiodicInput')?.value);
+    return Number.isFinite(raw) ? Math.max(0, Math.min(1, raw)) : 0;
+}
+
+function sendHexCaCommand(includeMode = false) {
+    const payload = {
+        type: 'vj',
+        hexSpeed: readHexSpeedValue(),
+        hexSync: readHexSyncValue(),
+        hexSweepRows: readHexSweepRowsValue(),
+        hexRule: readHexRuleValue(),
+        hexAperiodic: readHexAperiodicValue(),
+        palette: readHexPaletteValue()
+    };
+    if (includeMode) {
+        payload.mode = 'hex-life';
+    }
+    sendMessageToVisual(payload);
+}
+
+const applyHexCaButton = document.getElementById('applyHexCaButton');
+if (applyHexCaButton) {
+    applyHexCaButton.addEventListener('click', function() {
+        sendHexCaCommand(true);
+    });
+}
+
+const hexPaletteSelect = document.getElementById('hexPaletteSelect');
+if (hexPaletteSelect) {
+    hexPaletteSelect.addEventListener('change', function() {
+        sendHexCaCommand(false);
+    });
+}
+
+const hexSyncInput = document.getElementById('hexSyncInput');
+if (hexSyncInput) {
+    hexSyncInput.addEventListener('change', function() {
+        sendHexCaCommand(false);
+    });
+}
+
+const hexSpeedInput = document.getElementById('hexSpeedInput');
+if (hexSpeedInput) {
+    hexSpeedInput.addEventListener('change', function() {
+        sendHexCaCommand(false);
+    });
+}
+
+const hexSweepRowsInput = document.getElementById('hexSweepRowsInput');
+if (hexSweepRowsInput) {
+    hexSweepRowsInput.addEventListener('change', function() {
+        sendHexCaCommand(false);
+    });
+}
+
+const hexRuleSelect = document.getElementById('hexRuleSelect');
+if (hexRuleSelect) {
+    hexRuleSelect.addEventListener('change', function() {
+        sendHexCaCommand(false);
+    });
+}
+
+const hexAperiodicInput = document.getElementById('hexAperiodicInput');
+if (hexAperiodicInput) {
+    hexAperiodicInput.addEventListener('change', function() {
+        sendHexCaCommand(false);
+    });
+}
+
+const hexRuleCycleButton = document.getElementById('hexRuleCycleButton');
+if (hexRuleCycleButton) {
+    hexRuleCycleButton.addEventListener('click', function() {
+        sendMessageToVisual({ type: 'vj', mode: 'hex-life', hexRuleCycle: true });
     });
 }
 
