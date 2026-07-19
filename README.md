@@ -129,6 +129,17 @@ The app is mostly multi-page HTML + inline script, with shared helpers in `js/`.
 - `poetsphere.html` + `poetcontroller.html` -> poetry-related variant.
 - `polysphere.html`, `videosphere.html`, `venus.html`, `kurasphere.html` -> alternate
   visualizer experiments.
+- `synergetics-fold.html` -> Fuller's Synergetics 100.41 fold: a wireframe triangle
+  folds its three corners up into a tetrahedron, tumbles, unfolds, and cycles
+  through shape presets (`?shape=equilateral|scalene|right|cycle`, `?speed=`,
+  `?color=`, `?spin=`; space pauses, `s` skips to the next shape). Export with
+  `npm run export:fold`. Add `?mode=associate` for the Synergetics 108.01-03
+  demonstration: two open triangular spirals (positive + negative helix,
+  `?color2=` for the second strand) tremble apart as unstable separate actions,
+  then associate into the tetrahedron's six edges. The two tinted "event" faces
+  bloom first; the two white complementary faces converge in from outside
+  ("from the rest of the Universe") and a pulse marks the enclosed center —
+  inside vs outside, 1 + 1 = 4. Export with `npm run export:fold:associate`.
 - `prototypes/` -> older or experimental variants.
 
 Shared utility scripts:

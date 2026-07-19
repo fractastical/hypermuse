@@ -1,0 +1,1315 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8"/>
+<title>Moon Dark Side — hidden content on the shadowed hemisphere</title>
+<style>
+  body { margin: 0; background: #000; overflow: hidden; }
+</style>
+<script src="js/threejs.org_build_three.js"></script>
+</head>
+<body>
+<script>
+(function () {
+  const params = new URLSearchParams(location.search);
+  const num = (key, fallback) => {
+    const v = Number.parseFloat(params.get(key));
+    return Number.isFinite(v) ? v : fallback;
+  };
+
+  const MOON_SRC = params.get("video") || "loops/3d moon/web/moon-rotating-6s-alpha.webm";
+  // Optional content revealed in the dark side: a video, an image, a
+  // comma-separated slideshow of images (imagesec = seconds per image), or a
+  // keyword rendered in-page: crt (live terminal), vajra (cave of spinning
+  // dorjes), incant (mantra phrases).
+  const CONTENT_SRC = params.get("content") || "";
+  const CONTENT_KEY = CONTENT_SRC.trim().toLowerCase();
+  const KEYWORD_CONTENT = ["crt", "vajra", "incant"].includes(CONTENT_KEY);
+  const MOSAIC_OFF = params.get("mosaic") === "0";
+  const IMAGE_SEC = num("imagesec", 8);
+  const IMG_SCALE = num("imgscale", 0.55); // image size as fraction of frame, centered on the disc
+  const IMAGE_EXT = /\.(png|jpe?g|webp|gif|avif)$/i;
+  const contentList = KEYWORD_CONTENT ? [] : CONTENT_SRC.split(",").map((s) => s.trim()).filter(Boolean);
+  const isImageContent = contentList.length > 0 && contentList.every((s) => IMAGE_EXT.test(s));
+  const isVideoContent = contentList.length === 1 && !isImageContent;
+  // Default content: the hyperstition word rendered as letter mosaics built
+  // from the astronaut/moon image cubes (same style as hyperstition-moon-halo).
+  // Passing ?text=... falls back to plain monospace text instead.
+  const TEXT_PARAM = params.get("text");
+  const TEXT = (TEXT_PARAM || "HYPERSTITION|THE DARK SIDE SPEAKS|WAIT FOR THE TURN").split("|");
+  const MOSAIC_WORD = String(params.get("word") || "hyperstition").toLowerCase();
+  // Window mode: content lives in a recessed "window" carved behind the
+  // letter panel, pinned to the same dark-terrain anchor and rotating with
+  // the moon. It opens wide in shadow and seals to a glimmer in sunlight.
+  // ?mosaic=0 with file content skips the letters and window entirely and
+  // bleeds the content straight through the shadowed hemisphere (planar).
+  const WIN = !!CONTENT_SRC && !TEXT_PARAM && (KEYWORD_CONTENT || !MOSAIC_OFF);
+  const WORDLESS_WIN = WIN && (CONTENT_KEY === "incant" || MOSAIC_OFF);
+  const useMosaic = !TEXT_PARAM && (!CONTENT_SRC || WIN);
+  // Window/reveal behavior (all live-adjustable from the controller):
+  let BLEED = num("bleed", 0);           // planar: target % of the disc auto-revealed (0 = fixed threshold)
+  let APPARITION = num("apparition", CONTENT_KEY === "incant" ? 8 : 0); // avg s between random reveals (0 = steady)
+  let PEEK = num("peek", WIN && !WORDLESS_WIN ? 16 : 0); // s between letter-dissolve peeks (0 = never)
+  const PEEK_GROW = num("peekgrow", 1.3);  // window growth while the letters are away
+  const PEEK_HOLD = num("peekhold", 4.5);  // s the window stays fully open per peek
+  const WIN_DEPTH = num("windepth", 0.55); // how much the surface recesses inside the window
+  let WHEN = params.get("when") || "WEDNESDAY 22:00"; // announced time on the live CRT screen
+  // Mosaic tiles are dim photographs, so the default mask/brightness is more
+  // generous than for plain glowing text.
+  const THRESHOLD = num("threshold", useMosaic ? 0.22 : 0.09); // luma below this = dark side
+  const FEATHER = num("feather", useMosaic ? 0.08 : 0.10);     // soft edge at the terminator
+  const BRIGHT = num("bright", useMosaic ? 2.2 : 0.85);        // hidden-content brightness
+  const SCROLL_SEC = num("scrollsec", useMosaic ? 0 : 60);     // seconds per full text scroll (0 = static)
+  const FLICKER = num("flicker", useMosaic ? 0.15 : 0.35);     // 0..1 text shimmer amount
+  const TRACK_THRESH = num("trackthresh", 0.10);               // luma cutoff when locating the shadow region
+  // Faint earthshine on the shadowed hemisphere so the dark side reads as
+  // part of the sphere (otherwise it is pitch black against space and any
+  // revealed content looks like it floats off the limb).
+  const LIFT = num("lift", useMosaic ? 0.06 : 0.0);
+  const FONT_PX = num("fontsize", 72);
+  const COLOR = new THREE.Color(params.get("color") ? "#" + params.get("color").replace("#", "") : "#8fd8ff");
+  // Moon disc estimate in video UV space (content is clipped to the disc so
+  // it reads as being ON the shadowed surface, not floating in space).
+  const DISC_CX = num("cx", 0.5);
+  const DISC_CY = num("cy", 0.5);
+  const DISC_R = num("cr", 0.38); // radius in units of frame height
+  let SPEED = num("speed", 1 / 3); // moon rotation playback rate (live-adjustable)
+  // Spherical anchoring (mosaic): the word is pinned to fixed lon/lat
+  // coordinates on the rotating globe, like a continent.
+  const ROT_PER = num("rotper", 0);  // seconds of video per full revolution (0 = one loop)
+  const ROT_DIR = num("rotdir", 1);  // spin direction of the source video (1 or -1)
+  const ANG_W = num("angw", 1.6);    // word width on the surface, radians of longitude
+  const ANG_H = num("angh", 1.0);    // word height, radians of latitude
+  // Manual nudge of the auto-found anchor, in degrees (west = negative lon).
+  // Kept mutable so the controller can nudge lon/lat live over the channel.
+  let LON_OFF = num("lonoff", -15) * (Math.PI / 180);
+  let LAT_OFF = num("latoff", 0) * (Math.PI / 180);
+
+  const renderer = new THREE.WebGLRenderer({ antialias: false });
+  renderer.setSize(window.innerWidth, window.innerHeight);
+  renderer.setPixelRatio(1);
+  document.body.appendChild(renderer.domElement);
+  const scene = new THREE.Scene();
+  scene.background = new THREE.Color(0x000000);
+  const camera = new THREE.OrthographicCamera(-1, 1, 1, -1, 0, 1);
+
+  function makeVideo(src) {
+    const v = document.createElement("video");
+    v.src = src;
+    v.loop = true;
+    v.muted = true;
+    v.playsInline = true;
+    v.play().catch(() => window.addEventListener("click", () => v.play(), { once: true }));
+    const tex = new THREE.VideoTexture(v);
+    tex.minFilter = THREE.LinearFilter;
+    tex.magFilter = THREE.LinearFilter;
+    return { video: v, texture: tex };
+  }
+
+  const moon = makeVideo(MOON_SRC);
+  moon.video.playbackRate = SPEED;
+  const contentVideo = isVideoContent ? makeVideo(contentList[0]) : null;
+
+  // Autoplay watchdog: if the browser refused muted autoplay (Safari, Low
+  // Power Mode, some popup contexts) the whole scene freezes on frame 0 and
+  // the word sits still. Keep retrying, accept any click/key as the gesture,
+  // and show a hint while the moon is stuck.
+  const playHint = document.createElement("div");
+  playHint.textContent = "click to start the moon";
+  playHint.style.cssText = "position:fixed;left:50%;bottom:8%;transform:translateX(-50%);" +
+    "color:rgba(143,216,255,0.75);font:12px 'JetBrains Mono',Menlo,monospace;" +
+    "letter-spacing:3px;text-transform:uppercase;display:none;z-index:5;pointer-events:none;";
+  document.body.appendChild(playHint);
+  let lastMoonTime = -1;
+  setInterval(() => {
+    const v = moon.video;
+    const stuck = v.readyState >= 2 && (v.paused || v.currentTime === lastMoonTime);
+    lastMoonTime = v.currentTime;
+    playHint.style.display = stuck ? "block" : "none";
+    if (stuck) v.play().catch(() => {});
+  }, 1600);
+  ["pointerdown", "keydown"].forEach((ev) => window.addEventListener(ev, () => {
+    moon.video.play().catch(() => {});
+    if (contentVideo) contentVideo.video.play().catch(() => {});
+    vajraSprites.forEach((s) => { if (s.mesh.visible) s.video.play().catch(() => {}); });
+    if (cave) cave.videos.forEach((v) => v.play().catch(() => {}));
+  }));
+
+  // --- Orbiting vajras (ported from hyperstition-moon-halo) ---------------
+  // Additive-blended video sprites on tilted elliptical lanes around the
+  // disc. ?vajras=0..6 sets the count, ?vajraradius= scales the orbit
+  // (1 = skimming the limb); both are live-adjustable from the controller.
+  const VAJRA_DIR = "loops/VAJRA DORJE ANIMATIONS";
+  // ROTATING 3 is excluded: its blue pedestal disc cannot be keyed additively.
+  const VAJRA_CLIPS = [
+    VAJRA_DIR + "/DORJE 3D ROTATING 1.mp4",
+    VAJRA_DIR + "/DORJE 3D ROTATING 2.mp4",
+    VAJRA_DIR + "/DORJE 3D ROTATING 4.mp4",
+    VAJRA_DIR + "/DORJE 3D ROTATING 5.mp4",
+    VAJRA_DIR + "/Hitem3d-1779724467167.mp4",
+    VAJRA_DIR + "/Hitem3d-1779724467167_2.mp4"
+  ];
+  let VAJRA_COUNT = Math.max(0, Math.min(6, Math.round(num("vajras", 0))));
+  let VAJRA_RADIUS = num("vajraradius", num("vajraRadius", 1.15));
+  const VAJRA_SCALE = num("vajrascale", 0.17); // sprite height in frame-height units
+  const vajraSprites = [];
+
+  function makeVajraSprite(i) {
+    const v = document.createElement("video");
+    v.src = VAJRA_CLIPS[i % VAJRA_CLIPS.length];
+    v.loop = true;
+    v.muted = true;
+    v.playsInline = true;
+    const tex = new THREE.VideoTexture(v);
+    tex.minFilter = THREE.LinearFilter;
+    tex.magFilter = THREE.LinearFilter;
+    const mat = new THREE.MeshBasicMaterial({
+      map: tex, transparent: true, blending: THREE.AdditiveBlending,
+      depthTest: false, depthWrite: false, opacity: 0
+    });
+    const mesh = new THREE.Mesh(new THREE.PlaneGeometry(1, 1), mat);
+    mesh.renderOrder = 2; // over the fullscreen moon quad
+    mesh.visible = false;
+    scene.add(mesh);
+    const sprite = {
+      mesh, video: v, mat, aspect: 1,
+      lane: i,
+      phase: i * 1.9,
+      speed: 0.34 + (i % 3) * 0.09
+    };
+    v.addEventListener("loadedmetadata", () => {
+      sprite.aspect = (v.videoWidth || 1) / (v.videoHeight || 1);
+    });
+    return sprite;
+  }
+
+  function setVajraCount(n) {
+    VAJRA_COUNT = Math.max(0, Math.min(VAJRA_CLIPS.length, Math.round(n) || 0));
+    while (vajraSprites.length < VAJRA_COUNT) {
+      vajraSprites.push(makeVajraSprite(vajraSprites.length));
+    }
+    vajraSprites.forEach((s, i) => {
+      const on = i < VAJRA_COUNT;
+      s.mesh.visible = on;
+      if (on) s.video.play().catch(() => {});
+      else s.video.pause();
+    });
+  }
+  setVajraCount(VAJRA_COUNT);
+
+  const smooth01 = (x, a, b) => {
+    const t = Math.max(0, Math.min(1, (x - a) / (b - a)));
+    return t * t * (3 - 2 * t);
+  };
+
+  function updateVajras(t) {
+    if (VAJRA_COUNT === 0) return;
+    // Frame-height units -> world units (quad is letterboxed to 16:9).
+    const fhX = 2 * quad.scale.x * (9 / 16);
+    const fhY = 2 * quad.scale.y;
+    const dv = uniforms.uDisc.value; // disc center (uv) + radius (frame heights)
+    const cx = (dv.x * 2 - 1) * quad.scale.x;
+    const cy = (dv.y * 2 - 1) * quad.scale.y;
+    for (let i = 0; i < VAJRA_COUNT; i++) {
+      const s = vajraSprites[i];
+      const rx = dv.z * VAJRA_RADIUS * (1.03 + s.lane * 0.085);
+      const ry = rx * (0.30 + s.lane * 0.05);
+      const laneRot = (s.lane - (VAJRA_COUNT - 1) / 2) * 0.14;
+      const th = s.phase + t * s.speed;
+      const depth = Math.sin(th); // > 0 = in front of the moon
+      const ex = Math.cos(th) * rx;
+      const ey = Math.sin(th) * ry;
+      const px = ex * Math.cos(laneRot) - ey * Math.sin(laneRot);
+      const py = ex * Math.sin(laneRot) + ey * Math.cos(laneRot);
+      const scl = VAJRA_SCALE * (0.68 + 0.32 * (depth * 0.5 + 0.5));
+      s.mesh.position.set(cx + px * fhX, cy + py * fhY, 0);
+      s.mesh.scale.set(scl * s.aspect * fhX, scl * fhY, 1);
+      let op = 0.5 + 0.5 * (depth * 0.5 + 0.5);
+      if (depth < 0) {
+        // Behind the moon: hidden while over the disc, visible at the limbs.
+        op *= smooth01(Math.hypot(px, py), dv.z * 0.96, dv.z * 1.14);
+      }
+      s.mat.opacity = op;
+    }
+  }
+
+  // Image slideshow: preload all, swap the content texture on a timer.
+  let imageTextures = [];
+  if (isImageContent) {
+    const loader = new THREE.TextureLoader();
+    imageTextures = contentList.map((src) => {
+      const tex = loader.load(src);
+      tex.minFilter = THREE.LinearFilter;
+      return tex;
+    });
+  }
+
+  // --- In-page window content generators ----------------------------------
+
+  // Live CRT terminal (content=crt): green phosphor, typewriter, scanlines.
+  // The announced time (WHEN) is editable live from the controller.
+  function makeCrtTexture() {
+    const W = 1024, H = 640;
+    const canvas = document.createElement("canvas");
+    canvas.width = W;
+    canvas.height = H;
+    const ctx = canvas.getContext("2d");
+    const tex = new THREE.CanvasTexture(canvas);
+    tex.minFilter = THREE.LinearFilter;
+    const CPS = num("cps", 17); // typed characters per second
+    const HOLD = 3.2;           // seconds a finished screen stays up
+    let frames = [];
+    function buildFrames() {
+      frames = [
+        ["> CARRIER LOCKED", "> SELENE FREQUENCIES", "", "HYPERSTITION", "", WHEN],
+        ["RECITE THE OATH:", "", "OM VAJRASATTVAH SVAYAM", "TE 'DYA HRDAYE", "SAMAVASTHITAH"],
+        ["ONE SHOULD VISUALIZE", "THE FIGURE OF THE MOON", "AND SOAR UP", "INTO EMPTY SPACE"],
+        ["ASCEND THE LUNAR DISC", "VISUALIZE THE", "ADAMANTINE GEM", "", WHEN],
+        ["VAJRAM AHAM", "", "(I AM A VAJRA)"]
+      ];
+    }
+    buildFrames();
+    let frameIdx = 0, frameStart = 0, started = false;
+    function draw(t) {
+      if (!started) { started = true; frameStart = t; }
+      const lines = frames[frameIdx % frames.length];
+      const totalChars = lines.reduce((a, l) => a + l.length + 1, 0);
+      const shown = Math.floor((t - frameStart) * CPS);
+      if (shown > totalChars + HOLD * CPS) {
+        frameIdx++;
+        frameStart = t;
+        return draw(t);
+      }
+      ctx.fillStyle = "#020703";
+      ctx.fillRect(0, 0, W, H);
+      const fs = 44;
+      ctx.font = `bold ${fs}px "JetBrains Mono", "Menlo", monospace`;
+      ctx.textBaseline = "top";
+      ctx.shadowColor = "#2bff62";
+      ctx.shadowBlur = 14;
+      ctx.fillStyle = "#49ff7d";
+      let budget = shown;
+      const x0 = W * 0.09, y0 = H * 0.12, lineStep = fs * 1.7;
+      lines.forEach((line, i) => {
+        if (budget <= 0) return;
+        const part = line.slice(0, budget);
+        budget -= line.length + 1;
+        ctx.fillText(part, x0, y0 + i * lineStep);
+        if (budget <= 0 && Math.floor(t * 2.4) % 2 === 0) {
+          ctx.fillRect(x0 + ctx.measureText(part).width + 8, y0 + i * lineStep, fs * 0.55, fs * 0.9);
+        }
+      });
+      ctx.shadowBlur = 0;
+      // Scanlines + slow roll bar.
+      ctx.fillStyle = "rgba(0,0,0,0.28)";
+      for (let y = 0; y < H; y += 4) ctx.fillRect(0, y, W, 2);
+      const rollY = ((t * 26) % (H * 1.4)) - H * 0.2;
+      const roll = ctx.createLinearGradient(0, rollY, 0, rollY + H * 0.16);
+      roll.addColorStop(0, "rgba(120,255,160,0)");
+      roll.addColorStop(0.5, "rgba(120,255,160,0.07)");
+      roll.addColorStop(1, "rgba(120,255,160,0)");
+      ctx.fillStyle = roll;
+      ctx.fillRect(0, rollY, W, H * 0.16);
+      tex.needsUpdate = true;
+    }
+    return {
+      texture: tex, draw, aspect: W / H,
+      setWhen() { buildFrames(); }
+    };
+  }
+
+  // Vajra cave (content=vajra): spinning dorje clips drifting in a
+  // violet-lit hollow, composited additively on an offscreen canvas.
+  function makeVajraCave() {
+    const W = 768, H = 448;
+    const canvas = document.createElement("canvas");
+    canvas.width = W;
+    canvas.height = H;
+    const ctx = canvas.getContext("2d");
+    const tex = new THREE.CanvasTexture(canvas);
+    tex.minFilter = THREE.LinearFilter;
+    const videos = [0, 1, 4].map((ci) => {
+      const v = document.createElement("video");
+      v.src = VAJRA_CLIPS[ci % VAJRA_CLIPS.length];
+      v.loop = true;
+      v.muted = true;
+      v.playsInline = true;
+      v.play().catch(() => {});
+      return v;
+    });
+    function draw(t) {
+      ctx.globalCompositeOperation = "source-over";
+      ctx.fillStyle = "#060312";
+      ctx.fillRect(0, 0, W, H);
+      const glow = ctx.createRadialGradient(W / 2, H / 2, H * 0.1, W / 2, H / 2, H * 0.75);
+      glow.addColorStop(0, "rgba(130,80,220,0.35)");
+      glow.addColorStop(1, "rgba(130,80,220,0)");
+      ctx.fillStyle = glow;
+      ctx.fillRect(0, 0, W, H);
+      ctx.globalCompositeOperation = "lighter";
+      videos.forEach((v, i) => {
+        if (v.readyState < 2) return;
+        const va = (v.videoWidth || 1) / (v.videoHeight || 1);
+        const s = H * (0.62 + 0.10 * Math.sin(t * 0.23 + i * 2.4));
+        const x = W / 2 + Math.sin(t * 0.13 + i * 2.1) * W * 0.24;
+        const y = H / 2 + Math.cos(t * 0.11 + i * 1.7) * H * 0.16;
+        ctx.drawImage(v, x - s * va / 2, y - s / 2, s * va, s);
+      });
+      ctx.globalCompositeOperation = "source-over";
+      tex.needsUpdate = true;
+    }
+    return { texture: tex, draw, videos, aspect: W / H };
+  }
+
+  // Incantation (content=incant): mantra phrases from the Adamantine
+  // Pinnacle Sutra surface one at a time, a new phrase per apparition.
+  const INCANT_PHRASES = [
+    "OM VAJRASATTVAH SVAYAM", "TE 'DYA HRDAYE", "SAMAVASTHITAH",
+    "VAJRA VAJRA", "SUDDHA SUDDHA", "SATTVA SATTVA", "BUDDHA BUDDHA",
+    "VAJRAJALA", "VAJRARUPA", "VAJRAKASA", "VAJRAM AHAM", "I AM A VAJRA"
+  ];
+  function makeIncantTexture() {
+    const W = 1024, H = 512;
+    const canvas = document.createElement("canvas");
+    canvas.width = W;
+    canvas.height = H;
+    const ctx = canvas.getContext("2d");
+    const tex = new THREE.CanvasTexture(canvas);
+    tex.minFilter = THREE.LinearFilter;
+    let idx = 0;
+    function redraw() {
+      ctx.clearRect(0, 0, W, H);
+      const phrase = INCANT_PHRASES[idx % INCANT_PHRASES.length];
+      ctx.textAlign = "center";
+      ctx.textBaseline = "middle";
+      let fs = 96;
+      ctx.font = `bold ${fs}px "JetBrains Mono", "Menlo", monospace`;
+      while (ctx.measureText(phrase).width > W * 0.9 && fs > 30) {
+        fs -= 4;
+        ctx.font = `bold ${fs}px "JetBrains Mono", "Menlo", monospace`;
+      }
+      ctx.shadowColor = "#c9a3ff";
+      ctx.shadowBlur = 26;
+      ctx.fillStyle = "#f3e9ff";
+      ctx.fillText(phrase, W / 2, H / 2);
+      ctx.shadowBlur = 0;
+      tex.needsUpdate = true;
+    }
+    redraw();
+    return {
+      texture: tex, aspect: W / H,
+      advance() { idx++; redraw(); }
+    };
+  }
+
+  const crt = (WIN && CONTENT_KEY === "crt") ? makeCrtTexture() : null;
+  const cave = (WIN && CONTENT_KEY === "vajra") ? makeVajraCave() : null;
+  const incant = (WIN && CONTENT_KEY === "incant") ? makeIncantTexture() : null;
+
+  // --- Letter mosaic (default): glyphs built from astronaut/moon image cubes,
+  // same glyph set, letter colors, and cube index as hyperstition-moon-halo.
+  const GLYPH_W = 5, GLYPH_H = 7, TILE_GAP = 1;
+  const GLYPHS = {
+    h: [0x11, 0x11, 0x11, 0x1f, 0x11, 0x11, 0x11],
+    y: [0x11, 0x11, 0x11, 0x0a, 0x04, 0x04, 0x04],
+    p: [0x1e, 0x11, 0x11, 0x1e, 0x10, 0x10, 0x10],
+    e: [0x0e, 0x11, 0x10, 0x1e, 0x10, 0x11, 0x0e],
+    r: [0x1e, 0x11, 0x11, 0x1e, 0x14, 0x12, 0x11],
+    s: [0x0e, 0x11, 0x10, 0x0e, 0x01, 0x11, 0x0e],
+    t: [0x1f, 0x04, 0x04, 0x04, 0x04, 0x04, 0x04],
+    i: [0x04, 0x00, 0x04, 0x04, 0x04, 0x04, 0x0e],
+    o: [0x0e, 0x11, 0x11, 0x11, 0x11, 0x11, 0x0e],
+    n: [0x11, 0x19, 0x15, 0x13, 0x11, 0x11, 0x11]
+  };
+  const LETTER_COLORS_BY_INDEX = [
+    "silver", "yellow", "purple", "cyan", "red", "silver",
+    "white", "white", "cyan", "magenta", "orange", "blue"
+  ];
+  const REFERENCE_SWATCHES = {
+    black: "#1c1c1e", silver: "#c0c0c8", gray: "#8e8e93", white: "#f5f5f7",
+    red: "#ff3b30", orange: "#ff9500", yellow: "#ffd60a", green: "#34c759",
+    cyan: "#32d3ff", blue: "#0a84ff", purple: "#bf5af2", magenta: "#ff2d92"
+  };
+  const FALLBACK_CHAIN = {
+    black: ["black", "gray", "silver"],
+    silver: ["silver", "gray", "white", "black"],
+    gray: ["gray", "silver", "black", "white"],
+    white: ["white", "silver", "gray"],
+    red: ["red", "orange", "gray", "silver"],
+    orange: ["orange", "yellow", "gray", "silver"],
+    yellow: ["yellow", "gray", "silver", "white"],
+    green: ["green", "gray", "silver"],
+    cyan: ["cyan", "blue", "gray", "silver"],
+    blue: ["blue", "cyan", "gray", "silver"],
+    purple: ["purple", "magenta", "gray", "silver"],
+    magenta: ["magenta", "purple", "gray", "silver"]
+  };
+
+  let imagePools = { any: [] };
+  let mosaicFrame = 0;
+
+  function pickImage(family, seed) {
+    const chain = FALLBACK_CHAIN[family] || [family, "silver", "gray", "any"];
+    for (let i = 0; i < chain.length; i++) {
+      const pool = imagePools[chain[i]];
+      if (pool && pool.length > 0) {
+        return pool[Math.abs((mosaicFrame * 5 + seed * 19) % pool.length)];
+      }
+    }
+    return imagePools.any.length ? imagePools.any[0] : null;
+  }
+
+  function loadImage(url) {
+    return new Promise((resolve) => {
+      const img = new Image();
+      img.onload = () => resolve(img);
+      img.onerror = () => resolve(null);
+      img.src = url;
+    });
+  }
+
+  async function buildPools() {
+    const index = await fetch("artifacts/moon-cube-index.json").then((r) => r.json()).catch(() => null);
+    const families = index && index.families ? index.families : {};
+    for (const family of Object.keys(families)) {
+      imagePools[family] = [];
+      for (const row of families[family] || []) {
+        if (!row || !row.cubeUrl) continue;
+        const img = await loadImage(row.cubeUrl);
+        if (img) {
+          imagePools[family].push(img);
+          imagePools.any.push(img);
+        }
+      }
+    }
+  }
+
+  function makeMosaicTexture() {
+    const size = 1024;
+    const canvas = document.createElement("canvas");
+    canvas.width = size;
+    canvas.height = size;
+    const ctx = canvas.getContext("2d");
+    const letters = MOSAIC_WORD.split("").filter((ch) => GLYPHS[ch]);
+    const n = Math.max(1, letters.length);
+    // The word is wrapped onto `lines` rows so the block can match the shape
+    // of the shadow region (1 line for a wide shadow, more for a narrow
+    // crescent). The layout fills the whole canvas; the shader stretches the
+    // canvas into the tracked dark-region rectangle.
+    let lines = 2;
+
+    function redraw() {
+      ctx.clearRect(0, 0, size, size);
+      const cols = Math.ceil(n / lines);
+      const cellW = size / (cols * (GLYPH_W + 1));
+      const cellH = size / (lines * (GLYPH_H + 2));
+      letters.forEach((ch, li) => {
+        const rows = GLYPHS[ch];
+        const color = LETTER_COLORS_BY_INDEX[li % LETTER_COLORS_BY_INDEX.length] || "silver";
+        const row = Math.floor(li / cols);
+        const col = li % cols;
+        const rowCount = Math.min(cols, n - row * cols);
+        const x0 = (size - rowCount * (GLYPH_W + 1) * cellW) / 2 + col * (GLYPH_W + 1) * cellW + cellW * 0.5;
+        const y0 = row * (GLYPH_H + 2) * cellH + cellH;
+        for (let gy = 0; gy < GLYPH_H; gy++) {
+          const rowBits = rows[gy] || 0;
+          for (let gx = 0; gx < GLYPH_W; gx++) {
+            if (!((rowBits >> (GLYPH_W - 1 - gx)) & 1)) continue;
+            const x = x0 + gx * cellW;
+            const y = y0 + gy * cellH;
+            const img = pickImage(color, li * 97 + gx * 17 + gy * 29);
+            if (img) {
+              ctx.drawImage(img, x, y, cellW * 0.9, cellH * 0.9);
+            } else {
+              ctx.fillStyle = REFERENCE_SWATCHES[color] || "#888";
+              ctx.fillRect(x, y, cellW * 0.9, cellH * 0.9);
+            }
+          }
+        }
+      });
+      tex.needsUpdate = true;
+    }
+
+    function setLines(count) {
+      const next = Math.max(1, Math.min(n, count));
+      if (next !== lines) {
+        lines = next;
+        redraw();
+      }
+    }
+
+    const tex = new THREE.CanvasTexture(canvas);
+    tex.wrapS = THREE.ClampToEdgeWrapping;
+    tex.wrapT = THREE.ClampToEdgeWrapping;
+    tex.minFilter = THREE.LinearFilter;
+    redraw();
+    buildPools().then(redraw);
+    return { texture: tex, redraw, setLines, letterCount: n };
+  }
+
+  // Text content: drawn once into a wrapping canvas texture, scrolled in the
+  // shader. Only used when no content video is given.
+  function makeTextTexture() {
+    const size = 1024;
+    const canvas = document.createElement("canvas");
+    canvas.width = size;
+    canvas.height = size;
+    const ctx = canvas.getContext("2d");
+    ctx.clearRect(0, 0, size, size);
+    ctx.fillStyle = "#ffffff";
+    ctx.textAlign = "center";
+    ctx.textBaseline = "middle";
+    ctx.font = `bold ${FONT_PX}px "JetBrains Mono", "Menlo", monospace`;
+    const lineStep = FONT_PX * 2.2;
+    const blockH = TEXT.length * lineStep;
+    const startY = (size - blockH) / 2 + lineStep / 2;
+    TEXT.forEach((line, i) => {
+      ctx.fillText(line.trim(), size / 2, startY + i * lineStep);
+    });
+    const tex = new THREE.CanvasTexture(canvas);
+    tex.wrapS = THREE.RepeatWrapping;
+    tex.wrapT = THREE.RepeatWrapping;
+    tex.minFilter = THREE.LinearFilter;
+    return tex;
+  }
+
+  const mosaic = useMosaic ? makeMosaicTexture() : null;
+
+  // What lives inside the window (behind/instead of the letters).
+  const winTexture = crt ? crt.texture
+    : cave ? cave.texture
+    : incant ? incant.texture
+    : (WIN && contentVideo) ? contentVideo.texture
+    : (WIN && imageTextures.length) ? imageTextures[0]
+    : null;
+  const winAspect0 = crt ? crt.aspect : cave ? cave.aspect : incant ? incant.aspect : 16 / 9;
+
+  const uniforms = {
+    uMoon: { value: moon.texture },
+    uContent: {
+      value: mosaic ? mosaic.texture
+           : contentVideo ? contentVideo.texture
+           : imageTextures.length ? imageTextures[0]
+           : makeTextTexture()
+    },
+    uThresh: { value: THRESHOLD },
+    uFeather: { value: FEATHER },
+    uBright: { value: BRIGHT },
+    uLift: { value: LIFT },
+    uFlicker: { value: FLICKER },
+    uColor: { value: new THREE.Vector3(COLOR.r, COLOR.g, COLOR.b) },
+    uScroll: { value: 0 },
+    uTime: { value: 0 },
+    uIsVideoContent: { value: (!useMosaic && (contentVideo || imageTextures.length)) ? 1 : 0 },
+    // Mosaic tiles are full-color astronaut images; don't tint them.
+    uTint: { value: mosaic ? 0 : 1 },
+    uDisc: { value: new THREE.Vector3(DISC_CX, DISC_CY, DISC_R) },
+    // Spherical surface anchoring (mosaic): rotation angle, anchor lon/lat,
+    // and the angular size of the word's box on the globe.
+    uSphere: { value: useMosaic ? 1 : 0 },
+    uRot: { value: 0 },
+    uAnchor: { value: new THREE.Vector2(0, 0) },
+    uAng: { value: new THREE.Vector2(ANG_W, ANG_H) },
+    // Content rectangle in video UV space: center (x, y) and size (z, w).
+    // Used by the planar modes (images, content video, plain text).
+    uRect: {
+      value: new THREE.Vector4(
+        DISC_CX, DISC_CY,
+        imageTextures.length ? IMG_SCALE : 1,
+        imageTextures.length ? IMG_SCALE : 1
+      )
+    },
+    // Window/cave behind the letters (all animated from JS):
+    uWin: { value: WIN ? 1 : 0 },
+    uWinTex: { value: winTexture || moon.texture },
+    uWinDepth: { value: WIN_DEPTH },
+    uWinGrow: { value: 1 },          // widens during peeks
+    uWinAspect: { value: winAspect0 }, // content aspect for cover-crop
+    // The in-page generators are dark-background and need heat; photographed
+    // pages and bright video need much less or they glare off the surface.
+    uWinBright: {
+      value: num("winbright", KEYWORD_CONTENT ? 0.42 : isImageContent ? 0.14 : 0.24)
+    },
+    uWordOn: { value: WORDLESS_WIN ? 0 : 1 }, // letter panel opacity
+    uGate: { value: APPARITION > 0 ? 0 : 1 }, // apparition reveal gate
+    // Planar bleed spot: soft circular reveal window centered on the
+    // shadow's centroid (x, y in uv; z = radius in frame heights, 0 = off).
+    uSpot: { value: new THREE.Vector3(0, 0, 0) }
+  };
+
+  // Track the real aspect of window video/slide content for cover-crop.
+  if (WIN && contentVideo) {
+    contentVideo.video.addEventListener("loadedmetadata", () => {
+      uniforms.uWinAspect.value = (contentVideo.video.videoWidth || 16) / (contentVideo.video.videoHeight || 9);
+    });
+  }
+
+  // Wrap the mosaic word onto the line count that best fits the angular box.
+  function chooseLines(boxAspect) {
+    if (!mosaic) return;
+    let best = 1, bestErr = Infinity;
+    for (let L = 1; L <= Math.min(6, mosaic.letterCount); L++) {
+      const cols = Math.ceil(mosaic.letterCount / L);
+      const gridAspect = (cols * (GLYPH_W + 1)) / (L * (GLYPH_H + 2));
+      const err = Math.abs(Math.log(gridAspect / boxAspect));
+      if (err < bestErr) { bestErr = err; best = L; }
+    }
+    mosaic.setLines(best);
+  }
+  chooseLines(ANG_W / ANG_H);
+
+  const material = new THREE.ShaderMaterial({
+    uniforms,
+    vertexShader: `
+      varying vec2 vUv;
+      void main() {
+        vUv = uv;
+        gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+      }
+    `,
+    fragmentShader: `
+      uniform sampler2D uMoon, uContent, uWinTex;
+      uniform float uThresh, uFeather, uBright, uFlicker, uScroll, uTime, uIsVideoContent, uTint, uLift, uSphere, uRot;
+      uniform float uWin, uWinDepth, uWinGrow, uWinAspect, uWinBright, uWordOn, uGate;
+      uniform vec3 uColor, uDisc, uSpot;
+      uniform vec4 uRect;
+      uniform vec2 uAnchor, uAng;
+      varying vec2 vUv;
+      const float PI = 3.14159265;
+
+      void main() {
+        vec4 moon = texture2D(uMoon, vUv);
+        float luma = dot(moon.rgb, vec3(0.2126, 0.7152, 0.0722));
+        // Disc distance in frame-height units (x corrected for 16:9).
+        vec2 d = vec2((vUv.x - uDisc.x) * (16.0 / 9.0), vUv.y - uDisc.y);
+        float disc = 1.0 - smoothstep(uDisc.z - 0.012, uDisc.z + 0.004, length(d));
+        float discIn = 1.0 - smoothstep(uDisc.z * 0.88, uDisc.z * 0.95, length(d));
+        // Sharpened alpha: the video has a soft glow halo around the moon
+        // (partial alpha, dark rgb) that must not receive content.
+        float body = smoothstep(0.85, 0.98, moon.a);
+        float lumaMask = 1.0 - smoothstep(uThresh, uThresh + uFeather, luma);
+        float dark = lumaMask * body * disc;
+
+        vec2 cuv;
+        float reveal;
+        float winMask = 0.0;
+        vec3 winGlow = vec3(0.0);
+        float caveDim = 0.0;
+        if (uSphere > 0.5) {
+          // Treat the disc as an orthographically projected globe: each pixel
+          // maps to lon/lat, the word owns a fixed lon/lat box on the surface
+          // (its "continent"), and longitude advances with the rotation - so
+          // the word is carried around and slides off the limb naturally.
+          vec2 p = d / uDisc.z;
+          float r2 = dot(p, p);
+          float nz = sqrt(max(0.0, 1.0 - r2));
+          float lon = atan(p.x, nz);
+          float lat = asin(clamp(p.y, -1.0, 1.0));
+          float dlon = mod(lon - uRot - uAnchor.x + PI, 2.0 * PI) - PI;
+          float dlat = lat - uAnchor.y;
+          cuv = vec2(dlon / uAng.x, dlat / uAng.y) + 0.5;
+          float inside = step(0.0, cuv.x) * step(cuv.x, 1.0) * step(0.0, cuv.y) * step(cuv.y, 1.0);
+          // Foreshortened fade right at the limb instead of a hard pop.
+          float limbFade = smoothstep(0.02, 0.16, nz) * (1.0 - step(1.0, r2));
+          reveal = inside * limbFade * body;
+
+          if (uWin > 0.5) {
+            // Recessed window in the same anchored box, grown a little during
+            // peeks. Visibility breathes with the shadow: fully open in the
+            // dark, sealed to a glimmer in sunlight.
+            vec2 wAng = uAng * uWinGrow;
+            vec2 wuv = vec2(dlon / wAng.x, dlat / wAng.y) + 0.5;
+            vec2 e = abs(wuv - 0.5) * 2.0;
+            float box = (1.0 - smoothstep(0.86, 1.0, e.x)) * (1.0 - smoothstep(0.86, 1.0, e.y));
+            float shadowGate = mix(0.05, 1.0, lumaMask);
+            winMask = box * limbFade * body * shadowGate * uGate;
+            caveDim = winMask * uWinDepth;
+            // Cover-crop the content so it fills the window without squash.
+            vec2 fuv = wuv - 0.5;
+            float boxAspect = (wAng.x / wAng.y) * 0.72; // lat rads are taller on screen
+            if (uWinAspect > boxAspect) {
+              fuv.x *= boxAspect / uWinAspect;
+            } else {
+              fuv.y *= uWinAspect / boxAspect;
+            }
+            vec4 wraw = texture2D(uWinTex, clamp(fuv + 0.5, 0.0, 1.0));
+            winGlow = wraw.rgb * wraw.a * winMask;
+          }
+        } else {
+          cuv = vUv;
+          if (uIsVideoContent < 0.5) cuv.y = fract(cuv.y - uScroll);
+          cuv = (cuv - uRect.xy) / max(uRect.zw, vec2(1e-4)) + 0.5;
+          float inside = step(0.0, cuv.x) * step(cuv.x, 1.0) * step(0.0, cuv.y) * step(cuv.y, 1.0);
+          reveal = inside * dark * discIn;
+          // Planar bleed spot: concentrate the reveal in a soft circle at the
+          // shadow centroid instead of wherever the threshold happens to bite.
+          if (uSpot.z > 0.0) {
+            vec2 sd = vec2((vUv.x - uSpot.x) * (16.0 / 9.0), vUv.y - uSpot.y);
+            reveal *= 1.0 - smoothstep(uSpot.z * 0.55, uSpot.z, length(sd));
+          }
+          reveal *= uGate;
+        }
+        vec4 raw = texture2D(uContent, clamp(cuv, 0.0, 1.0));
+        // Multiply by alpha so transparent regions stay invisible.
+        vec3 content = (uIsVideoContent > 0.5)
+          ? raw.rgb * raw.a
+          : raw.rgb * raw.a * mix(vec3(1.0), uColor, uTint);
+
+        float flicker = 1.0 - uFlicker * 0.5 * (1.0 + sin(uTime * 6.1) * sin(uTime * 2.3));
+        // Faint earthshine so the shadowed hemisphere reads as surface.
+        // Inside the window the surface recesses (cave), the window content
+        // glows through, and the letter panel sits on top (uWordOn dissolves
+        // it during peeks).
+        vec3 col = moon.rgb * moon.a * (1.0 - caveDim)
+          + vec3(0.9, 0.95, 1.05) * uLift * dark
+          + winGlow * uBright * uWinBright
+          + content * reveal * uBright * flicker * uWordOn;
+        gl_FragColor = vec4(col, 1.0);
+      }
+    `
+  });
+
+  // Full-window quad, letterboxed to the video's 16:9 aspect.
+  const quad = new THREE.Mesh(new THREE.PlaneGeometry(2, 2), material);
+  scene.add(quad);
+  function fitQuad() {
+    const winAspect = window.innerWidth / window.innerHeight;
+    const vidAspect = 16 / 9;
+    if (winAspect > vidAspect) {
+      quad.scale.set(vidAspect / winAspect, 1, 1);
+    } else {
+      quad.scale.set(1, winAspect / vidAspect, 1);
+    }
+  }
+  fitQuad();
+  window.addEventListener("resize", () => {
+    renderer.setSize(window.innerWidth, window.innerHeight);
+    fitQuad();
+  });
+
+  window.__hyperstitionStats = {
+    layout: "moon-darkside",
+    moonSrc: MOON_SRC,
+    get speed() { return SPEED; },
+    get moonTime() { return moon.video.currentTime; },
+    contentSrc: CONTENT_SRC || (useMosaic ? "mosaic:" + MOSAIC_WORD : "text"),
+    threshold: THRESHOLD,
+    window: WIN ? CONTENT_KEY || "media" : "none",
+    get when() { return WHEN; },
+    get gate() { return +uniforms.uGate.value; },
+    get wordOn() { return +uniforms.uWordOn.value; },
+    get bleedThresh() { return +uniforms.uThresh.value; },
+    get facing() {
+      const f = wrapPi(uniforms.uAnchor.value.x + uniforms.uRot.value);
+      return Math.abs(f) < Math.PI * 0.3;
+    },
+    moonReady: false
+  };
+  moon.video.addEventListener("playing", () => {
+    window.__hyperstitionStats.moonReady = true;
+    window.__hyperstitionReady = true;
+  });
+  moon.video.addEventListener("error", () => {
+    console.warn("moon video failed:", MOON_SRC);
+    window.__hyperstitionReady = true;
+  });
+  setTimeout(() => { window.__hyperstitionReady = true; }, 12000);
+
+  // --- Surface anchor estimator (mosaic mode): during the first revolution
+  // the video is sampled and every dark lit pixel is mapped back into the
+  // moon's rotating lon/lat frame. The darkest surface cell wins and the
+  // word is anchored there permanently - fixed to the terrain like a
+  // continent, carried around by the rotation, sliding off the limb.
+  const QUANTILE = num("quantile", 0.16);      // darkest fraction of the lit surface to target
+  const SHADOW_FLOOR = num("litfloor", 0.09);  // luma below this = static limb shadow, ignored
+  const SAMPLE_W = 96, SAMPLE_H = 54;
+  const sampleCanvas = document.createElement("canvas");
+  sampleCanvas.width = SAMPLE_W;
+  sampleCanvas.height = SAMPLE_H;
+  const sampleCtx = sampleCanvas.getContext("2d", { willReadFrequently: true });
+  // Disc auto-measured from the video's alpha channel unless overridden.
+  const AUTO_DISC = params.get("cx") == null && params.get("cy") == null && params.get("cr") == null;
+  const disc = { x: DISC_CX, y: DISC_CY, r: DISC_R };
+
+  const GRID_LON = 72, GRID_LAT = 36;
+  const surfGrid = new Float32Array(GRID_LON * GRID_LAT);
+  const wrapPi = (a) => {
+    a = (a + Math.PI) % (2 * Math.PI);
+    if (a < 0) a += 2 * Math.PI;
+    return a - Math.PI;
+  };
+
+  function sampleSurface(rot) {
+    if (moon.video.readyState < 2) return;
+    sampleCtx.clearRect(0, 0, SAMPLE_W, SAMPLE_H);
+    sampleCtx.drawImage(moon.video, 0, 0, SAMPLE_W, SAMPLE_H);
+    const data = sampleCtx.getImageData(0, 0, SAMPLE_W, SAMPLE_H).data;
+
+    // Pass 1: measure the moon disc from the alpha channel (covers the full
+    // sphere, lit and dark alike).
+    if (AUTO_DISC) {
+      let aMinU = 1, aMaxU = 0, aMinV = 1, aMaxV = 0, aCount = 0;
+      for (let py = 0; py < SAMPLE_H; py++) {
+        const v = 1 - (py + 0.5) / SAMPLE_H; // canvas is top-down, UV is bottom-up
+        for (let px = 0; px < SAMPLE_W; px++) {
+          if (data[(py * SAMPLE_W + px) * 4 + 3] < 235) continue; // skip the glow halo
+          const u = (px + 0.5) / SAMPLE_W;
+          aCount++;
+          if (u < aMinU) aMinU = u;
+          if (u > aMaxU) aMaxU = u;
+          if (v < aMinV) aMinV = v;
+          if (v > aMaxV) aMaxV = v;
+        }
+      }
+      if (aCount > 40) {
+        disc.x = (aMinU + aMaxU) / 2;
+        disc.y = (aMinV + aMaxV) / 2;
+        const rX = ((aMaxU - aMinU) / 2) * (16 / 9);
+        const rY = (aMaxV - aMinV) / 2;
+        disc.r = Math.min(rX, rY) * 0.99;
+        uniforms.uDisc.value.set(disc.x, disc.y, disc.r);
+      }
+    }
+
+    // Pass 2: histogram the lumas of the LIT surface. The deep shadow at the
+    // limb is static (the lighting is fixed), so it is excluded — the target
+    // is the darkest patch of the visible surface (the maria), which rotates
+    // around WITH the moon. The cutoff adapts to the darkest QUANTILE of the
+    // lit pixels (?trackthresh= pins a fixed cutoff instead).
+    // Ignore the outer ring: limb darkening there is lighting, not maria.
+    const rIn = disc.r * 0.84;
+    const hist = new Uint16Array(256);
+    let litCount = 0;
+    const lumaAt = (i) => (0.2126 * data[i] + 0.7152 * data[i + 1] + 0.0722 * data[i + 2]) / 255;
+    const inDisc = (px, py) => {
+      const u = (px + 0.5) / SAMPLE_W;
+      const v = 1 - (py + 0.5) / SAMPLE_H;
+      const dx = (u - disc.x) * (16 / 9), dy = v - disc.y;
+      return dx * dx + dy * dy <= rIn * rIn;
+    };
+    for (let py = 0; py < SAMPLE_H; py++) {
+      for (let px = 0; px < SAMPLE_W; px++) {
+        const i = (py * SAMPLE_W + px) * 4;
+        if (data[i + 3] < 235 || !inDisc(px, py)) continue;
+        const luma = lumaAt(i);
+        if (luma <= SHADOW_FLOOR) continue; // static terminator shadow
+        hist[Math.min(255, Math.floor(luma * 255))]++;
+        litCount++;
+      }
+    }
+    if (litCount < 40) return null;
+    let cutoff = TRACK_THRESH;
+    if (params.get("trackthresh") == null) {
+      let acc = 0, bin = 0;
+      const want = litCount * QUANTILE;
+      while (bin < 255 && acc < want) acc += hist[bin++];
+      cutoff = Math.max(SHADOW_FLOOR + 0.02, Math.min(0.6, bin / 255));
+    }
+
+    // Pass 3: map every dark lit pixel back into the rotating surface frame
+    // (undo the current rotation) and accumulate darkness per lon/lat cell.
+    for (let py = 0; py < SAMPLE_H; py++) {
+      const v = 1 - (py + 0.5) / SAMPLE_H;
+      for (let px = 0; px < SAMPLE_W; px++) {
+        const i = (py * SAMPLE_W + px) * 4;
+        if (data[i + 3] < 235 || !inDisc(px, py)) continue;
+        const luma = lumaAt(i);
+        if (luma <= SHADOW_FLOOR || luma > cutoff) continue;
+        const u = (px + 0.5) / SAMPLE_W;
+        const nx = ((u - disc.x) * (16 / 9)) / disc.r;
+        const ny = (v - disc.y) / disc.r;
+        const r2 = nx * nx + ny * ny;
+        if (r2 >= 1) continue;
+        const nz = Math.sqrt(1 - r2);
+        if (nz < 0.35) continue; // too foreshortened near the limb to trust
+        const lon = Math.atan2(nx, nz);
+        const lat = Math.asin(Math.max(-1, Math.min(1, ny)));
+        const surfLon = wrapPi(lon - rot);
+        const bLon = Math.min(GRID_LON - 1, Math.floor((surfLon + Math.PI) / (2 * Math.PI) * GRID_LON));
+        const bLat = Math.min(GRID_LAT - 1, Math.floor((lat + Math.PI / 2) / Math.PI * GRID_LAT));
+        surfGrid[bLat * GRID_LON + bLon] += cutoff - luma + 0.01;
+      }
+    }
+  }
+
+  const anchorTarget = { lon: 0, lat: 0 };
+  // The word's angular footprint grows/shrinks to fill the measured patch
+  // unless the caller pinned it via ?angw= / ?angh=.
+  let AUTO_ANG = params.get("angw") == null && params.get("angh") == null;
+  const angTarget = { w: ANG_W, h: ANG_H };
+  let haveAnchor = false;
+  let anchorLocked = false;
+  let lastSampleT = -Infinity;
+
+  function pickAnchor() {
+    let bestScore = 0, bestLon = 0, bestLat = 0;
+    for (let la = 1; la < GRID_LAT - 1; la++) {
+      for (let lo = 0; lo < GRID_LON; lo++) {
+        let s = 0;
+        for (let dla = -1; dla <= 1; dla++) {
+          for (let dlo = -1; dlo <= 1; dlo++) {
+            s += surfGrid[(la + dla) * GRID_LON + ((lo + dlo + GRID_LON) % GRID_LON)];
+          }
+        }
+        if (s > bestScore) { bestScore = s; bestLon = lo; bestLat = la; }
+      }
+    }
+    if (bestScore <= 0) return;
+    const lon0 = (bestLon + 0.5) / GRID_LON * 2 * Math.PI - Math.PI;
+    const lat0 = (bestLat + 0.5) / GRID_LAT * Math.PI - Math.PI / 2;
+
+    // Measure the patch's angular spread around the anchor so the word can
+    // fill it: darkness-weighted centroid + deviation over nearby cells.
+    let wSum = 0, mLon = 0, mLat = 0, vLon = 0, vLat = 0;
+    const cellLonStep = 2 * Math.PI / GRID_LON, cellLatStep = Math.PI / GRID_LAT;
+    for (let la = 0; la < GRID_LAT; la++) {
+      const lat = (la + 0.5) * cellLatStep - Math.PI / 2;
+      const dLat = lat - lat0;
+      if (Math.abs(dLat) > 1.0) continue;
+      for (let lo = 0; lo < GRID_LON; lo++) {
+        const wgt = surfGrid[la * GRID_LON + lo];
+        if (wgt <= 0) continue;
+        const dLon = wrapPi((lo + 0.5) * cellLonStep - Math.PI - lon0);
+        if (Math.abs(dLon) > 1.4) continue;
+        wSum += wgt;
+        mLon += dLon * wgt; mLat += dLat * wgt;
+        vLon += dLon * dLon * wgt; vLat += dLat * dLat * wgt;
+      }
+    }
+    let latMax = Math.PI / 2 - angTarget.h / 2 - 0.08;
+    if (wSum > 0) {
+      const cLon = mLon / wSum, cLat = mLat / wSum;
+      const stdLon = Math.sqrt(Math.max(0, vLon / wSum - cLon * cLon));
+      const stdLat = Math.sqrt(Math.max(0, vLat / wSum - cLat * cLat));
+      anchorTarget.lon = wrapPi(lon0 + cLon + LON_OFF);
+      if (AUTO_ANG) {
+        angTarget.w = Math.max(0.9, Math.min(2.6, stdLon * 3.6));
+        angTarget.h = Math.max(0.55, Math.min(1.5, stdLat * 3.6));
+      }
+      latMax = Math.PI / 2 - angTarget.h / 2 - 0.08;
+      anchorTarget.lat = Math.max(-latMax, Math.min(latMax, lat0 + cLat + LAT_OFF));
+    } else {
+      anchorTarget.lon = wrapPi(lon0 + LON_OFF);
+      anchorTarget.lat = Math.max(-latMax, Math.min(latMax, lat0 + LAT_OFF));
+    }
+    haveAnchor = true;
+  }
+
+  function rotationPeriod() {
+    return ROT_PER > 0 ? ROT_PER : (moon.video.duration || 6);
+  }
+
+  function updateMosaicAnchor(t) {
+    const per = rotationPeriod();
+    const rot = ROT_DIR * 2 * Math.PI * ((moon.video.currentTime % per) / per);
+    uniforms.uRot.value = rot;
+    if (!anchorLocked && t - lastSampleT >= 0.2) {
+      lastSampleT = t;
+      sampleSurface(rot);
+      pickAnchor();
+      // One full revolution surveyed: the darkest terrain has won, pin it.
+      if (t >= (per / SPEED) * 1.05 + 1) anchorLocked = true;
+    }
+    if (haveAnchor) {
+      const a = uniforms.uAnchor.value;
+      a.x += wrapPi(anchorTarget.lon - a.x) * 0.1;
+      a.y += (anchorTarget.lat - a.y) * 0.1;
+      const g = uniforms.uAng.value;
+      g.x += (angTarget.w - g.x) * 0.1;
+      g.y += (angTarget.h - g.y) * 0.1;
+      chooseLines(g.x / g.y);
+    }
+  }
+
+  // Is the anchored box currently on the visible near side? Peeks and
+  // incant advances only happen when someone could actually see them.
+  function anchorFacing() {
+    if (!useMosaic || !haveAnchor) return true;
+    const facing = wrapPi(uniforms.uAnchor.value.x + uniforms.uRot.value);
+    return Math.abs(facing) < Math.PI * 0.42;
+  }
+
+  // Random apparition scheduler: the reveal gate eases in, holds, eases out,
+  // then sleeps a randomized interval around APPARITION seconds. incant
+  // advances to the next mantra at the start of each apparition.
+  const appar = { phase: APPARITION > 0 ? "sleep" : "on", next: 2 + Math.random() * 3, level: APPARITION > 0 ? 0 : 1 };
+  function updateApparition(t, dt) {
+    if (APPARITION <= 0) {
+      appar.level = Math.min(1, appar.level + dt * 1.5);
+      appar.phase = "on";
+      uniforms.uGate.value = appar.level;
+      return;
+    }
+    if (appar.phase === "on") {
+      // Apparitions switched on live: fade out and join the cycle.
+      appar.phase = "out";
+    }
+    if (appar.phase === "sleep" && t >= appar.next) {
+      appar.phase = "in";
+      if (incant) incant.advance();
+    } else if (appar.phase === "in") {
+      appar.level += dt / 1.6;
+      if (appar.level >= 1) { appar.level = 1; appar.phase = "hold"; appar.next = t + 2.5 + Math.random() * 3.5; }
+    } else if (appar.phase === "hold" && t >= appar.next) {
+      appar.phase = "out";
+    } else if (appar.phase === "out") {
+      appar.level -= dt / 2.2;
+      if (appar.level <= 0) {
+        appar.level = 0;
+        appar.phase = "sleep";
+        appar.next = t + APPARITION * (0.55 + Math.random() * 0.9);
+      }
+    }
+    uniforms.uGate.value = appar.level;
+  }
+
+  // Peek cycle: every PEEK seconds (while the word faces the viewer) the
+  // letters dissolve, the window grows, holds for PEEK_HOLD, and restores.
+  const peek = { phase: "idle", next: PEEK, wordOn: WORDLESS_WIN ? 0 : 1, grow: WORDLESS_WIN ? PEEK_GROW : 1 };
+  function updatePeek(t, dt) {
+    if (WORDLESS_WIN || !WIN) return;
+    if (PEEK > 0) {
+      if (peek.phase === "idle" && t >= peek.next && anchorFacing()) {
+        peek.phase = "out";
+      } else if (peek.phase === "out") {
+        peek.wordOn -= dt / 1.4;
+        if (peek.wordOn <= 0) { peek.wordOn = 0; peek.phase = "open"; peek.next = t + PEEK_HOLD; }
+      } else if (peek.phase === "open" && t >= peek.next) {
+        peek.phase = "in";
+      } else if (peek.phase === "in") {
+        peek.wordOn += dt / 1.4;
+        if (peek.wordOn >= 1) { peek.wordOn = 1; peek.phase = "idle"; peek.next = t + PEEK * (0.8 + Math.random() * 0.5); }
+      }
+    }
+    const growTarget = 1 + (PEEK_GROW - 1) * (1 - peek.wordOn);
+    peek.grow += (growTarget - peek.grow) * Math.min(1, dt * 3);
+    uniforms.uWordOn.value = peek.wordOn;
+    uniforms.uWinGrow.value = peek.grow;
+  }
+
+  // Adaptive planar bleed: keep the revealed area near BLEED% of the disc by
+  // walking the luma threshold, and center the reveal on the centroid of the
+  // shadowed hemisphere (uSpot) rather than wherever the cutoff bites first.
+  let lastBleedT = -Infinity;
+  function adaptBleed(t) {
+    if (useMosaic || BLEED <= 0 || t - lastBleedT < 0.5) return;
+    if (moon.video.readyState < 2) return;
+    lastBleedT = t;
+    sampleCtx.clearRect(0, 0, SAMPLE_W, SAMPLE_H);
+    sampleCtx.drawImage(moon.video, 0, 0, SAMPLE_W, SAMPLE_H);
+    const data = sampleCtx.getImageData(0, 0, SAMPLE_W, SAMPLE_H).data;
+    let discCount = 0, darkCount = 0, cX = 0, cY = 0, cW = 0;
+    const thresh = +uniforms.uThresh.value;
+    for (let py = 0; py < SAMPLE_H; py++) {
+      const v = 1 - (py + 0.5) / SAMPLE_H;
+      for (let px = 0; px < SAMPLE_W; px++) {
+        const i = (py * SAMPLE_W + px) * 4;
+        if (data[i + 3] < 235) continue;
+        const u = (px + 0.5) / SAMPLE_W;
+        const dx = (u - disc.x) * (16 / 9), dy = v - disc.y;
+        if (dx * dx + dy * dy > disc.r * disc.r * 0.92) continue;
+        discCount++;
+        const luma = (0.2126 * data[i] + 0.7152 * data[i + 1] + 0.0722 * data[i + 2]) / 255;
+        if (luma < thresh) darkCount++;
+        // Centroid of the whole shadowed side (generous cutoff), skipping the
+        // outer ring so the spot lands mid-hemisphere, not on the limb.
+        if (luma < 0.16 && dx * dx + dy * dy < disc.r * disc.r * 0.62) {
+          const w = 0.16 - luma;
+          cX += u * w; cY += v * w; cW += w;
+        }
+      }
+    }
+    if (discCount > 50) {
+      const frac = darkCount / discCount;
+      const target = BLEED / 100;
+      // Walk the threshold toward the target area.
+      if (frac > target * 1.15) uniforms.uThresh.value = Math.max(0.02, thresh - 0.006);
+      else if (frac < target * 0.85) uniforms.uThresh.value = Math.min(0.6, thresh + 0.006);
+    }
+    if (cW > 0.5) {
+      const s = uniforms.uSpot.value;
+      const rSpot = disc.r * Math.max(0.18, Math.min(0.55, Math.sqrt(BLEED / 100) * 1.6));
+      s.x += (cX / cW - s.x) * 0.2;
+      s.y += (cY / cW - s.y) * 0.2;
+      s.z = rSpot;
+    }
+  }
+
+  const start = performance.now();
+  let prevT = 0;
+  function animate() {
+    const t = (performance.now() - start) / 1000;
+    const dt = Math.min(0.1, t - prevT);
+    prevT = t;
+    uniforms.uTime.value = t;
+    if (SCROLL_SEC > 0 && !contentVideo && !imageTextures.length && !useMosaic) {
+      uniforms.uScroll.value = (t / SCROLL_SEC) % 1;
+    }
+    if (imageTextures.length > 1 && IMAGE_SEC > 0) {
+      const slide = imageTextures[Math.floor(t / IMAGE_SEC) % imageTextures.length];
+      if (WIN) {
+        uniforms.uWinTex.value = slide;
+        const img = slide.image;
+        if (img && img.width) uniforms.uWinAspect.value = img.width / img.height;
+      } else {
+        uniforms.uContent.value = slide;
+      }
+    }
+    if (crt) crt.draw(t);
+    if (cave) cave.draw(t);
+    if (mosaic) {
+      updateMosaicAnchor(t);
+      // Shimmer the tiles by reshuffling cube images a few times a second.
+      const frame = Math.floor(t * 2.5);
+      if (frame !== mosaicFrame) {
+        mosaicFrame = frame;
+        mosaic.redraw();
+      }
+    }
+    updateApparition(t, dt);
+    updatePeek(t, dt);
+    adaptBleed(t);
+    updateVajras(t);
+    renderer.render(scene, camera);
+    requestAnimationFrame(animate);
+  }
+  animate();
+
+  // --- Controller link (BroadcastChannel 'hypermoon') --------------------
+  // The controller.html hypermoon panel drives this window live and asks it
+  // to report its state (that is what flips the panel from "no hypermoon
+  // window connected" to showing the export query). Without this handshake
+  // the controller never sees the output. Unknown keys are stored and echoed
+  // back so future sliders stay coherent.
+  const hmChannel = ("BroadcastChannel" in window) ? new BroadcastChannel("hypermoon") : null;
+  const extraState = {};
+
+  function buildQuery() {
+    const q = new URLSearchParams();
+    q.set("video", MOON_SRC);
+    if (MOSAIC_WORD) q.set("word", MOSAIC_WORD);
+    if (CONTENT_SRC) q.set("content", CONTENT_SRC);
+    q.set("speed", SPEED.toFixed(3));
+    q.set("bright", (+uniforms.uBright.value).toFixed(3));
+    q.set("threshold", (+uniforms.uThresh.value).toFixed(3));
+    q.set("feather", (+uniforms.uFeather.value).toFixed(3));
+    q.set("lift", (+uniforms.uLift.value).toFixed(3));
+    q.set("flicker", (+uniforms.uFlicker.value).toFixed(2));
+    q.set("angw", (+uniforms.uAng.value.x).toFixed(2));
+    q.set("angh", (+uniforms.uAng.value.y).toFixed(2));
+    q.set("lonoff", (LON_OFF * 180 / Math.PI).toFixed(0));
+    q.set("latoff", (LAT_OFF * 180 / Math.PI).toFixed(0));
+    if (VAJRA_COUNT > 0) {
+      q.set("vajras", String(VAJRA_COUNT));
+      q.set("vajraradius", VAJRA_RADIUS.toFixed(2));
+    }
+    if (BLEED > 0) q.set("bleed", BLEED.toFixed(1));
+    if (APPARITION > 0) q.set("apparition", APPARITION.toFixed(1));
+    if (PEEK > 0 && WIN) q.set("peek", PEEK.toFixed(0));
+    if (CONTENT_KEY === "crt") q.set("when", WHEN);
+    for (const k in extraState) {
+      if (extraState[k] != null && !q.has(k)) q.set(k, String(extraState[k]));
+    }
+    return q.toString();
+  }
+
+  function currentState() {
+    return Object.assign({
+      speed: SPEED,
+      bright: +uniforms.uBright.value,
+      thresh: +uniforms.uThresh.value,
+      feather: +uniforms.uFeather.value,
+      lift: +uniforms.uLift.value,
+      flicker: +uniforms.uFlicker.value,
+      angw: +uniforms.uAng.value.x,
+      angh: +uniforms.uAng.value.y,
+      lon: LON_OFF * 180 / Math.PI,
+      lat: LAT_OFF * 180 / Math.PI,
+      vajras: VAJRA_COUNT,
+      vajraRadius: VAJRA_RADIUS,
+      bleed: BLEED,
+      apparition: APPARITION,
+      when: WHEN
+    }, extraState);
+  }
+
+  function announce() {
+    if (!hmChannel) return;
+    hmChannel.postMessage({
+      type: "moonState",
+      query: buildQuery(),
+      state: currentState(),
+      sources: { video: MOON_SRC, word: MOSAIC_WORD, content: CONTENT_SRC }
+    });
+  }
+
+  function applyLiveConfig(set) {
+    if (!set || typeof set !== "object") return;
+    for (const key in set) {
+      const v = set[key];
+      switch (key) {
+        case "speed": SPEED = v; moon.video.playbackRate = v; break;
+        case "bright": uniforms.uBright.value = v; break;
+        case "thresh": uniforms.uThresh.value = v; break;
+        case "feather": uniforms.uFeather.value = v; break;
+        case "lift": uniforms.uLift.value = v; break;
+        case "flicker": uniforms.uFlicker.value = v; break;
+        case "angw": AUTO_ANG = false; angTarget.w = v; break;
+        case "angh": AUTO_ANG = false; angTarget.h = v; break;
+        case "lon": LON_OFF = v * (Math.PI / 180); pickAnchor(); break;
+        case "lat": LAT_OFF = v * (Math.PI / 180); pickAnchor(); break;
+        case "vajras": setVajraCount(v); break;
+        case "vajraRadius":
+        case "vajraradius": VAJRA_RADIUS = v; break;
+        case "bleed": BLEED = Math.max(0, v); break;
+        case "apparition": APPARITION = Math.max(0, v); break;
+        case "peek": PEEK = Math.max(0, v); break;
+        case "when":
+          WHEN = String(v || "").trim() || WHEN;
+          if (crt) crt.setWhen();
+          break;
+        default: extraState[key] = v; break;
+      }
+    }
+  }
+
+  function applySources(sources) {
+    if (!sources) return;
+    const q = new URLSearchParams(location.search);
+    if (sources.video) q.set("video", sources.video);
+    if (sources.word != null) { q.set("word", sources.word); q.delete("text"); }
+    if (sources.content != null) {
+      if (sources.content) q.set("content", sources.content); else q.delete("content");
+    }
+    location.search = q.toString(); // reloads with the new sources
+  }
+
+  function resurvey() {
+    anchorLocked = false;
+    haveAnchor = false;
+    lastSampleT = -Infinity;
+    surfGrid.fill(0);
+  }
+
+  if (hmChannel) {
+    hmChannel.onmessage = function (event) {
+      const msg = event.data;
+      if (!msg) return;
+      if (msg.type === "moonRequestState") { announce(); return; }
+      if (msg.type === "moonConfig") {
+        if (msg.set) applyLiveConfig(msg.set);
+        if (msg.sources) { applySources(msg.sources); return; }
+        if (msg.resurvey) resurvey();
+        announce();
+      }
+    };
+    // Announce on open, and again a few times in case the controller was
+    // still binding its listener when the first message went out.
+    announce();
+    [300, 1200, 3000].forEach(function (ms) { setTimeout(announce, ms); });
+    moon.video.addEventListener("playing", announce);
+  }
+})();
+</script>
+</body>
+</html>

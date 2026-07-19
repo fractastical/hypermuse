@@ -2228,6 +2228,9 @@ button:hover {
             return document.getElementById('videoElement');
         }
 
+        let basicVideoHomeParent = null;
+        let basicVideoHomeNextSibling = null;
+
         function ensureBasicVideoBlackBackdrop() {
             let layer = document.getElementById('basicVideoBlackBackdrop');
             if (!layer) {
@@ -2247,6 +2250,14 @@ button:hover {
             const el = getVideoElementRef();
             if (!el) return;
             if (enabled) {
+                // The video element lives inside the #thresholds panel, which demo
+                // mode hides with display:none — that makes even a position:fixed
+                // child invisible. Reparent it to <body> so it can actually show.
+                if (el.parentElement !== document.body) {
+                    basicVideoHomeParent = el.parentElement;
+                    basicVideoHomeNextSibling = el.nextSibling;
+                    document.body.appendChild(el);
+                }
                 ensureBasicVideoBlackBackdrop().style.display = 'block';
                 el.classList.remove('hidden');
                 el.style.position = 'fixed';
@@ -2262,6 +2273,9 @@ button:hover {
             }
             const backdrop = document.getElementById('basicVideoBlackBackdrop');
             if (backdrop) backdrop.style.display = 'none';
+            if (basicVideoHomeParent && el.parentElement === document.body) {
+                basicVideoHomeParent.insertBefore(el, basicVideoHomeNextSibling);
+            }
             el.style.position = '';
             el.style.left = '';
             el.style.top = '';
@@ -5281,7 +5295,10 @@ button:hover {
         if (normalized === 'hierarchical' || normalized === 'hierarchical-life' || normalized === 'hierlife') return 'hierarchical-life';
         if (normalized === 'rewrite' || normalized === 'chemlambda' || normalized === 'lambda') return 'rewrite';
         if (normalized === 'words' || normalized === 'wordcloud' || normalized === 'word-cloud') return 'word-cloud';
-        return 'classic';
+        // Names that are already valid profiles (life, kuramoto, gray-scott,
+        // physarum, molecule…) pass through; normalizeEffectProfileName falls
+        // back to classic for anything unknown.
+        return normalized || 'classic';
     }
 
     function getNextVjMode() {

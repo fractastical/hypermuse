@@ -65,6 +65,8 @@
     const vajraParam = params.get("vajra");
     const vajraCount = clampNum(Number(params.get("vajraCount") ?? "1"), 1, VAJRA_CLIPS.length);
     const vajraScale = clampNum(Number(params.get("vajraScale") ?? "0.085"), 0.04, 0.22);
+    // Orbit-radius multiplier for the vajras (1 = the halo ring itself).
+    const vajraRadius = clampNum(Number(params.get("vajraRadius") ?? "1"), 0.3, 2.2);
     const vajraSources = vajraParam
       ? [vajraParam]
       : VAJRA_CLIPS.slice(0, vajraCount);
@@ -161,8 +163,8 @@
         const mid = (n - 1) * 0.5;
         const offset = n > 1 ? (i - mid) / Math.max(1, mid) : 0;
         vajraLanes.push({
-          radiusX: haloRadiusX * (1 + offset * 0.09),
-          radiusY: haloRadiusY * (1 - offset * 0.07 + (i % 2) * 0.05),
+          radiusX: haloRadiusX * vajraRadius * (1 + offset * 0.09),
+          radiusY: haloRadiusY * vajraRadius * (1 - offset * 0.07 + (i % 2) * 0.05),
           tilt: offset * 0.2 + i * 0.04,
           phase: (i / Math.max(1, n)) * Math.PI * 2 + Math.PI * 0.2,
           spin: 1.06 + i * 0.03,
@@ -577,6 +579,7 @@
         showVajras,
         vajraSources,
         vajraCount: vajraSources.length,
+        vajraRadius,
         vajraReady: false,
         moonReady: false,
         letterCount: WORD.length,
@@ -604,6 +607,7 @@
         showVajras,
         vajraSources,
         vajraCount: vajraSources.length,
+        vajraRadius,
         vajraReady,
         moonReady,
           letterCount: WORD.length,

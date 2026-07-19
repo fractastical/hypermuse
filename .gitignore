@@ -2,6 +2,10 @@ creds.js
 images
 node_modules/
 loops/
+assets/
+external/
+infinitestreams/
+.DS_Store
 
 # Generated exports, caches, datasets, PDFs, and media (videos, wav, LED samples, DJ cache, …)
 artifacts/

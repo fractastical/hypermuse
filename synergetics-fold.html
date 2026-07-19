@@ -1,0 +1,476 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8"/>
+<title>Synergetics 100.41 — Foldability of Triangles into Tetrahedra</title>
+<style>
+  body { margin: 0; background: #000; overflow: hidden; }
+  #label {
+    position: fixed; left: 0; right: 0; bottom: 26px; text-align: center;
+    font-family: "Courier New", monospace; font-size: 13px; letter-spacing: 3px;
+    color: rgba(143, 216, 255, 0.55); pointer-events: none; text-transform: uppercase;
+  }
+  #label .dim { color: rgba(143, 216, 255, 0.28); font-size: 11px; display: block; margin-top: 5px; }
+</style>
+<script src="js/threejs.org_build_three.js"></script>
+</head>
+<body>
+<div id="label"></div>
+<script>
+(function () {
+  const params = new URLSearchParams(location.search);
+  const num = (key, fallback) => {
+    const v = Number.parseFloat(params.get(key));
+    return Number.isFinite(v) ? v : fallback;
+  };
+
+  // ---- options -------------------------------------------------------------
+  const MODE = (params.get("mode") || "fold").toLowerCase();   // fold | associate
+  const SHAPE = (params.get("shape") || "cycle").toLowerCase(); // equilateral | scalene | right | cycle
+  const SPEED = num("speed", 1);           // overall animation rate
+  const HOLD_FLAT = num("holdflat", 2.0) / SPEED;
+  const FOLD_SEC = num("foldsec", 3.2) / SPEED;
+  const HOLD_TET = num("holdtet", 6.0) / SPEED;
+  const SPIN = num("spin", 0.25) * SPEED;  // rad/s tumble when folded
+  const SHOW_LABEL = params.get("label") !== "0";
+  const SUBDIV = params.get("subdiv") !== "0"; // draw Fig 100.413 medial lines on each face
+  const COLOR = new THREE.Color("#" + (params.get("color") || "8fd8ff").replace("#", ""));
+  const FACE_ALPHA = num("facealpha", 0.14);
+
+  // ---- shape presets (Synergetics 100.411-100.413) --------------------------
+  // Any triangle with no angle > 90 deg folds into a tetrahedron; the right
+  // triangle is the limit case folding almost flat. We keep it at ~88 deg so
+  // the limit behaviour is visible instead of degenerate.
+  const SHAPES = [
+    {
+      id: "equilateral",
+      name: "equilateral triangle",
+      result: "regular tetrahedron · fig 100.413",
+      pts: [[0, 0], [1, 0], [0.5, Math.sqrt(3) / 2]]
+    },
+    {
+      id: "scalene",
+      name: "scalene acute triangle",
+      result: "isosceles tetrahedron · fig 100.411",
+      pts: [[0, 0], [1, 0], [0.42, 0.78]]
+    },
+    {
+      id: "right",
+      name: "near-right triangle",
+      result: "limit case: almost-flat tetrahedron · fig 100.412",
+      pts: [[0, 0], [1, 0], [0.5, 0.52]]
+    }
+  ];
+  const CYCLE = SHAPE === "cycle";
+  let shapeIdx = CYCLE ? 0 : Math.max(0, SHAPES.findIndex((s) => s.id === SHAPE));
+  if (shapeIdx < 0) shapeIdx = 0;
+
+  // ---- scene ---------------------------------------------------------------
+  const renderer = new THREE.WebGLRenderer({ antialias: true });
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
+  renderer.setSize(window.innerWidth, window.innerHeight);
+  document.body.appendChild(renderer.domElement);
+  const scene = new THREE.Scene();
+  const camera = new THREE.PerspectiveCamera(38, window.innerWidth / window.innerHeight, 0.01, 50);
+  camera.position.set(0, 0.95, 2.35);
+  camera.lookAt(0, 0.14, 0);
+  window.addEventListener("resize", () => {
+    camera.aspect = window.innerWidth / window.innerHeight;
+    camera.updateProjectionMatrix();
+    renderer.setSize(window.innerWidth, window.innerHeight);
+  });
+
+  const assembly = new THREE.Group(); // tumbles as one object
+  scene.add(assembly);
+
+  const faceMat = new THREE.MeshBasicMaterial({
+    color: COLOR, transparent: true, opacity: FACE_ALPHA,
+    side: THREE.DoubleSide, blending: THREE.AdditiveBlending, depthWrite: false
+  });
+  const baseFaceMat = faceMat.clone();
+  baseFaceMat.opacity = FACE_ALPHA * 1.9; // the medial triangle reads darker/denser in the figures
+  const lineMat = new THREE.LineBasicMaterial({
+    color: COLOR, transparent: true, opacity: 0.9,
+    blending: THREE.AdditiveBlending, depthWrite: false
+  });
+  const dimLineMat = lineMat.clone();
+  dimLineMat.opacity = 0.32;
+  const dotMat = new THREE.PointsMaterial({
+    color: COLOR, size: 0.028, transparent: true, opacity: 0.95,
+    blending: THREE.AdditiveBlending, depthWrite: false
+  });
+
+  // ---- mode: associate (Synergetics 108.01, "Four Triangles Out of Two") ----
+  // "Triangles cannot be structured in planes. They are always positive or
+  //  negative helixes … the triangle is a spiral — a very flat spiral, but
+  //  open at the terminal." Two open 3-edge spirals (one positive, one
+  //  negative) associate: their six edges are exactly the six edges of the
+  //  tetrahedron, and 1 + 1 = 4 triangular faces.
+  if (MODE === "associate" || MODE === "helix") {
+    const COLOR2 = new THREE.Color("#" + (params.get("color2") || "ffb46b").replace("#", ""));
+    const APART_SEC = num("apartsec", 3.5) / SPEED;
+    const MERGE_SEC = num("mergesec", 3.2) / SPEED;
+    const HOLD_SEC = num("holdsec", 7.0) / SPEED;
+
+    const negLineMat = lineMat.clone();
+    negLineMat.color = COLOR2;
+    const negDotMat = dotMat.clone();
+    negDotMat.color = COLOR2;
+    const termMat = dotMat.clone();
+    termMat.size = 0.05; // the open terminals, superimposed but never joined
+    const negTermMat = termMat.clone();
+    negTermMat.color = COLOR2;
+
+    // Regular tetrahedron; its 6 edges split into two complementary open
+    // 3-edge paths, each a helix of opposite hand.
+    const s = 0.62 / Math.sqrt(3);
+    const A = new THREE.Vector3(s, s, s);
+    const B = new THREE.Vector3(s, -s, -s);
+    const C = new THREE.Vector3(-s, s, -s);
+    const D = new THREE.Vector3(-s, -s, s);
+    const tetraPos = [A, B, C, D]; // edges AB, BC, CD
+    const tetraNeg = [C, A, D, B]; // edges CA, AD, DB
+
+    // Flat open spiral: three edges around a circle plus pitch out of plane;
+    // the 4th point overshoots the 1st (superimposed, never closed).
+    function spiralPts(cx, dir, phase, out) {
+      const r = 0.46, pitch = 0.05;
+      for (let k = 0; k < 4; k++) {
+        const over = k === 3 ? dir * 0.38 : 0;
+        const a = dir * (k * 2 * Math.PI / 3) + phase + over;
+        out[k].set(cx + r * Math.cos(a), r * Math.sin(a) + 0.14, (k - 1.5) * pitch * dir);
+      }
+    }
+
+    function makeStrand(mat, dMat, tMat) {
+      const geo = new THREE.BufferGeometry();
+      geo.setAttribute("position", new THREE.Float32BufferAttribute(new Float32Array(12), 3));
+      const line = new THREE.Line(geo, mat);
+      const dots = new THREE.Points(geo.clone(), dMat);
+      const term = new THREE.Points(new THREE.BufferGeometry(), tMat);
+      term.geometry.setAttribute("position", new THREE.Float32BufferAttribute(new Float32Array(6), 3));
+      assembly.add(line, dots, term);
+      return { line, dots, term, pts: [0, 1, 2, 3].map(() => new THREE.Vector3()) };
+    }
+    const strandPos = makeStrand(lineMat, dotMat, termMat);
+    const strandNeg = makeStrand(negLineMat, negDotMat, negTermMat);
+
+    // The four faces (1 + 1 = 4). Two are the "event" triangles, tinted with
+    // the strand colors; the other two arrive later, from outside, white —
+    // "we get the two other triangles from the rest of the Universe" (108.02).
+    function faceMesh(tris, mat) {
+      const geo = new THREE.BufferGeometry();
+      const arr = [];
+      for (const [p, q, r] of tris) arr.push(p.x, p.y, p.z, q.x, q.y, q.z, r.x, r.y, r.z);
+      geo.setAttribute("position", new THREE.Float32BufferAttribute(arr, 3));
+      const mesh = new THREE.Mesh(geo, mat);
+      assembly.add(mesh);
+      return mesh;
+    }
+    const eventFaceMatP = faceMat.clone();
+    eventFaceMatP.opacity = 0;
+    const eventFaceMatN = faceMat.clone();
+    eventFaceMatN.color = COLOR2;
+    eventFaceMatN.opacity = 0;
+    const universeFaceMat = faceMat.clone();
+    universeFaceMat.color = new THREE.Color("#ffffff");
+    universeFaceMat.opacity = 0;
+    // ABC leans on the positive strand's edges (AB, BC); ACD on the negative's
+    // (CA, AD). ABD and BCD are the complementary pair from the Universe.
+    faceMesh([[A, B, C]], eventFaceMatP);
+    faceMesh([[A, C, D]], eventFaceMatN);
+    const universeFaces = faceMesh([[A, B, D], [B, C, D]], universeFaceMat);
+
+    // Inside/outside: once the system closes, a faint pulse at the enclosed
+    // center — "a division of Universe into inside and outside".
+    const coreMat = dotMat.clone();
+    coreMat.color = new THREE.Color("#ffffff");
+    coreMat.size = 0.075;
+    coreMat.opacity = 0;
+    const coreGeo = new THREE.BufferGeometry();
+    coreGeo.setAttribute("position", new THREE.Float32BufferAttribute([0, 0, 0], 3));
+    assembly.add(new THREE.Points(coreGeo, coreMat));
+
+    function writeStrand(strand, spiralCx, dir, phase, targets, p, now) {
+      spiralPts(spiralCx, dir, phase, strand.pts);
+      const pos = strand.line.geometry.attributes.position;
+      const dpos = strand.dots.geometry.attributes.position;
+      // "As separate actions, the two actions and resultants were very
+      // unstable" — the loose spirals tremble; association stills them.
+      const wob = 0.016 * (1 - p);
+      for (let k = 0; k < 4; k++) {
+        const v = strand.pts[k].lerp(targets[k], p);
+        v.x += wob * Math.sin(now * 6.3 + k * 2.1 + dir * 3.0);
+        v.y += wob * Math.sin(now * 7.1 + k * 1.7 + dir);
+        v.z += wob * Math.sin(now * 5.2 + k * 2.6);
+        pos.setXYZ(k, v.x, v.y, v.z);
+        dpos.setXYZ(k, v.x, v.y, v.z);
+      }
+      const tpos = strand.term.geometry.attributes.position;
+      tpos.setXYZ(0, pos.getX(0), pos.getY(0), pos.getZ(0));
+      tpos.setXYZ(1, pos.getX(3), pos.getY(3), pos.getZ(3));
+      pos.needsUpdate = dpos.needsUpdate = tpos.needsUpdate = true;
+    }
+
+    const labelEl2 = document.getElementById("label");
+    if (SHOW_LABEL) {
+      labelEl2.innerHTML = "108.01&ndash;03 four triangles out of two &middot; 1 + 1 = 4" +
+        '<span class="dim">two faces from the events &middot; two from the rest of universe &middot; inside | outside</span>';
+    } else {
+      labelEl2.style.display = "none";
+    }
+
+    const ease2 = (t) => t * t * (3 - 2 * t);
+    let phase2 = "apart";
+    let phaseStart2 = performance.now() / 1000;
+    let spiralPhase = 0;
+    let tumble2 = 0;
+    let paused2 = false;
+    let uni = 0; // universe-faces arrival 0..1
+    let last2 = performance.now() / 1000;
+
+    function animateAssoc() {
+      requestAnimationFrame(animateAssoc);
+      const now = performance.now() / 1000;
+      const dt = Math.min(now - last2, 0.1);
+      last2 = now;
+      if (!paused2) {
+        const t = now - phaseStart2;
+        let p = 0;
+        if (phase2 === "apart") {
+          spiralPhase += dt * 0.55 * SPEED;
+          if (t > APART_SEC) { phase2 = "merge"; phaseStart2 = now; }
+        } else if (phase2 === "merge") {
+          p = ease2(Math.min(t / MERGE_SEC, 1));
+          if (t >= MERGE_SEC) { phase2 = "held"; phaseStart2 = now; }
+        } else if (phase2 === "held") {
+          p = 1;
+          if (t > HOLD_SEC) { phase2 = "split"; phaseStart2 = now; }
+        } else {
+          p = ease2(1 - Math.min(t / MERGE_SEC, 1));
+          if (t >= MERGE_SEC) { phase2 = "apart"; phaseStart2 = now; }
+        }
+        writeStrand(strandPos, -0.72, 1, spiralPhase, tetraPos, p, now);
+        writeStrand(strandNeg, 0.72, -1, -spiralPhase * 0.8, tetraNeg, p, now);
+        // Event faces bloom as the strands lock …
+        const eventOn = FACE_ALPHA * 1.5 * Math.max(0, (p - 0.65) / 0.35);
+        eventFaceMatP.opacity = eventOn;
+        eventFaceMatN.opacity = eventOn;
+        // … then the complementary pair converges in from outside the system.
+        const uniTarget = (phase2 === "held" && t > 1.0) ? 1 : 0;
+        uni += (uniTarget - uni) * Math.min(dt * 2.2, 1);
+        universeFaceMat.opacity = FACE_ALPHA * 1.1 * uni;
+        const uniScale = 1.9 - 0.9 * ease2(Math.min(uni * 1.15, 1));
+        universeFaces.scale.setScalar(uniScale);
+        // Inside/outside pulse once the system is closed.
+        coreMat.opacity = 0.5 * uni * (0.55 + 0.45 * Math.sin(now * 1.8));
+        tumble2 += SPIN * (0.2 + 2.0 * p) * dt;
+        assembly.rotation.y = tumble2;
+        assembly.rotation.x = 0.16 * Math.sin(now * 0.19) * p;
+        assembly.rotation.z = 0.09 * Math.sin(now * 0.12 + 1.7) * p;
+      }
+      renderer.render(scene, camera);
+      window.__hyperstitionStats = { mode: "associate", phase: phase2 };
+      window.__hyperstitionReady = true;
+    }
+    animateAssoc();
+    window.addEventListener("keydown", (e) => {
+      if (e.key === " ") { paused2 = !paused2; e.preventDefault(); }
+    });
+    return;
+  }
+
+  // ---- geometry helpers ----------------------------------------------------
+  // All triangles live in the XZ plane (y = 0), apex folds toward +Y.
+  const v3 = (p) => new THREE.Vector3(p[0], 0, p[1]);
+
+  function triMesh(a, b, c, mat) {
+    const g = new THREE.BufferGeometry();
+    g.setAttribute("position", new THREE.Float32BufferAttribute(
+      [a.x, a.y, a.z, b.x, b.y, b.z, c.x, c.y, c.z], 3));
+    return new THREE.Mesh(g, mat);
+  }
+
+  function edgeLines(pts, pairs, mat) {
+    const arr = [];
+    for (const [i, j] of pairs) {
+      arr.push(pts[i].x, pts[i].y, pts[i].z, pts[j].x, pts[j].y, pts[j].z);
+    }
+    const g = new THREE.BufferGeometry();
+    g.setAttribute("position", new THREE.Float32BufferAttribute(arr, 3));
+    return new THREE.LineSegments(g, mat);
+  }
+
+  function midpoint(a, b) { return a.clone().add(b).multiplyScalar(0.5); }
+
+  // Medial subdivision lines inside one face (echoes fig 100.413).
+  function medialLines(a, b, c) {
+    const mab = midpoint(a, b), mbc = midpoint(b, c), mca = midpoint(c, a);
+    return edgeLines([mab, mbc, mca], [[0, 1], [1, 2], [2, 0]], dimLineMat);
+  }
+
+  // Apex of the folded tetrahedron by trilateration: the apex sits at
+  // |P - Mab| = |AB|/2, |P - Mbc| = |BC|/2, |P - Mca| = |CA|/2 above the
+  // medial-triangle base plane. Right triangles give height -> 0 (100.412).
+  function foldApex(A, B, C) {
+    const M = [midpoint(A, B), midpoint(B, C), midpoint(C, A)];
+    const r = [
+      A.distanceTo(B) / 2,
+      B.distanceTo(C) / 2,
+      C.distanceTo(A) / 2
+    ];
+    const [m1, m2, m3] = M;
+    const a11 = 2 * (m1.x - m2.x), a12 = 2 * (m1.z - m2.z);
+    const b1 = (r[1] * r[1] - r[0] * r[0]) + (m1.x * m1.x - m2.x * m2.x) + (m1.z * m1.z - m2.z * m2.z);
+    const a21 = 2 * (m1.x - m3.x), a22 = 2 * (m1.z - m3.z);
+    const b2 = (r[2] * r[2] - r[0] * r[0]) + (m1.x * m1.x - m3.x * m3.x) + (m1.z * m1.z - m3.z * m3.z);
+    const det = a11 * a22 - a12 * a21;
+    const x = (b1 * a22 - b2 * a12) / det;
+    const z = (a11 * b2 - a21 * b1) / det;
+    const h2 = r[0] * r[0] - (x - m1.x) * (x - m1.x) - (z - m1.z) * (z - m1.z);
+    return new THREE.Vector3(x, Math.sqrt(Math.max(h2, 0)), z);
+  }
+
+  // ---- build one foldable triangle ------------------------------------------
+  let model = null;
+
+  function buildModel(shapeDef) {
+    if (model) assembly.remove(model.root);
+    // normalize: centroid at origin, longest vertex radius = 0.85
+    let pts = shapeDef.pts.map(v3);
+    const cen = pts[0].clone().add(pts[1]).add(pts[2]).multiplyScalar(1 / 3);
+    pts = pts.map((p) => p.sub(cen));
+    const maxR = Math.max(...pts.map((p) => p.length()));
+    pts = pts.map((p) => p.multiplyScalar(0.85 / maxR));
+    const [A, B, C] = pts;
+    const Mab = midpoint(A, B), Mbc = midpoint(B, C), Mca = midpoint(C, A);
+    const apex = foldApex(A, B, C);
+
+    const root = new THREE.Group();
+
+    // static base: the medial triangle
+    const base = new THREE.Group();
+    base.add(triMesh(Mab, Mbc, Mca, baseFaceMat));
+    base.add(edgeLines([Mab, Mbc, Mca], [[0, 1], [1, 2], [2, 0]], lineMat));
+    if (SUBDIV) base.add(medialLines(Mab, Mbc, Mca));
+    root.add(base);
+
+    // hinged corners: [vertex, hinge0, hinge1]
+    const cornerDefs = [
+      [A, Mca, Mab],
+      [B, Mab, Mbc],
+      [C, Mbc, Mca]
+    ];
+    const corners = cornerDefs.map(([V, H0, H1]) => {
+      const grp = new THREE.Group();
+      grp.matrixAutoUpdate = false;
+      grp.add(triMesh(V, H0, H1, faceMat));
+      grp.add(edgeLines([V, H0, H1], [[0, 1], [2, 0]], lineMat)); // hinge edge already drawn by base
+      if (SUBDIV) grp.add(medialLines(V, H0, H1));
+      const dots = new THREE.BufferGeometry();
+      dots.setAttribute("position", new THREE.Float32BufferAttribute([V.x, V.y, V.z], 3));
+      grp.add(new THREE.Points(dots, dotMat));
+      root.add(grp);
+
+      // precompute hinge frame + total fold angle bringing V onto the apex
+      const axis = H1.clone().sub(H0).normalize();
+      const proj = H0.clone().add(axis.clone().multiplyScalar(V.clone().sub(H0).dot(axis)));
+      const u = V.clone().sub(proj);
+      const w = apex.clone().sub(proj);
+      const angle = Math.atan2(u.clone().cross(w).dot(axis), u.dot(w));
+      return { grp, axis, proj, angle };
+    });
+
+    assembly.add(root);
+    model = { root, corners, shapeDef, apexHeight: apex.y };
+    setFold(0);
+  }
+
+  const mTmp = new THREE.Matrix4();
+  const mRot = new THREE.Matrix4();
+  function setFold(p) { // p: 0 flat .. 1 closed
+    for (const c of model.corners) {
+      mRot.makeRotationAxis(c.axis, c.angle * p);
+      mTmp.makeTranslation(-c.proj.x, -c.proj.y, -c.proj.z);
+      mRot.multiply(mTmp);
+      mTmp.makeTranslation(c.proj.x, c.proj.y, c.proj.z);
+      mTmp.multiply(mRot);
+      c.grp.matrix.copy(mTmp);
+    }
+  }
+
+  // ---- label -----------------------------------------------------------------
+  const labelEl = document.getElementById("label");
+  function setLabel() {
+    if (!SHOW_LABEL) { labelEl.style.display = "none"; return; }
+    const s = model.shapeDef;
+    labelEl.innerHTML = "100.41 foldability of triangles into tetrahedra" +
+      '<span class="dim">' + s.name + " &rarr; " + s.result + "</span>";
+  }
+
+  // ---- animation: flat -> fold -> spin -> unfold -> next shape ---------------
+  const ease = (t) => t * t * (3 - 2 * t);
+  let phase = "flat";      // flat | fold | held | unfold
+  let phaseStart = 0;
+  let paused = false;
+  let tumble = 0;
+
+  buildModel(SHAPES[shapeIdx]);
+  setLabel();
+
+  let last = performance.now() / 1000;
+  function animate() {
+    requestAnimationFrame(animate);
+    const now = performance.now() / 1000;
+    const dt = Math.min(now - last, 0.1);
+    last = now;
+    if (!paused) {
+      const t = now - phaseStart;
+      if (phase === "flat" && t > HOLD_FLAT) { phase = "fold"; phaseStart = now; }
+      else if (phase === "fold") {
+        const p = Math.min(t / FOLD_SEC, 1);
+        setFold(ease(p));
+        if (p >= 1) { phase = "held"; phaseStart = now; }
+      } else if (phase === "held" && t > HOLD_TET) { phase = "unfold"; phaseStart = now; }
+      else if (phase === "unfold") {
+        const p = Math.min(t / FOLD_SEC, 1);
+        setFold(ease(1 - p));
+        if (p >= 1) {
+          phase = "flat"; phaseStart = now;
+          if (CYCLE) {
+            shapeIdx = (shapeIdx + 1) % SHAPES.length;
+            buildModel(SHAPES[shapeIdx]);
+            setLabel();
+          }
+        }
+      }
+      // gentle tumble always; faster while the tetrahedron is closed
+      const spinRate = phase === "held" ? SPIN * 2.2 : SPIN * 0.55;
+      tumble += spinRate * dt;
+      assembly.rotation.y = tumble;
+      assembly.rotation.x = 0.14 * Math.sin(now * 0.21);
+      assembly.rotation.z = 0.08 * Math.sin(now * 0.13 + 1.7);
+    }
+    renderer.render(scene, camera);
+    window.__hyperstitionStats = {
+      phase, shape: model.shapeDef.id, apexHeight: model.apexHeight
+    };
+    window.__hyperstitionReady = true;
+  }
+  phaseStart = performance.now() / 1000;
+  animate();
+
+  window.addEventListener("keydown", (e) => {
+    if (e.key === " ") { paused = !paused; e.preventDefault(); }
+    if (e.key === "s") {
+      shapeIdx = (shapeIdx + 1) % SHAPES.length;
+      buildModel(SHAPES[shapeIdx]);
+      setLabel();
+      phase = "flat";
+      phaseStart = performance.now() / 1000;
+    }
+  });
+})();
+</script>
+</body>
+</html>

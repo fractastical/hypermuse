@@ -307,6 +307,189 @@
         <input type="button" id="bridgeFadeOutButton" value="fade to black"/>
         <input type="button" id="bridgeFadeInButton" value="fade in"/>
     </div>
+    <div class="input-group" id="projRigPanel" style="grid-column: 1 / -1;">
+        Projection Rig (3-projector moon):
+        <div class="muted" style="font-size:11px;color:rgba(207,233,255,0.62);margin:4px 0 8px;line-height:1.4;">
+          Live geometry + alignment for <code>moon-projection-rig.html</code>. Changes broadcast instantly to the
+          diagram below and to any open rig output window. Values persist in the browser and can be copied
+          as a query string for baked exports.
+        </div>
+        <div style="display:flex;flex-wrap:wrap;gap:8px;margin:6px 0;align-items:center;">
+          <input type="button" id="rigOpenOutputButton" value="open triple output (3x1)"/>
+          <input type="button" id="rigOpenQuadButton" value="open quad output (2x2)"/>
+          aux video <input type="text" id="rigAuxVideoInput" value="docs/hyperstition/hyperstition-moon-vajra.mp4" size="42"/>
+          <input type="button" id="rigShowDiagramButton" value="show/refresh diagram"/>
+          <input type="button" id="rigPatternOnButton" value="test pattern on"/>
+          <input type="button" id="rigPatternOffButton" value="test pattern off"/>
+          <input type="button" id="rigResetTrimsButton" value="reset trims"/>
+          <input type="button" id="rigCopyQueryButton" value="copy export query"/>
+        </div>
+        <iframe id="rigDiagramFrame" style="display:none;width:100%;height:340px;border:1px solid rgba(88,246,255,0.35);border-radius:8px;background:#000;" allow="autoplay"></iframe>
+        <table style="border-collapse:collapse;font-size:11px;margin-top:8px;">
+          <tr style="color:rgba(207,233,255,0.62);">
+            <td style="padding:2px 8px;"></td>
+            <td style="padding:2px 8px;">angle °</td>
+            <td style="padding:2px 8px;">dist m</td>
+            <td style="padding:2px 8px;">height m</td>
+            <td style="padding:2px 8px;">fov °V</td>
+            <td style="padding:2px 8px;">nudge px / zoom / roll</td>
+          </tr>
+          <tr>
+            <td style="color:#ff8888;font-weight:bold;padding:2px 8px;">A</td>
+            <td><input type="text" class="rig-geom" id="rigAzA" value="0" size="5"/></td>
+            <td><input type="text" class="rig-geom" id="rigDistA" value="4.80" size="5"/></td>
+            <td><input type="text" class="rig-geom" id="rigHtA" value="0" size="5"/></td>
+            <td><input type="text" class="rig-geom" id="rigFovA" value="" size="5" placeholder="auto"/></td>
+            <td>
+              <input type="button" class="rig-nudge" data-proj="0" data-dx="-1" value="◀"/>
+              <input type="button" class="rig-nudge" data-proj="0" data-dx="1" value="▶"/>
+              <input type="button" class="rig-nudge" data-proj="0" data-dy="1" value="▲"/>
+              <input type="button" class="rig-nudge" data-proj="0" data-dy="-1" value="▼"/>
+              <input type="button" class="rig-nudge" data-proj="0" data-zoom="1.002" value="z+"/>
+              <input type="button" class="rig-nudge" data-proj="0" data-zoom="0.998" value="z−"/>
+              <input type="button" class="rig-nudge" data-proj="0" data-roll="0.1" value="r+"/>
+              <input type="button" class="rig-nudge" data-proj="0" data-roll="-0.1" value="r−"/>
+            </td>
+          </tr>
+          <tr>
+            <td style="color:#88ff99;font-weight:bold;padding:2px 8px;">B</td>
+            <td><input type="text" class="rig-geom" id="rigAzB" value="120" size="5"/></td>
+            <td><input type="text" class="rig-geom" id="rigDistB" value="4.80" size="5"/></td>
+            <td><input type="text" class="rig-geom" id="rigHtB" value="0" size="5"/></td>
+            <td><input type="text" class="rig-geom" id="rigFovB" value="" size="5" placeholder="auto"/></td>
+            <td>
+              <input type="button" class="rig-nudge" data-proj="1" data-dx="-1" value="◀"/>
+              <input type="button" class="rig-nudge" data-proj="1" data-dx="1" value="▶"/>
+              <input type="button" class="rig-nudge" data-proj="1" data-dy="1" value="▲"/>
+              <input type="button" class="rig-nudge" data-proj="1" data-dy="-1" value="▼"/>
+              <input type="button" class="rig-nudge" data-proj="1" data-zoom="1.002" value="z+"/>
+              <input type="button" class="rig-nudge" data-proj="1" data-zoom="0.998" value="z−"/>
+              <input type="button" class="rig-nudge" data-proj="1" data-roll="0.1" value="r+"/>
+              <input type="button" class="rig-nudge" data-proj="1" data-roll="-0.1" value="r−"/>
+            </td>
+          </tr>
+          <tr>
+            <td style="color:#88aaff;font-weight:bold;padding:2px 8px;">C</td>
+            <td><input type="text" class="rig-geom" id="rigAzC" value="240" size="5"/></td>
+            <td><input type="text" class="rig-geom" id="rigDistC" value="4.80" size="5"/></td>
+            <td><input type="text" class="rig-geom" id="rigHtC" value="0" size="5"/></td>
+            <td><input type="text" class="rig-geom" id="rigFovC" value="" size="5" placeholder="auto"/></td>
+            <td>
+              <input type="button" class="rig-nudge" data-proj="2" data-dx="-1" value="◀"/>
+              <input type="button" class="rig-nudge" data-proj="2" data-dx="1" value="▶"/>
+              <input type="button" class="rig-nudge" data-proj="2" data-dy="1" value="▲"/>
+              <input type="button" class="rig-nudge" data-proj="2" data-dy="-1" value="▼"/>
+              <input type="button" class="rig-nudge" data-proj="2" data-zoom="1.002" value="z+"/>
+              <input type="button" class="rig-nudge" data-proj="2" data-zoom="0.998" value="z−"/>
+              <input type="button" class="rig-nudge" data-proj="2" data-roll="0.1" value="r+"/>
+              <input type="button" class="rig-nudge" data-proj="2" data-roll="-0.1" value="r−"/>
+            </td>
+          </tr>
+        </table>
+        <div style="margin-top:6px;">
+          blend ° <input type="text" id="rigBlendInput" value="18" size="4"/>
+          band ° <input type="text" id="rigBandInput" value="58" size="4"/>
+          nudge step px <input type="text" id="rigNudgeStep" value="1" size="4"/>
+        </div>
+        <div id="rigStateReadout" style="font-size:10px;color:rgba(207,233,255,0.62);margin-top:6px;word-break:break-all;line-height:1.4;"></div>
+    </div>
+    <div class="input-group" id="hypermoonPanel" style="grid-column: 1 / -1;">
+        Hypermoon (dark side of the moon):
+        <div class="muted" style="font-size:11px;color:rgba(207,233,255,0.62);margin:4px 0 8px;line-height:1.4;">
+          Live control for <code>hypermoon.html</code>. Sliders broadcast instantly to any open hypermoon window
+          (the on-page "i" panel stays in sync). Source changes reload the output. Copy the export query for
+          baked video renders.
+        </div>
+        <div style="display:flex;flex-wrap:wrap;gap:8px;margin:6px 0;align-items:center;">
+          <input type="button" id="hmOpenOutputButton" value="open hypermoon output"/>
+          moon
+          <select id="hmMoonSelect">
+            <option value="loops/3d moon/web/moon-rotating-6s-alpha.webm">moon 6s (dark space)</option>
+            <option value="loops/3d moon/web/moon-rotating-30s-alpha.webm">moon 30s (render)</option>
+            <option value="loops/3d moon/web/moon-planet-loop-10s-alpha.webm">moon 10s (planet loop)</option>
+            <option value="loops/3d moon/web/moon-neon-blue-25s-alpha.webm">moon 25s (neon blue)</option>
+          </select>
+          word <input type="text" id="hmWordInput" value="hyperstition" size="14"/>
+          window
+          <select id="hmContentPreset">
+            <option value="__keep">custom…</option>
+            <option value="">none (word only)</option>
+            <option value="crt">CRT terminal (live, editable time)</option>
+            <option value="vajra">vajras inside the moon</option>
+            <option value="artifacts/crt-terminal-green.mp4">CRT terminal (baked video)</option>
+            <option value="incant">incantation mantras</option>
+            <option value="assets/estoteric/web/IMG_1900.jpg,assets/estoteric/web/IMG_1901.jpg,assets/estoteric/web/IMG_1902.jpg,assets/estoteric/web/IMG_1903.jpg,assets/estoteric/web/IMG_1904.jpg">sutra pages (slideshow)</option>
+          </select>
+          content <input type="text" id="hmContentInput" value="" size="30" placeholder="empty = word mosaic, 'incant' = mantras"/>
+          when <input type="text" id="hmWhenInput" value="WEDNESDAY 22:00" size="16" title="announced time on the live CRT screen"/>
+          <input type="button" id="hmApplySourcesButton" value="apply sources (reloads)"/>
+          <input type="button" id="hmResurveyButton" value="re-survey anchor"/>
+          <input type="button" id="hmCopyQueryButton" value="copy export query"/>
+        </div>
+        <table style="border-collapse:collapse;font-size:11px;margin-top:4px;">
+          <tr>
+            <td style="padding:2px 8px;color:rgba(207,233,255,0.62);">speed</td>
+            <td><input type="range" class="hm-slider" id="hmSpeed" data-key="speed" min="0.05" max="2" step="0.05" style="width:130px;"/></td>
+            <td style="padding:2px 8px;"><span id="hmSpeedVal">–</span></td>
+            <td style="padding:2px 8px;color:rgba(207,233,255,0.62);">brightness</td>
+            <td><input type="range" class="hm-slider" id="hmBright" data-key="bright" min="0" max="4" step="0.05" style="width:130px;"/></td>
+            <td style="padding:2px 8px;"><span id="hmBrightVal">–</span></td>
+          </tr>
+          <tr>
+            <td style="padding:2px 8px;color:rgba(207,233,255,0.62);">bleed area %</td>
+            <td><input type="range" class="hm-slider" id="hmBleed" data-key="bleed" min="0.2" max="12" step="0.1" style="width:130px;"/></td>
+            <td style="padding:2px 8px;"><span id="hmBleedVal">–</span></td>
+            <td style="padding:2px 8px;color:rgba(207,233,255,0.62);">feather</td>
+            <td><input type="range" class="hm-slider" id="hmFeather" data-key="feather" min="0" max="0.4" step="0.005" style="width:130px;"/></td>
+            <td style="padding:2px 8px;"><span id="hmFeatherVal">–</span></td>
+          </tr>
+          <tr>
+            <td style="padding:2px 8px;color:rgba(207,233,255,0.62);">dark threshold (manual)</td>
+            <td><input type="range" class="hm-slider" id="hmThresh" data-key="thresh" min="0" max="0.6" step="0.005" style="width:130px;"/></td>
+            <td style="padding:2px 8px;"><span id="hmThreshVal">–</span></td>
+            <td style="padding:2px 8px;color:rgba(207,233,255,0.62);">apparition s (0 = steady)</td>
+            <td><input type="range" class="hm-slider" id="hmApparition" data-key="apparition" min="0" max="30" step="0.5" style="width:130px;"/></td>
+            <td style="padding:2px 8px;"><span id="hmApparitionVal">–</span></td>
+          </tr>
+          <tr>
+            <td style="padding:2px 8px;color:rgba(207,233,255,0.62);">orbiting vajras</td>
+            <td><input type="range" class="hm-slider" id="hmVajras" data-key="vajras" min="0" max="6" step="1" style="width:130px;"/></td>
+            <td style="padding:2px 8px;"><span id="hmVajrasVal">–</span></td>
+            <td colspan="3" style="padding:2px 8px;color:rgba(207,233,255,0.45);">spinning dorje clips circle the moon, hide behind the disc</td>
+          </tr>
+          <tr>
+            <td style="padding:2px 8px;color:rgba(207,233,255,0.62);">vajra orbit radius</td>
+            <td><input type="range" class="hm-slider" id="hmVajraRadius" data-key="vajraRadius" min="0.3" max="2.2" step="0.05" style="width:130px;"/></td>
+            <td style="padding:2px 8px;"><span id="hmVajraRadiusVal">–</span></td>
+            <td colspan="3" style="padding:2px 8px;color:rgba(207,233,255,0.45);">how far the dorje clips orbit from the moon (1× = the halo ring)</td>
+          </tr>
+          <tr>
+            <td style="padding:2px 8px;color:rgba(207,233,255,0.62);">earthshine</td>
+            <td><input type="range" class="hm-slider" id="hmLift" data-key="lift" min="0" max="0.35" step="0.005" style="width:130px;"/></td>
+            <td style="padding:2px 8px;"><span id="hmLiftVal">–</span></td>
+            <td style="padding:2px 8px;color:rgba(207,233,255,0.62);">flicker</td>
+            <td><input type="range" class="hm-slider" id="hmFlicker" data-key="flicker" min="0" max="1" step="0.01" style="width:130px;"/></td>
+            <td style="padding:2px 8px;"><span id="hmFlickerVal">–</span></td>
+          </tr>
+          <tr>
+            <td style="padding:2px 8px;color:rgba(207,233,255,0.62);">nudge W/E °</td>
+            <td><input type="range" class="hm-slider" id="hmLon" data-key="lon" min="-90" max="90" step="1" style="width:130px;"/></td>
+            <td style="padding:2px 8px;"><span id="hmLonVal">–</span></td>
+            <td style="padding:2px 8px;color:rgba(207,233,255,0.62);">nudge S/N °</td>
+            <td><input type="range" class="hm-slider" id="hmLat" data-key="lat" min="-45" max="45" step="1" style="width:130px;"/></td>
+            <td style="padding:2px 8px;"><span id="hmLatVal">–</span></td>
+          </tr>
+          <tr>
+            <td style="padding:2px 8px;color:rgba(207,233,255,0.62);">word width</td>
+            <td><input type="range" class="hm-slider" id="hmAngw" data-key="angw" min="0.5" max="2.8" step="0.02" style="width:130px;"/></td>
+            <td style="padding:2px 8px;"><span id="hmAngwVal">–</span></td>
+            <td style="padding:2px 8px;color:rgba(207,233,255,0.62);">word height</td>
+            <td><input type="range" class="hm-slider" id="hmAngh" data-key="angh" min="0.3" max="1.8" step="0.02" style="width:130px;"/></td>
+            <td style="padding:2px 8px;"><span id="hmAnghVal">–</span></td>
+          </tr>
+        </table>
+        <div id="hmStateReadout" style="font-size:10px;color:rgba(207,233,255,0.62);margin-top:6px;word-break:break-all;line-height:1.4;">no hypermoon window connected yet — open one above</div>
+    </div>
     <div class="input-group">
         FX Mode:
         <input type="button" id="modeClassicButton" value="classic"/>
@@ -1056,6 +1239,12 @@ const inputs = document.querySelectorAll('input');
 
 // Loop through each input and attach the event listener
 inputs.forEach(input => {
+    if (input.closest && input.closest('#projRigPanel')) {
+        return; // projection-rig panel has its own broadcast-channel wiring
+    }
+    if (input.closest && input.closest('#hypermoonPanel')) {
+        return; // hypermoon panel has its own broadcast-channel wiring
+    }
     if (input.id === 'visualUrl') {
         return;
     }
@@ -1580,6 +1769,229 @@ const colorCubeBoardStatsButton = document.getElementById('colorCubeBoardStatsBu
 if (colorCubeBoardStatsButton) {
     colorCubeBoardStatsButton.addEventListener('click', function() {
         sendMessageToVisual({ type: 'vj', requestColorCubeStats: true });
+    });
+}
+
+// ── Projection Rig panel (talks to moon-projection-rig.html over BroadcastChannel) ──
+const rigChannel = ('BroadcastChannel' in window) ? new BroadcastChannel('moon-rig') : null;
+let rigLastQuery = '';
+
+function rigSend(cfg) {
+    if (rigChannel) rigChannel.postMessage(Object.assign({ type: 'rigConfig' }, cfg));
+}
+
+function rigReadGeom() {
+    return ['A', 'B', 'C'].map(function(L) {
+        const g = {};
+        const az = parseFloat(document.getElementById('rigAz' + L).value);
+        const dist = parseFloat(document.getElementById('rigDist' + L).value);
+        const ht = parseFloat(document.getElementById('rigHt' + L).value);
+        const fov = parseFloat(document.getElementById('rigFov' + L).value);
+        if (Number.isFinite(az)) g.azDeg = az;
+        if (Number.isFinite(dist)) g.dist = dist;
+        if (Number.isFinite(ht)) g.ht = ht;
+        if (Number.isFinite(fov)) g.fov = fov; // blank = keep auto
+        return g;
+    });
+}
+
+function rigSendAll() {
+    const cfg = { geom: rigReadGeom() };
+    const blend = parseFloat(document.getElementById('rigBlendInput').value);
+    const band = parseFloat(document.getElementById('rigBandInput').value);
+    if (Number.isFinite(blend)) cfg.blend = blend;
+    if (Number.isFinite(band)) cfg.band = band;
+    rigSend(cfg);
+}
+
+document.querySelectorAll('#projRigPanel .rig-geom, #rigBlendInput, #rigBandInput').forEach(function(input) {
+    input.addEventListener('change', function() {
+        flashElement(input);
+        rigSendAll();
+    });
+});
+
+document.querySelectorAll('#projRigPanel .rig-nudge').forEach(function(btn) {
+    btn.addEventListener('click', function() {
+        const step = parseFloat(document.getElementById('rigNudgeStep').value) || 1;
+        const d = btn.dataset;
+        rigSend({ nudge: {
+            index: parseInt(d.proj, 10),
+            dx: (parseFloat(d.dx) || 0) * step,
+            dy: (parseFloat(d.dy) || 0) * step,
+            zoomFactor: parseFloat(d.zoom) || 1,
+            roll: parseFloat(d.roll) || 0
+        }});
+    });
+});
+
+document.getElementById('rigOpenOutputButton').addEventListener('click', function() {
+    window.open('moon-projection-rig.html?feed=triple&hud=0', 'moonRigOutput');
+});
+
+document.getElementById('rigOpenQuadButton').addEventListener('click', function() {
+    // 2x2 canvas for 4-output splitters: projectors A/B/C plus an aux side
+    // screen in the bottom-right cell.
+    const aux = document.getElementById('rigAuxVideoInput').value.trim();
+    const auxPart = aux ? '&auxvideo=' + encodeURIComponent(aux) : '';
+    window.open('moon-projection-rig.html?feed=quad&hud=0&cells=A,B,C,aux' + auxPart, 'moonRigOutput');
+});
+
+document.getElementById('rigShowDiagramButton').addEventListener('click', function() {
+    const frame = document.getElementById('rigDiagramFrame');
+    frame.style.display = 'block';
+    frame.src = 'moon-projection-rig.html?tint=1&hud=0';
+    setTimeout(function() { if (rigChannel) rigChannel.postMessage({ type: 'rigRequestState' }); }, 1200);
+});
+
+document.getElementById('rigPatternOnButton').addEventListener('click', function() { rigSend({ pattern: true }); });
+document.getElementById('rigPatternOffButton').addEventListener('click', function() { rigSend({ pattern: false }); });
+document.getElementById('rigResetTrimsButton').addEventListener('click', function() { rigSend({ resetTrims: true }); });
+
+document.getElementById('rigCopyQueryButton').addEventListener('click', function() {
+    if (rigChannel) rigChannel.postMessage({ type: 'rigRequestState' });
+    setTimeout(function() {
+        if (rigLastQuery && navigator.clipboard) navigator.clipboard.writeText(rigLastQuery).catch(function() {});
+    }, 250);
+});
+
+if (rigChannel) {
+    rigChannel.onmessage = function(event) {
+        const msg = event.data;
+        if (!msg || msg.type !== 'rigState') return;
+        rigLastQuery = msg.query || '';
+        // Sync inputs the user isn't currently editing.
+        ['A', 'B', 'C'].forEach(function(L, i) {
+            const g = (msg.geom || [])[i] || {};
+            [['rigAz' + L, g.azDeg, 1], ['rigDist' + L, g.dist, 2], ['rigHt' + L, g.ht, 2], ['rigFov' + L, g.fov, 1]].forEach(function(spec) {
+                const el = document.getElementById(spec[0]);
+                if (el && document.activeElement !== el && Number.isFinite(spec[1])) {
+                    el.value = spec[1].toFixed(spec[2]);
+                }
+            });
+        });
+        const blendEl = document.getElementById('rigBlendInput');
+        if (blendEl && document.activeElement !== blendEl && Number.isFinite(msg.blend)) blendEl.value = msg.blend.toFixed(1);
+        const bandEl = document.getElementById('rigBandInput');
+        if (bandEl && document.activeElement !== bandEl && Number.isFinite(msg.band)) bandEl.value = msg.band.toFixed(0);
+        const trimText = (msg.trims || []).map(function(t, i) {
+            return 'ABC'[i] + ': ' + t.dx.toFixed(1) + ',' + t.dy.toFixed(1) + 'px z' + t.zoom.toFixed(3) + ' r' + t.roll.toFixed(2) + '°';
+        }).join(' · ');
+        document.getElementById('rigStateReadout').textContent =
+            'trims — ' + trimText + '\nexport query: ' + rigLastQuery;
+    };
+    rigChannel.postMessage({ type: 'rigRequestState' });
+}
+
+// ── Hypermoon panel (talks to hypermoon.html over BroadcastChannel) ──
+const hmChannel = ('BroadcastChannel' in window) ? new BroadcastChannel('hypermoon') : null;
+let hmLastQuery = '';
+let hmGotState = false;
+
+const HM_FMT = {
+    speed: function(v) { return v.toFixed(2); }, bright: function(v) { return v.toFixed(2); },
+    bleed: function(v) { return v.toFixed(1); },
+    apparition: function(v) { return v.toFixed(1); },
+    vajras: function(v) { return v.toFixed(0); },
+    vajraRadius: function(v) { return v.toFixed(2) + '×'; },
+    thresh: function(v) { return v.toFixed(3); }, feather: function(v) { return v.toFixed(3); },
+    lift: function(v) { return v.toFixed(3); }, flicker: function(v) { return v.toFixed(2); },
+    lon: function(v) { return v.toFixed(0); }, lat: function(v) { return v.toFixed(0); },
+    angw: function(v) { return v.toFixed(2); }, angh: function(v) { return v.toFixed(2); }
+};
+
+document.querySelectorAll('#hypermoonPanel .hm-slider').forEach(function(slider) {
+    slider.addEventListener('input', function() {
+        const key = slider.dataset.key;
+        const v = parseFloat(slider.value);
+        const valEl = document.getElementById(slider.id + 'Val');
+        if (valEl) valEl.textContent = HM_FMT[key](v);
+        if (hmChannel) {
+            const set = {};
+            set[key] = v;
+            hmChannel.postMessage({ type: 'moonConfig', set: set });
+        }
+    });
+});
+
+document.getElementById('hmOpenOutputButton').addEventListener('click', function() {
+    window.open('hypermoon.html', 'hypermoonOutput');
+    setTimeout(function() { if (hmChannel) hmChannel.postMessage({ type: 'moonRequestState' }); }, 1500);
+});
+
+function hmApplySources() {
+    if (!hmChannel) return;
+    hmChannel.postMessage({ type: 'moonConfig', sources: {
+        video: document.getElementById('hmMoonSelect').value,
+        word: document.getElementById('hmWordInput').value.trim(),
+        content: document.getElementById('hmContentInput').value.trim()
+    } });
+    // The output reloads; ask for fresh state once it's back.
+    setTimeout(function() { if (hmChannel) hmChannel.postMessage({ type: 'moonRequestState' }); }, 2500);
+}
+document.getElementById('hmApplySourcesButton').addEventListener('click', hmApplySources);
+
+// Window presets: pick what shows inside the moon (behind the word panel)
+// and apply immediately.
+document.getElementById('hmContentPreset').addEventListener('change', function() {
+    if (this.value === '__keep') return;
+    document.getElementById('hmContentInput').value = this.value;
+    hmApplySources();
+});
+
+// Announced time on the live CRT screen - applies instantly, no reload.
+document.getElementById('hmWhenInput').addEventListener('change', function() {
+    if (hmChannel) hmChannel.postMessage({ type: 'moonConfig', set: { when: this.value.trim() } });
+});
+
+document.getElementById('hmResurveyButton').addEventListener('click', function() {
+    if (hmChannel) hmChannel.postMessage({ type: 'moonConfig', resurvey: true });
+});
+
+document.getElementById('hmCopyQueryButton').addEventListener('click', function() {
+    if (hmChannel) hmChannel.postMessage({ type: 'moonRequestState' });
+    setTimeout(function() {
+        if (hmLastQuery && navigator.clipboard) navigator.clipboard.writeText(hmLastQuery).catch(function() {});
+    }, 250);
+});
+
+if (hmChannel) {
+    hmChannel.onmessage = function(event) {
+        const msg = event.data;
+        if (!msg || msg.type !== 'moonState') return;
+        hmLastQuery = msg.query || '';
+        const state = msg.state || {};
+        document.querySelectorAll('#hypermoonPanel .hm-slider').forEach(function(slider) {
+            const key = slider.dataset.key;
+            if (!(key in state) || document.activeElement === slider) return;
+            slider.value = state[key];
+            const valEl = document.getElementById(slider.id + 'Val');
+            if (valEl) valEl.textContent = HM_FMT[key](state[key]);
+        });
+        const sources = msg.sources || {};
+        const moonSel = document.getElementById('hmMoonSelect');
+        if (sources.video && document.activeElement !== moonSel) moonSel.value = sources.video;
+        const wordEl = document.getElementById('hmWordInput');
+        if (sources.word != null && document.activeElement !== wordEl) wordEl.value = sources.word;
+        const contentEl = document.getElementById('hmContentInput');
+        if (sources.content != null && document.activeElement !== contentEl) contentEl.value = sources.content;
+        const presetEl = document.getElementById('hmContentPreset');
+        if (sources.content != null && document.activeElement !== presetEl) {
+            const match = Array.prototype.find.call(presetEl.options, function(o) { return o.value === sources.content; });
+            presetEl.value = match ? sources.content : '__keep';
+        }
+        const whenEl = document.getElementById('hmWhenInput');
+        if (state.when != null && document.activeElement !== whenEl) whenEl.value = state.when;
+        document.getElementById('hmStateReadout').textContent = 'export query: ' + hmLastQuery;
+        hmGotState = true;
+    };
+    // Messages posted during initial parse can be dropped; retry until a
+    // hypermoon window answers (it also announces itself when it opens).
+    hmChannel.postMessage({ type: 'moonRequestState' });
+    [600, 1800, 4000].forEach(function(ms) {
+        setTimeout(function() {
+            if (!hmGotState) hmChannel.postMessage({ type: 'moonRequestState' });
+        }, ms);
     });
 }
 

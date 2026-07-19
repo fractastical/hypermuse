@@ -31,7 +31,9 @@ const HYPERSTITION_PAGE = String(process.env.HYPERSTITION_PAGE || "hyperstition-
 const MOON_VIDEO = String(process.env.MOON_VIDEO || "").trim();
 const ORBIT_SHAPE = String(process.env.ORBIT_SHAPE || "").trim().toLowerCase();
 const VAJRAS = process.env.VAJRAS === "1";
+const EXTRA_QUERY = String(process.env.HYPERSTITION_EXTRA_QUERY || "").trim();
 const VAJRA_COUNT = String(process.env.VAJRA_COUNT || "").trim();
+const VAJRA_RADIUS = String(process.env.VAJRA_RADIUS || "").trim();
 const OUTPUT_VIDEO = process.env.OUTPUT_VIDEO
   ? path.resolve(PROJECT_ROOT, process.env.OUTPUT_VIDEO)
   : path.join(
@@ -135,6 +137,14 @@ async function runExport() {
   }
   if (VAJRA_COUNT) {
     query.set("vajraCount", VAJRA_COUNT);
+  }
+  if (VAJRA_RADIUS) {
+    query.set("vajraRadius", VAJRA_RADIUS);
+  }
+  if (EXTRA_QUERY) {
+    for (const [key, value] of new URLSearchParams(EXTRA_QUERY)) {
+      query.set(key, value);
+    }
   }
   const pageUrl = `http://127.0.0.1:${SERVER_PORT}/${HYPERSTITION_PAGE}?${query.toString()}`;
   let server = null;
