@@ -7,6 +7,7 @@
   body { margin: 0; background: #000; overflow: hidden; }
 </style>
 <script src="js/threejs.org_build_three.js"></script>
+<script src="js/stream-broadcast.js"></script>
 </head>
 <body>
 <script>
@@ -22,9 +23,12 @@
   // comma-separated slideshow of images (imagesec = seconds per image), or a
   // keyword rendered in-page: crt (live terminal), vajra (cave of spinning
   // dorjes), incant (mantra phrases).
-  const CONTENT_SRC = params.get("content") || "";
+  let CONTENT_SRC = params.get("content") || "";
   const CONTENT_KEY = CONTENT_SRC.trim().toLowerCase();
-  const KEYWORD_CONTENT = ["crt", "vajra", "incant"].includes(CONTENT_KEY);
+  const KEYWORD_CONTENT = [
+    "crt", "vajra", "incant", "screen",
+    "fold", "foldsonic", "foldhelix", "foldjitter", "foldgeo", "foldivm"
+  ].includes(CONTENT_KEY);
   const MOSAIC_OFF = params.get("mosaic") === "0";
   const IMAGE_SEC = num("imagesec", 8);
   const IMG_SCALE = num("imgscale", 0.55); // image size as fraction of frame, centered on the disc
@@ -37,14 +41,26 @@
   // Passing ?text=... falls back to plain monospace text instead.
   const TEXT_PARAM = params.get("text");
   const TEXT = (TEXT_PARAM || "HYPERSTITION|THE DARK SIDE SPEAKS|WAIT FOR THE TURN").split("|");
-  const MOSAIC_WORD = String(params.get("word") || "hyperstition").toLowerCase();
+  let MOSAIC_WORD = String(params.get("word") || "hyperstition").toLowerCase();
+  // Kiosk mode (?kiosk=1): hide the cursor and go fullscreen on the first
+  // click/keypress (browsers require a gesture). npm run kiosk:hypermoon
+  // launches Chrome in true kiosk mode with autoplay enabled.
+  const KIOSK = params.get("kiosk") === "1";
+  // Live stream (?stream=1): capture this canvas and broadcast it over the
+  // LAN via the signaling server (npm run stream:server). Other devices
+  // watch at http://<this-machine's-ip>:8080/stream-view.html.
+  const STREAM = params.get("stream") === "1";
+  const STREAM_FPS = num("streamfps", 30);
   // Window mode: content lives in a recessed "window" carved behind the
   // letter panel, pinned to the same dark-terrain anchor and rotating with
   // the moon. It opens wide in shadow and seals to a glimmer in sunlight.
   // ?mosaic=0 with file content skips the letters and window entirely and
   // bleeds the content straight through the shadowed hemisphere (planar).
-  const WIN = !!CONTENT_SRC && !TEXT_PARAM && (KEYWORD_CONTENT || !MOSAIC_OFF);
-  const WORDLESS_WIN = WIN && (CONTENT_KEY === "incant" || MOSAIC_OFF);
+  let WIN = !!CONTENT_SRC && !TEXT_PARAM && (KEYWORD_CONTENT || !MOSAIC_OFF);
+  // incant and the bucky folds render without the letter panel: the
+  // geometry/mantra is the show, no word text over it.
+  const wordlessKey = (k) => k === "incant" || /^fold/.test(k);
+  let WORDLESS_WIN = WIN && (wordlessKey(CONTENT_KEY) || MOSAIC_OFF);
   const useMosaic = !TEXT_PARAM && (!CONTENT_SRC || WIN);
   // Window/reveal behavior (all live-adjustable from the controller):
   let BLEED = num("bleed", 0);           // planar: target % of the disc auto-revealed (0 = fixed threshold)
@@ -89,6 +105,23 @@
   renderer.setSize(window.innerWidth, window.innerHeight);
   renderer.setPixelRatio(1);
   document.body.appendChild(renderer.domElement);
+
+  // LAN broadcast of this canvas - startable at load (?stream=1) or live from
+  // the controller's "stream to LAN" toggle, no reload.
+  let streamStatus = "off";
+  let streamSession = null;
+  function setStreaming(on) {
+    if (on && !streamSession && window.HypermuseStream) {
+      streamSession = window.HypermuseStream.broadcast(renderer.domElement.captureStream(STREAM_FPS), {
+        onStatus: (state, count) => { streamStatus = `${state} (${count} viewer${count === 1 ? "" : "s"})`; }
+      });
+    } else if (!on && streamSession) {
+      streamSession.stop();
+      streamSession = null;
+      streamStatus = "off";
+    }
+  }
+  if (STREAM) setStreaming(true);
   const scene = new THREE.Scene();
   scene.background = new THREE.Color(0x000000);
   const camera = new THREE.OrthographicCamera(-1, 1, 1, -1, 0, 1);
@@ -108,7 +141,7 @@
 
   const moon = makeVideo(MOON_SRC);
   moon.video.playbackRate = SPEED;
-  const contentVideo = isVideoContent ? makeVideo(contentList[0]) : null;
+  let contentVideo = isVideoContent ? makeVideo(contentList[0]) : null;
 
   // Autoplay watchdog: if the browser refused muted autoplay (Safari, Low
   // Power Mode, some popup contexts) the whole scene freezes on frame 0 and
@@ -133,7 +166,12 @@
     if (contentVideo) contentVideo.video.play().catch(() => {});
     vajraSprites.forEach((s) => { if (s.mesh.visible) s.video.play().catch(() => {}); });
     if (cave) cave.videos.forEach((v) => v.play().catch(() => {}));
+    if (fold && fold.video) fold.video.play().catch(() => {});
+    if (KIOSK && !document.fullscreenElement) {
+      document.documentElement.requestFullscreen().catch(() => {});
+    }
   }));
+  if (KIOSK) document.body.style.cursor = "none";
 
   // --- Orbiting vajras (ported from hyperstition-moon-halo) ---------------
   // Additive-blended video sprites on tilted elliptical lanes around the
@@ -260,11 +298,13 @@
     const HOLD = 3.2;           // seconds a finished screen stays up
     let frames = [];
     function buildFrames() {
+      // Short lines on purpose: the auto-fit sizes type to the longest line,
+      // so terse screens render roughly twice as large through the window.
       frames = [
-        ["> CARRIER LOCKED", "> SELENE FREQUENCIES", "", "HYPERSTITION", "", WHEN],
-        ["RECITE THE OATH:", "", "OM VAJRASATTVAH SVAYAM", "TE 'DYA HRDAYE", "SAMAVASTHITAH"],
-        ["ONE SHOULD VISUALIZE", "THE FIGURE OF THE MOON", "AND SOAR UP", "INTO EMPTY SPACE"],
-        ["ASCEND THE LUNAR DISC", "VISUALIZE THE", "ADAMANTINE GEM", "", WHEN],
+        ["> CARRIER LOCKED", "", "HYPERSTITION", "", WHEN],
+        ["RECITE THE OATH:", "OM VAJRASATTVAH", "SVAYAM TE 'DYA", "HRDAYE", "SAMAVASTHITAH"],
+        ["VISUALIZE", "THE MOON", "SOAR UP INTO", "EMPTY SPACE"],
+        ["ASCEND THE", "LUNAR DISC", "ADAMANTINE GEM", "", WHEN],
         ["VAJRAM AHAM", "", "(I AM A VAJRA)"]
       ];
     }
@@ -282,18 +322,30 @@
       }
       ctx.fillStyle = "#020703";
       ctx.fillRect(0, 0, W, H);
-      const fs = 44;
-      ctx.font = `bold ${fs}px "JetBrains Mono", "Menlo", monospace`;
+      // Readability through the window: aim big (2x the old 44px) and
+      // shrink per frame only as far as the longest line / line count force.
+      let fs = 88;
+      const setFont = () => { ctx.font = `bold ${fs}px "JetBrains Mono", "Menlo", monospace`; };
+      setFont();
+      const maxW = () => Math.max(...lines.map((l) => ctx.measureText(l).width));
+      while (fs > 30 && (maxW() > W * 0.84 || lines.length * fs * 1.5 > H * 0.82)) {
+        fs -= 2;
+        setFont();
+      }
       ctx.textBaseline = "top";
       ctx.shadowColor = "#2bff62";
       ctx.shadowBlur = 14;
       ctx.fillStyle = "#49ff7d";
       let budget = shown;
-      const x0 = W * 0.09, y0 = H * 0.12, lineStep = fs * 1.7;
+      const lineStep = fs * 1.5;
+      const y0 = Math.max(H * 0.06, (H - lines.length * lineStep) / 2);
+      // Lines are centered so the window's cover-crop trims both margins
+      // symmetrically instead of eating the start of every line.
       lines.forEach((line, i) => {
         if (budget <= 0) return;
         const part = line.slice(0, budget);
         budget -= line.length + 1;
+        const x0 = (W - ctx.measureText(line).width) / 2;
         ctx.fillText(part, x0, y0 + i * lineStep);
         if (budget <= 0 && Math.floor(t * 2.4) % 2 === 0) {
           ctx.fillRect(x0 + ctx.measureText(part).width + 8, y0 + i * lineStep, fs * 0.55, fs * 0.9);
@@ -382,7 +434,7 @@
       const phrase = INCANT_PHRASES[idx % INCANT_PHRASES.length];
       ctx.textAlign = "center";
       ctx.textBaseline = "middle";
-      let fs = 96;
+      let fs = 190;
       ctx.font = `bold ${fs}px "JetBrains Mono", "Menlo", monospace`;
       while (ctx.measureText(phrase).width > W * 0.9 && fs > 30) {
         fs -= 4;
@@ -402,24 +454,607 @@
     };
   }
 
-  const crt = (WIN && CONTENT_KEY === "crt") ? makeCrtTexture() : null;
-  const cave = (WIN && CONTENT_KEY === "vajra") ? makeVajraCave() : null;
-  const incant = (WIN && CONTENT_KEY === "incant") ? makeIncantTexture() : null;
+  // Synergetics fold (content=fold): Fuller's 100.41 — a wireframe triangle
+  // folds its corners up into a tetrahedron, holds, unfolds, forever. Runs
+  // as a second offscreen Three.js scene rendered into the window texture.
+  // With videoSrc (content=foldsonic) the faces become video panels: the
+  // clip plays across the flat triangle and folds up with it.
+  function makeFold(videoSrc) {
+    const SIZE = 512;
+    const rnd = new THREE.WebGLRenderer({ antialias: true });
+    rnd.setSize(SIZE, SIZE);
+    const scene = new THREE.Scene();
+    scene.background = new THREE.Color(0x020411);
+    const cam = new THREE.PerspectiveCamera(38, 1, 0.1, 50);
+    cam.position.set(0, 1.7, 3.6);
+    cam.lookAt(0, 0.35, 0);
+    const assembly = new THREE.Group();
+    scene.add(assembly);
+
+    let faceVideo = null;
+    const INK = new THREE.Color("#59d6ff");
+    const lineMat = new THREE.LineBasicMaterial({ color: INK });
+    let faceMat;
+    if (videoSrc) {
+      faceVideo = makeVideo(videoSrc);
+      faceVideo.video.play().catch(() => {});
+      faceMat = new THREE.MeshBasicMaterial({
+        map: faceVideo.texture, side: THREE.DoubleSide, transparent: true, opacity: 0.96
+      });
+    } else {
+      faceMat = new THREE.MeshBasicMaterial({
+        color: INK, transparent: true, opacity: 0.14, side: THREE.DoubleSide, depthWrite: false
+      });
+    }
+
+    // The big triangle spans about ±1.16 in x/z; map that square onto the
+    // video, cover-cropping a central square out of the 16:9 frame so the
+    // panels sample real picture, not stretched edges.
+    const EXT = 2 / Math.sqrt(3) * 2; // full span used for uv normalization
+    const uvOf = (p) => [0.5 + (p.x / EXT) * (9 / 16), 0.5 + (p.z / EXT)];
+    function tri(a, b, c, flat) {
+      const g = new THREE.Group();
+      const geo = new THREE.BufferGeometry().setFromPoints([a, b, c]);
+      geo.setIndex([0, 1, 2]);
+      // UVs come from the *flat* world layout so the video is continuous
+      // across the four faces while unfolded.
+      geo.setAttribute("uv", new THREE.Float32BufferAttribute(flat.flatMap(uvOf), 2));
+      g.add(new THREE.Mesh(geo, faceMat));
+      g.add(new THREE.LineLoop(new THREE.BufferGeometry().setFromPoints([a, b, c]), lineMat));
+      return g;
+    }
+
+    // Equilateral triangle side 2 in the XZ plane; the midpoint triangle is
+    // the tetrahedron base, the three corners fold up to meet at the apex.
+    const R = 2 / Math.sqrt(3);
+    const C = [90, 210, 330].map((deg) => {
+      const a = deg * Math.PI / 180;
+      return new THREE.Vector3(Math.cos(a) * R, 0, Math.sin(a) * R);
+    });
+    const mid = (a, b) => a.clone().add(b).multiplyScalar(0.5);
+    const M = [mid(C[0], C[1]), mid(C[1], C[2]), mid(C[2], C[0])];
+    assembly.add(tri(M[0], M[1], M[2], [M[0], M[1], M[2]])); // static base
+    const FOLD_ANGLE = Math.acos(-1 / 3); // 109.47° from flat to closed
+    const hinges = C.map((corner, i) => {
+      const mj = M[i], mk = M[(i + 2) % 3]; // the two midpoints beside this corner
+      const pivot = mid(mj, mk);
+      const axis = mk.clone().sub(mj).normalize();
+      const g = new THREE.Group();
+      g.position.copy(pivot);
+      g.add(tri(
+        corner.clone().sub(pivot), mj.clone().sub(pivot), mk.clone().sub(pivot),
+        [corner, mj, mk]
+      ));
+      assembly.add(g);
+      // Orient the axis so positive rotation folds up (+y), not down.
+      const probe = corner.clone().sub(pivot)
+        .applyQuaternion(new THREE.Quaternion().setFromAxisAngle(axis, FOLD_ANGLE));
+      if (probe.y < 0) axis.negate();
+      return { group: g, axis };
+    });
+
+    const tex = new THREE.CanvasTexture(rnd.domElement);
+    tex.minFilter = THREE.LinearFilter;
+    const ease = (x) => x * x * (3 - 2 * x);
+    const F = 4, HT = 2.5, U = 4, HF = 1.5, PERIOD = F + HT + U + HF;
+    function draw(t) {
+      const c = t % PERIOD;
+      let k;
+      if (c < F) k = ease(c / F);
+      else if (c < F + HT) k = 1;
+      else if (c < F + HT + U) k = 1 - ease((c - F - HT) / U);
+      else k = 0;
+      const q = new THREE.Quaternion();
+      hinges.forEach((h) => {
+        q.setFromAxisAngle(h.axis, k * FOLD_ANGLE);
+        h.group.quaternion.copy(q);
+      });
+      assembly.rotation.y = t * 0.35;
+      rnd.render(scene, cam);
+      tex.needsUpdate = true;
+    }
+    return {
+      texture: tex, draw, aspect: 1, video: faceVideo ? faceVideo.video : null,
+      dispose() {
+        if (faceVideo) { faceVideo.video.pause(); faceVideo.video.removeAttribute("src"); }
+        rnd.dispose();
+      }
+    };
+  }
+
+  // Two helixes (content=foldhelix): Synergetics 108.01-03, "four triangles
+  // out of two". A positive and a negative open triangular spiral tremble
+  // apart, associate into the six edges of a tetrahedron, the two
+  // complementary faces converge in from the rest of Universe, and the
+  // closed system pulses at its center — then they split and repeat.
+  function makeHelix() {
+    const SIZE = 512;
+    const rnd = new THREE.WebGLRenderer({ antialias: true });
+    rnd.setSize(SIZE, SIZE);
+    const scene = new THREE.Scene();
+    scene.background = new THREE.Color(0x020411);
+    const cam = new THREE.PerspectiveCamera(38, 1, 0.01, 50);
+    cam.position.set(0, 0.75, 2.9);
+    cam.lookAt(0, 0.1, 0);
+    const assembly = new THREE.Group();
+    scene.add(assembly);
+
+    const POS = new THREE.Color("#59d6ff"), NEG = new THREE.Color("#ffb46b");
+    const lineOf = (c) => new THREE.LineBasicMaterial({
+      color: c, transparent: true, opacity: 1, blending: THREE.AdditiveBlending, depthWrite: false
+    });
+    const dotsOf = (c, size) => new THREE.PointsMaterial({
+      color: c, size, transparent: true, opacity: 0.95, blending: THREE.AdditiveBlending, depthWrite: false
+    });
+    const faceOf = (c) => new THREE.MeshBasicMaterial({
+      color: c, transparent: true, opacity: 0,
+      side: THREE.DoubleSide, blending: THREE.AdditiveBlending, depthWrite: false
+    });
+
+    // Regular tetrahedron; its 6 edges split into two complementary open
+    // 3-edge paths of opposite hand.
+    const s = 0.82 / Math.sqrt(3);
+    const A = new THREE.Vector3(s, s, s), B = new THREE.Vector3(s, -s, -s);
+    const C = new THREE.Vector3(-s, s, -s), D = new THREE.Vector3(-s, -s, s);
+    const tetraPos = [A, B, C, D], tetraNeg = [C, A, D, B];
+
+    // Flat open spiral: three edges around a circle plus pitch; the 4th
+    // point overshoots the 1st — superimposed, never closed.
+    function spiralPts(cx, dir, phase, out) {
+      const r = 0.42, pitch = 0.05;
+      for (let k = 0; k < 4; k++) {
+        const over = k === 3 ? dir * 0.38 : 0;
+        const a = dir * (k * 2 * Math.PI / 3) + phase + over;
+        out[k].set(cx + r * Math.cos(a), r * Math.sin(a) + 0.14, (k - 1.5) * pitch * dir);
+      }
+    }
+    function makeStrand(color) {
+      const geo = new THREE.BufferGeometry();
+      geo.setAttribute("position", new THREE.Float32BufferAttribute(new Float32Array(12), 3));
+      const line = new THREE.Line(geo, lineOf(color));
+      const dots = new THREE.Points(geo.clone(), dotsOf(color, 0.045));
+      const term = new THREE.Points(new THREE.BufferGeometry(), dotsOf(color, 0.075));
+      term.geometry.setAttribute("position", new THREE.Float32BufferAttribute(new Float32Array(6), 3));
+      assembly.add(line, dots, term);
+      return { line, dots, term, pts: [0, 1, 2, 3].map(() => new THREE.Vector3()) };
+    }
+    const strandPos = makeStrand(POS), strandNeg = makeStrand(NEG);
+
+    function faceMesh(tris, mat) {
+      const arr = [];
+      for (const [p, q, r] of tris) arr.push(p.x, p.y, p.z, q.x, q.y, q.z, r.x, r.y, r.z);
+      const geo = new THREE.BufferGeometry();
+      geo.setAttribute("position", new THREE.Float32BufferAttribute(arr, 3));
+      const mesh = new THREE.Mesh(geo, mat);
+      assembly.add(mesh);
+      return mesh;
+    }
+    const eventFaceMatP = faceOf(POS), eventFaceMatN = faceOf(NEG);
+    const universeFaceMat = faceOf(new THREE.Color("#ffffff"));
+    faceMesh([[A, B, C]], eventFaceMatP);
+    faceMesh([[A, C, D]], eventFaceMatN);
+    const universeFaces = faceMesh([[A, B, D], [B, C, D]], universeFaceMat);
+    const coreMat = dotsOf(new THREE.Color("#ffffff"), 0.075);
+    coreMat.opacity = 0;
+    const coreGeo = new THREE.BufferGeometry();
+    coreGeo.setAttribute("position", new THREE.Float32BufferAttribute([0, 0, 0], 3));
+    assembly.add(new THREE.Points(coreGeo, coreMat));
+
+    function writeStrand(strand, cx, dir, phase, targets, p, now) {
+      spiralPts(cx, dir, phase, strand.pts);
+      const pos = strand.line.geometry.attributes.position;
+      const dpos = strand.dots.geometry.attributes.position;
+      // "As separate actions … very unstable" — loose spirals tremble.
+      const wob = 0.016 * (1 - p);
+      for (let k = 0; k < 4; k++) {
+        const v = strand.pts[k].lerp(targets[k], p);
+        v.x += wob * Math.sin(now * 6.3 + k * 2.1 + dir * 3.0);
+        v.y += wob * Math.sin(now * 7.1 + k * 1.7 + dir);
+        v.z += wob * Math.sin(now * 5.2 + k * 2.6);
+        pos.setXYZ(k, v.x, v.y, v.z);
+        dpos.setXYZ(k, v.x, v.y, v.z);
+      }
+      const tpos = strand.term.geometry.attributes.position;
+      tpos.setXYZ(0, pos.getX(0), pos.getY(0), pos.getZ(0));
+      tpos.setXYZ(1, pos.getX(3), pos.getY(3), pos.getZ(3));
+      pos.needsUpdate = dpos.needsUpdate = tpos.needsUpdate = true;
+    }
+
+    const tex = new THREE.CanvasTexture(rnd.domElement);
+    tex.minFilter = THREE.LinearFilter;
+    const ease = (x) => x * x * (3 - 2 * x);
+    const APART = 3.0, MERGE = 3.0, HOLD = 6.0, PERIOD = APART + MERGE + HOLD + MERGE;
+    let uni = 0, lastT = 0;
+    function draw(t) {
+      const dt = Math.min(Math.max(t - lastT, 0), 0.1);
+      lastT = t;
+      const c = t % PERIOD;
+      let p, held = false;
+      if (c < APART) p = 0;
+      else if (c < APART + MERGE) p = ease((c - APART) / MERGE);
+      else if (c < APART + MERGE + HOLD) { p = 1; held = true; }
+      else p = ease(1 - (c - APART - MERGE - HOLD) / MERGE);
+      const spiralPhase = t * 0.55;
+      writeStrand(strandPos, -0.6, 1, spiralPhase, tetraPos, p, t);
+      writeStrand(strandNeg, 0.6, -1, -spiralPhase * 0.8, tetraNeg, p, t);
+      const eventOn = 0.21 * Math.max(0, (p - 0.65) / 0.35);
+      eventFaceMatP.opacity = eventOn;
+      eventFaceMatN.opacity = eventOn;
+      // The complementary pair converges in from outside the system.
+      const uniTarget = (held && c - APART - MERGE > 1.0) ? 1 : 0;
+      uni += (uniTarget - uni) * Math.min(dt * 2.2, 1);
+      universeFaceMat.opacity = 0.16 * uni;
+      universeFaces.scale.setScalar(1.9 - 0.9 * ease(Math.min(uni * 1.15, 1)));
+      coreMat.opacity = 0.5 * uni * (0.55 + 0.45 * Math.sin(t * 1.8));
+      assembly.rotation.y = t * 0.25 * (0.2 + 2.0 * p);
+      assembly.rotation.x = 0.16 * Math.sin(t * 0.19) * p;
+      assembly.rotation.z = 0.09 * Math.sin(t * 0.12 + 1.7) * p;
+      rnd.render(scene, cam);
+      tex.needsUpdate = true;
+    }
+    return { texture: tex, draw, aspect: 1, dispose() { rnd.dispose(); } };
+  }
+
+  // Jitterbug (content=foldjitter): Synergetics 460 — the eight triangles of
+  // the vector equilibrium, held rigid and joined at their vertices, each
+  // rotate about their own axis (positive rotors one way, negative the
+  // other) and the whole system contracts symmetrically: VE -> icosahedron
+  // -> octahedron and back. Centroid distance is solved from the linkage so
+  // shared vertices stay exactly coincident throughout.
+  function makeJitterbug() {
+    const SIZE = 512;
+    const rnd = new THREE.WebGLRenderer({ antialias: true });
+    rnd.setSize(SIZE, SIZE);
+    const scene = new THREE.Scene();
+    scene.background = new THREE.Color(0x020411);
+    const cam = new THREE.PerspectiveCamera(38, 1, 0.1, 50);
+    cam.position.set(0, 0.9, 4.3);
+    cam.lookAt(0, 0, 0);
+    const assembly = new THREE.Group();
+    assembly.scale.setScalar(0.78);
+    scene.add(assembly);
+
+    const POS = new THREE.Color("#59d6ff"), NEG = new THREE.Color("#ffb46b");
+    const mats = {};
+    const matsFor = (sigma) => {
+      if (!mats[sigma]) {
+        const c = sigma > 0 ? POS : NEG;
+        mats[sigma] = {
+          line: new THREE.LineBasicMaterial({
+            color: c, transparent: true, opacity: 0.9, blending: THREE.AdditiveBlending, depthWrite: false
+          }),
+          face: new THREE.MeshBasicMaterial({
+            color: c, transparent: true, opacity: 0.12,
+            side: THREE.DoubleSide, blending: THREE.AdditiveBlending, depthWrite: false
+          }),
+          dots: new THREE.PointsMaterial({
+            color: c, size: 0.05, transparent: true, opacity: 0.95,
+            blending: THREE.AdditiveBlending, depthWrite: false
+          })
+        };
+      }
+      return mats[sigma];
+    };
+
+    // The 8 VE triangles: one per octant. Normal ~ (a,b,c), vertices are the
+    // cube-edge midpoints (a,b,0),(a,0,c),(0,b,c); handedness sigma = abc.
+    const rotors = [];
+    for (const a of [1, -1]) for (const b of [1, -1]) for (const c of [1, -1]) {
+      const n = new THREE.Vector3(a, b, c).normalize();
+      const cen = new THREE.Vector3(a, b, c).multiplyScalar(2 / 3);
+      const local = [
+        new THREE.Vector3(a, b, 0), new THREE.Vector3(a, 0, c), new THREE.Vector3(0, b, c)
+      ].map((p) => p.sub(cen));
+      const m = matsFor(a * b * c);
+      const geo = new THREE.BufferGeometry().setFromPoints(local);
+      geo.setIndex([0, 1, 2]);
+      const g = new THREE.Group();
+      g.add(new THREE.Mesh(geo, m.face));
+      g.add(new THREE.LineLoop(new THREE.BufferGeometry().setFromPoints(local), m.line));
+      g.add(new THREE.Points(new THREE.BufferGeometry().setFromPoints(local), m.dots));
+      assembly.add(g);
+      rotors.push({ group: g, n, sigma: a * b * c });
+    }
+
+    // Linkage: solve the centroid distance d(theta) that keeps the vertex
+    // shared by two adjacent rotors coincident (they rotate opposite ways).
+    const n1 = new THREE.Vector3(1, 1, 1).normalize();
+    const n2 = new THREE.Vector3(1, 1, -1).normalize();
+    const cen1 = new THREE.Vector3(2 / 3, 2 / 3, 2 / 3);
+    const cen2 = new THREE.Vector3(2 / 3, 2 / 3, -2 / 3);
+    const u1 = new THREE.Vector3(1, 1, 0).sub(cen1);
+    const u2 = new THREE.Vector3(1, 1, 0).sub(cen2);
+    const dn = n1.clone().sub(n2);
+    const w1 = new THREE.Vector3(), w2 = new THREE.Vector3();
+    function distOf(theta) {
+      w1.copy(u1).applyAxisAngle(n1, theta);
+      w2.copy(u2).applyAxisAngle(n2, -theta);
+      return w2.sub(w1).dot(dn) / dn.lengthSq();
+    }
+
+    const tex = new THREE.CanvasTexture(rnd.domElement);
+    tex.minFilter = THREE.LinearFilter;
+    const ease = (x) => x * x * (3 - 2 * x);
+    const DEG = Math.PI / 180;
+    // VE, hold; contract to icosahedron, hold; on to octahedron, hold;
+    // spring all the way back open, hold. (Icosa phase from the linkage.)
+    const KEYS = [
+      { th: 0, move: 0, hold: 1.6 },
+      { th: 22.239 * DEG, move: 2.4, hold: 1.6 },
+      { th: 60 * DEG, move: 2.4, hold: 2.2 },
+      { th: 0, move: 3.4, hold: 0 }
+    ];
+    const PERIOD = KEYS.reduce((s, k) => s + k.move + k.hold, 0);
+    const q = new THREE.Quaternion();
+    function thetaAt(t) {
+      let c = t % PERIOD, prev = KEYS[KEYS.length - 1].th;
+      for (const k of KEYS) {
+        if (c < k.move) return prev + (k.th - prev) * ease(c / k.move);
+        c -= k.move;
+        if (c < k.hold) return k.th;
+        c -= k.hold;
+        prev = k.th;
+      }
+      return 0;
+    }
+    function draw(t) {
+      const theta = thetaAt(t);
+      const d = distOf(theta);
+      rotors.forEach((r) => {
+        q.setFromAxisAngle(r.n, r.sigma * theta);
+        r.group.quaternion.copy(q);
+        r.group.position.copy(r.n).multiplyScalar(d);
+      });
+      assembly.rotation.y = t * 0.3;
+      assembly.rotation.x = 0.35 + 0.12 * Math.sin(t * 0.17);
+      rnd.render(scene, cam);
+      tex.needsUpdate = true;
+    }
+    return { texture: tex, draw, aspect: 1, dispose() { rnd.dispose(); } };
+  }
+
+  // Geodesic bloom (content=foldgeo): Fuller's geodesic sphere. A wireframe
+  // icosahedron carries a frequency-4 subdivision on its faces; the grid
+  // blooms outward until every vertex reaches the circumsphere — the
+  // icosahedron becomes a geodesic sphere — then settles back to flat faces.
+  function makeGeodesic() {
+    const SIZE = 512;
+    const rnd = new THREE.WebGLRenderer({ antialias: true });
+    rnd.setSize(SIZE, SIZE);
+    const scene = new THREE.Scene();
+    scene.background = new THREE.Color(0x020411);
+    const cam = new THREE.PerspectiveCamera(38, 1, 0.1, 50);
+    cam.position.set(0, 0.6, 3.9);
+    cam.lookAt(0, 0, 0);
+    const assembly = new THREE.Group();
+    scene.add(assembly);
+
+    // Icosahedron: 12 vertices from three golden rectangles, 20 faces.
+    const PHI = (1 + Math.sqrt(5)) / 2;
+    const raw = [
+      [-1, PHI, 0], [1, PHI, 0], [-1, -PHI, 0], [1, -PHI, 0],
+      [0, -1, PHI], [0, 1, PHI], [0, -1, -PHI], [0, 1, -PHI],
+      [PHI, 0, -1], [PHI, 0, 1], [-PHI, 0, -1], [-PHI, 0, 1]
+    ].map((p) => new THREE.Vector3(...p).normalize());
+    const FACES = [
+      [0, 11, 5], [0, 5, 1], [0, 1, 7], [0, 7, 10], [0, 10, 11],
+      [1, 5, 9], [5, 11, 4], [11, 10, 2], [10, 7, 6], [7, 1, 8],
+      [3, 9, 4], [3, 4, 2], [3, 2, 6], [3, 6, 8], [3, 8, 9],
+      [4, 9, 5], [2, 4, 11], [6, 2, 10], [8, 6, 7], [9, 8, 1]
+    ];
+    const F = 4; // geodesic frequency
+    // Per-face barycentric grid; every point keeps its flat (on-face) and
+    // bloomed (on-sphere) position, and the shader-free morph lerps between.
+    const flat = [], bloom = [], edges = [];
+    for (const [ia, ib, ic] of FACES) {
+      const A = raw[ia], B = raw[ib], C = raw[ic];
+      const idxOf = {};
+      let n = 0;
+      for (let i = 0; i <= F; i++) {
+        for (let j = 0; j <= F - i; j++) {
+          const p = A.clone().multiplyScalar((F - i - j) / F)
+            .add(B.clone().multiplyScalar(i / F))
+            .add(C.clone().multiplyScalar(j / F));
+          idxOf[i + "," + j] = flat.length;
+          flat.push(p);
+          bloom.push(p.clone().normalize());
+          n++;
+        }
+      }
+      for (let i = 0; i < F; i++) {
+        for (let j = 0; j < F - i; j++) {
+          const a = idxOf[i + "," + j], b = idxOf[(i + 1) + "," + j], c = idxOf[i + "," + (j + 1)];
+          edges.push([a, b], [a, c], [b, c]);
+        }
+      }
+    }
+    const posArr = new Float32Array(edges.length * 6);
+    const geo = new THREE.BufferGeometry();
+    geo.setAttribute("position", new THREE.BufferAttribute(posArr, 3));
+    assembly.add(new THREE.LineSegments(geo, new THREE.LineBasicMaterial({
+      color: new THREE.Color("#59d6ff"), transparent: true, opacity: 0.75,
+      blending: THREE.AdditiveBlending, depthWrite: false
+    })));
+    const dotGeo = new THREE.BufferGeometry();
+    const dotArr = new Float32Array(flat.length * 3);
+    dotGeo.setAttribute("position", new THREE.BufferAttribute(dotArr, 3));
+    assembly.add(new THREE.Points(dotGeo, new THREE.PointsMaterial({
+      color: new THREE.Color("#ffb46b"), size: 0.035, transparent: true, opacity: 0.8,
+      blending: THREE.AdditiveBlending, depthWrite: false
+    })));
+
+    const tex = new THREE.CanvasTexture(rnd.domElement);
+    tex.minFilter = THREE.LinearFilter;
+    const ease = (x) => x * x * (3 - 2 * x);
+    const FLAT_H = 2, OUT = 3, SPH_H = 4, BACK = 3, PERIOD = FLAT_H + OUT + SPH_H + BACK;
+    const tmp = new THREE.Vector3();
+    function draw(t) {
+      const c = t % PERIOD;
+      let k;
+      if (c < FLAT_H) k = 0;
+      else if (c < FLAT_H + OUT) k = ease((c - FLAT_H) / OUT);
+      else if (c < FLAT_H + OUT + SPH_H) k = 1;
+      else k = 1 - ease((c - FLAT_H - OUT - SPH_H) / BACK);
+      const scl = 1.35;
+      for (let v = 0; v < flat.length; v++) {
+        tmp.copy(flat[v]).lerp(bloom[v], k).multiplyScalar(scl);
+        dotArr[v * 3] = tmp.x; dotArr[v * 3 + 1] = tmp.y; dotArr[v * 3 + 2] = tmp.z;
+      }
+      for (let e = 0; e < edges.length; e++) {
+        const [a, b] = edges[e];
+        posArr[e * 6] = dotArr[a * 3]; posArr[e * 6 + 1] = dotArr[a * 3 + 1]; posArr[e * 6 + 2] = dotArr[a * 3 + 2];
+        posArr[e * 6 + 3] = dotArr[b * 3]; posArr[e * 6 + 4] = dotArr[b * 3 + 1]; posArr[e * 6 + 5] = dotArr[b * 3 + 2];
+      }
+      geo.attributes.position.needsUpdate = true;
+      dotGeo.attributes.position.needsUpdate = true;
+      assembly.rotation.y = t * 0.28;
+      assembly.rotation.x = 0.3 + 0.1 * Math.sin(t * 0.16);
+      rnd.render(scene, cam);
+      tex.needsUpdate = true;
+    }
+    return { texture: tex, draw, aspect: 1, dispose() { rnd.dispose(); } };
+  }
+
+  // Octet truss (content=foldivm): Fuller's isotropic vector matrix
+  // (Synergetics 420) — the all-space-filling lattice of alternating
+  // tetrahedra and octahedra, every strut the same length. It crystallizes
+  // outward from a nucleus, breathes at full extent, and dissolves back.
+  function makeIVM() {
+    const SIZE = 512;
+    const rnd = new THREE.WebGLRenderer({ antialias: true });
+    rnd.setSize(SIZE, SIZE);
+    const scene = new THREE.Scene();
+    scene.background = new THREE.Color(0x020411);
+    const cam = new THREE.PerspectiveCamera(38, 1, 0.1, 50);
+    cam.position.set(0, 1.1, 3.6);
+    cam.lookAt(0, 0, 0);
+    const assembly = new THREE.Group();
+    scene.add(assembly);
+
+    // FCC lattice (i+j+k even) = sphere centers of closest packing; each
+    // node's 12 equidistant neighbours give the octet struts.
+    const NR = 2, S = 0.82;
+    const nodes = [], keyOf = {};
+    for (let i = -NR; i <= NR; i++) for (let j = -NR; j <= NR; j++) for (let k = -NR; k <= NR; k++) {
+      if ((i + j + k) % 2 !== 0) continue;
+      const p = new THREE.Vector3(i * S, j * S, k * S);
+      if (p.length() > NR * S * 1.05) continue;
+      keyOf[i + "," + j + "," + k] = nodes.length;
+      nodes.push(p);
+    }
+    const NBR = [
+      [1, 1, 0], [1, -1, 0], [-1, 1, 0], [-1, -1, 0],
+      [1, 0, 1], [1, 0, -1], [-1, 0, 1], [-1, 0, -1],
+      [0, 1, 1], [0, 1, -1], [0, -1, 1], [0, -1, -1]
+    ];
+    const struts = [];
+    Object.keys(keyOf).forEach((key) => {
+      const [i, j, k] = key.split(",").map(Number);
+      const a = keyOf[key];
+      for (const [di, dj, dk] of NBR) {
+        const b = keyOf[(i + di) + "," + (j + dj) + "," + (k + dk)];
+        if (b != null && b > a) struts.push([a, b]);
+      }
+    });
+    // Crystallize from the nucleus outward: order struts by midpoint radius.
+    struts.sort((s1, s2) =>
+      nodes[s1[0]].clone().add(nodes[s1[1]]).length() - nodes[s2[0]].clone().add(nodes[s2[1]]).length());
+    const posArr = new Float32Array(struts.length * 6);
+    struts.forEach(([a, b], e) => {
+      posArr.set([nodes[a].x, nodes[a].y, nodes[a].z, nodes[b].x, nodes[b].y, nodes[b].z], e * 6);
+    });
+    const geo = new THREE.BufferGeometry();
+    geo.setAttribute("position", new THREE.BufferAttribute(posArr, 3));
+    const lines = new THREE.LineSegments(geo, new THREE.LineBasicMaterial({
+      color: new THREE.Color("#59d6ff"), transparent: true, opacity: 0.95,
+      blending: THREE.AdditiveBlending, depthWrite: false
+    }));
+    assembly.add(lines);
+    const nodeGeo = new THREE.BufferGeometry().setFromPoints(nodes);
+    assembly.add(new THREE.Points(nodeGeo, new THREE.PointsMaterial({
+      color: new THREE.Color("#ffb46b"), size: 0.09, transparent: true, opacity: 0.95,
+      blending: THREE.AdditiveBlending, depthWrite: false
+    })));
+
+    const tex = new THREE.CanvasTexture(rnd.domElement);
+    tex.minFilter = THREE.LinearFilter;
+    const ease = (x) => x * x * (3 - 2 * x);
+    const GROW = 5, HOLD = 4, FADE = 3, PERIOD = GROW + HOLD + FADE;
+    function draw(t) {
+      const c = t % PERIOD;
+      let frac;
+      if (c < GROW) frac = ease(c / GROW);
+      else if (c < GROW + HOLD) frac = 1;
+      else frac = 1 - ease((c - GROW - HOLD) / FADE);
+      lines.geometry.setDrawRange(0, Math.floor(struts.length * frac) * 2);
+      const breathe = 1 + 0.04 * Math.sin(t * 1.1);
+      assembly.scale.setScalar(breathe);
+      assembly.rotation.y = t * 0.24;
+      assembly.rotation.x = 0.42 + 0.1 * Math.sin(t * 0.14);
+      rnd.render(scene, cam);
+      tex.needsUpdate = true;
+    }
+    return { texture: tex, draw, aspect: 1, dispose() { rnd.dispose(); } };
+  }
+
+  let crt = (WIN && CONTENT_KEY === "crt") ? makeCrtTexture() : null;
+  let cave = (WIN && CONTENT_KEY === "vajra") ? makeVajraCave() : null;
+  let incant = (WIN && CONTENT_KEY === "incant") ? makeIncantTexture() : null;
+  const SONIC_LOOP = "artifacts/sample-sonicsphere-silent.webm";
+  const FOLD_MAKERS = {
+    fold: () => makeFold(),
+    foldsonic: () => makeFold(SONIC_LOOP),
+    foldhelix: makeHelix,
+    foldjitter: makeJitterbug,
+    foldgeo: makeGeodesic,
+    foldivm: makeIVM
+  };
+  let fold = (WIN && FOLD_MAKERS[CONTENT_KEY]) ? FOLD_MAKERS[CONTENT_KEY]() : null;
+  let screenCap = null; // content=screen: another window piped in via capture
 
   // --- Letter mosaic (default): glyphs built from astronaut/moon image cubes,
   // same glyph set, letter colors, and cube index as hyperstition-moon-halo.
   const GLYPH_W = 5, GLYPH_H = 7, TILE_GAP = 1;
+  // Full 5x7 alphabet + digits so any word from the controller renders (the
+  // original set only covered the letters of "hyperstition").
   const GLYPHS = {
-    h: [0x11, 0x11, 0x11, 0x1f, 0x11, 0x11, 0x11],
-    y: [0x11, 0x11, 0x11, 0x0a, 0x04, 0x04, 0x04],
-    p: [0x1e, 0x11, 0x11, 0x1e, 0x10, 0x10, 0x10],
+    a: [0x0e, 0x11, 0x11, 0x1f, 0x11, 0x11, 0x11],
+    b: [0x1e, 0x11, 0x11, 0x1e, 0x11, 0x11, 0x1e],
+    c: [0x0e, 0x11, 0x10, 0x10, 0x10, 0x11, 0x0e],
+    d: [0x1e, 0x11, 0x11, 0x11, 0x11, 0x11, 0x1e],
     e: [0x0e, 0x11, 0x10, 0x1e, 0x10, 0x11, 0x0e],
+    f: [0x1f, 0x10, 0x10, 0x1e, 0x10, 0x10, 0x10],
+    g: [0x0e, 0x11, 0x10, 0x17, 0x11, 0x11, 0x0e],
+    h: [0x11, 0x11, 0x11, 0x1f, 0x11, 0x11, 0x11],
+    i: [0x04, 0x00, 0x04, 0x04, 0x04, 0x04, 0x0e],
+    j: [0x01, 0x01, 0x01, 0x01, 0x01, 0x11, 0x0e],
+    k: [0x11, 0x12, 0x14, 0x18, 0x14, 0x12, 0x11],
+    l: [0x10, 0x10, 0x10, 0x10, 0x10, 0x10, 0x1f],
+    m: [0x11, 0x1b, 0x15, 0x15, 0x11, 0x11, 0x11],
+    n: [0x11, 0x19, 0x15, 0x13, 0x11, 0x11, 0x11],
+    o: [0x0e, 0x11, 0x11, 0x11, 0x11, 0x11, 0x0e],
+    p: [0x1e, 0x11, 0x11, 0x1e, 0x10, 0x10, 0x10],
+    q: [0x0e, 0x11, 0x11, 0x11, 0x15, 0x12, 0x0d],
     r: [0x1e, 0x11, 0x11, 0x1e, 0x14, 0x12, 0x11],
     s: [0x0e, 0x11, 0x10, 0x0e, 0x01, 0x11, 0x0e],
     t: [0x1f, 0x04, 0x04, 0x04, 0x04, 0x04, 0x04],
-    i: [0x04, 0x00, 0x04, 0x04, 0x04, 0x04, 0x0e],
-    o: [0x0e, 0x11, 0x11, 0x11, 0x11, 0x11, 0x0e],
-    n: [0x11, 0x19, 0x15, 0x13, 0x11, 0x11, 0x11]
+    u: [0x11, 0x11, 0x11, 0x11, 0x11, 0x11, 0x0e],
+    v: [0x11, 0x11, 0x11, 0x11, 0x11, 0x0a, 0x04],
+    w: [0x11, 0x11, 0x11, 0x15, 0x15, 0x1b, 0x11],
+    x: [0x11, 0x11, 0x0a, 0x04, 0x0a, 0x11, 0x11],
+    y: [0x11, 0x11, 0x11, 0x0a, 0x04, 0x04, 0x04],
+    z: [0x1f, 0x01, 0x02, 0x04, 0x08, 0x10, 0x1f],
+    "0": [0x0e, 0x11, 0x13, 0x15, 0x19, 0x11, 0x0e],
+    "1": [0x04, 0x0c, 0x04, 0x04, 0x04, 0x04, 0x0e],
+    "2": [0x0e, 0x11, 0x01, 0x02, 0x04, 0x08, 0x1f],
+    "3": [0x1f, 0x02, 0x04, 0x02, 0x01, 0x11, 0x0e],
+    "4": [0x02, 0x06, 0x0a, 0x12, 0x1f, 0x02, 0x02],
+    "5": [0x1f, 0x10, 0x1e, 0x01, 0x01, 0x11, 0x0e],
+    "6": [0x06, 0x08, 0x10, 0x1e, 0x11, 0x11, 0x0e],
+    "7": [0x1f, 0x01, 0x02, 0x04, 0x08, 0x08, 0x08],
+    "8": [0x0e, 0x11, 0x11, 0x0e, 0x11, 0x11, 0x0e],
+    "9": [0x0e, 0x11, 0x11, 0x0f, 0x01, 0x02, 0x0c],
+    " ": [0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00]
   };
   const LETTER_COLORS_BY_INDEX = [
     "silver", "yellow", "purple", "cyan", "red", "silver",
@@ -490,8 +1125,8 @@
     canvas.width = size;
     canvas.height = size;
     const ctx = canvas.getContext("2d");
-    const letters = MOSAIC_WORD.split("").filter((ch) => GLYPHS[ch]);
-    const n = Math.max(1, letters.length);
+    let letters = MOSAIC_WORD.split("").filter((ch) => GLYPHS[ch]);
+    let n = Math.max(1, letters.length);
     // The word is wrapped onto `lines` rows so the block can match the shape
     // of the shadow region (1 line for a wide shadow, more for a narrow
     // crescent). The layout fills the whole canvas; the shader stretches the
@@ -538,13 +1173,22 @@
       }
     }
 
+    // Live word swap from the controller — rebuild the letter list and
+    // redraw in place, no reload needed.
+    function setWord(word) {
+      letters = String(word || "").toLowerCase().split("").filter((ch) => GLYPHS[ch]);
+      n = Math.max(1, letters.length);
+      lines = Math.max(1, Math.min(lines, n));
+      redraw();
+    }
+
     const tex = new THREE.CanvasTexture(canvas);
     tex.wrapS = THREE.ClampToEdgeWrapping;
     tex.wrapT = THREE.ClampToEdgeWrapping;
     tex.minFilter = THREE.LinearFilter;
     redraw();
     buildPools().then(redraw);
-    return { texture: tex, redraw, setLines, letterCount: n };
+    return { texture: tex, redraw, setLines, setWord, get letterCount() { return n; } };
   }
 
   // Text content: drawn once into a wrapping canvas texture, scrolled in the
@@ -579,10 +1223,11 @@
   const winTexture = crt ? crt.texture
     : cave ? cave.texture
     : incant ? incant.texture
+    : fold ? fold.texture
     : (WIN && contentVideo) ? contentVideo.texture
     : (WIN && imageTextures.length) ? imageTextures[0]
     : null;
-  const winAspect0 = crt ? crt.aspect : cave ? cave.aspect : incant ? incant.aspect : 16 / 9;
+  const winAspect0 = crt ? crt.aspect : cave ? cave.aspect : incant ? incant.aspect : fold ? fold.aspect : 16 / 9;
 
   const uniforms = {
     uMoon: { value: moon.texture },
@@ -636,6 +1281,128 @@
     // shadow's centroid (x, y in uv; z = radius in frame heights, 0 = off).
     uSpot: { value: new THREE.Vector3(0, 0, 0) }
   };
+
+  // Screen capture window content (content=screen): pipes any other browser
+  // window, app, or the whole desktop into the moon. getDisplayMedia needs a
+  // user gesture and a secure context (open this page via localhost).
+  function makeScreenCapture() {
+    const v = document.createElement("video");
+    v.muted = true;
+    v.playsInline = true;
+    const tex = new THREE.VideoTexture(v);
+    tex.minFilter = THREE.LinearFilter;
+    const cap = { video: v, texture: tex, stream: null, hint: null };
+    const hint = document.createElement("div");
+    const supported = !!(navigator.mediaDevices && navigator.mediaDevices.getDisplayMedia);
+    hint.textContent = supported
+      ? "click to pick a window to show inside the moon"
+      : "screen capture needs this page opened via localhost";
+    hint.style.cssText = "position:fixed;left:50%;top:7%;transform:translateX(-50%);" +
+      "color:rgba(143,216,255,0.8);font:12px 'JetBrains Mono',Menlo,monospace;" +
+      "letter-spacing:3px;text-transform:uppercase;z-index:5;pointer-events:none;";
+    document.body.appendChild(hint);
+    cap.hint = hint;
+    if (supported) {
+      const pick = async () => {
+        window.removeEventListener("pointerdown", pick);
+        hint.remove();
+        cap.hint = null;
+        try {
+          const stream = await navigator.mediaDevices.getDisplayMedia({
+            video: { frameRate: 30 }, audio: false
+          });
+          cap.stream = stream;
+          v.srcObject = stream;
+          v.play().catch(() => {});
+          v.addEventListener("loadedmetadata", () => {
+            uniforms.uWinAspect.value = (v.videoWidth || 16) / (v.videoHeight || 9);
+          });
+          // "Stop sharing" from the browser bar clears the window.
+          stream.getVideoTracks()[0].addEventListener("ended", () => {
+            if (screenCap === cap) setWindowContent("");
+          });
+        } catch {
+          if (screenCap === cap) setWindowContent("");
+        }
+      };
+      window.addEventListener("pointerdown", pick);
+    }
+    return cap;
+  }
+
+  // Live window switcher: swap what lives inside the moon without a reload.
+  // Works in mosaic (word) mode; other layouts fall back to a reload.
+  const WINBRIGHT_PARAM = params.get("winbright");
+  const PEEK_PARAM = params.get("peek");
+  function stopWindowContent() {
+    if (cave) cave.videos.forEach((v) => { v.pause(); v.removeAttribute("src"); });
+    if (contentVideo) { contentVideo.video.pause(); contentVideo.video.removeAttribute("src"); }
+    if (screenCap) {
+      if (screenCap.stream) screenCap.stream.getTracks().forEach((t) => t.stop());
+      if (screenCap.hint) screenCap.hint.remove();
+    }
+    if (fold) fold.dispose();
+    crt = null; cave = null; incant = null; fold = null; contentVideo = null; screenCap = null;
+    imageTextures = [];
+  }
+  function setWindowContent(spec, wordlessOverride) {
+    if (!useMosaic) return false;
+    spec = String(spec == null ? "" : spec).trim();
+    const key = spec.toLowerCase();
+    stopWindowContent();
+    CONTENT_SRC = spec;
+    let bright = 0.42;
+    WIN = !!spec;
+    WORDLESS_WIN = wordlessKey(key);
+    // The program sequencer forces reveal rotations wordless even for
+    // content that normally sits behind the letters.
+    if (wordlessOverride != null) WORDLESS_WIN = WIN && !!wordlessOverride;
+    if (key === "crt") crt = makeCrtTexture();
+    else if (key === "vajra") cave = makeVajraCave();
+    else if (key === "incant") incant = makeIncantTexture();
+    else if (FOLD_MAKERS[key]) { fold = FOLD_MAKERS[key](); bright = 0.55; }
+    else if (key === "screen") { screenCap = makeScreenCapture(); bright = 0.5; }
+    else if (spec) {
+      const list = spec.split(",").map((s) => s.trim()).filter(Boolean);
+      if (list.length && list.every((s) => IMAGE_EXT.test(s))) {
+        const loader = new THREE.TextureLoader();
+        imageTextures = list.map((src) => {
+          const tex = loader.load(src);
+          tex.minFilter = THREE.LinearFilter;
+          return tex;
+        });
+        bright = 0.14;
+      } else {
+        contentVideo = makeVideo(list[0]);
+        contentVideo.video.play().catch(() => {});
+        contentVideo.video.addEventListener("loadedmetadata", () => {
+          if (contentVideo) uniforms.uWinAspect.value =
+            (contentVideo.video.videoWidth || 16) / (contentVideo.video.videoHeight || 9);
+        });
+        bright = 0.24;
+      }
+    }
+    uniforms.uWin.value = WIN ? 1 : 0;
+    uniforms.uWinTex.value = crt ? crt.texture
+      : cave ? cave.texture
+      : incant ? incant.texture
+      : fold ? fold.texture
+      : screenCap ? screenCap.texture
+      : contentVideo ? contentVideo.texture
+      : imageTextures.length ? imageTextures[0]
+      : moon.texture;
+    uniforms.uWinAspect.value = crt ? crt.aspect : cave ? cave.aspect : incant ? incant.aspect : fold ? fold.aspect : 16 / 9;
+    if (WINBRIGHT_PARAM == null) uniforms.uWinBright.value = bright;
+    uniforms.uWordOn.value = WORDLESS_WIN ? 0 : 1;
+    // Sensible cycle defaults unless the URL pinned them explicitly.
+    if (PEEK_PARAM == null) PEEK = WIN && !WORDLESS_WIN ? 16 : 0;
+    if (params.get("apparition") == null) APPARITION = key === "incant" ? 8 : 0;
+    peek.phase = "idle";
+    peek.wordOn = WORDLESS_WIN ? 0 : 1;
+    peek.grow = WORDLESS_WIN ? PEEK_GROW : 1;
+    peek.next = (performance.now() - start) / 1000 + PEEK;
+    return true;
+  }
 
   // Track the real aspect of window video/slide content for cover-crop.
   if (WIN && contentVideo) {
@@ -792,9 +1559,10 @@
     moonSrc: MOON_SRC,
     get speed() { return SPEED; },
     get moonTime() { return moon.video.currentTime; },
-    contentSrc: CONTENT_SRC || (useMosaic ? "mosaic:" + MOSAIC_WORD : "text"),
+    get contentSrc() { return CONTENT_SRC || (useMosaic ? "mosaic:" + MOSAIC_WORD : "text"); },
     threshold: THRESHOLD,
-    window: WIN ? CONTENT_KEY || "media" : "none",
+    get word() { return MOSAIC_WORD; },
+    get window() { return WIN ? CONTENT_SRC.toLowerCase() || "media" : "none"; },
     get when() { return WHEN; },
     get gate() { return +uniforms.uGate.value; },
     get wordOn() { return +uniforms.uWordOn.value; },
@@ -803,6 +1571,10 @@
       const f = wrapPi(uniforms.uAnchor.value.x + uniforms.uRot.value);
       return Math.abs(f) < Math.PI * 0.3;
     },
+    get facingAngle() { return wrapPi(uniforms.uAnchor.value.x + uniforms.uRot.value); },
+    get program() { return progName; },
+    get programRot() { return progApplied; },
+    get stream() { return streamStatus; },
     moonReady: false
   };
   moon.video.addEventListener("playing", () => {
@@ -937,6 +1709,9 @@
   // unless the caller pinned it via ?angw= / ?angh=.
   let AUTO_ANG = params.get("angw") == null && params.get("angh") == null;
   const angTarget = { w: ANG_W, h: ANG_H };
+  // Master multiplier on the window/word footprint, live from the
+  // controller: 1 = as measured, 2 = twice the angular size.
+  let WIN_SCALE = num("winscale", 1);
   let haveAnchor = false;
   let anchorLocked = false;
   let lastSampleT = -Infinity;
@@ -1015,8 +1790,10 @@
       a.x += wrapPi(anchorTarget.lon - a.x) * 0.1;
       a.y += (anchorTarget.lat - a.y) * 0.1;
       const g = uniforms.uAng.value;
-      g.x += (angTarget.w - g.x) * 0.1;
-      g.y += (angTarget.h - g.y) * 0.1;
+      const tw = Math.min(2.9, angTarget.w * WIN_SCALE);
+      const th = Math.min(2.4, angTarget.h * WIN_SCALE);
+      g.x += (tw - g.x) * 0.1;
+      g.y += (th - g.y) * 0.1;
       chooseLines(g.x / g.y);
     }
   }
@@ -1135,7 +1912,83 @@
     }
   }
 
+  // --- Program sequencer: long arcs measured in moon rotations -----------
+  // A program is a list of acts. Each act repeats [dark rotations - just
+  // the word on the dark patch] -> [reveal rotations - the window opens
+  // wordless on the act's content] and then hands to the next act, so
+  // something only shows through every few rotations and the content
+  // progresses. The "hour" program is 204 rotations: ~62 min at the default
+  // speed 1/3 with the 6s moon loop (each rotation ~18s of wall time).
+  const PROGRAMS = {
+    hour: [
+      { cycles: 8, dark: 2, reveal: 1, content: "crt" },
+      { cycles: 8, dark: 2, reveal: 1, content: "incant" },
+      { cycles: 8, dark: 2, reveal: 1, content: "vajra" },
+      { cycles: 6, dark: 2, reveal: 1, content: "fold" },
+      { cycles: 6, dark: 2, reveal: 1, content: "foldhelix" },
+      { cycles: 6, dark: 2, reveal: 1, content: "foldjitter" },
+      { cycles: 6, dark: 2, reveal: 1, content: "foldgeo" },
+      { cycles: 6, dark: 2, reveal: 1, content: "foldivm" },
+      { cycles: 6, dark: 2, reveal: 1, content: "foldsonic" },
+      { cycles: 8, dark: 2, reveal: 1, content: "artifacts/sample-sonicsphere-silent.webm" }
+    ]
+  };
+  let progSchedule = null; // flat: one entry per rotation, loops forever
+  let progName = "";
+  let progApplied = -1;
+  let progLoops = 0, progPrevVideoT = 0;
+  // Accepts a named program ("hour"), a custom act array from the
+  // controller's program editor, or a JSON act array in the URL param.
+  function setProgram(spec) {
+    let acts = null;
+    if (Array.isArray(spec)) { acts = spec; progName = "custom"; }
+    else {
+      const s = String(spec == null ? "" : spec).trim();
+      if (s.startsWith("[")) {
+        try { acts = JSON.parse(s); progName = "custom"; } catch { acts = null; }
+      } else if (PROGRAMS[s.toLowerCase()]) {
+        acts = PROGRAMS[s.toLowerCase()];
+        progName = s.toLowerCase();
+      }
+    }
+    if (!acts || !acts.length) {
+      progSchedule = null;
+      progName = "";
+      return;
+    }
+    progSchedule = [];
+    for (const act of acts) {
+      const cycles = Math.max(1, Math.round(+act.cycles || 1));
+      const dark = Math.max(0, Math.round(act.dark == null ? 2 : +act.dark));
+      const reveal = Math.max(1, Math.round(act.reveal == null ? 1 : +act.reveal));
+      const content = String(act.content || "").trim();
+      for (let c = 0; c < cycles; c++) {
+        for (let d = 0; d < dark; d++) progSchedule.push({ content: "", wordless: false });
+        for (let r = 0; r < reveal; r++) progSchedule.push({ content, wordless: true });
+      }
+    }
+    progApplied = -1; // apply the current rotation's entry on the next frame
+  }
+  function updateProgram() {
+    if (!progSchedule || !useMosaic) return;
+    const vt = moon.video.currentTime || 0;
+    if (vt < progPrevVideoT - 0.5) progLoops++;
+    progPrevVideoT = vt;
+    const per = rotationPeriod();
+    const rot = Math.floor((progLoops * (moon.video.duration || per) + vt) / per);
+    if (rot === progApplied) return;
+    progApplied = rot;
+    const entry = progSchedule[rot % progSchedule.length];
+    if (CONTENT_SRC !== entry.content || (WIN && WORDLESS_WIN !== entry.wordless)) {
+      setWindowContent(entry.content, entry.wordless);
+    }
+  }
+
   const start = performance.now();
+  // Screen-capture content can't be built at parse time (it registers its
+  // own gesture handler); route it through the live switcher instead.
+  if (useMosaic && CONTENT_KEY === "screen") setWindowContent("screen");
+  if (params.get("program")) setProgram(params.get("program"));
   let prevT = 0;
   function animate() {
     const t = (performance.now() - start) / 1000;
@@ -1157,6 +2010,7 @@
     }
     if (crt) crt.draw(t);
     if (cave) cave.draw(t);
+    if (fold) { fold.draw(t); window.__fold = fold; }
     if (mosaic) {
       updateMosaicAnchor(t);
       // Shimmer the tiles by reshuffling cube images a few times a second.
@@ -1166,6 +2020,7 @@
         mosaic.redraw();
       }
     }
+    updateProgram();
     updateApparition(t, dt);
     updatePeek(t, dt);
     adaptBleed(t);
@@ -1197,6 +2052,7 @@
     q.set("flicker", (+uniforms.uFlicker.value).toFixed(2));
     q.set("angw", (+uniforms.uAng.value.x).toFixed(2));
     q.set("angh", (+uniforms.uAng.value.y).toFixed(2));
+    if (WIN_SCALE !== 1) q.set("winscale", WIN_SCALE.toFixed(2));
     q.set("lonoff", (LON_OFF * 180 / Math.PI).toFixed(0));
     q.set("latoff", (LAT_OFF * 180 / Math.PI).toFixed(0));
     if (VAJRA_COUNT > 0) {
@@ -1223,13 +2079,20 @@
       flicker: +uniforms.uFlicker.value,
       angw: +uniforms.uAng.value.x,
       angh: +uniforms.uAng.value.y,
+      winscale: WIN_SCALE,
       lon: LON_OFF * 180 / Math.PI,
       lat: LAT_OFF * 180 / Math.PI,
       vajras: VAJRA_COUNT,
       vajraRadius: VAJRA_RADIUS,
       bleed: BLEED,
       apparition: APPARITION,
-      when: WHEN
+      when: WHEN,
+      program: progName,
+      programRot: progApplied,
+      programLen: progSchedule ? progSchedule.length : 0,
+      rotSeconds: rotationPeriod() / Math.max(SPEED, 0.001),
+      streaming: !!streamSession,
+      streamStatus: streamStatus
     }, extraState);
   }
 
@@ -1248,7 +2111,9 @@
     for (const key in set) {
       const v = set[key];
       switch (key) {
-        case "speed": SPEED = v; moon.video.playbackRate = v; break;
+        // Chrome throws on playbackRate < 0.0625; clamp so a low slider
+        // value slows to minimum instead of aborting the whole config batch.
+        case "speed": SPEED = Math.max(0.0625, v); moon.video.playbackRate = SPEED; break;
         case "bright": uniforms.uBright.value = v; break;
         case "thresh": uniforms.uThresh.value = v; break;
         case "feather": uniforms.uFeather.value = v; break;
@@ -1256,17 +2121,34 @@
         case "flicker": uniforms.uFlicker.value = v; break;
         case "angw": AUTO_ANG = false; angTarget.w = v; break;
         case "angh": AUTO_ANG = false; angTarget.h = v; break;
+        case "winscale": WIN_SCALE = Math.max(0.3, v); break;
         case "lon": LON_OFF = v * (Math.PI / 180); pickAnchor(); break;
         case "lat": LAT_OFF = v * (Math.PI / 180); pickAnchor(); break;
         case "vajras": setVajraCount(v); break;
         case "vajraRadius":
         case "vajraradius": VAJRA_RADIUS = v; break;
+        case "stream": setStreaming(!!v && v !== "0"); break;
         case "bleed": BLEED = Math.max(0, v); break;
         case "apparition": APPARITION = Math.max(0, v); break;
         case "peek": PEEK = Math.max(0, v); break;
+        case "word":
+          MOSAIC_WORD = String(v || "").trim().toLowerCase() || MOSAIC_WORD;
+          if (mosaic) {
+            mosaic.setWord(MOSAIC_WORD);
+            chooseLines(uniforms.uAng.value.x / uniforms.uAng.value.y);
+          }
+          break;
         case "when":
           WHEN = String(v || "").trim() || WHEN;
           if (crt) crt.setWhen();
+          break;
+        case "program": setProgram(v); break;
+        case "content":
+          // Manual content choice takes over from any running program.
+          setProgram("");
+          // Swap the window content in place; layouts that can't (plain
+          // text, planar) reload with the new source instead.
+          if (!setWindowContent(v)) applySources({ content: v });
           break;
         default: extraState[key] = v; break;
       }

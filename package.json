@@ -4,6 +4,12 @@
   "private": true,
   "scripts": {
     "start": "npx http-server -c-1 -p 8080 .",
+    "kiosk:hypermoon": "open -na \"Google Chrome\" --args --kiosk --user-data-dir=/tmp/hypermoon-kiosk --autoplay-policy=no-user-gesture-required \"http://localhost:8080/hypermoon.html?kiosk=1\"",
+    "stream:server": "node scripts/stream-server.mjs",
+    "manifest:videos": "node scripts/build-video-manifest.mjs",
+    "guide:stills": "node scripts/capture-guide-stills.mjs",
+    "guide:pdf": "node scripts/render-modes-guide.mjs",
+    "export:crt": "CAPTURE_MS=45000 HYPERSTITION_PAGE=crt-terminal.html OUTPUT_VIDEO=artifacts/crt-terminal-green.mp4 node scripts/export-hyperstition-moon-video.mjs",
     "test": "playwright test",
     "test:smoke": "node scripts/test-basic-functionality.mjs",
     "test:smoke:headed": "SMOKE_HEADLESS=0 node scripts/test-basic-functionality.mjs",
@@ -36,8 +42,8 @@
     "export:hyperstition:moon": "node scripts/export-hyperstition-moon-video.mjs",
     "export:hyperstition:moon:halo": "CAPTURE_MS=25000 MOON_VIDEO=\"loops/Moon and Astronauts/Moon Loops/approach-and-flight-around-the-moon-2025-12-17-22-46-49-utc.mp4\" HYPERSTITION_PAGE=hyperstition-moon-halo.html node scripts/export-hyperstition-moon-video.mjs",
     "export:hyperstition:moon:vajra": "CAPTURE_MS=25000 VAJRAS=1 VAJRA_COUNT=3 MOON_VIDEO=\"loops/Moon and Astronauts/Moon Loops/approach-and-flight-around-the-moon-2025-12-17-22-46-49-utc.mp4\" HYPERSTITION_PAGE=hyperstition-moon-halo.html node scripts/export-hyperstition-moon-video.mjs",
-    "export:fold": "CAPTURE_MS=40000 HYPERSTITION_PAGE=synergetics-fold.html OUTPUT_VIDEO=artifacts/synergetics-fold.mp4 node scripts/export-hyperstition-moon-video.mjs",
-    "export:fold:associate": "CAPTURE_MS=35000 HYPERSTITION_PAGE=synergetics-fold.html HYPERSTITION_EXTRA_QUERY=mode=associate OUTPUT_VIDEO=artifacts/synergetics-associate.mp4 node scripts/export-hyperstition-moon-video.mjs",
+    "export:fold": "CAPTURE_MS=40000 HYPERSTITION_PAGE=synergetics-fold.html HYPERSTITION_EXTRA_QUERY=label=0 OUTPUT_VIDEO=artifacts/synergetics-fold.mp4 node scripts/export-hyperstition-moon-video.mjs",
+    "export:fold:associate": "CAPTURE_MS=35000 HYPERSTITION_PAGE=synergetics-fold.html \"HYPERSTITION_EXTRA_QUERY=mode=associate&label=0\" OUTPUT_VIDEO=artifacts/synergetics-associate.mp4 node scripts/export-hyperstition-moon-video.mjs",
     "build:color:theme-set": "node scripts/build-color-theme-set.mjs"
   },
   "devDependencies": {
@@ -47,6 +53,7 @@
   "dependencies": {
     "ffmpeg-static": "^5.3.0",
     "pdf-lib": "^1.17.1",
-    "tesseract.js": "^7.0.0"
+    "tesseract.js": "^7.0.0",
+    "ws": "^8.21.1"
   }
 }

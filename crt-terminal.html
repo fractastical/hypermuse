@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8"/>
+<title>CRT terminal</title>
+<style>
+  html, body { margin: 0; height: 100%; background: #000; overflow: hidden; cursor: none; }
+  canvas { display: block; width: 100vw; height: 100vh; }
+</style>
+</head>
+<body>
+<canvas id="c"></canvas>
+<script>
+(function () {
+  // Standalone phosphor terminal for real CRT monitors and side screens.
+  //
+  //   ?when=WEDNESDAY 22:00   announced time on the event frames
+  //   ?text=LINE|LINE~NEXT    custom script: | = new line, ~ = next screen
+  //   ?color=green            green | amber | purple | cyan | white | RRGGBB
+  //   ?cps=17                 typed characters per second
+  //   ?fx=1                   synthetic scanlines/roll/flicker. Pass fx=0 on a
+  //                           genuine CRT - the tube supplies its own artifacts.
+  //   ?safe=0.1               margin fraction kept clear for CRT overscan
+  const params = new URLSearchParams(location.search);
+  const num = (key, fallback) => {
+    const v = Number.parseFloat(params.get(key));
+    return Number.isFinite(v) ? v : fallback;
+  };
+  const WHEN = params.get("when") || "WEDNESDAY 22:00";
+  const CPS = num("cps", 17);
+  const FX = params.get("fx") !== "0";
+  const SAFE = num("safe", 0.1);
+  const HOLD = num("hold", 3.2); // seconds a finished screen stays up
+
+  const COLORS = {
+    green:  ["#49ff7d", "#2bff62"],
+    amber:  ["#ffc266", "#ff9a1f"],
+    purple: ["#d9a3ff", "#b45dff"],
+    cyan:   ["#7df3ff", "#2bd9ff"],
+    white:  ["#f2f4f6", "#c8d0da"]
+  };
+  const colorKey = (params.get("color") || "green").toLowerCase();
+  const [INK, GLOW] = COLORS[colorKey]
+    || [("#" + colorKey).replace(/^##/, "#"), ("#" + colorKey).replace(/^##/, "#")];
+
+  const TEXT_PARAM = params.get("text");
+  const frames = TEXT_PARAM
+    ? TEXT_PARAM.split("~").map((screen) => screen.split("|"))
+    : [
+        ["> CARRIER LOCKED", "> SELENE FREQUENCIES", "", "HYPERSTITION", "", WHEN],
+        ["RECITE THE OATH:", "", "OM VAJRASATTVAH SVAYAM", "TE 'DYA HRDAYE", "SAMAVASTHITAH"],
+        ["ONE SHOULD VISUALIZE", "THE FIGURE OF THE MOON", "AND SOAR UP", "INTO EMPTY SPACE"],
+        ["ASCEND THE LUNAR DISC", "VISUALIZE THE", "ADAMANTINE GEM", "", WHEN],
+        ["VAJRAM AHAM", "", "(I AM A VAJRA)"]
+      ];
+
+  const canvas = document.getElementById("c");
+  const ctx = canvas.getContext("2d");
+  function resize() {
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+  }
+  resize();
+  window.addEventListener("resize", resize);
+
+  let frameIdx = 0;
+  let frameStart = 0;
+  const start = performance.now();
+
+  function draw() {
+    const t = (performance.now() - start) / 1000;
+    const W = canvas.width, H = canvas.height;
+    const lines = frames[frameIdx % frames.length];
+    const totalChars = lines.reduce((a, l) => a + l.length + 1, 0);
+    const shown = Math.floor((t - frameStart) * CPS);
+    if (shown > totalChars + HOLD * CPS) {
+      frameIdx++;
+      frameStart = t;
+    }
+
+    ctx.fillStyle = "#020703";
+    ctx.fillRect(0, 0, W, H);
+
+    // Fit the longest screen inside the overscan-safe box.
+    const x0 = W * SAFE, y0 = H * (SAFE + 0.02);
+    const boxW = W * (1 - 2 * SAFE), boxH = H * (1 - 2 * SAFE);
+    const maxLines = Math.max(...frames.map((f) => f.length));
+    const longest = Math.max(...frames.flat().map((l) => l.length), 1);
+    const fs = Math.min(boxH / (maxLines * 1.7), (boxW / longest) * 1.75);
+    ctx.font = `bold ${fs}px "JetBrains Mono", "Menlo", monospace`;
+    ctx.textBaseline = "top";
+    ctx.shadowColor = GLOW;
+    ctx.shadowBlur = FX ? fs * 0.32 : fs * 0.18;
+    ctx.fillStyle = INK;
+
+    let budget = Math.floor((t - frameStart) * CPS);
+    lines.forEach((line, i) => {
+      if (budget <= 0) return;
+      const part = line.slice(0, budget);
+      budget -= line.length + 1;
+      ctx.fillText(part, x0, y0 + i * fs * 1.7);
+      // Blinking block cursor at the end of the last typed line.
+      if (budget <= 0 && Math.floor(t * 2.4) % 2 === 0) {
+        ctx.fillRect(x0 + ctx.measureText(part).width + fs * 0.2, y0 + i * fs * 1.7, fs * 0.55, fs * 0.9);
+      }
+    });
+    ctx.shadowBlur = 0;
+
+    if (FX) {
+      // Scanlines, slow roll bar, edge vignette, faint flicker.
+      ctx.fillStyle = "rgba(0,0,0,0.28)";
+      for (let y = 0; y < H; y += 4) ctx.fillRect(0, y, W, 2);
+      const rollY = ((t * 26) % (H * 1.4)) - H * 0.2;
+      const roll = ctx.createLinearGradient(0, rollY, 0, rollY + H * 0.16);
+      roll.addColorStop(0, "rgba(255,255,255,0)");
+      roll.addColorStop(0.5, "rgba(255,255,255,0.05)");
+      roll.addColorStop(1, "rgba(255,255,255,0)");
+      ctx.fillStyle = roll;
+      ctx.fillRect(0, rollY, W, H * 0.16);
+      const vig = ctx.createRadialGradient(W / 2, H / 2, H * 0.35, W / 2, H / 2, H * 0.85);
+      vig.addColorStop(0, "rgba(0,0,0,0)");
+      vig.addColorStop(1, "rgba(0,0,0,0.5)");
+      ctx.fillStyle = vig;
+      ctx.fillRect(0, 0, W, H);
+      ctx.fillStyle = `rgba(0,0,0,${0.04 + 0.03 * Math.sin(t * 11.3) * Math.sin(t * 3.1)})`;
+      ctx.fillRect(0, 0, W, H);
+    }
+
+    requestAnimationFrame(draw);
+  }
+  draw();
+
+  window.__hyperstitionReady = true;
+  window.__hyperstitionStats = {
+    layout: "crt-terminal",
+    when: WHEN,
+    color: colorKey,
+    fx: FX,
+    get frame() { return frameIdx; }
+  };
+})();
+</script>
+</body>
+</html>

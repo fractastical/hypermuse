@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8"/>
+<title>Hypermuse — broadcast a window to the LAN</title>
+<style>
+  body { margin: 0; background: #0a0c10; color: #dfe5ee; font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+         display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 100vh; gap: 18px; }
+  h1 { font-size: 18px; font-weight: 600; letter-spacing: 1px; margin: 0; }
+  p { max-width: 520px; text-align: center; color: #8b94a5; font-size: 13px; line-height: 1.5; margin: 0; }
+  button { background: #2b6cff; color: #fff; border: 0; border-radius: 8px; padding: 12px 26px;
+           font-size: 15px; cursor: pointer; }
+  button:hover { background: #4680ff; }
+  #status { font-size: 13px; color: #6fe09a; min-height: 18px; }
+  video { max-width: 70vw; max-height: 45vh; border-radius: 8px; background: #000; display: none; }
+  code { background: #1a1e26; padding: 1px 6px; border-radius: 4px; font-size: 12px; }
+</style>
+</head>
+<body>
+<h1>BROADCAST TO THE LAN</h1>
+<p>Pick a window, tab, or screen — it streams live to every device that opens
+<code>stream-view.html</code> from this server. Needs <code>npm run stream:server</code> running.
+(To stream the moon without picking anything, just open <code>hypermoon.html?stream=1</code> instead.)</p>
+<button id="go">share a window / screen</button>
+<div id="status"></div>
+<video id="preview" autoplay muted playsinline></video>
+<script src="js/stream-broadcast.js"></script>
+<script>
+  const statusEl = document.getElementById("status");
+  const preview = document.getElementById("preview");
+  let session = null;
+  document.getElementById("go").addEventListener("click", async () => {
+    try {
+      const stream = await navigator.mediaDevices.getDisplayMedia({
+        video: { frameRate: 30 },
+        audio: false
+      });
+      if (session) session.stop();
+      preview.srcObject = stream;
+      preview.style.display = "block";
+      session = window.HypermuseStream.broadcast(stream, {
+        onStatus: (state, count) => {
+          statusEl.textContent = `${state} — ${count} viewer${count === 1 ? "" : "s"}`;
+        }
+      });
+      stream.getVideoTracks()[0].addEventListener("ended", () => {
+        session.stop();
+        statusEl.textContent = "sharing stopped";
+        preview.style.display = "none";
+      });
+    } catch (err) {
+      statusEl.textContent = "could not start capture: " + err.message;
+    }
+  });
+</script>
+</body>
+</html>

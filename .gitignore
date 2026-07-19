@@ -3,9 +3,12 @@ images
 node_modules/
 loops/
 assets/
+audio/
 external/
 infinitestreams/
 .DS_Store
 
 # Generated exports, caches, datasets, PDFs, and media (videos, wav, LED samples, DJ cache, …)
 artifacts/
+video-manifest.json
+audio-manifest.json

@@ -416,15 +416,40 @@
             <option value="">none (word only)</option>
             <option value="crt">CRT terminal (live, editable time)</option>
             <option value="vajra">vajras inside the moon</option>
+            <option value="fold">bucky fold (triangle &#8594; tetrahedron)</option>
+            <option value="foldsonic">bucky fold &#215; sonicsphere (video panels)</option>
+            <option value="foldhelix">bucky helixes (1 + 1 = 4, two spirals &#8594; tetra)</option>
+            <option value="foldjitter">bucky jitterbug (VE &#8594; icosa &#8594; octa)</option>
+            <option value="foldgeo">bucky geodesic (icosa blooms into a dome)</option>
+            <option value="foldivm">bucky octet truss (isotropic vector matrix)</option>
+            <option value="artifacts/sample-sonicsphere-silent.webm">sonicsphere (baked loop)</option>
+            <option value="screen">another window (screen capture)</option>
             <option value="artifacts/crt-terminal-green.mp4">CRT terminal (baked video)</option>
             <option value="incant">incantation mantras</option>
             <option value="assets/estoteric/web/IMG_1900.jpg,assets/estoteric/web/IMG_1901.jpg,assets/estoteric/web/IMG_1902.jpg,assets/estoteric/web/IMG_1903.jpg,assets/estoteric/web/IMG_1904.jpg">sutra pages (slideshow)</option>
           </select>
           content <input type="text" id="hmContentInput" value="" size="30" placeholder="empty = word mosaic, 'incant' = mantras"/>
+          <span style="white-space:nowrap;">
+            any video <input type="text" id="hmVideoPicker" list="hmVideoList" size="34"
+              placeholder="type to search all loops…" title="every playable video found by npm run manifest:videos — pick one and it plays inside the moon window immediately"/>
+            <datalist id="hmVideoList"></datalist>
+            <input type="button" id="hmVideoRandomButton" value="random" title="random video (respects the search text as a filter)"/>
+            <span id="hmVideoCount" style="color:rgba(207,233,255,0.5);font-size:10px;"></span>
+          </span>
           when <input type="text" id="hmWhenInput" value="WEDNESDAY 22:00" size="16" title="announced time on the live CRT screen"/>
+          program
+          <select id="hmProgramSelect" title="rotation-based sequencer: dark rotations show just the word, every 3rd rotation the window opens wordless on the current act's content, acts progress over ~an hour, then it loops">
+            <option value="">off (manual)</option>
+            <option value="hour">hour progression (reveal every 3rd rotation)</option>
+            <option value="custom">custom (from the editor below)</option>
+          </select>
           <input type="button" id="hmApplySourcesButton" value="apply sources (reloads)"/>
           <input type="button" id="hmResurveyButton" value="re-survey anchor"/>
           <input type="button" id="hmCopyQueryButton" value="copy export query"/>
+          <label style="margin-left:8px;" title="broadcast the running hypermoon to stream-view.html on other devices (needs npm run stream:server)">
+            <input type="checkbox" id="hmStreamToggle"/> stream to LAN
+            <span id="hmStreamStatus" style="color:rgba(207,233,255,0.62);font-size:10px;"></span>
+          </label>
         </div>
         <table style="border-collapse:collapse;font-size:11px;margin-top:4px;">
           <tr>
@@ -487,8 +512,97 @@
             <td><input type="range" class="hm-slider" id="hmAngh" data-key="angh" min="0.3" max="1.8" step="0.02" style="width:130px;"/></td>
             <td style="padding:2px 8px;"><span id="hmAnghVal">–</span></td>
           </tr>
+          <tr>
+            <td style="padding:2px 8px;color:rgba(207,233,255,0.62);">window size &#215;</td>
+            <td><input type="range" class="hm-slider" id="hmWinScale" data-key="winscale" min="0.4" max="2.5" step="0.05" style="width:130px;"/></td>
+            <td style="padding:2px 8px;"><span id="hmWinScaleVal">–</span></td>
+            <td colspan="3" style="padding:2px 8px;color:rgba(207,233,255,0.45);">master multiplier on the dark-side window — drag right to enlarge the bleed-through live</td>
+          </tr>
         </table>
+        <div style="margin-top:6px;border-top:1px solid rgba(207,233,255,0.12);padding-top:5px;">
+          <b style="font-size:11px;">program editor</b>
+          <span style="color:rgba(207,233,255,0.45);font-size:10px;">each act repeats: [dark] rotations word-only &#8594; [reveal] rotations wordless content, &#215; cycles</span>
+          <input type="button" id="hmProgLoadHour" value="load hour"/>
+          <input type="button" id="hmProgAddAct" value="+ act"/>
+          <input type="button" id="hmProgApply" value="&#9654; apply program (live)"/>
+          <input type="button" id="hmProgStop" value="&#9632; stop"/>
+          <span id="hmProgDuration" style="color:rgba(207,233,255,0.62);font-size:10px;"></span>
+          <span id="hmProgStatus" style="color:rgba(122,255,180,0.75);font-size:10px;"></span>
+          <datalist id="hmProgContentList">
+            <option value="crt"></option>
+            <option value="incant"></option>
+            <option value="vajra"></option>
+            <option value="fold"></option>
+            <option value="foldsonic"></option>
+            <option value="foldhelix"></option>
+            <option value="foldjitter"></option>
+            <option value="foldgeo"></option>
+            <option value="foldivm"></option>
+            <option value="artifacts/sample-sonicsphere-silent.webm"></option>
+          </datalist>
+          <table style="border-collapse:collapse;font-size:11px;margin-top:3px;">
+            <thead>
+              <tr style="color:rgba(207,233,255,0.45);">
+                <td style="padding:1px 6px;">#</td><td>content (keyword or any video path)</td>
+                <td>cycles</td><td>dark</td><td>reveal</td><td></td>
+              </tr>
+            </thead>
+            <tbody id="hmProgBody"></tbody>
+          </table>
+        </div>
         <div id="hmStateReadout" style="font-size:10px;color:rgba(207,233,255,0.62);margin-top:6px;word-break:break-all;line-height:1.4;">no hypermoon window connected yet — open one above</div>
+    </div>
+    <div class="input-group" id="audioDeckPanel" style="grid-column: 1 / -1;">
+        <b>Audio deck</b>
+        <span style="color:rgba(207,233,255,0.5);font-size:10px;">looped bed + interjections on a period — plays from this window; feed the PA from here</span>
+        <span id="adCount" style="color:rgba(207,233,255,0.5);font-size:10px;"></span>
+        <datalist id="adAudioList"></datalist>
+        <div style="margin-top:4px;">
+          bed loop <input type="text" id="adBedInput" list="adAudioList" size="44" placeholder="type to search all audio…"/>
+          vol <input type="range" id="adBedVol" min="0" max="1" step="0.02" value="0.8" style="width:90px;vertical-align:middle;"/>
+          <input type="button" id="adBedButton" value="play bed"/>
+          <span id="adBedStatus" style="color:rgba(207,233,255,0.62);font-size:10px;">stopped</span>
+        </div>
+        <table style="border-collapse:collapse;font-size:11px;margin-top:4px;">
+          <tr style="color:rgba(207,233,255,0.45);">
+            <td style="padding:2px 6px;">interjection</td><td>file</td><td>every (s)</td>
+            <td>&#177; jitter (s)</td><td>vol</td><td>duck bed</td><td>on</td><td>next in</td>
+          </tr>
+          <tr>
+            <td style="padding:2px 6px;color:rgba(207,233,255,0.62);">A</td>
+            <td><input type="text" class="ad-slot-file" data-slot="0" list="adAudioList" size="40"/></td>
+            <td><input type="text" class="ad-slot-period" data-slot="0" value="60" size="4"/></td>
+            <td><input type="text" class="ad-slot-jitter" data-slot="0" value="0" size="4"/></td>
+            <td><input type="range" class="ad-slot-vol" data-slot="0" min="0" max="1" step="0.02" value="1" style="width:70px;"/></td>
+            <td style="text-align:center;"><input type="checkbox" class="ad-slot-duck" data-slot="0" checked/></td>
+            <td style="text-align:center;"><input type="checkbox" class="ad-slot-on" data-slot="0"/></td>
+            <td style="padding:2px 6px;"><span class="ad-slot-next" data-slot="0" style="color:rgba(207,233,255,0.62);">–</span></td>
+          </tr>
+          <tr>
+            <td style="padding:2px 6px;color:rgba(207,233,255,0.62);">B</td>
+            <td><input type="text" class="ad-slot-file" data-slot="1" list="adAudioList" size="40"/></td>
+            <td><input type="text" class="ad-slot-period" data-slot="1" value="120" size="4"/></td>
+            <td><input type="text" class="ad-slot-jitter" data-slot="1" value="20" size="4"/></td>
+            <td><input type="range" class="ad-slot-vol" data-slot="1" min="0" max="1" step="0.02" value="1" style="width:70px;"/></td>
+            <td style="text-align:center;"><input type="checkbox" class="ad-slot-duck" data-slot="1" checked/></td>
+            <td style="text-align:center;"><input type="checkbox" class="ad-slot-on" data-slot="1"/></td>
+            <td style="padding:2px 6px;"><span class="ad-slot-next" data-slot="1" style="color:rgba(207,233,255,0.62);">–</span></td>
+          </tr>
+          <tr>
+            <td style="padding:2px 6px;color:rgba(207,233,255,0.62);">C</td>
+            <td><input type="text" class="ad-slot-file" data-slot="2" list="adAudioList" size="40"/></td>
+            <td><input type="text" class="ad-slot-period" data-slot="2" value="300" size="4"/></td>
+            <td><input type="text" class="ad-slot-jitter" data-slot="2" value="60" size="4"/></td>
+            <td><input type="range" class="ad-slot-vol" data-slot="2" min="0" max="1" step="0.02" value="1" style="width:70px;"/></td>
+            <td style="text-align:center;"><input type="checkbox" class="ad-slot-duck" data-slot="2" checked/></td>
+            <td style="text-align:center;"><input type="checkbox" class="ad-slot-on" data-slot="2"/></td>
+            <td style="padding:2px 6px;"><span class="ad-slot-next" data-slot="2" style="color:rgba(207,233,255,0.62);">–</span></td>
+          </tr>
+        </table>
+        <div style="margin-top:2px;font-size:10px;color:rgba(207,233,255,0.45);">
+          "every" counts from the moment an interjection starts; "fire now" = <input type="button" id="adFireA" value="A"/> <input type="button" id="adFireB" value="B"/> <input type="button" id="adFireC" value="C"/>
+          &#183; duck lowers the bed to 25% while the interjection plays
+        </div>
     </div>
     <div class="input-group">
         FX Mode:
@@ -660,6 +774,32 @@
 </div>
 
 <script>
+        // The controller must run off the local web server - opened straight
+        // from disk (file://) the output pages can't load their videos and the
+        // hypermoon broadcast channel doesn't cross file:// pages. If we detect
+        // a file:// launch, hop over to the served copy; if the server isn't
+        // running, say so.
+        const SERVER_BASE = 'http://localhost:8080/';
+        if (location.protocol === 'file:') {
+            fetch(SERVER_BASE + 'controller.html', { method: 'HEAD', mode: 'no-cors' })
+                .then(function() {
+                    location.replace(SERVER_BASE + 'controller.html' + location.search);
+                })
+                .catch(function() {
+                    document.body.insertAdjacentHTML('afterbegin',
+                        '<div style="background:#7a1f1f;color:#fff;padding:10px 16px;font-size:14px;">' +
+                        'Opened from disk and the local server is not running - outputs will not work. ' +
+                        'Run <code>npm start</code> in the project folder, then open ' +
+                        '<a href="' + SERVER_BASE + 'controller.html" style="color:#ffd9d9">' +
+                        SERVER_BASE + 'controller.html</a></div>');
+                });
+        }
+        // Resolve output-page URLs against the server even if this page
+        // somehow still runs from file://.
+        function appUrl(rel) {
+            return location.protocol === 'file:' ? SERVER_BASE + rel : rel;
+        }
+
         let hueoffset = 20;
         let volumeThreshold = 40;
         let thresholds = Array(22).fill(40);
@@ -1073,7 +1213,7 @@ function getVisualUrlFromUi() {
 }
 
 function openVisualWindow() {
-    visualWindow = window.open(getVisualUrlFromUi(), '_blank');
+    visualWindow = window.open(appUrl(getVisualUrlFromUi()), '_blank');
     restartLoopGroupsPoller();
 }
 
@@ -1826,7 +1966,7 @@ document.querySelectorAll('#projRigPanel .rig-nudge').forEach(function(btn) {
 });
 
 document.getElementById('rigOpenOutputButton').addEventListener('click', function() {
-    window.open('moon-projection-rig.html?feed=triple&hud=0', 'moonRigOutput');
+    window.open(appUrl('moon-projection-rig.html?feed=triple&hud=0'), 'moonRigOutput');
 });
 
 document.getElementById('rigOpenQuadButton').addEventListener('click', function() {
@@ -1834,7 +1974,7 @@ document.getElementById('rigOpenQuadButton').addEventListener('click', function(
     // screen in the bottom-right cell.
     const aux = document.getElementById('rigAuxVideoInput').value.trim();
     const auxPart = aux ? '&auxvideo=' + encodeURIComponent(aux) : '';
-    window.open('moon-projection-rig.html?feed=quad&hud=0&cells=A,B,C,aux' + auxPart, 'moonRigOutput');
+    window.open(appUrl('moon-projection-rig.html?feed=quad&hud=0&cells=A,B,C,aux' + auxPart), 'moonRigOutput');
 });
 
 document.getElementById('rigShowDiagramButton').addEventListener('click', function() {
@@ -1897,7 +2037,8 @@ const HM_FMT = {
     thresh: function(v) { return v.toFixed(3); }, feather: function(v) { return v.toFixed(3); },
     lift: function(v) { return v.toFixed(3); }, flicker: function(v) { return v.toFixed(2); },
     lon: function(v) { return v.toFixed(0); }, lat: function(v) { return v.toFixed(0); },
-    angw: function(v) { return v.toFixed(2); }, angh: function(v) { return v.toFixed(2); }
+    angw: function(v) { return v.toFixed(2); }, angh: function(v) { return v.toFixed(2); },
+    winscale: function(v) { return v.toFixed(2) + '×'; }
 };
 
 document.querySelectorAll('#hypermoonPanel .hm-slider').forEach(function(slider) {
@@ -1915,8 +2056,17 @@ document.querySelectorAll('#hypermoonPanel .hm-slider').forEach(function(slider)
 });
 
 document.getElementById('hmOpenOutputButton').addEventListener('click', function() {
-    window.open('hypermoon.html', 'hypermoonOutput');
+    // kiosk=1: the output hides its cursor and goes fullscreen on the first
+    // click/keypress in that window (drag it to the target display first).
+    window.open(appUrl('hypermoon.html?kiosk=1'), 'hypermoonOutput');
     setTimeout(function() { if (hmChannel) hmChannel.postMessage({ type: 'moonRequestState' }); }, 1500);
+});
+
+// The word applies live over the channel - no reload, the letter mosaic
+// redraws in place.
+document.getElementById('hmWordInput').addEventListener('change', function() {
+    const word = this.value.trim();
+    if (word && hmChannel) hmChannel.postMessage({ type: 'moonConfig', set: { word: word } });
 });
 
 function hmApplySources() {
@@ -1931,12 +2081,201 @@ function hmApplySources() {
 }
 document.getElementById('hmApplySourcesButton').addEventListener('click', hmApplySources);
 
-// Window presets: pick what shows inside the moon (behind the word panel)
-// and apply immediately.
+// Window presets: pick what shows inside the moon (behind the word panel).
+// Applies live over the channel - the window content swaps in place, no
+// reload. The "screen capture" preset asks for one click in the hypermoon
+// window to pick which window to pipe in.
+function hmSetContentLive(content) {
+    if (hmChannel) hmChannel.postMessage({ type: 'moonConfig', set: { content: content } });
+}
 document.getElementById('hmContentPreset').addEventListener('change', function() {
     if (this.value === '__keep') return;
     document.getElementById('hmContentInput').value = this.value;
-    hmApplySources();
+    hmSetContentLive(this.value);
+});
+document.getElementById('hmContentInput').addEventListener('change', function() {
+    hmSetContentLive(this.value.trim());
+});
+
+// Any-video picker: video-manifest.json (npm run manifest:videos) lists
+// every playable clip under loops/, artifacts/, assets/, external/,
+// infinitestreams/. Typing filters the datalist natively; picking an entry
+// (or hitting "random") swaps it into the moon window live.
+let hmVideoManifest = [];
+fetch('video-manifest.json').then(function(r) { return r.ok ? r.json() : null; }).then(function(m) {
+    if (!m || !m.videos) return;
+    hmVideoManifest = m.videos;
+    const list = document.getElementById('hmVideoList');
+    const progList = document.getElementById('hmProgContentList');
+    list.innerHTML = '';
+    m.videos.forEach(function(p) {
+        const opt = document.createElement('option');
+        opt.value = p;
+        list.appendChild(opt);
+        progList.appendChild(opt.cloneNode()); // program acts can be any clip too
+    });
+    document.getElementById('hmVideoCount').textContent = m.videos.length + ' clips';
+}).catch(function() {
+    document.getElementById('hmVideoCount').textContent = 'no manifest — run: npm run manifest:videos';
+});
+function hmSendVideo(path) {
+    document.getElementById('hmContentInput').value = path;
+    document.getElementById('hmContentPreset').value = '__keep';
+    hmSetContentLive(path);
+}
+document.getElementById('hmVideoPicker').addEventListener('change', function() {
+    const v = this.value.trim();
+    if (v) hmSendVideo(v);
+});
+// ── Audio deck: looped bed + periodic interjections, playing from this
+// window (route this machine's output to the PA). Interjection slots fire
+// every N ± jitter seconds; "duck" drops the bed to 25% while one plays.
+const adState = {
+    bed: null, bedVol: 0.8, duckCount: 0,
+    slots: [
+        { audio: null, nextAt: null, playing: false },
+        { audio: null, nextAt: null, playing: false },
+        { audio: null, nextAt: null, playing: false }
+    ]
+};
+fetch('audio-manifest.json').then(function(r) { return r.ok ? r.json() : null; }).then(function(m) {
+    if (!m || !m.audio) return;
+    const list = document.getElementById('adAudioList');
+    m.audio.forEach(function(p) {
+        const opt = document.createElement('option');
+        opt.value = p;
+        list.appendChild(opt);
+    });
+    document.getElementById('adCount').textContent = m.audio.length + ' tracks (npm run manifest:videos to refresh)';
+    const bedInput = document.getElementById('adBedInput');
+    if (!bedInput.value && m.audio.indexOf('artifacts/edm-dnb-strong-bass.mp3') >= 0) {
+        bedInput.value = 'artifacts/edm-dnb-strong-bass.mp3';
+    }
+}).catch(function() {
+    document.getElementById('adCount').textContent = 'no audio manifest — run: npm run manifest:videos';
+});
+
+function adApplyBedVolume() {
+    if (!adState.bed) return;
+    adState.bed.volume = adState.bedVol * (adState.duckCount > 0 ? 0.25 : 1);
+}
+document.getElementById('adBedVol').addEventListener('input', function() {
+    adState.bedVol = parseFloat(this.value);
+    adApplyBedVolume();
+});
+document.getElementById('adBedButton').addEventListener('click', function() {
+    const btn = this;
+    const status = document.getElementById('adBedStatus');
+    if (adState.bed) {
+        adState.bed.pause();
+        adState.bed = null;
+        btn.value = 'play bed';
+        status.textContent = 'stopped';
+        return;
+    }
+    const src = document.getElementById('adBedInput').value.trim();
+    if (!src) { status.textContent = 'pick a file first'; return; }
+    const a = new Audio(encodeURI(src));
+    a.loop = true;
+    adState.bed = a;
+    adApplyBedVolume();
+    a.play().then(function() {
+        btn.value = 'stop bed';
+        status.textContent = 'looping';
+    }).catch(function(e) {
+        status.textContent = 'failed: ' + e.message;
+        adState.bed = null;
+    });
+    a.addEventListener('error', function() {
+        status.textContent = 'load error (unsupported codec?)';
+        if (adState.bed === a) { adState.bed = null; btn.value = 'play bed'; }
+    });
+});
+// Swapping the bed file while playing crossfades hard (stop + start new).
+document.getElementById('adBedInput').addEventListener('change', function() {
+    if (!adState.bed) return;
+    const btn = document.getElementById('adBedButton');
+    btn.click(); // stop old
+    btn.click(); // start new
+});
+
+function adSlotEls(i) {
+    const q = function(cls) { return document.querySelector('.' + cls + '[data-slot="' + i + '"]'); };
+    return {
+        file: q('ad-slot-file'), period: q('ad-slot-period'), jitter: q('ad-slot-jitter'),
+        vol: q('ad-slot-vol'), duck: q('ad-slot-duck'), on: q('ad-slot-on'), next: q('ad-slot-next')
+    };
+}
+function adSchedule(i) {
+    const els = adSlotEls(i);
+    const period = Math.max(2, parseFloat(els.period.value) || 60);
+    const jitter = Math.max(0, parseFloat(els.jitter.value) || 0);
+    adState.slots[i].nextAt = performance.now() / 1000 + period + (Math.random() * 2 - 1) * jitter;
+}
+function adFire(i) {
+    const els = adSlotEls(i);
+    const slot = adState.slots[i];
+    const src = els.file.value.trim();
+    if (!src || slot.playing) return;
+    const a = slot.audio && slot.audio.src.indexOf(encodeURI(src)) >= 0
+        ? slot.audio : new Audio(encodeURI(src));
+    slot.audio = a;
+    a.currentTime = 0;
+    a.volume = parseFloat(els.vol.value);
+    const ducked = els.duck.checked;
+    slot.playing = true;
+    if (ducked) { adState.duckCount++; adApplyBedVolume(); }
+    const done = function() {
+        if (!slot.playing) return;
+        slot.playing = false;
+        if (ducked) { adState.duckCount = Math.max(0, adState.duckCount - 1); adApplyBedVolume(); }
+        adSchedule(i);
+    };
+    a.onended = done;
+    a.onerror = done;
+    a.play().catch(done);
+}
+document.querySelectorAll('.ad-slot-on').forEach(function(cb) {
+    cb.addEventListener('change', function() {
+        const i = +cb.dataset.slot;
+        if (cb.checked) {
+            // Created inside the click so the element is gesture-unlocked
+            // and later scheduled plays are allowed.
+            const src = adSlotEls(i).file.value.trim();
+            if (src) adState.slots[i].audio = new Audio(encodeURI(src));
+            adSchedule(i);
+        } else {
+            adState.slots[i].nextAt = null;
+            adSlotEls(i).next.textContent = '–';
+        }
+    });
+});
+[['adFireA', 0], ['adFireB', 1], ['adFireC', 2]].forEach(function(pair) {
+    document.getElementById(pair[0]).addEventListener('click', function() { adFire(pair[1]); });
+});
+setInterval(function() {
+    const now = performance.now() / 1000;
+    adState.slots.forEach(function(slot, i) {
+        const els = adSlotEls(i);
+        if (slot.playing) { els.next.textContent = 'playing'; return; }
+        if (!els.on.checked || slot.nextAt == null) return;
+        if (now >= slot.nextAt) adFire(i);
+        else els.next.textContent = Math.ceil(slot.nextAt - now) + 's';
+    });
+}, 250);
+
+document.getElementById('hmVideoRandomButton').addEventListener('click', function() {
+    const q = document.getElementById('hmVideoPicker').value.trim().toLowerCase();
+    // If the current text is an exact manifest entry (just played), ignore
+    // it as a filter so "random" keeps working after a pick.
+    const isExact = hmVideoManifest.indexOf(document.getElementById('hmVideoPicker').value.trim()) >= 0;
+    const pool = (q && !isExact)
+        ? hmVideoManifest.filter(function(p) { return p.toLowerCase().indexOf(q) >= 0; })
+        : hmVideoManifest;
+    if (!pool.length) return;
+    const pick = pool[Math.floor(Math.random() * pool.length)];
+    document.getElementById('hmVideoPicker').value = pick;
+    hmSendVideo(pick);
 });
 
 // Announced time on the live CRT screen - applies instantly, no reload.
@@ -1944,8 +2283,113 @@ document.getElementById('hmWhenInput').addEventListener('change', function() {
     if (hmChannel) hmChannel.postMessage({ type: 'moonConfig', set: { when: this.value.trim() } });
 });
 
+// Rotation-based program sequencer (hour progression etc.) - live toggle.
+// Picking a manual content preset stops the program on the output side.
+document.getElementById('hmProgramSelect').addEventListener('change', function() {
+    if (this.value === 'custom') { hmProgApply(); return; }
+    if (hmChannel) hmChannel.postMessage({ type: 'moonConfig', set: { program: this.value } });
+});
+
+// ── Program editor: compose the rotation arc act by act and apply live ──
+const HM_PROG_HOUR = [
+    { content: 'crt', cycles: 8, dark: 2, reveal: 1 },
+    { content: 'incant', cycles: 8, dark: 2, reveal: 1 },
+    { content: 'vajra', cycles: 8, dark: 2, reveal: 1 },
+    { content: 'fold', cycles: 6, dark: 2, reveal: 1 },
+    { content: 'foldhelix', cycles: 6, dark: 2, reveal: 1 },
+    { content: 'foldjitter', cycles: 6, dark: 2, reveal: 1 },
+    { content: 'foldgeo', cycles: 6, dark: 2, reveal: 1 },
+    { content: 'foldivm', cycles: 6, dark: 2, reveal: 1 },
+    { content: 'foldsonic', cycles: 6, dark: 2, reveal: 1 },
+    { content: 'artifacts/sample-sonicsphere-silent.webm', cycles: 8, dark: 2, reveal: 1 }
+];
+let hmRotSeconds = 18; // refreshed from the output's state
+
+function hmProgRow(act) {
+    const tr = document.createElement('tr');
+    tr.innerHTML =
+        '<td style="padding:1px 6px;color:rgba(207,233,255,0.62);" class="prog-num"></td>' +
+        '<td><input type="text" class="prog-content" list="hmProgContentList" size="38"/></td>' +
+        '<td><input type="text" class="prog-cycles" size="3"/></td>' +
+        '<td><input type="text" class="prog-dark" size="3"/></td>' +
+        '<td><input type="text" class="prog-reveal" size="3"/></td>' +
+        '<td><input type="button" class="prog-del" value="&#215;" title="remove act"/>' +
+        ' <input type="button" class="prog-up" value="&#8593;" title="move up"/></td>';
+    tr.querySelector('.prog-content').value = act.content;
+    tr.querySelector('.prog-cycles').value = act.cycles;
+    tr.querySelector('.prog-dark').value = act.dark;
+    tr.querySelector('.prog-reveal').value = act.reveal;
+    return tr;
+}
+function hmProgRender(acts) {
+    const body = document.getElementById('hmProgBody');
+    body.innerHTML = '';
+    acts.forEach(function(a) { body.appendChild(hmProgRow(a)); });
+    hmProgRefresh();
+}
+function hmProgCollect() {
+    return Array.prototype.map.call(document.querySelectorAll('#hmProgBody tr'), function(tr) {
+        return {
+            content: tr.querySelector('.prog-content').value.trim(),
+            cycles: parseInt(tr.querySelector('.prog-cycles').value, 10) || 1,
+            dark: parseInt(tr.querySelector('.prog-dark').value, 10) || 0,
+            reveal: parseInt(tr.querySelector('.prog-reveal').value, 10) || 1
+        };
+    });
+}
+function hmProgRefresh() {
+    let rot = 0;
+    document.querySelectorAll('#hmProgBody tr').forEach(function(tr, i) {
+        tr.querySelector('.prog-num').textContent = i + 1;
+    });
+    hmProgCollect().forEach(function(a) { rot += a.cycles * (a.dark + a.reveal); });
+    const min = rot * hmRotSeconds / 60;
+    document.getElementById('hmProgDuration').textContent =
+        rot + ' rotations \u2248 ' + (min >= 90 ? (min / 60).toFixed(1) + ' h' : Math.round(min) + ' min') +
+        ' at current speed';
+}
+document.getElementById('hmProgBody').addEventListener('input', hmProgRefresh);
+document.getElementById('hmProgBody').addEventListener('click', function(e) {
+    const tr = e.target.closest('tr');
+    if (!tr) return;
+    if (e.target.classList.contains('prog-del')) { tr.remove(); hmProgRefresh(); }
+    else if (e.target.classList.contains('prog-up') && tr.previousElementSibling) {
+        tr.parentNode.insertBefore(tr, tr.previousElementSibling);
+        hmProgRefresh();
+    }
+});
+document.getElementById('hmProgLoadHour').addEventListener('click', function() { hmProgRender(HM_PROG_HOUR); });
+document.getElementById('hmProgAddAct').addEventListener('click', function() {
+    document.getElementById('hmProgBody').appendChild(hmProgRow({ content: '', cycles: 4, dark: 2, reveal: 1 }));
+    hmProgRefresh();
+});
+function hmProgApply() {
+    const acts = hmProgCollect().filter(function(a) { return a.content; });
+    if (!acts.length || !hmChannel) return;
+    hmChannel.postMessage({ type: 'moonConfig', set: { program: acts } });
+}
+document.getElementById('hmProgApply').addEventListener('click', hmProgApply);
+document.getElementById('hmProgStop').addEventListener('click', function() {
+    if (hmChannel) hmChannel.postMessage({ type: 'moonConfig', set: { program: '' } });
+});
+hmProgRender(HM_PROG_HOUR);
+// Keep the position readout fresh while a program runs.
+setInterval(function() {
+    if (hmChannel && hmGotState) hmChannel.postMessage({ type: 'moonRequestState' });
+}, 5000);
+
 document.getElementById('hmResurveyButton').addEventListener('click', function() {
     if (hmChannel) hmChannel.postMessage({ type: 'moonConfig', resurvey: true });
+});
+
+// Start/stop broadcasting the running hypermoon window to LAN viewers
+// (stream-view.html) - applies live, no reload.
+document.getElementById('hmStreamToggle').addEventListener('change', function() {
+    if (hmChannel) hmChannel.postMessage({ type: 'moonConfig', set: { stream: this.checked ? 1 : 0 } });
+    // Viewers renegotiate over a couple seconds; refresh the readout twice.
+    [600, 2500].forEach(function(ms) {
+        setTimeout(function() { if (hmChannel) hmChannel.postMessage({ type: 'moonRequestState' }); }, ms);
+    });
 });
 
 document.getElementById('hmCopyQueryButton').addEventListener('click', function() {
@@ -1975,6 +2419,13 @@ if (hmChannel) {
         if (sources.word != null && document.activeElement !== wordEl) wordEl.value = sources.word;
         const contentEl = document.getElementById('hmContentInput');
         if (sources.content != null && document.activeElement !== contentEl) contentEl.value = sources.content;
+        const progEl = document.getElementById('hmProgramSelect');
+        if (state.program != null && document.activeElement !== progEl) progEl.value = state.program;
+        if (state.rotSeconds > 0) { hmRotSeconds = state.rotSeconds; hmProgRefresh(); }
+        document.getElementById('hmProgStatus').textContent = state.program
+            ? '\u25CF running "' + state.program + '" \u2014 rotation ' +
+              ((state.programRot % Math.max(1, state.programLen)) + 1) + ' / ' + state.programLen
+            : '';
         const presetEl = document.getElementById('hmContentPreset');
         if (sources.content != null && document.activeElement !== presetEl) {
             const match = Array.prototype.find.call(presetEl.options, function(o) { return o.value === sources.content; });
@@ -1982,6 +2433,10 @@ if (hmChannel) {
         }
         const whenEl = document.getElementById('hmWhenInput');
         if (state.when != null && document.activeElement !== whenEl) whenEl.value = state.when;
+        if (state.streaming != null) {
+            document.getElementById('hmStreamToggle').checked = !!state.streaming;
+            document.getElementById('hmStreamStatus').textContent = state.streaming ? state.streamStatus : '';
+        }
         document.getElementById('hmStateReadout').textContent = 'export query: ' + hmLastQuery;
         hmGotState = true;
     };

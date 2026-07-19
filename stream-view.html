@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no"/>
+<title>Hypermuse — live stream</title>
+<style>
+  html, body { margin: 0; height: 100%; background: #000; overflow: hidden; }
+  video { width: 100vw; height: 100vh; object-fit: contain; background: #000; }
+  #wait { position: fixed; inset: 0; display: flex; align-items: center; justify-content: center;
+          color: #39404d; font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+          font-size: 14px; letter-spacing: 3px; text-transform: uppercase;
+          animation: pulse 2.4s ease-in-out infinite; pointer-events: none; }
+  @keyframes pulse { 0%, 100% { opacity: 0.35; } 50% { opacity: 1; } }
+  body.live #wait { display: none; }
+</style>
+</head>
+<body>
+<video id="v" autoplay muted playsinline></video>
+<div id="wait">waiting for stream…</div>
+<script>
+(function () {
+  // Viewer: receives the LAN broadcast peer-to-peer. Muted autoplay keeps
+  // browsers happy with zero clicks; a tap goes fullscreen.
+  const params = new URLSearchParams(location.search);
+  const HOST = params.get("host") || location.hostname || "localhost";
+  const PORT = params.get("port") || "8081";
+  const video = document.getElementById("v");
+  let ws = null;
+  let pc = null;
+
+  function setLive(on) {
+    document.body.classList.toggle("live", on);
+  }
+
+  function closePeer() {
+    if (pc) { pc.close(); pc = null; }
+    video.srcObject = null;
+    setLive(false);
+  }
+
+  function connect() {
+    ws = new WebSocket("ws://" + HOST + ":" + PORT);
+    ws.onopen = () => ws.send(JSON.stringify({ type: "hello", role: "viewer" }));
+    ws.onclose = () => { closePeer(); setTimeout(connect, 2000); };
+    ws.onerror = () => ws.close();
+    ws.onmessage = async (e) => {
+      let msg;
+      try { msg = JSON.parse(e.data); } catch { return; }
+      if (msg.type === "offer") {
+        closePeer();
+        pc = new RTCPeerConnection();
+        pc.ontrack = (ev) => {
+          video.srcObject = ev.streams[0];
+          video.play().catch(() => {});
+          setLive(true);
+        };
+        pc.onicecandidate = (ev) => {
+          if (ev.candidate && ws.readyState === 1) {
+            ws.send(JSON.stringify({ type: "ice", candidate: ev.candidate }));
+          }
+        };
+        pc.onconnectionstatechange = () => {
+          if (pc && ["failed", "disconnected", "closed"].includes(pc.connectionState)) closePeer();
+        };
+        await pc.setRemoteDescription(msg.sdp);
+        const answer = await pc.createAnswer();
+        await pc.setLocalDescription(answer);
+        ws.send(JSON.stringify({ type: "answer", sdp: pc.localDescription }));
+      } else if (msg.type === "ice") {
+        if (pc && msg.candidate) pc.addIceCandidate(msg.candidate).catch(() => {});
+      } else if (msg.type === "ended") {
+        closePeer();
+      }
+    };
+  }
+  connect();
+
+  window.addEventListener("pointerdown", () => {
+    if (!document.fullscreenElement) {
+      document.documentElement.requestFullscreen().catch(() => {});
+    }
+    video.play().catch(() => {});
+  });
+
+  // Exposed for automated tests.
+  window.__streamStats = {
+    get live() { return document.body.classList.contains("live"); },
+    get videoWidth() { return video.videoWidth; },
+    get time() { return video.currentTime; }
+  };
+})();
+</script>
+</body>
+</html>

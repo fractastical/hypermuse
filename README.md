@@ -6,6 +6,8 @@ video frames onto those geometries for live performance visuals.
 
 > **Just want to run the show, not read code?** Jump to
 > [Using Hypermuse (plain-language guide)](#using-hypermuse-plain-language-guide).
+> An illustrated PDF covering every mode lives at `artifacts/hypermuse-modes-guide.pdf`
+> (regenerate with `npm run guide:pdf`; refresh its screenshots with `npm run guide:stills`).
 
 ## Using Hypermuse (plain-language guide)
 
@@ -187,6 +189,138 @@ Then open:
 - `http://localhost:8080/controller.html` (main controller -> opens visualizer)
 - or `http://localhost:8080/colorcontroller.html`
 - or `http://localhost:8080/poetcontroller.html`
+
+### Hypermoon output & kiosk mode
+
+The controller's Hypermoon panel opens `hypermoon.html` with `?kiosk=1`: drag the
+window to the target display and the first click/keypress makes it fullscreen and
+hides the cursor. For a true kiosk (its own Chrome instance, fullscreen from the
+start, autoplay allowed with no click needed):
+
+```bash
+npm start                 # serve on :8080 (if not already running)
+npm run kiosk:hypermoon   # Chrome kiosk pointed at hypermoon.html
+```
+
+The **word** field in the controller applies live — the letter mosaic redraws in
+place, no reload (the mosaic font covers a–z, 0–9, and space). Sliders (speed,
+brightness, bleed, anchor nudges, orbiting vajras, …) and the window presets
+are live too — CRT, vajra cave, incantation, the bucky repertoire (below),
+the baked sonicsphere loop, slideshows, any image/video path,
+or **another window (screen capture)**, which pipes any browser window or app
+into the moon: pick the preset, click once in the hypermoon window, choose
+what to share (needs the output opened via `localhost`). Switching content
+never reloads; only changing the moon clip itself does.
+
+**Window size ×** is the master control for how big the dark-side
+bleed-through is: it multiplies the auto-measured footprint live (drag right
+and the window/word swells to fill the shadow; `?winscale=1.6` pins it in
+exports). The word width/height sliders still set the exact footprint if you
+want manual control.
+
+#### Bucky repertoire (window presets, all live-switchable)
+
+Fuller's structures run as generative animations inside the moon window —
+`hypermoon.html?content=<key>` or the controller's window preset menu. All
+fold modes are wordless: the letter panel stays off so the geometry is never
+covered by text (same as `incant`):
+
+| key | what happens | Synergetics |
+| --- | --- | --- |
+| `fold` | a wireframe triangle's corners hinge up into a tetrahedron, hold, unfold | 100.41 |
+| `foldsonic` | same fold, but the faces are video panels playing the sonicsphere loop | 100.41 |
+| `foldhelix` | positive + negative open triangular spirals tremble apart, then associate into the six edges of a tetrahedron; the two complementary faces converge in from "the rest of Universe" (1 + 1 = 4) | 108.01–03 |
+| `foldjitter` | the jitterbug: the vector equilibrium's eight triangles, joined at their vertices, rotate and contract through the **icosahedron** to the **octahedron** and spring back open | 460 |
+| `foldgeo` | geodesic bloom: an icosahedron carrying a frequency-4 grid bulges until every vertex hits the circumsphere — the geodesic dome — then relaxes flat | 985 / geodesics |
+| `foldivm` | octet truss: the isotropic vector matrix (alternating tetrahedra + octahedra, all struts equal) crystallizes outward from a nucleus, breathes, dissolves | 420 |
+
+The standalone `synergetics-fold.html` page still renders `fold`/`associate`
+full-frame for exports (`npm run export:fold`, `npm run export:fold:associate`).
+
+#### Hour program (rotation sequencer)
+
+`hypermoon.html?program=hour` (or the **program** dropdown in the
+controller's Hypermoon panel) runs a long-form arc measured in moon
+rotations instead of seconds. The pattern: two rotations show only the
+hyperstition word on its dark patch; on every third rotation the window
+opens **wordless** on the current act's content and rides around with the
+rotation. The acts progress — CRT terminal → incantation mantras → vajra
+cave → the six bucky folds → the sonicsphere loop — over 204 rotations,
+which is roughly an hour at the default speed (1/3 × the 6 s moon loop ≈
+18 s per rotation), then the whole program loops. Picking any manual
+content preset stops the program; the dropdown restarts it. The speed
+slider stretches or compresses the hour (half speed = two hours).
+
+The **program editor** below the sliders gives full control over the arc
+from the controller: each row is an act (content keyword or any video path
+— the box autocompletes across the whole manifest — plus cycles / dark /
+reveal counts), with reorder and remove buttons, a live duration estimate
+in rotations and minutes at the current speed, and a running "rotation
+N / total" readout. "load hour" fills in the default program as a starting
+point; "apply program (live)" sends the whole arc to the output without a
+reload; "stop" returns to manual control.
+
+#### Audio deck (bed loop + interjections)
+
+The controller has an **Audio deck** panel that plays from the controller
+window itself — route that machine's audio output to the PA. One **bed
+loop** plays forever (searchable across every audio file the manifest
+found — mp3/wav/m4a/aac/ogg/flac under `audio/`, `loops/`, `artifacts/`,
+`assets/`, `external/`, `infinitestreams/`). Three
+**interjection slots** (A/B/C) each take a file, a period in seconds, an
+optional ± jitter, and a volume; while enabled they fire on schedule, and
+**duck** drops the bed to 25% for the duration of the interjection, then
+restores it. The period counts from when the interjection starts, jitter
+randomizes each occurrence (e.g. every 300 ± 60 s), and the "fire now"
+buttons trigger a slot immediately. Swapping the bed file while playing
+restarts with the new track. `npm run manifest:videos` refreshes the audio
+list along with the video one (`audio-manifest.json`).
+
+#### Any video on the dark side
+
+`npm run manifest:videos` scans `loops/`, `artifacts/`, `assets/`,
+`external/`, and `infinitestreams/` for every Chrome-playable clip
+(mp4/webm/m4v/ogv) and writes `video-manifest.json` (~700 clips). The
+controller's **any video** box in the Hypermoon panel loads it: type to
+search (native autocomplete over all paths), pick an entry and it swaps into
+the moon window live; **random** picks one at random (the search text acts
+as a filter, e.g. type "underwater" then hit random). Rerun the manifest
+script after adding new clips.
+
+### Real CRT monitors (composite / BNC)
+
+`crt-terminal.html` is the page to feed broadcast CRTs (Ikegami etc.). Chain:
+computer HDMI → HDMI-to-AV downscaler → yellow RCA → RCA-to-BNC adapter →
+VIDEO A IN; select input A on the front. Pass `?fx=0` on a real tube (it makes
+its own scanlines), pick phosphor with `?color=green|amber|purple|cyan|white`,
+set the announced time with `?when=`, override the script with
+`?text=LINE|LINE~NEXT SCREEN`. `?safe=` reserves margin for overscan (default
+10%). Bake to video with `npm run export:crt`.
+
+### Live streaming to other devices (LAN)
+
+Any device on the same network can watch a live video stream of an output page
+in its browser. The video travels peer-to-peer over WebRTC; a tiny signaling
+server just brokers the connections:
+
+```bash
+npm start                # static server on :8080 (binds all interfaces)
+npm run stream:server    # signaling on :8081 — prints the viewer URL
+```
+
+Then:
+
+- **Broadcast the moon:** open `hypermoon.html?stream=1` on the host machine —
+  it captures its own canvas and streams it (add `&streamfps=` to change the
+  frame rate, `&kiosk=1` still works alongside).
+- **Broadcast anything else:** open `stream-broadcast.html` on the host and
+  pick any window, tab, or screen (sonicsphere, the projection rig, a video
+  player…). Must be opened via `localhost` — screen capture requires it.
+- **Watch:** on the other device, open `http://<host-ip>:8080/stream-view.html`
+  (the stream server prints this URL on startup). It autoplays muted with zero
+  clicks; a tap goes fullscreen. Viewers can join and leave at any time, wait
+  before the broadcast starts, and auto-reconnect if it restarts. One
+  broadcaster at a time; a new one takes over.
 
 ### Option 2: Python server with CORS headers
 
