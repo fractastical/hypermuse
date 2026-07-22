@@ -24,6 +24,13 @@
         box-sizing: border-box;
     }
 
+    /* Keep the canvas backdrop on html so the body background stays inside
+       the body's paint layer — otherwise the theme filters (below) can't
+       recolor it and the page edges stay blue. */
+    html {
+        background: #04060c;
+    }
+
     body {
         margin: 0;
         display: flex;
@@ -223,6 +230,30 @@
         text-align: center;
     }
 
+    /* ── Controller color themes ─────────────────────────────────────────
+       The palette is graded as a whole (sepia collapses everything to one
+       channel, hue-rotate re-tints it), so every panel, slider and inline
+       style follows the theme without per-rule overrides. "crt green" and
+       "green mono" match the phosphor of the Ikegami terminals. */
+    body.theme-crt   { filter: sepia(1) saturate(2.4) hue-rotate(62deg) brightness(1.06); }
+    body.theme-mono  { filter: sepia(1) saturate(1.1) hue-rotate(62deg) brightness(1.02) contrast(1.05); }
+    body.theme-amber { filter: sepia(1) saturate(2.8) hue-rotate(-14deg) brightness(1.05); }
+    body.theme-red   { filter: sepia(1) saturate(3.2) hue-rotate(-46deg); }
+
+    /* phosphor scanlines on the CRT-flavored themes */
+    body.theme-crt::after, body.theme-mono::after {
+        content: "";
+        position: fixed;
+        inset: 0;
+        pointer-events: none;
+        z-index: 9999;
+        background: repeating-linear-gradient(
+            0deg,
+            rgba(0, 0, 0, 0.16) 0px, rgba(0, 0, 0, 0.16) 1px,
+            transparent 1px, transparent 3px
+        );
+    }
+
     </style>
     <script src="js/threejs.org_build_three.js"></script>
     <!-- <script src="js/cdn.jsdelivr.net_npm_@tonejs_midi.js"></script>
@@ -246,6 +277,16 @@
         Presets:
         <input type="button" id="presetCells12AutoplayButton" value="cells1+cells2 autoplay (with logo)"/>
         <input type="button" id="presetCells12NoLogoButton" value="cells1+cells2 autoplay (no logo)"/>
+    </div>
+    <div class="input-group">
+        Controller style:
+        <select id="controllerThemeSelect" title="recolors this control panel only — outputs are untouched">
+            <option value="">hypermuse blue (default)</option>
+            <option value="crt">crt green — phosphor + scanlines</option>
+            <option value="mono">green mono — flat terminal</option>
+            <option value="amber">amber terminal</option>
+            <option value="red">red alert</option>
+        </select>
     </div>
     <div class="input-group">
         SynBioBeta Logo:
@@ -429,6 +470,13 @@
             <option value="assets/estoteric/web/IMG_1900.jpg,assets/estoteric/web/IMG_1901.jpg,assets/estoteric/web/IMG_1902.jpg,assets/estoteric/web/IMG_1903.jpg,assets/estoteric/web/IMG_1904.jpg">sutra pages (slideshow)</option>
           </select>
           content <input type="text" id="hmContentInput" value="" size="30" placeholder="empty = word mosaic, 'incant' = mantras"/>
+          backdrop <input type="text" id="hmBackdropInput" value="" size="30"
+            placeholder="circle gifs behind the moon, comma-separated"
+            title="animated gifs (or images) pinned exactly behind the moon disc — fade the moon opacity slider down to reveal them; applies live on enter"/>
+          <input type="button" id="hmEyeRevealButton" value="&#9673; reveal eye seal"
+            title="loads the esoteric eye-seal gif behind the moon and irises the disc open so it shows through the centre"/>
+          <input type="button" id="hmIrisSealButton" value="&#9679; seal moon"
+            title="eases the iris closed again — the moon returns to a solid disc"/>
           <span style="white-space:nowrap;">
             any video <input type="text" id="hmVideoPicker" list="hmVideoList" size="34"
               placeholder="type to search all loops…" title="every playable video found by npm run manifest:videos — pick one and it plays inside the moon window immediately"/>
@@ -487,6 +535,46 @@
             <td><input type="range" class="hm-slider" id="hmVajraRadius" data-key="vajraRadius" min="0.3" max="2.2" step="0.05" style="width:130px;"/></td>
             <td style="padding:2px 8px;"><span id="hmVajraRadiusVal">–</span></td>
             <td colspan="3" style="padding:2px 8px;color:rgba(207,233,255,0.45);">how far the dorje clips orbit from the moon (1× = the halo ring)</td>
+          </tr>
+          <tr>
+            <td style="padding:2px 8px;color:rgba(207,233,255,0.62);">moon size</td>
+            <td><input type="range" class="hm-slider" id="hmMoonScale" data-key="moonscale" min="0.2" max="1.5" step="0.01" style="width:130px;"/></td>
+            <td style="padding:2px 8px;"><span id="hmMoonScaleVal">–</span></td>
+            <td colspan="3" style="padding:2px 8px;color:rgba(207,233,255,0.45);">shrinks/grows the whole moon on screen — backdrop and vajra orbits follow</td>
+          </tr>
+          <tr>
+            <td style="padding:2px 8px;color:rgba(207,233,255,0.62);">moon opacity</td>
+            <td><input type="range" class="hm-slider" id="hmAlpha" data-key="alpha" min="0" max="1" step="0.01" style="width:130px;"/></td>
+            <td style="padding:2px 8px;"><span id="hmAlphaVal">–</span></td>
+            <td colspan="3" style="padding:2px 8px;color:rgba(207,233,255,0.45);">fades the whole moon out, revealing the backdrop gifs behind it</td>
+          </tr>
+          <tr>
+            <td style="padding:2px 8px;color:rgba(207,233,255,0.62);">iris reveal</td>
+            <td><input type="range" class="hm-slider" id="hmIris" data-key="iris" min="0" max="1" step="0.01" style="width:130px;"/></td>
+            <td style="padding:2px 8px;"><span id="hmIrisVal">–</span></td>
+            <td style="padding:2px 8px;color:rgba(207,233,255,0.62);">iris size</td>
+            <td><input type="range" class="hm-slider" id="hmIrisR" data-key="irisr" min="0.2" max="1" step="0.01" style="width:130px;"/></td>
+            <td style="padding:2px 8px;"><span id="hmIrisRVal">–</span></td>
+          </tr>
+          <tr>
+            <td style="padding:2px 8px;color:rgba(207,233,255,0.62);">reveal zoom</td>
+            <td><input type="range" class="hm-slider" id="hmIrisZoom" data-key="iriszoom" min="1" max="5" step="0.05" style="width:130px;"/></td>
+            <td style="padding:2px 8px;"><span id="hmIrisZoomVal">–</span></td>
+            <td colspan="3" style="padding:2px 8px;color:rgba(207,233,255,0.45);">zooms the gif into its centre as the iris opens — at full open only the eye fills the aperture</td>
+          </tr>
+          <tr>
+            <td style="padding:2px 8px;color:rgba(207,233,255,0.62);">backdrop size &#215;</td>
+            <td><input type="range" class="hm-slider" id="hmBackScale" data-key="backscale" min="0.2" max="2.5" step="0.05" style="width:130px;"/></td>
+            <td style="padding:2px 8px;"><span id="hmBackScaleVal">–</span></td>
+            <td style="padding:2px 8px;color:rgba(207,233,255,0.62);">backdrop opacity</td>
+            <td><input type="range" class="hm-slider" id="hmBackAlpha" data-key="backalpha" min="0" max="1" step="0.01" style="width:130px;"/></td>
+            <td style="padding:2px 8px;"><span id="hmBackAlphaVal">–</span></td>
+          </tr>
+          <tr>
+            <td style="padding:2px 8px;color:rgba(207,233,255,0.62);">backdrop gif speed</td>
+            <td><input type="range" class="hm-slider" id="hmBackSpeed" data-key="backspeed" min="0.25" max="6" step="0.05" style="width:130px;"/></td>
+            <td style="padding:2px 8px;"><span id="hmBackSpeedVal">–</span></td>
+            <td colspan="3" style="padding:2px 8px;color:rgba(207,233,255,0.45);">plays the backdrop gif's whole loop faster/slower (1× = as authored)</td>
           </tr>
           <tr>
             <td style="padding:2px 8px;color:rgba(207,233,255,0.62);">earthshine</td>
@@ -602,6 +690,17 @@
         <div style="margin-top:2px;font-size:10px;color:rgba(207,233,255,0.45);">
           "every" counts from the moment an interjection starts; "fire now" = <input type="button" id="adFireA" value="A"/> <input type="button" id="adFireB" value="B"/> <input type="button" id="adFireC" value="C"/>
           &#183; duck lowers the bed to 25% while the interjection plays
+        </div>
+        <div style="margin-top:6px;border-top:1px solid rgba(207,233,255,0.15);padding-top:5px;">
+          <b style="font-size:11px;">music &#8594; moon</b>
+          <label style="font-size:11px;"><input type="checkbox" id="adReactOn" checked/> drive hypermoon</label>
+          intensity <input type="range" id="adReactAmt" min="0" max="2" step="0.05" value="1" style="width:110px;vertical-align:middle;"/>
+          <span id="adReactVal" style="font-size:10px;color:rgba(207,233,255,0.62);">1.00&#215;</span>
+          <label style="font-size:11px;" title="the moon output listens to its own microphone — for external / live music not played from this deck"><input type="checkbox" id="adMicOn"/> moon uses its mic</label>
+          <span id="adReactMeter" style="font-family:monospace;font-size:11px;color:rgba(140,220,255,0.85);letter-spacing:1px;"></span>
+        </div>
+        <div style="font-size:10px;color:rgba(207,233,255,0.45);">
+          bass beats flare the vajras, earthshine breathes with the bass, the window glow shimmers with the highs, letters shake faster when it's loud
         </div>
     </div>
     <div class="input-group">
@@ -2036,6 +2135,14 @@ const HM_FMT = {
     vajraRadius: function(v) { return v.toFixed(2) + '×'; },
     thresh: function(v) { return v.toFixed(3); }, feather: function(v) { return v.toFixed(3); },
     lift: function(v) { return v.toFixed(3); }, flicker: function(v) { return v.toFixed(2); },
+    alpha: function(v) { return Math.round(v * 100) + '%'; },
+    iris: function(v) { return Math.round(v * 100) + '%'; },
+    irisr: function(v) { return Math.round(v * 100) + '% of disc'; },
+    iriszoom: function(v) { return v.toFixed(2) + '\u00d7'; },
+    moonscale: function(v) { return Math.round(v * 100) + '%'; },
+    backscale: function(v) { return v.toFixed(2) + '\u00d7'; },
+    backalpha: function(v) { return Math.round(v * 100) + '%'; },
+    backspeed: function(v) { return v.toFixed(2) + '\u00d7'; },
     lon: function(v) { return v.toFixed(0); }, lat: function(v) { return v.toFixed(0); },
     angw: function(v) { return v.toFixed(2); }, angh: function(v) { return v.toFixed(2); },
     winscale: function(v) { return v.toFixed(2) + '×'; }
@@ -2067,6 +2174,24 @@ document.getElementById('hmOpenOutputButton').addEventListener('click', function
 document.getElementById('hmWordInput').addEventListener('change', function() {
     const word = this.value.trim();
     if (word && hmChannel) hmChannel.postMessage({ type: 'moonConfig', set: { word: word } });
+});
+
+// Backdrop gifs swap live over the channel - no reload (empty clears them).
+document.getElementById('hmBackdropInput').addEventListener('change', function() {
+    if (hmChannel) hmChannel.postMessage({ type: 'moonConfig', set: { backdrop: this.value.trim() } });
+});
+
+// One-click eye-seal reveal: load the gif behind the disc and iris open so
+// the inner 70% of the moon goes fully clear. "seal moon" eases it shut.
+const HM_EYE_GIF = 'assets/esoteric-geometries-circles-warp.gif';
+document.getElementById('hmEyeRevealButton').addEventListener('click', function() {
+    document.getElementById('hmBackdropInput').value = HM_EYE_GIF;
+    if (hmChannel) hmChannel.postMessage({ type: 'moonConfig', set: {
+        backdrop: HM_EYE_GIF, backscale: 0.98, iris: 1
+    } });
+});
+document.getElementById('hmIrisSealButton').addEventListener('click', function() {
+    if (hmChannel) hmChannel.postMessage({ type: 'moonConfig', set: { iris: 0 } });
 });
 
 function hmApplySources() {
@@ -2155,6 +2280,63 @@ fetch('audio-manifest.json').then(function(r) { return r.ok ? r.json() : null; }
     document.getElementById('adCount').textContent = 'no audio manifest — run: npm run manifest:videos';
 });
 
+// ── Music → moon: every deck element is tapped into a shared analyser and
+// the band levels (plus bass-onset beats) broadcast to hypermoon at ~20 Hz.
+// The moon flares its vajras on beats, breathes earthshine with the bass,
+// shimmers the window glow with the highs. Nothing changes audibly here:
+// the tap passes the signal straight through to the speakers.
+const adAnalysis = { ctx: null, analyser: null, data: null, tapped: new WeakSet(), hist: [], lastBeat: 0 };
+function adTapAnalyser(el) {
+    if (adAnalysis.tapped.has(el)) return;
+    try {
+        if (!adAnalysis.ctx) {
+            adAnalysis.ctx = new (window.AudioContext || window.webkitAudioContext)();
+            adAnalysis.analyser = adAnalysis.ctx.createAnalyser();
+            adAnalysis.analyser.fftSize = 2048;
+            // Low smoothing so kick onsets survive into the beat detector.
+            adAnalysis.analyser.smoothingTimeConstant = 0.3;
+            adAnalysis.analyser.connect(adAnalysis.ctx.destination);
+            adAnalysis.data = new Uint8Array(adAnalysis.analyser.frequencyBinCount);
+        }
+        if (adAnalysis.ctx.state === 'suspended') adAnalysis.ctx.resume();
+        // createMediaElementSource reroutes the element's output, so the
+        // analyser must sit in the path to the destination (it does, above).
+        adAnalysis.ctx.createMediaElementSource(el).connect(adAnalysis.analyser);
+        adAnalysis.tapped.add(el);
+    } catch (e) { /* already wrapped or unsupported — plain playback continues */ }
+}
+setInterval(function() {
+    const a = adAnalysis;
+    const meter = document.getElementById('adReactMeter');
+    if (!a.analyser || !document.getElementById('adReactOn').checked) { meter.textContent = ''; return; }
+    a.analyser.getByteFrequencyData(a.data);
+    const hz = a.ctx.sampleRate / a.analyser.fftSize;
+    const band = function(lo, hi) {
+        let sum = 0, n = 0;
+        for (let i = Math.max(1, Math.floor(lo / hz)); i < Math.min(a.data.length, Math.ceil(hi / hz)); i++) { sum += a.data[i]; n++; }
+        return n ? sum / (n * 255) : 0;
+    };
+    const bass = band(20, 150), mid = band(150, 2000), high = band(2000, 12000);
+    // Onset = the kick band jumping above its own recent average (computed
+    // BEFORE this sample so a sustained bassline can't mask its own kicks).
+    const avg = a.hist.length ? a.hist.reduce(function(x, y) { return x + y; }, 0) / a.hist.length : 0;
+    a.hist.push(bass);
+    if (a.hist.length > 28) a.hist.shift(); // ~1.4 s of history at 20 Hz
+    const now = performance.now() / 1000;
+    let beat = false;
+    if (bass > 0.12 && (bass > avg * 1.22 || bass - avg > 0.07) && now - a.lastBeat > 0.18) { a.lastBeat = now; beat = true; }
+    if (hmChannel) hmChannel.postMessage({ type: 'moonAudio', bass: bass, mid: mid, high: high, level: (bass + mid + high) / 3, beat: beat });
+    const bar = function(v) { return '\u2581\u2582\u2583\u2584\u2585\u2586\u2587\u2588'[Math.min(7, Math.floor(v * 8))]; };
+    meter.textContent = bar(bass) + bar(mid) + bar(high) + (now - a.lastBeat < 0.15 ? ' \u25cf' : '');
+}, 50);
+document.getElementById('adReactAmt').addEventListener('input', function() {
+    document.getElementById('adReactVal').textContent = parseFloat(this.value).toFixed(2) + '\u00d7';
+    if (hmChannel) hmChannel.postMessage({ type: 'moonConfig', set: { react: parseFloat(this.value) } });
+});
+document.getElementById('adMicOn').addEventListener('change', function() {
+    if (hmChannel) hmChannel.postMessage({ type: 'moonConfig', set: { mic: this.checked ? 1 : 0 } });
+});
+
 function adApplyBedVolume() {
     if (!adState.bed) return;
     adState.bed.volume = adState.bedVol * (adState.duckCount > 0 ? 0.25 : 1);
@@ -2178,6 +2360,7 @@ document.getElementById('adBedButton').addEventListener('click', function() {
     const a = new Audio(encodeURI(src));
     a.loop = true;
     adState.bed = a;
+    adTapAnalyser(a);
     adApplyBedVolume();
     a.play().then(function() {
         btn.value = 'stop bed';
@@ -2220,6 +2403,7 @@ function adFire(i) {
     const a = slot.audio && slot.audio.src.indexOf(encodeURI(src)) >= 0
         ? slot.audio : new Audio(encodeURI(src));
     slot.audio = a;
+    adTapAnalyser(a);
     a.currentTime = 0;
     a.volume = parseFloat(els.vol.value);
     const ducked = els.duck.checked;
@@ -2419,6 +2603,8 @@ if (hmChannel) {
         if (sources.word != null && document.activeElement !== wordEl) wordEl.value = sources.word;
         const contentEl = document.getElementById('hmContentInput');
         if (sources.content != null && document.activeElement !== contentEl) contentEl.value = sources.content;
+        const backdropEl = document.getElementById('hmBackdropInput');
+        if (state.backdrop != null && document.activeElement !== backdropEl) backdropEl.value = state.backdrop;
         const progEl = document.getElementById('hmProgramSelect');
         if (state.program != null && document.activeElement !== progEl) progEl.value = state.program;
         if (state.rotSeconds > 0) { hmRotSeconds = state.rotSeconds; hmProgRefresh(); }
@@ -2437,6 +2623,12 @@ if (hmChannel) {
             document.getElementById('hmStreamToggle').checked = !!state.streaming;
             document.getElementById('hmStreamStatus').textContent = state.streaming ? state.streamStatus : '';
         }
+        const reactAmt = document.getElementById('adReactAmt');
+        if (state.react != null && document.activeElement !== reactAmt) {
+            reactAmt.value = state.react;
+            document.getElementById('adReactVal').textContent = (+state.react).toFixed(2) + '\u00d7';
+        }
+        if (state.mic != null) document.getElementById('adMicOn').checked = !!state.mic;
         document.getElementById('hmStateReadout').textContent = 'export query: ' + hmLastQuery;
         hmGotState = true;
     };
@@ -2675,6 +2867,26 @@ window.addEventListener('message', function(event) {
 
 
 });
+
+// ── Controller color themes ─────────────────────────────────────────────
+// Recolors the control panel only (outputs untouched); the choice sticks
+// across reloads via localStorage.
+(function () {
+    const select = document.getElementById('controllerThemeSelect');
+    const THEMES = ['crt', 'mono', 'amber', 'red'];
+    function applyControllerTheme(name) {
+        THEMES.forEach((t) => document.body.classList.remove('theme-' + t));
+        if (THEMES.includes(name)) document.body.classList.add('theme-' + name);
+        try { localStorage.setItem('controllerTheme', name || ''); } catch (e) { /* private mode */ }
+    }
+    let saved = '';
+    try { saved = localStorage.getItem('controllerTheme') || ''; } catch (e) { /* private mode */ }
+    if (saved) {
+        select.value = saved;
+        applyControllerTheme(saved);
+    }
+    select.addEventListener('change', () => applyControllerTheme(select.value));
+})();
 
     </script>
 </body>

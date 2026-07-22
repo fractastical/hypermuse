@@ -46,6 +46,18 @@
   // click/keypress (browsers require a gesture). npm run kiosk:hypermoon
   // launches Chrome in true kiosk mode with autoplay enabled.
   const KIOSK = params.get("kiosk") === "1";
+  // Solo mode (?solo=1 with a keyword content): render the window content
+  // full-frame instead of compositing it onto the moon. Used to bake
+  // standalone loop videos of the fold repertoire for the bleed-through
+  // library (scripts/export-fold-loops.mjs).
+  const SOLO = params.get("solo") === "1" && KEYWORD_CONTENT;
+  // Wireframe ink for the fold/geodesic/ivm makers: primary + accent hex.
+  // e.g. ?ink=ff3b30&ink2=ff8a5c turns the whole repertoire red.
+  const INK_HEX = "#" + String(params.get("ink") || "59d6ff").replace("#", "");
+  const INK2_HEX = "#" + String(params.get("ink2") || "ffb46b").replace("#", "");
+  // Offscreen render size of the content makers (512 is plenty on the moon;
+  // solo bakes want 1024+).
+  const TEX_SIZE = Math.max(256, Math.round(num("texsize", 512)));
   // Live stream (?stream=1): capture this canvas and broadcast it over the
   // LAN via the signaling server (npm run stream:server). Other devices
   // watch at http://<this-machine's-ip>:8080/stream-view.html.
@@ -100,10 +112,54 @@
   // Kept mutable so the controller can nudge lon/lat live over the channel.
   let LON_OFF = num("lonoff", -15) * (Math.PI / 180);
   let LAT_OFF = num("latoff", 0) * (Math.PI / 180);
+  // Audio reactivity: 0 = deaf, 1 = default, 2 = exaggerated. Levels arrive
+  // over the controller channel (from its audio deck) or from the local mic
+  // (?mic=1 or the controller's "mic on moon" toggle).
+  let REACT = num("react", 1);
+  let MIC = params.get("mic") === "1";
+  // Whole-moon opacity (?alpha=0..1, live-adjustable): fades the entire moon
+  // render out, revealing whatever backdrop sits behind the canvas.
+  let ALPHA = Math.max(0, Math.min(1, num("alpha", 1)));
+  // Backdrop layer (?backdrop=a.gif,b.gif): animated gifs (or any images)
+  // shown in the DOM *behind* the transparent WebGL canvas, pinned exactly
+  // to the moon disc. backscale sizes them relative to the disc diameter,
+  // backalpha fades the layer, backsec crossfades through the list.
+  let BACKDROP_SRC = params.get("backdrop") || "";
+  let BACK_SCALE = num("backscale", 1);
+  let BACK_ALPHA = Math.max(0, Math.min(1, num("backalpha", 1)));
+  let BACK_SEC = num("backsec", 12);
+  // Backdrop playback rate (?backspeed=): plain <img> gifs are locked to the
+  // frame delays baked into the file, so to cycle faster we decode the gif
+  // and drive it on a canvas at this multiplier (2 = twice as fast).
+  let BACK_SPEED = Math.max(0.1, num("backspeed", 1));
+  // Reveal zoom (?iriszoom=): as the iris opens, the backdrop gif is scaled
+  // up about its centre so that by full open only the middle (the eye) fills
+  // the aperture. 1 = no zoom; 2.5 = eye fills at iris=1.
+  let IRIS_ZOOM = Math.max(1, num("iriszoom", 2.5));
+  // Moon size (?moonscale=0.1..2): shrinks/grows the whole letterboxed render
+  // - the disc, its backdrop and the vajra orbits all track it, since they
+  // are positioned off the quad scale.
+  let MOON_SCALE = Math.max(0.1, Math.min(2, num("moonscale", 1)));
+  // Iris reveal (?iris=0..1): opens a fully transparent circular hole in the
+  // centre of the disc so the backdrop shows through while the moon's limb
+  // stays as a rim. irisr = hole radius as a fraction of the disc radius
+  // that is 100% clear when fully open; irisfeather = soft edge beyond it;
+  // irissec = seconds for the eased open/close.
+  let IRIS_TARGET = Math.max(0, Math.min(1, num("iris", 0)));
+  let IRIS_R = num("irisr", 0.7);
+  let IRIS_FEATHER = num("irisfeather", 0.22);
+  let IRIS_SEC = Math.max(0.1, num("irissec", 2.5));
 
-  const renderer = new THREE.WebGLRenderer({ antialias: false });
+  // alpha:true so the canvas clears transparent and the gif backdrop shows
+  // through wherever the moon isn't (or is faded via ?alpha=).
+  const renderer = new THREE.WebGLRenderer({ antialias: false, alpha: true, premultipliedAlpha: true, preserveDrawingBuffer: true });
+  renderer.setClearColor(0x000000, 0);
   renderer.setSize(window.innerWidth, window.innerHeight);
   renderer.setPixelRatio(1);
+  renderer.domElement.style.position = "fixed";
+  renderer.domElement.style.left = "0";
+  renderer.domElement.style.top = "0";
+  renderer.domElement.style.zIndex = "1";
   document.body.appendChild(renderer.domElement);
 
   // LAN broadcast of this canvas - startable at load (?stream=1) or live from
@@ -123,7 +179,7 @@
   }
   if (STREAM) setStreaming(true);
   const scene = new THREE.Scene();
-  scene.background = new THREE.Color(0x000000);
+  scene.background = null; // transparent clear - the DOM backdrop shows through
   const camera = new THREE.OrthographicCamera(-1, 1, 1, -1, 0, 1);
 
   function makeVideo(src) {
@@ -158,7 +214,7 @@
     const v = moon.video;
     const stuck = v.readyState >= 2 && (v.paused || v.currentTime === lastMoonTime);
     lastMoonTime = v.currentTime;
-    playHint.style.display = stuck ? "block" : "none";
+    playHint.style.display = (stuck && !SOLO) ? "block" : "none";
     if (stuck) v.play().catch(() => {});
   }, 1600);
   ["pointerdown", "keydown"].forEach((ev) => window.addEventListener(ev, () => {
@@ -201,8 +257,13 @@
     const tex = new THREE.VideoTexture(v);
     tex.minFilter = THREE.LinearFilter;
     tex.magFilter = THREE.LinearFilter;
+    // Additive on color only: writing alpha too would stamp the clip's black
+    // rectangle over the DOM backdrop now that the canvas is transparent.
     const mat = new THREE.MeshBasicMaterial({
-      map: tex, transparent: true, blending: THREE.AdditiveBlending,
+      map: tex, transparent: true,
+      blending: THREE.CustomBlending,
+      blendSrc: THREE.OneFactor, blendDst: THREE.OneFactor,
+      blendSrcAlpha: THREE.ZeroFactor, blendDstAlpha: THREE.OneFactor,
       depthTest: false, depthWrite: false, opacity: 0
     });
     const mesh = new THREE.Mesh(new THREE.PlaneGeometry(1, 1), mat);
@@ -240,14 +301,85 @@
     return t * t * (3 - 2 * t);
   };
 
+  // --- Music sync -----------------------------------------------------------
+  // Smoothed band levels (0..1) plus a decaying beat envelope. Fed either by
+  // "moonAudio" messages from the controller's audio deck analyser, or by the
+  // local microphone (for external / live music). Effects: vajras flare and
+  // swell on bass beats, earthshine breathes with the bass, the window glow
+  // shimmers with the highs, and the letter mosaic reshuffles faster when the
+  // music is loud. All scaled by REACT (0 disables everything).
+  const audio = {
+    bass: 0, mid: 0, high: 0, level: 0,
+    tBass: 0, tMid: 0, tHigh: 0, tLevel: 0, // targets from the last message
+    beatEnv: 0, lastMsg: -Infinity
+  };
+  function feedAudio(bass, mid, high, level, beat) {
+    audio.tBass = bass; audio.tMid = mid; audio.tHigh = high; audio.tLevel = level;
+    audio.lastMsg = performance.now() / 1000;
+    if (beat) audio.beatEnv = 1;
+  }
+  function updateAudio(dt) {
+    const stale = performance.now() / 1000 - audio.lastMsg > 0.6;
+    // Fast attack, slower release; everything sags to silence when the
+    // feed stops so a dropped controller doesn't freeze a flare mid-air.
+    for (const k of ["bass", "mid", "high", "level"]) {
+      const target = stale ? 0 : audio["t" + k[0].toUpperCase() + k.slice(1)];
+      const rate = target > audio[k] ? 22 : 5;
+      audio[k] += (target - audio[k]) * Math.min(1, dt * rate);
+    }
+    audio.beatEnv = Math.max(0, audio.beatEnv - dt * 3.2);
+  }
+
+  // Local mic analysis, same band split the controller uses.
+  let micNodes = null;
+  function setMic(on) {
+    MIC = !!on;
+    if (!MIC || micNodes) return;
+    if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) return;
+    navigator.mediaDevices.getUserMedia({ audio: true }).then((stream) => {
+      const ctx = new (window.AudioContext || window.webkitAudioContext)();
+      const src = ctx.createMediaStreamSource(stream);
+      const an = ctx.createAnalyser();
+      an.fftSize = 2048;
+      an.smoothingTimeConstant = 0.3;
+      src.connect(an);
+      micNodes = { ctx, an, data: new Uint8Array(an.frequencyBinCount), hist: [], lastBeat: 0 };
+    }).catch((e) => console.warn("mic unavailable:", e.message));
+  }
+  if (MIC) setMic(true);
+  function pollMic() {
+    if (!MIC || !micNodes) return;
+    const { ctx, an, data, hist } = micNodes;
+    if (ctx.state === "suspended") ctx.resume();
+    an.getByteFrequencyData(data);
+    const hz = ctx.sampleRate / an.fftSize;
+    const band = (lo, hi) => {
+      let sum = 0, n = 0;
+      for (let i = Math.max(1, Math.floor(lo / hz)); i < Math.min(data.length, Math.ceil(hi / hz)); i++) { sum += data[i]; n++; }
+      return n ? sum / (n * 255) : 0;
+    };
+    const bass = band(20, 150), mid = band(150, 2000), high = band(2000, 12000);
+    // Average of PREVIOUS samples only, so sustained bass can't mask kicks.
+    const avg = hist.length ? hist.reduce((a, b) => a + b, 0) / hist.length : 0;
+    hist.push(bass);
+    if (hist.length > 80) hist.shift(); // ~1.3 s at frame rate
+    const now = performance.now() / 1000;
+    let beat = false;
+    if (bass > 0.12 && (bass > avg * 1.22 || bass - avg > 0.07) && now - micNodes.lastBeat > 0.18) {
+      micNodes.lastBeat = now;
+      beat = true;
+    }
+    feedAudio(bass, mid, high, (bass + mid + high) / 3, beat);
+  }
+
   function updateVajras(t) {
     if (VAJRA_COUNT === 0) return;
     // Frame-height units -> world units (quad is letterboxed to 16:9).
     const fhX = 2 * quad.scale.x * (9 / 16);
     const fhY = 2 * quad.scale.y;
     const dv = uniforms.uDisc.value; // disc center (uv) + radius (frame heights)
-    const cx = (dv.x * 2 - 1) * quad.scale.x;
-    const cy = (dv.y * 2 - 1) * quad.scale.y;
+    const cx = (dv.x * 2 - 1) * quad.scale.x + quad.position.x;
+    const cy = (dv.y * 2 - 1) * quad.scale.y + quad.position.y;
     for (let i = 0; i < VAJRA_COUNT; i++) {
       const s = vajraSprites[i];
       const rx = dv.z * VAJRA_RADIUS * (1.03 + s.lane * 0.085);
@@ -259,7 +391,10 @@
       const ey = Math.sin(th) * ry;
       const px = ex * Math.cos(laneRot) - ey * Math.sin(laneRot);
       const py = ex * Math.sin(laneRot) + ey * Math.cos(laneRot);
-      const scl = VAJRA_SCALE * (0.68 + 0.32 * (depth * 0.5 + 0.5));
+      // Bass flare: the beat envelope swells each vajra (staggered per lane
+      // so they don't pop in lockstep) and the sustained bass adds glow.
+      const flare = REACT * (audio.beatEnv * (0.75 + 0.25 * Math.sin(s.phase * 3.7)) + audio.bass * 0.35);
+      const scl = VAJRA_SCALE * (0.68 + 0.32 * (depth * 0.5 + 0.5)) * (1 + flare * 0.22);
       s.mesh.position.set(cx + px * fhX, cy + py * fhY, 0);
       s.mesh.scale.set(scl * s.aspect * fhX, scl * fhY, 1);
       let op = 0.5 + 0.5 * (depth * 0.5 + 0.5);
@@ -267,7 +402,7 @@
         // Behind the moon: hidden while over the disc, visible at the limbs.
         op *= smooth01(Math.hypot(px, py), dv.z * 0.96, dv.z * 1.14);
       }
-      s.mat.opacity = op;
+      s.mat.opacity = Math.min(1, op * (1 + flare * 0.9));
     }
   }
 
@@ -460,7 +595,7 @@
   // With videoSrc (content=foldsonic) the faces become video panels: the
   // clip plays across the flat triangle and folds up with it.
   function makeFold(videoSrc) {
-    const SIZE = 512;
+    const SIZE = TEX_SIZE;
     const rnd = new THREE.WebGLRenderer({ antialias: true });
     rnd.setSize(SIZE, SIZE);
     const scene = new THREE.Scene();
@@ -472,7 +607,7 @@
     scene.add(assembly);
 
     let faceVideo = null;
-    const INK = new THREE.Color("#59d6ff");
+    const INK = new THREE.Color(INK_HEX);
     const lineMat = new THREE.LineBasicMaterial({ color: INK });
     let faceMat;
     if (videoSrc) {
@@ -568,7 +703,7 @@
   // complementary faces converge in from the rest of Universe, and the
   // closed system pulses at its center — then they split and repeat.
   function makeHelix() {
-    const SIZE = 512;
+    const SIZE = TEX_SIZE;
     const rnd = new THREE.WebGLRenderer({ antialias: true });
     rnd.setSize(SIZE, SIZE);
     const scene = new THREE.Scene();
@@ -579,7 +714,7 @@
     const assembly = new THREE.Group();
     scene.add(assembly);
 
-    const POS = new THREE.Color("#59d6ff"), NEG = new THREE.Color("#ffb46b");
+    const POS = new THREE.Color(INK_HEX), NEG = new THREE.Color(INK2_HEX);
     const lineOf = (c) => new THREE.LineBasicMaterial({
       color: c, transparent: true, opacity: 1, blending: THREE.AdditiveBlending, depthWrite: false
     });
@@ -702,7 +837,7 @@
   // -> octahedron and back. Centroid distance is solved from the linkage so
   // shared vertices stay exactly coincident throughout.
   function makeJitterbug() {
-    const SIZE = 512;
+    const SIZE = TEX_SIZE;
     const rnd = new THREE.WebGLRenderer({ antialias: true });
     rnd.setSize(SIZE, SIZE);
     const scene = new THREE.Scene();
@@ -714,7 +849,7 @@
     assembly.scale.setScalar(0.78);
     scene.add(assembly);
 
-    const POS = new THREE.Color("#59d6ff"), NEG = new THREE.Color("#ffb46b");
+    const POS = new THREE.Color(INK_HEX), NEG = new THREE.Color(INK2_HEX);
     const mats = {};
     const matsFor = (sigma) => {
       if (!mats[sigma]) {
@@ -818,7 +953,7 @@
   // blooms outward until every vertex reaches the circumsphere — the
   // icosahedron becomes a geodesic sphere — then settles back to flat faces.
   function makeGeodesic() {
-    const SIZE = 512;
+    const SIZE = TEX_SIZE;
     const rnd = new THREE.WebGLRenderer({ antialias: true });
     rnd.setSize(SIZE, SIZE);
     const scene = new THREE.Scene();
@@ -872,14 +1007,14 @@
     const geo = new THREE.BufferGeometry();
     geo.setAttribute("position", new THREE.BufferAttribute(posArr, 3));
     assembly.add(new THREE.LineSegments(geo, new THREE.LineBasicMaterial({
-      color: new THREE.Color("#59d6ff"), transparent: true, opacity: 0.75,
+      color: new THREE.Color(INK_HEX), transparent: true, opacity: 0.75,
       blending: THREE.AdditiveBlending, depthWrite: false
     })));
     const dotGeo = new THREE.BufferGeometry();
     const dotArr = new Float32Array(flat.length * 3);
     dotGeo.setAttribute("position", new THREE.BufferAttribute(dotArr, 3));
     assembly.add(new THREE.Points(dotGeo, new THREE.PointsMaterial({
-      color: new THREE.Color("#ffb46b"), size: 0.035, transparent: true, opacity: 0.8,
+      color: new THREE.Color(INK2_HEX), size: 0.035, transparent: true, opacity: 0.8,
       blending: THREE.AdditiveBlending, depthWrite: false
     })));
 
@@ -920,7 +1055,7 @@
   // tetrahedra and octahedra, every strut the same length. It crystallizes
   // outward from a nucleus, breathes at full extent, and dissolves back.
   function makeIVM() {
-    const SIZE = 512;
+    const SIZE = TEX_SIZE;
     const rnd = new THREE.WebGLRenderer({ antialias: true });
     rnd.setSize(SIZE, SIZE);
     const scene = new THREE.Scene();
@@ -966,13 +1101,13 @@
     const geo = new THREE.BufferGeometry();
     geo.setAttribute("position", new THREE.BufferAttribute(posArr, 3));
     const lines = new THREE.LineSegments(geo, new THREE.LineBasicMaterial({
-      color: new THREE.Color("#59d6ff"), transparent: true, opacity: 0.95,
+      color: new THREE.Color(INK_HEX), transparent: true, opacity: 0.95,
       blending: THREE.AdditiveBlending, depthWrite: false
     }));
     assembly.add(lines);
     const nodeGeo = new THREE.BufferGeometry().setFromPoints(nodes);
     assembly.add(new THREE.Points(nodeGeo, new THREE.PointsMaterial({
-      color: new THREE.Color("#ffb46b"), size: 0.09, transparent: true, opacity: 0.95,
+      color: new THREE.Color(INK2_HEX), size: 0.09, transparent: true, opacity: 0.95,
       blending: THREE.AdditiveBlending, depthWrite: false
     })));
 
@@ -1082,6 +1217,7 @@
 
   let imagePools = { any: [] };
   let mosaicFrame = 0;
+  let mosaicPhase = 0;
 
   function pickImage(family, seed) {
     const chain = FALLBACK_CHAIN[family] || [family, "silver", "gray", "any"];
@@ -1279,8 +1415,21 @@
     uGate: { value: APPARITION > 0 ? 0 : 1 }, // apparition reveal gate
     // Planar bleed spot: soft circular reveal window centered on the
     // shadow's centroid (x, y in uv; z = radius in frame heights, 0 = off).
-    uSpot: { value: new THREE.Vector3(0, 0, 0) }
+    uSpot: { value: new THREE.Vector3(0, 0, 0) },
+    // Whole-moon opacity: 0 = fully see-through to the backdrop layer.
+    uAlpha: { value: ALPHA },
+    // Iris reveal: openness 0..1, clear-hole radius (fraction of the disc
+    // radius) and the feather width beyond it.
+    uIris: { value: IRIS_TARGET },
+    uIrisR: { value: IRIS_R },
+    uIrisFeather: { value: IRIS_FEATHER }
   };
+
+  // Audio reactivity modulates uBright/uLift/uWinBright every frame, so the
+  // sliders set these bases and the music rides on top of them.
+  let brightBase = BRIGHT;
+  let liftBase = LIFT;
+  let winBrightBase = uniforms.uWinBright.value;
 
   // Screen capture window content (content=screen): pipes any other browser
   // window, app, or the whole desktop into the moon. getDisplayMedia needs a
@@ -1392,7 +1541,7 @@
       : imageTextures.length ? imageTextures[0]
       : moon.texture;
     uniforms.uWinAspect.value = crt ? crt.aspect : cave ? cave.aspect : incant ? incant.aspect : fold ? fold.aspect : 16 / 9;
-    if (WINBRIGHT_PARAM == null) uniforms.uWinBright.value = bright;
+    if (WINBRIGHT_PARAM == null) { uniforms.uWinBright.value = bright; winBrightBase = bright; }
     uniforms.uWordOn.value = WORDLESS_WIN ? 0 : 1;
     // Sensible cycle defaults unless the URL pinned them explicitly.
     if (PEEK_PARAM == null) PEEK = WIN && !WORDLESS_WIN ? 16 : 0;
@@ -1437,7 +1586,8 @@
     fragmentShader: `
       uniform sampler2D uMoon, uContent, uWinTex;
       uniform float uThresh, uFeather, uBright, uFlicker, uScroll, uTime, uIsVideoContent, uTint, uLift, uSphere, uRot;
-      uniform float uWin, uWinDepth, uWinGrow, uWinAspect, uWinBright, uWordOn, uGate;
+      uniform float uWin, uWinDepth, uWinGrow, uWinAspect, uWinBright, uWordOn, uGate, uAlpha;
+      uniform float uIris, uIrisR, uIrisFeather;
       uniform vec3 uColor, uDisc, uSpot;
       uniform vec4 uRect;
       uniform vec2 uAnchor, uAng;
@@ -1531,7 +1681,17 @@
           + vec3(0.9, 0.95, 1.05) * uLift * dark
           + winGlow * uBright * uWinBright
           + content * reveal * uBright * flicker * uWordOn;
-        gl_FragColor = vec4(col, 1.0);
+        // Iris reveal: a fully clear hole in the disc centre (radius uIrisR
+        // of the disc radius when open) feathering out to the untouched limb,
+        // so the backdrop gif shows through while the rim keeps reading as
+        // the moon. The hole radius grows with openness so a partial iris is
+        // a smaller clear circle, not a milky full-size one.
+        float rr = length(d) / max(uDisc.z, 1e-4);
+        float irisHole = uIris * (1.0 - smoothstep(uIrisR * uIris, uIrisR * uIris + uIrisFeather, rr));
+        // Premultiplied output: alpha follows the moon body so the DOM
+        // backdrop shows around the disc, and uAlpha fades the whole moon.
+        float keep = uAlpha * (1.0 - irisHole);
+        gl_FragColor = vec4(col * keep, moon.a * keep);
       }
     `
   });
@@ -1547,12 +1707,159 @@
     } else {
       quad.scale.set(1, winAspect / vidAspect, 1);
     }
+    quad.scale.x *= MOON_SCALE;
+    quad.scale.y *= MOON_SCALE;
   }
   fitQuad();
   window.addEventListener("resize", () => {
     renderer.setSize(window.innerWidth, window.innerHeight);
     fitQuad();
   });
+
+  // --- Backdrop layer: animated gifs (or stills) in the DOM behind the ----
+  // transparent canvas, centered exactly on the moon disc and sized off the
+  // auto-measured disc radius. Because they are plain <img> elements the
+  // gifs animate natively - no decoding needed. Fading the moon (?alpha= or
+  // the controller's moon opacity slider) reveals them through the disc.
+  const backdrop = { el: null, players: [], idx: 0, timer: 0, key: "" };
+  // A single backdrop source. gifs are decoded frame-by-frame (WebCodecs
+  // ImageDecoder) and drawn to a canvas so their whole loop can be sped up or
+  // slowed live via BACK_SPEED - a plain <img> is stuck at the file's baked
+  // frame delays. Stills / unsupported types fall back to a CSS image.
+  function makeBackdropLayer(src) {
+    const layer = { node: null, raf: 0, frames: null, i: 0, acc: 0, last: 0, disposed: false };
+    const base = "position:absolute;left:0;top:0;width:100%;height:100%;" +
+      "object-fit:contain;transition:opacity 1.2s ease;";
+    const isGif = /\.gif(\?|$)/i.test(src);
+    if (isGif && ("ImageDecoder" in window)) {
+      const canvas = document.createElement("canvas");
+      canvas.style.cssText = base;
+      layer.node = canvas;
+      const ctx = canvas.getContext("2d");
+      (async () => {
+        try {
+          const resp = await fetch(src);
+          const buf = await resp.arrayBuffer();
+          const type = resp.headers.get("content-type") || "image/gif";
+          const dec = new ImageDecoder({ data: buf, type });
+          await dec.tracks.ready;
+          const count = dec.tracks.selectedTrack.frameCount || 1;
+          const frames = [];
+          for (let f = 0; f < count; f++) {
+            const { image } = await dec.decode({ frameIndex: f });
+            const bmp = await createImageBitmap(image);
+            const dur = (image.duration || 100000) / 1000; // us -> ms
+            image.close();
+            frames.push({ bmp, dur });
+          }
+          if (layer.disposed) { frames.forEach((f) => f.bmp.close()); return; }
+          canvas.width = frames[0].bmp.width;
+          canvas.height = frames[0].bmp.height;
+          layer.frames = frames;
+          layer.last = performance.now();
+          const loop = (now) => {
+            if (layer.disposed) return;
+            layer.acc += (now - layer.last) * BACK_SPEED;
+            layer.last = now;
+            let guard = 0;
+            while (layer.acc >= (layer.frames[layer.i].dur || 100) && guard++ < 1000) {
+              layer.acc -= (layer.frames[layer.i].dur || 100);
+              layer.i = (layer.i + 1) % layer.frames.length;
+            }
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            ctx.drawImage(layer.frames[layer.i].bmp, 0, 0, canvas.width, canvas.height);
+            layer.raf = requestAnimationFrame(loop);
+          };
+          layer.raf = requestAnimationFrame(loop);
+        } catch (e) {
+          canvas.style.background = "center/contain no-repeat url('" + src + "')";
+        }
+      })();
+    } else {
+      const img = document.createElement("img");
+      img.src = src;
+      img.style.cssText = base;
+      layer.node = img;
+    }
+    return layer;
+  }
+  function disposeLayer(layer) {
+    layer.disposed = true;
+    if (layer.raf) cancelAnimationFrame(layer.raf);
+    if (layer.frames) layer.frames.forEach((f) => f.bmp.close());
+    if (layer.node) layer.node.remove();
+  }
+  function setBackdrop(spec) {
+    spec = String(spec == null ? "" : spec).trim();
+    BACKDROP_SRC = spec;
+    if (backdrop.timer) { clearInterval(backdrop.timer); backdrop.timer = 0; }
+    backdrop.players.forEach(disposeLayer);
+    backdrop.players = [];
+    if (backdrop.el) { backdrop.el.remove(); backdrop.el = null; }
+    backdrop.idx = 0;
+    backdrop.key = "";
+    const list = spec.split(",").map((s) => s.trim()).filter(Boolean);
+    if (!list.length) return;
+    const el = document.createElement("div");
+    // Clip to a circle so square gifs never show their corners behind the
+    // thin lunar limb when the iris is open.
+    el.style.cssText = "position:fixed;z-index:0;pointer-events:none;" +
+      "border-radius:50%;overflow:hidden;";
+    backdrop.players = list.map((src, i) => {
+      const layer = makeBackdropLayer(src);
+      layer.node.style.opacity = i === 0 ? 1 : 0;
+      el.appendChild(layer.node);
+      return layer;
+    });
+    document.body.appendChild(el);
+    backdrop.el = el;
+    if (backdrop.players.length > 1 && BACK_SEC > 0) {
+      backdrop.timer = setInterval(() => {
+        backdrop.idx = (backdrop.idx + 1) % backdrop.players.length;
+        backdrop.players.forEach((p, i) => { p.node.style.opacity = i === backdrop.idx ? 1 : 0; });
+      }, BACK_SEC * 1000);
+    }
+  }
+  // Keep the moon disc pinned to the window centre: the auto-measured disc
+  // can sit slightly off the video-frame centre, and shrinking the quad
+  // (moonscale) would otherwise drag the disc toward wherever the frame
+  // centre is. Runs every frame (the disc estimate refines after load).
+  function centerQuad() {
+    quad.position.x = -(disc.x * 2 - 1) * quad.scale.x;
+    quad.position.y = -(disc.y * 2 - 1) * quad.scale.y;
+  }
+  // Follows the disc every frame (the disc is auto-measured from the video
+  // alpha, so it can shift after load); style writes only happen on change.
+  function positionBackdrop() {
+    if (!backdrop.el) return;
+    const w = window.innerWidth, h = window.innerHeight;
+    const qw = quad.scale.x * w, qh = quad.scale.y * h;
+    const cx = w / 2 + (disc.x - 0.5) * qw + quad.position.x * w / 2;
+    const cy = h / 2 - (disc.y - 0.5) * qh - quad.position.y * h / 2;
+    const r = disc.r * qh * BACK_SCALE;
+    const key = cx.toFixed(1) + "," + cy.toFixed(1) + "," + r.toFixed(1) + "," + BACK_ALPHA;
+    if (key === backdrop.key) return;
+    backdrop.key = key;
+    const s = backdrop.el.style;
+    s.left = (cx - r) + "px";
+    s.top = (cy - r) + "px";
+    s.width = (2 * r) + "px";
+    s.height = (2 * r) + "px";
+    s.opacity = BACK_ALPHA;
+  }
+  // Zoom the gif into its centre as the iris opens (runs every frame, not
+  // gated by positionBackdrop's change-key, since the iris eases smoothly).
+  function zoomBackdrop() {
+    if (!backdrop.players.length) return;
+    const z = 1 + (IRIS_ZOOM - 1) * uniforms.uIris.value;
+    const t = "scale(" + z.toFixed(4) + ")";
+    backdrop.players.forEach((p) => {
+      if (!p.node) return;
+      p.node.style.transformOrigin = "center center";
+      p.node.style.transform = t;
+    });
+  }
+  setBackdrop(BACKDROP_SRC);
 
   window.__hyperstitionStats = {
     layout: "moon-darkside",
@@ -1575,6 +1882,7 @@
     get program() { return progName; },
     get programRot() { return progApplied; },
     get stream() { return streamStatus; },
+    get audio() { return { bass: audio.bass, mid: audio.mid, high: audio.high, level: audio.level, beatEnv: audio.beatEnv, react: REACT, mic: MIC }; },
     moonReady: false
   };
   moon.video.addEventListener("playing", () => {
@@ -1989,11 +2297,52 @@
   // own gesture handler); route it through the live switcher instead.
   if (useMosaic && CONTENT_KEY === "screen") setWindowContent("screen");
   if (params.get("program")) setProgram(params.get("program"));
+
+  // --- Solo bake mode: blit the content maker straight to the screen ------
+  let soloCtx = null, soloIncantFrame = -1;
+  if (SOLO) {
+    renderer.domElement.style.display = "none";
+    const c = document.createElement("canvas");
+    c.style.cssText = "position:fixed;inset:0;width:100vw;height:100vh;";
+    document.body.appendChild(c);
+    soloCtx = c.getContext("2d");
+    window.__hyperstitionReady = true;
+  }
+  function soloFrame(t) {
+    if (incant) {
+      const f = Math.floor(t / 6);
+      if (f !== soloIncantFrame) { soloIncantFrame = f; incant.advance(); }
+    }
+    if (crt) crt.draw(t);
+    if (cave) cave.draw(t);
+    if (fold) fold.draw(t);
+    const cnv = soloCtx.canvas;
+    if (cnv.width !== window.innerWidth || cnv.height !== window.innerHeight) {
+      cnv.width = window.innerWidth;
+      cnv.height = window.innerHeight;
+    }
+    soloCtx.fillStyle = "#020411";
+    soloCtx.fillRect(0, 0, cnv.width, cnv.height);
+    const maker = fold || crt || cave || incant;
+    const src = maker && maker.texture && maker.texture.image;
+    if (src && src.width) {
+      // cover-crop the (square) maker canvas into the viewport
+      const s = Math.max(cnv.width / src.width, cnv.height / src.height);
+      const w = src.width * s, h = src.height * s;
+      soloCtx.drawImage(src, (cnv.width - w) / 2, (cnv.height - h) / 2, w, h);
+    }
+  }
+
   let prevT = 0;
   function animate() {
     const t = (performance.now() - start) / 1000;
     const dt = Math.min(0.1, t - prevT);
     prevT = t;
+    if (SOLO) {
+      soloFrame(t);
+      requestAnimationFrame(animate);
+      return;
+    }
     uniforms.uTime.value = t;
     if (SCROLL_SEC > 0 && !contentVideo && !imageTextures.length && !useMosaic) {
       uniforms.uScroll.value = (t / SCROLL_SEC) % 1;
@@ -2011,10 +2360,21 @@
     if (crt) crt.draw(t);
     if (cave) cave.draw(t);
     if (fold) { fold.draw(t); window.__fold = fold; }
+    pollMic();
+    updateAudio(dt);
+    // Music rides on top of the slider bases: earthshine breathes with the
+    // bass, window glow shimmers with the highs + beats, content brightness
+    // lifts with overall level.
+    uniforms.uLift.value = liftBase + REACT * audio.bass * 0.055;
+    uniforms.uWinBright.value = winBrightBase * (1 + REACT * (audio.high * 0.55 + audio.beatEnv * 0.3));
+    uniforms.uBright.value = brightBase * (1 + REACT * audio.level * 0.3);
     if (mosaic) {
       updateMosaicAnchor(t);
-      // Shimmer the tiles by reshuffling cube images a few times a second.
-      const frame = Math.floor(t * 2.5);
+      // Shimmer the tiles by reshuffling cube images a few times a second;
+      // loud music shakes them faster (accumulated phase so rate changes
+      // don't skip frames).
+      mosaicPhase += dt * (2.5 + REACT * audio.level * 6);
+      const frame = Math.floor(mosaicPhase);
       if (frame !== mosaicFrame) {
         mosaicFrame = frame;
         mosaic.redraw();
@@ -2025,6 +2385,17 @@
     updatePeek(t, dt);
     adaptBleed(t);
     updateVajras(t);
+    // Ease the iris toward its target over ~IRIS_SEC with a smooth ramp.
+    {
+      const cur = uniforms.uIris.value;
+      const step = dt / IRIS_SEC;
+      uniforms.uIris.value = Math.abs(IRIS_TARGET - cur) <= step
+        ? IRIS_TARGET
+        : cur + Math.sign(IRIS_TARGET - cur) * step;
+    }
+    centerQuad();
+    positionBackdrop();
+    zoomBackdrop();
     renderer.render(scene, camera);
     requestAnimationFrame(animate);
   }
@@ -2045,10 +2416,25 @@
     if (MOSAIC_WORD) q.set("word", MOSAIC_WORD);
     if (CONTENT_SRC) q.set("content", CONTENT_SRC);
     q.set("speed", SPEED.toFixed(3));
-    q.set("bright", (+uniforms.uBright.value).toFixed(3));
+    q.set("bright", brightBase.toFixed(3));
     q.set("threshold", (+uniforms.uThresh.value).toFixed(3));
     q.set("feather", (+uniforms.uFeather.value).toFixed(3));
-    q.set("lift", (+uniforms.uLift.value).toFixed(3));
+    q.set("lift", liftBase.toFixed(3));
+    if (ALPHA !== 1) q.set("alpha", ALPHA.toFixed(2));
+    if (IRIS_TARGET > 0) q.set("iris", IRIS_TARGET.toFixed(2));
+    if (IRIS_R !== 0.7) q.set("irisr", IRIS_R.toFixed(2));
+    if (IRIS_FEATHER !== 0.22) q.set("irisfeather", IRIS_FEATHER.toFixed(2));
+    if (IRIS_ZOOM !== 2.5) q.set("iriszoom", IRIS_ZOOM.toFixed(2));
+    if (MOON_SCALE !== 1) q.set("moonscale", MOON_SCALE.toFixed(2));
+    if (BACKDROP_SRC) {
+      q.set("backdrop", BACKDROP_SRC);
+      if (BACK_SCALE !== 1) q.set("backscale", BACK_SCALE.toFixed(2));
+      if (BACK_ALPHA !== 1) q.set("backalpha", BACK_ALPHA.toFixed(2));
+      if (BACK_SEC !== 12) q.set("backsec", BACK_SEC.toFixed(1));
+      if (BACK_SPEED !== 1) q.set("backspeed", BACK_SPEED.toFixed(2));
+    }
+    if (REACT !== 1) q.set("react", REACT.toFixed(2));
+    if (MIC) q.set("mic", "1");
     q.set("flicker", (+uniforms.uFlicker.value).toFixed(2));
     q.set("angw", (+uniforms.uAng.value.x).toFixed(2));
     q.set("angh", (+uniforms.uAng.value.y).toFixed(2));
@@ -2072,10 +2458,23 @@
   function currentState() {
     return Object.assign({
       speed: SPEED,
-      bright: +uniforms.uBright.value,
+      bright: brightBase,
       thresh: +uniforms.uThresh.value,
       feather: +uniforms.uFeather.value,
-      lift: +uniforms.uLift.value,
+      lift: liftBase,
+      alpha: ALPHA,
+      iris: IRIS_TARGET,
+      irisr: IRIS_R,
+      irisfeather: IRIS_FEATHER,
+      iriszoom: IRIS_ZOOM,
+      moonscale: MOON_SCALE,
+      backdrop: BACKDROP_SRC,
+      backscale: BACK_SCALE,
+      backalpha: BACK_ALPHA,
+      backsec: BACK_SEC,
+      backspeed: BACK_SPEED,
+      react: REACT,
+      mic: MIC,
       flicker: +uniforms.uFlicker.value,
       angw: +uniforms.uAng.value.x,
       angh: +uniforms.uAng.value.y,
@@ -2114,10 +2513,24 @@
         // Chrome throws on playbackRate < 0.0625; clamp so a low slider
         // value slows to minimum instead of aborting the whole config batch.
         case "speed": SPEED = Math.max(0.0625, v); moon.video.playbackRate = SPEED; break;
-        case "bright": uniforms.uBright.value = v; break;
+        case "bright": brightBase = v; uniforms.uBright.value = v; break;
         case "thresh": uniforms.uThresh.value = v; break;
         case "feather": uniforms.uFeather.value = v; break;
-        case "lift": uniforms.uLift.value = v; break;
+        case "lift": liftBase = v; uniforms.uLift.value = v; break;
+        case "alpha": ALPHA = Math.max(0, Math.min(1, v)); uniforms.uAlpha.value = ALPHA; break;
+        case "iris": IRIS_TARGET = Math.max(0, Math.min(1, v)); break;
+        case "irisr": IRIS_R = Math.max(0.1, Math.min(1, v)); uniforms.uIrisR.value = IRIS_R; break;
+        case "irisfeather": IRIS_FEATHER = Math.max(0.01, v); uniforms.uIrisFeather.value = IRIS_FEATHER; break;
+        case "irissec": IRIS_SEC = Math.max(0.1, v); break;
+        case "backdrop": setBackdrop(v); break;
+        case "backscale": BACK_SCALE = Math.max(0.05, v); break;
+        case "backalpha": BACK_ALPHA = Math.max(0, Math.min(1, v)); break;
+        case "backsec": BACK_SEC = Math.max(0, v); setBackdrop(BACKDROP_SRC); break;
+        case "backspeed": BACK_SPEED = Math.max(0.1, v); break;
+        case "iriszoom": IRIS_ZOOM = Math.max(1, v); break;
+        case "moonscale": MOON_SCALE = Math.max(0.1, Math.min(2, v)); fitQuad(); break;
+        case "react": REACT = Math.max(0, v); break;
+        case "mic": setMic(!!v && v !== "0"); break;
         case "flicker": uniforms.uFlicker.value = v; break;
         case "angw": AUTO_ANG = false; angTarget.w = v; break;
         case "angh": AUTO_ANG = false; angTarget.h = v; break;
@@ -2177,6 +2590,11 @@
     hmChannel.onmessage = function (event) {
       const msg = event.data;
       if (!msg) return;
+      if (msg.type === "moonAudio") {
+        // ~20 Hz level feed from the controller's audio deck analyser.
+        feedAudio(msg.bass || 0, msg.mid || 0, msg.high || 0, msg.level || 0, !!msg.beat);
+        return;
+      }
       if (msg.type === "moonRequestState") { announce(); return; }
       if (msg.type === "moonConfig") {
         if (msg.set) applyLiveConfig(msg.set);
