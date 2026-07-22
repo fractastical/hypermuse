@@ -1881,6 +1881,7 @@
     get facingAngle() { return wrapPi(uniforms.uAnchor.value.x + uniforms.uRot.value); },
     get program() { return progName; },
     get programRot() { return progApplied; },
+    get iris() { return +uniforms.uIris.value; },
     get stream() { return streamStatus; },
     get audio() { return { bass: audio.bass, mid: audio.mid, high: audio.high, level: audio.level, beatEnv: audio.beatEnv, react: REACT, mic: MIC }; },
     moonReady: false
@@ -2227,6 +2228,9 @@
   // something only shows through every few rotations and the content
   // progresses. The "hour" program is 204 rotations: ~62 min at the default
   // speed 1/3 with the 6s moon loop (each rotation ~18s of wall time).
+  // "eye" is a special program content: instead of opening the dark-side
+  // window it loads the eye-seal gif behind the disc (if no backdrop is set)
+  // and irises the moon open for that rotation, sealing again on the next.
   const PROGRAMS = {
     hour: [
       { cycles: 8, dark: 2, reveal: 1, content: "crt" },
@@ -2239,8 +2243,30 @@
       { cycles: 6, dark: 2, reveal: 1, content: "foldivm" },
       { cycles: 6, dark: 2, reveal: 1, content: "foldsonic" },
       { cycles: 8, dark: 2, reveal: 1, content: "artifacts/sample-sonicsphere-silent.webm" }
+    ],
+    // Word-only moon; the eye seal irises open once every 10th rotation.
+    eye10: [
+      { cycles: 1, dark: 9, reveal: 1, content: "eye" }
+    ],
+    // The bucky fold repertoire, a reveal every 3rd rotation.
+    folds: [
+      { cycles: 2, dark: 2, reveal: 1, content: "fold" },
+      { cycles: 2, dark: 2, reveal: 1, content: "foldhelix" },
+      { cycles: 2, dark: 2, reveal: 1, content: "foldjitter" },
+      { cycles: 2, dark: 2, reveal: 1, content: "foldgeo" },
+      { cycles: 2, dark: 2, reveal: 1, content: "foldivm" },
+      { cycles: 2, dark: 2, reveal: 1, content: "foldsonic" }
+    ],
+    // Folds every 3rd rotation with the eye breaking through every 10th.
+    eyefolds: [
+      { cycles: 1, dark: 2, reveal: 1, content: "fold" },
+      { cycles: 1, dark: 2, reveal: 1, content: "foldhelix" },
+      { cycles: 1, dark: 2, reveal: 1, content: "foldjitter" },
+      { cycles: 1, dark: 0, reveal: 1, content: "eye" }
     ]
   };
+  const EYE_BACKDROP = "assets/esoteric-geometries-circles-warp.gif";
+  let progEyeOn = false;
   let progSchedule = null; // flat: one entry per rotation, loops forever
   let progName = "";
   let progApplied = -1;
@@ -2259,6 +2285,8 @@
         progName = s.toLowerCase();
       }
     }
+    // Any program change seals an eye reveal the old program left open.
+    if (progEyeOn) { IRIS_TARGET = 0; progEyeOn = false; }
     if (!acts || !acts.length) {
       progSchedule = null;
       progName = "";
@@ -2287,6 +2315,16 @@
     if (rot === progApplied) return;
     progApplied = rot;
     const entry = progSchedule[rot % progSchedule.length];
+    if (entry.content === "eye") {
+      // Iris reveal instead of a window: load the eye seal behind the disc
+      // (unless a backdrop is already chosen) and open for this rotation.
+      if (!BACKDROP_SRC) setBackdrop(EYE_BACKDROP);
+      if (CONTENT_SRC) setWindowContent("");
+      IRIS_TARGET = 1;
+      progEyeOn = true;
+      return;
+    }
+    if (progEyeOn) { IRIS_TARGET = 0; progEyeOn = false; }
     if (CONTENT_SRC !== entry.content || (WIN && WORDLESS_WIN !== entry.wordless)) {
       setWindowContent(entry.content, entry.wordless);
     }

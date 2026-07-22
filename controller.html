@@ -489,6 +489,9 @@
           <select id="hmProgramSelect" title="rotation-based sequencer: dark rotations show just the word, every 3rd rotation the window opens wordless on the current act's content, acts progress over ~an hour, then it loops">
             <option value="">off (manual)</option>
             <option value="hour">hour progression (reveal every 3rd rotation)</option>
+            <option value="eye10">eye seal (irises open every 10th rotation)</option>
+            <option value="folds">bucky folds (reveal every 3rd rotation)</option>
+            <option value="eyefolds">folds + eye (folds every 3rd, eye every 10th)</option>
             <option value="custom">custom (from the editor below)</option>
           </select>
           <input type="button" id="hmApplySourcesButton" value="apply sources (reloads)"/>
@@ -617,6 +620,7 @@
           <span id="hmProgDuration" style="color:rgba(207,233,255,0.62);font-size:10px;"></span>
           <span id="hmProgStatus" style="color:rgba(122,255,180,0.75);font-size:10px;"></span>
           <datalist id="hmProgContentList">
+            <option value="eye"></option>
             <option value="crt"></option>
             <option value="incant"></option>
             <option value="vajra"></option>
