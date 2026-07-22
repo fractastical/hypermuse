@@ -1929,13 +1929,15 @@
     // Pass 1: measure the moon disc from the alpha channel (covers the full
     // sphere, lit and dark alike).
     if (AUTO_DISC) {
-      let aMinU = 1, aMaxU = 0, aMinV = 1, aMaxV = 0, aCount = 0;
+      let aMinU = 1, aMaxU = 0, aMinV = 1, aMaxV = 0, aCount = 0, aSumU = 0, aSumV = 0;
       for (let py = 0; py < SAMPLE_H; py++) {
         const v = 1 - (py + 0.5) / SAMPLE_H; // canvas is top-down, UV is bottom-up
         for (let px = 0; px < SAMPLE_W; px++) {
           if (data[(py * SAMPLE_W + px) * 4 + 3] < 235) continue; // skip the glow halo
           const u = (px + 0.5) / SAMPLE_W;
           aCount++;
+          aSumU += u;
+          aSumV += v;
           if (u < aMinU) aMinU = u;
           if (u > aMaxU) aMaxU = u;
           if (v < aMinV) aMinV = v;
@@ -1943,8 +1945,12 @@
         }
       }
       if (aCount > 40) {
-        disc.x = (aMinU + aMaxU) / 2;
-        disc.y = (aMinV + aMaxV) / 2;
+        // Centre from the mask centroid, not the bbox midpoint: the bbox
+        // quantises to the coarse sample grid (~2px on screen and worse on
+        // big displays), while the centroid of a solid disc is sub-pixel
+        // accurate - the iris hole, backdrop gif and centering all ride on it.
+        disc.x = aSumU / aCount;
+        disc.y = aSumV / aCount;
         const rX = ((aMaxU - aMinU) / 2) * (16 / 9);
         const rY = (aMaxV - aMinV) / 2;
         disc.r = Math.min(rX, rY) * 0.99;
