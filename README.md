@@ -27,6 +27,11 @@ Hypermuse runs as **two windows**:
 The controller opens the visual for you and sends it commands. Think of it like a
 lighting desk (controller) driving a stage (visual).
 
+The **Controller style** dropdown (top row) recolors the control panel itself —
+`crt green` (phosphor + scanlines, matches the Ikegami terminals), `green mono`
+(flat terminal), `amber terminal`, or `red alert`. It only themes this window,
+never the outputs, and the choice persists across reloads.
+
 ### Step 1: Start it up
 
 If the app is already running on the computer, open a web browser (Chrome works best)
@@ -237,6 +242,18 @@ covered by text (same as `incant`):
 The standalone `synergetics-fold.html` page still renders `fold`/`associate`
 full-frame for exports (`npm run export:fold`, `npm run export:fold:associate`).
 
+**Pre-rendered fold loops.** `npm run export:fold:loops` bakes every mode into
+`artifacts/fold-loops/` as square 1080×1080 clips (one full animation period
+each), plus **red** variants of the five wireframe modes (`fold-red.mp4`,
+`foldhelix-red.mp4`, …). Use them anywhere plain video works — dark-side
+bleed-through (`content=artifacts/fold-loops/fold-red.mp4`), the any-video
+picker, projector feeds, CRTs, other machines without the live makers. Under
+the hood this uses two new `hypermoon.html` params that also work live:
+`?solo=1` renders any keyword content full-frame instead of on the moon, and
+`?ink=ff3b30&ink2=ff8a5c` recolors the wireframe repertoire (red triangles on
+demand). Run `npm run manifest:videos` afterwards so the clips show up in the
+controller's video picker.
+
 #### Hour program (rotation sequencer)
 
 `hypermoon.html?program=hour` (or the **program** dropdown in the
@@ -275,6 +292,32 @@ randomizes each occurrence (e.g. every 300 ± 60 s), and the "fire now"
 buttons trigger a slot immediately. Swapping the bed file while playing
 restarts with the new track. `npm run manifest:videos` refreshes the audio
 list along with the video one (`audio-manifest.json`).
+
+#### Music sync (audio deck → hypermoon)
+
+Everything the audio deck plays is tapped into a WebAudio analyser and the
+band levels are broadcast to the hypermoon output ~20×/s (the tap is
+transparent — the speakers get the same signal). On the moon, scaled by the
+**intensity** slider (0–2, default 1; 0 = deaf):
+
+- **vajras flare on bass beats** — a kick-onset detector fires a beat
+  envelope; each orbiting vajra swells (+22% size) and brightens (up to +90%
+  opacity), staggered per lane so they don't pop in unison, and sustained
+  bass adds a constant glow
+- **earthshine breathes with the bass** — the faint light on the shadowed
+  hemisphere pulses with the low end
+- **the window glow shimmers with the highs** — hi-hats and cymbals ripple
+  the brightness of whatever is showing through the window
+- **the letter mosaic shakes faster when it's loud** — tile reshuffle rate
+  scales with overall level
+
+The **music → moon** row in the Audio deck panel has the on/off toggle, the
+intensity slider, a live ▁▄▇ band meter with a ● beat light, and **moon uses
+its mic**: instead of listening to the deck, the hypermoon window opens its
+own microphone (grant permission once) — use this when the music comes from
+a DJ, a PA, or anything not played through the controller. Boot params on
+`hypermoon.html`: `?react=` (intensity) and `?mic=1`. Levels decay to zero
+within a second if the feed stops, so nothing freezes mid-flare.
 
 #### Any video on the dark side
 

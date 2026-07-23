@@ -12,3 +12,5 @@ infinitestreams/
 artifacts/
 video-manifest.json
 audio-manifest.json
+.pnpm-store/
+pnpm-lock.yaml

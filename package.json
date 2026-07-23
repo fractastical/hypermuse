@@ -13,6 +13,7 @@
     "test": "playwright test",
     "test:smoke": "node scripts/test-basic-functionality.mjs",
     "test:smoke:headed": "SMOKE_HEADLESS=0 node scripts/test-basic-functionality.mjs",
+    "test:audioreact": "node scripts/test-audio-react.mjs && node scripts/test-audio-react-e2e.mjs",
     "build:vj-set": "node scripts/build-vj-set-manifest.mjs loops/bio1 sets/bio1.json",
     "export:sample": "EXPORT_VIDEO_REEL=1 node scripts/generate-sample-video.mjs",
     "export:sample:5m": "EXPORT_VIDEO_REEL=1 CAPTURE_MS=300000 OUTPUT_VIDEO=artifacts/sample-sonicsphere-5m.webm node scripts/generate-sample-video.mjs",
@@ -43,6 +44,7 @@
     "export:hyperstition:moon:halo": "CAPTURE_MS=25000 MOON_VIDEO=\"loops/Moon and Astronauts/Moon Loops/approach-and-flight-around-the-moon-2025-12-17-22-46-49-utc.mp4\" HYPERSTITION_PAGE=hyperstition-moon-halo.html node scripts/export-hyperstition-moon-video.mjs",
     "export:hyperstition:moon:vajra": "CAPTURE_MS=25000 VAJRAS=1 VAJRA_COUNT=3 MOON_VIDEO=\"loops/Moon and Astronauts/Moon Loops/approach-and-flight-around-the-moon-2025-12-17-22-46-49-utc.mp4\" HYPERSTITION_PAGE=hyperstition-moon-halo.html node scripts/export-hyperstition-moon-video.mjs",
     "export:fold": "CAPTURE_MS=40000 HYPERSTITION_PAGE=synergetics-fold.html HYPERSTITION_EXTRA_QUERY=label=0 OUTPUT_VIDEO=artifacts/synergetics-fold.mp4 node scripts/export-hyperstition-moon-video.mjs",
+    "export:fold:loops": "node scripts/export-fold-loops.mjs",
     "export:fold:associate": "CAPTURE_MS=35000 HYPERSTITION_PAGE=synergetics-fold.html \"HYPERSTITION_EXTRA_QUERY=mode=associate&label=0\" OUTPUT_VIDEO=artifacts/synergetics-associate.mp4 node scripts/export-hyperstition-moon-video.mjs",
     "build:color:theme-set": "node scripts/build-color-theme-set.mjs"
   },

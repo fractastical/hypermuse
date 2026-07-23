@@ -75,17 +75,23 @@ const html = `<!DOCTYPE html>
 Generated ${new Date().toISOString().slice(0, 10)} · regenerate with <code>node scripts/render-modes-guide.mjs</code></p>
 <div class="hero">${img(t("pdf-mosaic.jpg"), "hypermoon.html — the HYPERSTITION word mosaic anchored to the rotating moon")}</div>
 
-<h2>1 · Sonicsphere — audio-reactive spheres</h2>
-<p><code>sonicsphere.html</code> renders three audio-reactive spheres (high / mid / low lanes) over video backdrops.
-Effect profiles are switched live from <code>controller.html</code> (FX mode buttons) or booted with <code>?mode=…</code>.
+<h2>1 · Sonicsphere — the harmonic spectrum analyzer</h2>
+<p><code>sonicsphere.html</code> is at heart a musical spectrum analyzer. The audio feed runs through an FFT into
+<strong>48 logarithmically spaced bands</strong> from 20 Hz to 20 kHz — log spacing means every band spans the same
+musical interval, so harmonically related notes light up related bands. The bands split into low / mid / high
+thirds, one sphere lane each; whenever a band crosses its (per-band, adaptive) threshold it fires geometry at
+that band's point on the sphere, with the band's energy mapped to hue. Chords and harmonies read as simultaneous
+structures blooming across the three lanes. The effect profiles below restyle that same band-to-geometry mapping;
+switch them live from <code>controller.html</code> (FX mode buttons) or boot with <code>?mode=…</code>.
 Good on: main projector, LED walls, holographic fans.</p>
 <div class="grid">
-${img("guide-sonic-classic.png", "classic / LIFE profile with infinitestreams backdrop")}
+${img("guide-sonic-classic.png", "classic — the spectrum analyzer itself: threshold-crossing bands spawn hue-mapped geometry on the low/mid/high lanes")}
 ${img("guide-sonic-hexca.png", "cellular-automata textures (hierarchical life shown) — hex CA rules B/S, palettes, speed & audio-sync all controller-adjustable")}
 ${img("guide-sonic-grayscott.png", "gray-scott reaction-diffusion profile (\u201cturing\u201d)")}
 ${img("guide-sonic-words.png", "word-cloud mode — phrase lists swappable per event")}
 </div>
-<p class="meta">Hex CA boot params: <code>?mode=hex&hexrule=B2/S34&hexpalette=aurora&hexspeed=2&hexsync=1&hexaperiodic=0.3</code>. Rules cycle hexlife → bloom → maze → pulse → coral.</p>
+<p class="meta">Pure analyzer (no video backdrops, no sets): <code>sonicsphere.html?demo=1&hideoverlay=1&mode=classic</code>.
+Hex CA boot params: <code>?mode=hex&hexrule=B2/S34&hexpalette=aurora&hexspeed=2&hexsync=1&hexaperiodic=0.3</code>; rules cycle hexlife → bloom → maze → pulse → coral.</p>
 
 <h2>2 · Multi-projector rig (3-projector moon object)</h2>
 <p>The rig panel in the controller models a physical 3-projector setup around a curved object: per-projector azimuth,
@@ -171,9 +177,20 @@ composes, reorders and times acts, then applies live.</p>
 ${img("guide-controller-audiodeck.png", "looped bed + three interjection slots with periodicity, jitter and bed ducking — fed by the audio manifest")}
 
 <h2>8 · Live streaming to other devices (LAN)</h2>
-<p><code>npm run stream:server</code> starts the WebRTC signaling relay (port 8081). Toggle <em>stream to LAN</em> in the controller
-and the running hypermoon broadcasts; any device on the network opens <code>stream-view.html</code> and picks it up.
-<code>stream-broadcast.html</code> streams any chosen window/screen instead.</p>
+<p>The video travels peer-to-peer over WebRTC; a small signaling server just brokers the handshake. To take the
+stream on another device (phone, tablet, laptop — anything on the same network):</p>
+<ul>
+<li><strong>On the host:</strong> <code>npm start</code> (static server on :8080, binds all interfaces) and
+<code>npm run stream:server</code> (signaling on :8081 — it prints the exact viewer URL on startup).</li>
+<li><strong>Start a broadcast:</strong> either tick <em>stream to LAN</em> in the controller's hypermoon panel
+(streams the running moon live, no reload), open <code>hypermoon.html?stream=1</code> directly
+(<code>&streamfps=</code> sets the frame rate), or open <code>stream-broadcast.html</code> and pick any window /
+tab / screen — sonicsphere, the projection rig, anything.</li>
+<li><strong>On the viewing device:</strong> open <code>http://&lt;host-ip&gt;:8080/stream-view.html</code>
+(the host's LAN IP, e.g. <code>http://192.168.1.23:8080/stream-view.html</code>). It autoplays muted with zero
+clicks; a tap goes fullscreen. Viewers can join or leave any time, can wait before the broadcast starts, and
+auto-reconnect if it restarts. One broadcaster at a time — a new one takes over.</li>
+</ul>
 ${img(t("g-stream-viewer.jpg"), "stream-view.html on a second device, live WebRTC feed of the running hypermoon")}
 
 <h2>9 · Real CRT monitors (Ikegami / composite)</h2>
