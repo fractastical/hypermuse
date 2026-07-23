@@ -22,6 +22,18 @@ latest versions). Then:
   at full open only the eye fills the aperture (`?iriszoom=`, default 2.5×).
 - **Backdrop gif speed** slider: replays the gif's whole loop faster/slower
   (`?backspeed=`, needs Chrome for ImageDecoder — kiosk Chrome is fine).
+- **Moon size** slider (`?moonscale=`): shrinks/grows the whole moon while it
+  stays pinned to the screen centre.
+- **Program presets** in the program dropdown: `eye10` (word-only moon, the
+  eye seal irises open every 10th rotation), `folds` (the bucky fold
+  repertoire every 3rd rotation), `eyefolds` (folds + the eye every 10th),
+  plus the original `hour`. In the custom program editor, `eye` is a valid
+  act content — it triggers the iris reveal instead of the window.
+- **Sub-pixel disc centering**: the iris hole / backdrop alignment no longer
+  drifts by a few pixels at fullscreen.
+- **Fold loop clips** (`artifacts/fold-loops/*.mp4`): the fold repertoire
+  pre-baked as square videos incl. red wireframe variants — usable as window
+  content or backdrops on machines without the live makers.
 
 ## Included assets
 
