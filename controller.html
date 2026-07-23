@@ -552,6 +552,16 @@
             <td colspan="3" style="padding:2px 8px;color:rgba(207,233,255,0.45);">fades the whole moon out, revealing the backdrop gifs behind it</td>
           </tr>
           <tr>
+            <td style="padding:2px 8px;color:rgba(207,233,255,0.62);">blood moon</td>
+            <td><input type="range" class="hm-slider" id="hmBlood" data-key="blood" min="0" max="1" step="0.01" value="0" style="width:130px;"/></td>
+            <td style="padding:2px 8px;"><span id="hmBloodVal">0%</span></td>
+            <td colspan="3" style="padding:2px 8px;color:rgba(207,233,255,0.62);">
+              fade minutes <input type="number" id="hmBloodMinutes" min="0.01" step="0.1" value="120" style="width:58px;"/>
+              <input type="button" id="hmBloodTrigger" value="fade to blood"/>
+              <input type="button" id="hmBloodRestore" value="restore moon"/>
+            </td>
+          </tr>
+          <tr>
             <td style="padding:2px 8px;color:rgba(207,233,255,0.62);">iris reveal</td>
             <td><input type="range" class="hm-slider" id="hmIris" data-key="iris" min="0" max="1" step="0.01" style="width:130px;"/></td>
             <td style="padding:2px 8px;"><span id="hmIrisVal">–</span></td>
@@ -2140,6 +2150,7 @@ const HM_FMT = {
     thresh: function(v) { return v.toFixed(3); }, feather: function(v) { return v.toFixed(3); },
     lift: function(v) { return v.toFixed(3); }, flicker: function(v) { return v.toFixed(2); },
     alpha: function(v) { return Math.round(v * 100) + '%'; },
+    blood: function(v) { return Math.round(v * 100) + '%'; },
     iris: function(v) { return Math.round(v * 100) + '%'; },
     irisr: function(v) { return Math.round(v * 100) + '% of disc'; },
     iriszoom: function(v) { return v.toFixed(2) + '\u00d7'; },
@@ -2164,6 +2175,22 @@ document.querySelectorAll('#hypermoonPanel .hm-slider').forEach(function(slider)
             hmChannel.postMessage({ type: 'moonConfig', set: set });
         }
     });
+});
+
+function hmBloodFadeTo(target) {
+    const minutesEl = document.getElementById('hmBloodMinutes');
+    const minutes = Math.max(0.01, parseFloat(minutesEl.value) || 120);
+    minutesEl.value = minutes;
+    if (hmChannel) hmChannel.postMessage({
+        type: 'moonConfig',
+        set: { bloodsec: minutes * 60, bloodTarget: target }
+    });
+}
+document.getElementById('hmBloodTrigger').addEventListener('click', function() {
+    hmBloodFadeTo(1);
+});
+document.getElementById('hmBloodRestore').addEventListener('click', function() {
+    hmBloodFadeTo(0);
 });
 
 document.getElementById('hmOpenOutputButton').addEventListener('click', function() {
@@ -2609,6 +2636,10 @@ if (hmChannel) {
         if (sources.content != null && document.activeElement !== contentEl) contentEl.value = sources.content;
         const backdropEl = document.getElementById('hmBackdropInput');
         if (state.backdrop != null && document.activeElement !== backdropEl) backdropEl.value = state.backdrop;
+        const bloodMinutesEl = document.getElementById('hmBloodMinutes');
+        if (state.bloodSec > 0 && document.activeElement !== bloodMinutesEl) {
+            bloodMinutesEl.value = +(state.bloodSec / 60).toFixed(2);
+        }
         const progEl = document.getElementById('hmProgramSelect');
         if (state.program != null && document.activeElement !== progEl) progEl.value = state.program;
         if (state.rotSeconds > 0) { hmRotSeconds = state.rotSeconds; hmProgRefresh(); }

@@ -44,6 +44,7 @@
     "export:hyperstition:moon:vajra": "CAPTURE_MS=25000 VAJRAS=1 VAJRA_COUNT=3 MOON_VIDEO=\"loops/Moon and Astronauts/Moon Loops/approach-and-flight-around-the-moon-2025-12-17-22-46-49-utc.mp4\" HYPERSTITION_PAGE=hyperstition-moon-halo.html node scripts/export-hyperstition-moon-video.mjs",
     "export:fold": "CAPTURE_MS=40000 HYPERSTITION_PAGE=synergetics-fold.html HYPERSTITION_EXTRA_QUERY=label=0 OUTPUT_VIDEO=artifacts/synergetics-fold.mp4 node scripts/export-hyperstition-moon-video.mjs",
     "export:fold:associate": "CAPTURE_MS=35000 HYPERSTITION_PAGE=synergetics-fold.html \"HYPERSTITION_EXTRA_QUERY=mode=associate&label=0\" OUTPUT_VIDEO=artifacts/synergetics-associate.mp4 node scripts/export-hyperstition-moon-video.mjs",
+    "export:blood-moon": "CAPTURE_MS=30000 BUILD_MOON_CUBES=0 HYPERSTITION_PAGE=hypermoon.html \"HYPERSTITION_EXTRA_QUERY=blooddemo=30&speed=1\" OUTPUT_VIDEO=artifacts/blood-moon-30s.mp4 node scripts/export-hyperstition-moon-video.mjs",
     "build:color:theme-set": "node scripts/build-color-theme-set.mjs"
   },
   "devDependencies": {

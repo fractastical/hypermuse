@@ -150,6 +150,46 @@
   let IRIS_FEATHER = num("irisfeather", 0.22);
   let IRIS_SEC = Math.max(0.1, num("irissec", 2.5));
 
+  // Blood moon: tint the disc toward a copper eclipse red. It is dormant by
+  // default and only starts when ?blood=1 is part of an effect/export or the
+  // controller sends bloodTarget=1. ?bloodsec=7200 is the default two-hour
+  // fade; ?blooddemo=30 compresses the same arc for a short preview.
+  let BLOOD_SEC = Math.max(0.1, num("bloodsec", num("bloodmin", 120) * 60));
+  const BLOOD_DEMO_SEC = params.has("blooddemo") ? Math.max(0.1, num("blooddemo", 30)) : 0;
+  let bloodAmount = Math.max(0, Math.min(1, num("bloodt", 0)));
+  let bloodTarget = (params.get("blood") === "1" || BLOOD_DEMO_SEC > 0) ? 1 : bloodAmount;
+  let bloodTransition = null;
+  let bloodReport = null;
+  let bloodLastReportMs = 0;
+  function setBloodTarget(target, durationSec) {
+    target = Math.max(0, Math.min(1, +target || 0));
+    bloodTarget = target;
+    bloodTransition = {
+      from: bloodAmount,
+      target,
+      startMs: performance.now(),
+      durationSec: Math.max(0.1, durationSec == null ? BLOOD_SEC : +durationSec)
+    };
+  }
+  function updateBloodMoon() {
+    if (!bloodTransition) return;
+    const nowMs = performance.now();
+    const p = Math.max(0, Math.min(1,
+      (nowMs - bloodTransition.startMs) / (bloodTransition.durationSec * 1000)
+    ));
+    const eased = p * p * (3 - 2 * p);
+    bloodAmount = bloodTransition.from + (bloodTransition.target - bloodTransition.from) * eased;
+    if (p >= 1) {
+      bloodAmount = bloodTransition.target;
+      bloodTransition = null;
+    }
+    if (bloodReport && (nowMs - bloodLastReportMs >= 500 || !bloodTransition)) {
+      bloodLastReportMs = nowMs;
+      bloodReport();
+    }
+  }
+  if (bloodTarget !== bloodAmount) setBloodTarget(bloodTarget, BLOOD_DEMO_SEC || BLOOD_SEC);
+
   // alpha:true so the canvas clears transparent and the gif backdrop shows
   // through wherever the moon isn't (or is faded via ?alpha=).
   const renderer = new THREE.WebGLRenderer({ antialias: false, alpha: true, premultipliedAlpha: true, preserveDrawingBuffer: true });
@@ -1422,7 +1462,9 @@
     // radius) and the feather width beyond it.
     uIris: { value: IRIS_TARGET },
     uIrisR: { value: IRIS_R },
-    uIrisFeather: { value: IRIS_FEATHER }
+    uIrisFeather: { value: IRIS_FEATHER },
+    // Blood-moon mix 0..1 (controller / effect / preview).
+    uBlood: { value: bloodAmount }
   };
 
   // Audio reactivity modulates uBright/uLift/uWinBright every frame, so the
@@ -1587,7 +1629,7 @@
       uniform sampler2D uMoon, uContent, uWinTex;
       uniform float uThresh, uFeather, uBright, uFlicker, uScroll, uTime, uIsVideoContent, uTint, uLift, uSphere, uRot;
       uniform float uWin, uWinDepth, uWinGrow, uWinAspect, uWinBright, uWordOn, uGate, uAlpha;
-      uniform float uIris, uIrisR, uIrisFeather;
+      uniform float uIris, uIrisR, uIrisFeather, uBlood;
       uniform vec3 uColor, uDisc, uSpot;
       uniform vec4 uRect;
       uniform vec2 uAnchor, uAng;
@@ -1673,12 +1715,19 @@
           : raw.rgb * raw.a * mix(vec3(1.0), uColor, uTint);
 
         float flicker = 1.0 - uFlicker * 0.5 * (1.0 + sin(uTime * 6.1) * sin(uTime * 2.3));
+        // Blood moon: multiply toward copper eclipse red while keeping crater
+        // contrast; warm the earthshine with the same mix.
+        float moonL = dot(moon.rgb, vec3(0.2126, 0.7152, 0.0722));
+        vec3 bloodMul = mix(vec3(1.0), vec3(1.2, 0.16, 0.06), uBlood);
+        vec3 moonRgb = moon.rgb * bloodMul + vec3(0.1, 0.012, 0.0) * uBlood * moonL;
+        moonRgb *= mix(1.0, 0.82, uBlood);
+        vec3 liftCol = mix(vec3(0.9, 0.95, 1.05), vec3(1.05, 0.22, 0.08), uBlood);
         // Faint earthshine so the shadowed hemisphere reads as surface.
         // Inside the window the surface recesses (cave), the window content
         // glows through, and the letter panel sits on top (uWordOn dissolves
         // it during peeks).
-        vec3 col = moon.rgb * moon.a * (1.0 - caveDim)
-          + vec3(0.9, 0.95, 1.05) * uLift * dark
+        vec3 col = moonRgb * moon.a * (1.0 - caveDim)
+          + liftCol * uLift * dark
           + winGlow * uBright * uWinBright
           + content * reveal * uBright * flicker * uWordOn;
         // Iris reveal: a fully clear hole in the disc centre (radius uIrisR
@@ -1882,6 +1931,10 @@
     get program() { return progName; },
     get programRot() { return progApplied; },
     get iris() { return +uniforms.uIris.value; },
+    get blood() { return +uniforms.uBlood.value; },
+    get bloodTarget() { return bloodTarget; },
+    get bloodSec() { return BLOOD_SEC; },
+    bloodDemoSec: BLOOD_DEMO_SEC || null,
     get stream() { return streamStatus; },
     get audio() { return { bass: audio.bass, mid: audio.mid, high: audio.high, level: audio.level, beatEnv: audio.beatEnv, react: REACT, mic: MIC }; },
     moonReady: false
@@ -2429,6 +2482,8 @@
     updatePeek(t, dt);
     adaptBleed(t);
     updateVajras(t);
+    updateBloodMoon();
+    uniforms.uBlood.value = bloodAmount;
     // Ease the iris toward its target over ~IRIS_SEC with a smooth ramp.
     {
       const cur = uniforms.uIris.value;
@@ -2493,6 +2548,12 @@
     if (APPARITION > 0) q.set("apparition", APPARITION.toFixed(1));
     if (PEEK > 0 && WIN) q.set("peek", PEEK.toFixed(0));
     if (CONTENT_KEY === "crt") q.set("when", WHEN);
+    if (bloodTarget !== 0 || bloodAmount !== 0) {
+      if (bloodTarget === 1) q.set("blood", "1");
+      if (BLOOD_DEMO_SEC > 0) q.set("blooddemo", String(BLOOD_DEMO_SEC));
+      if (bloodAmount > 0 && bloodAmount === bloodTarget) q.set("bloodt", bloodAmount.toFixed(3));
+      if (BLOOD_SEC !== 7200) q.set("bloodsec", String(BLOOD_SEC));
+    }
     for (const k in extraState) {
       if (extraState[k] != null && !q.has(k)) q.set(k, String(extraState[k]));
     }
@@ -2535,7 +2596,10 @@
       programLen: progSchedule ? progSchedule.length : 0,
       rotSeconds: rotationPeriod() / Math.max(SPEED, 0.001),
       streaming: !!streamSession,
-      streamStatus: streamStatus
+      streamStatus: streamStatus,
+      blood: bloodAmount,
+      bloodTarget: bloodTarget,
+      bloodSec: BLOOD_SEC
     }, extraState);
   }
 
@@ -2548,6 +2612,7 @@
       sources: { video: MOON_SRC, word: MOSAIC_WORD, content: CONTENT_SRC }
     });
   }
+  bloodReport = announce;
 
   function applyLiveConfig(set) {
     if (!set || typeof set !== "object") return;
@@ -2600,6 +2665,19 @@
           if (crt) crt.setWhen();
           break;
         case "program": setProgram(v); break;
+        case "blood":
+        case "bloodt":
+          bloodAmount = Math.max(0, Math.min(1, +v || 0));
+          bloodTarget = bloodAmount;
+          bloodTransition = null;
+          uniforms.uBlood.value = bloodAmount;
+          break;
+        case "bloodsec":
+          BLOOD_SEC = Math.max(0.1, +v || BLOOD_SEC);
+          break;
+        case "bloodTarget":
+          setBloodTarget(v, BLOOD_SEC);
+          break;
         case "content":
           // Manual content choice takes over from any running program.
           setProgram("");
