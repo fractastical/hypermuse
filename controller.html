@@ -552,6 +552,18 @@
             <td colspan="3" style="padding:2px 8px;color:rgba(207,233,255,0.45);">fades the whole moon out, revealing the backdrop gifs behind it</td>
           </tr>
           <tr>
+            <td style="padding:2px 8px;color:rgba(207,233,255,0.62);">blood moon</td>
+            <td><input type="range" class="hm-slider" id="hmBloodMoon" data-key="bloodmoon" min="0" max="1" step="0.01" style="width:130px;"/></td>
+            <td style="padding:2px 8px;"><span id="hmBloodMoonVal">–</span></td>
+            <td colspan="3" style="padding:2px 8px;">
+              <input type="button" id="hmBloodMoonButton" value="&#127765;&#8594;&#128308; blood moon"
+                title="eases the whole disc to the copper-red eclipse grade (craters and the word mosaic keep their relief)"/>
+              <input type="button" id="hmBloodClearButton" value="natural moon"
+                title="back to the ungraded gray moon"/>
+              tint <input type="color" id="hmBloodTint" value="#ff2c12" title="eclipse color - deep red by default"/>
+            </td>
+          </tr>
+          <tr>
             <td style="padding:2px 8px;color:rgba(207,233,255,0.62);">iris reveal</td>
             <td><input type="range" class="hm-slider" id="hmIris" data-key="iris" min="0" max="1" step="0.01" style="width:130px;"/></td>
             <td style="padding:2px 8px;"><span id="hmIrisVal">–</span></td>
@@ -2140,6 +2152,7 @@ const HM_FMT = {
     thresh: function(v) { return v.toFixed(3); }, feather: function(v) { return v.toFixed(3); },
     lift: function(v) { return v.toFixed(3); }, flicker: function(v) { return v.toFixed(2); },
     alpha: function(v) { return Math.round(v * 100) + '%'; },
+    bloodmoon: function(v) { return v <= 0 ? 'off' : Math.round(v * 100) + '%'; },
     iris: function(v) { return Math.round(v * 100) + '%'; },
     irisr: function(v) { return Math.round(v * 100) + '% of disc'; },
     iriszoom: function(v) { return v.toFixed(2) + '\u00d7'; },
@@ -2196,6 +2209,25 @@ document.getElementById('hmEyeRevealButton').addEventListener('click', function(
 });
 document.getElementById('hmIrisSealButton').addEventListener('click', function() {
     if (hmChannel) hmChannel.postMessage({ type: 'moonConfig', set: { iris: 0 } });
+});
+
+// Blood moon: one click to the full eclipse grade, one click back. The
+// slider (data-key=bloodmoon) blends partway; the color picker retints live.
+document.getElementById('hmBloodMoonButton').addEventListener('click', function() {
+    const tint = document.getElementById('hmBloodTint').value.slice(1);
+    if (hmChannel) hmChannel.postMessage({ type: 'moonConfig', set: { bloodtint: tint, bloodmoon: 1 } });
+    const s = document.getElementById('hmBloodMoon');
+    s.value = 1;
+    document.getElementById('hmBloodMoonVal').textContent = HM_FMT.bloodmoon(1);
+});
+document.getElementById('hmBloodClearButton').addEventListener('click', function() {
+    if (hmChannel) hmChannel.postMessage({ type: 'moonConfig', set: { bloodmoon: 0 } });
+    const s = document.getElementById('hmBloodMoon');
+    s.value = 0;
+    document.getElementById('hmBloodMoonVal').textContent = HM_FMT.bloodmoon(0);
+});
+document.getElementById('hmBloodTint').addEventListener('input', function() {
+    if (hmChannel) hmChannel.postMessage({ type: 'moonConfig', set: { bloodtint: this.value.slice(1) } });
 });
 
 function hmApplySources() {
@@ -2609,6 +2641,8 @@ if (hmChannel) {
         if (sources.content != null && document.activeElement !== contentEl) contentEl.value = sources.content;
         const backdropEl = document.getElementById('hmBackdropInput');
         if (state.backdrop != null && document.activeElement !== backdropEl) backdropEl.value = state.backdrop;
+        const bloodTintEl = document.getElementById('hmBloodTint');
+        if (state.bloodtint && document.activeElement !== bloodTintEl) bloodTintEl.value = '#' + state.bloodtint;
         const progEl = document.getElementById('hmProgramSelect');
         if (state.program != null && document.activeElement !== progEl) progEl.value = state.program;
         if (state.rotSeconds > 0) { hmRotSeconds = state.rotSeconds; hmProgRefresh(); }

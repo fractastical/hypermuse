@@ -149,6 +149,11 @@
   let IRIS_R = num("irisr", 0.7);
   let IRIS_FEATHER = num("irisfeather", 0.22);
   let IRIS_SEC = Math.max(0.1, num("irissec", 2.5));
+  // Blood moon (?bloodmoon=0..1, ?bloodtint=RRGGBB): grades the whole disc
+  // render toward a copper-red eclipse color, preserving luminance so the
+  // craters and the letter mosaic keep their relief. 0 = natural moon.
+  let BLOOD_TINT = String(params.get("bloodtint") || "ff2c12").replace(/[^0-9a-fA-F]/g, "") || "ff2c12";
+  let BLOOD_AMT = Math.max(0, Math.min(1, num("bloodmoon", 0)));
 
   // alpha:true so the canvas clears transparent and the gif backdrop shows
   // through wherever the moon isn't (or is faded via ?alpha=).
@@ -1422,7 +1427,10 @@
     // radius) and the feather width beyond it.
     uIris: { value: IRIS_TARGET },
     uIrisR: { value: IRIS_R },
-    uIrisFeather: { value: IRIS_FEATHER }
+    uIrisFeather: { value: IRIS_FEATHER },
+    // Blood-moon grade: eclipse tint color + blend amount.
+    uBlood: { value: new THREE.Color("#" + BLOOD_TINT) },
+    uBloodAmt: { value: BLOOD_AMT }
   };
 
   // Audio reactivity modulates uBright/uLift/uWinBright every frame, so the
@@ -1587,7 +1595,8 @@
       uniform sampler2D uMoon, uContent, uWinTex;
       uniform float uThresh, uFeather, uBright, uFlicker, uScroll, uTime, uIsVideoContent, uTint, uLift, uSphere, uRot;
       uniform float uWin, uWinDepth, uWinGrow, uWinAspect, uWinBright, uWordOn, uGate, uAlpha;
-      uniform float uIris, uIrisR, uIrisFeather;
+      uniform float uIris, uIrisR, uIrisFeather, uBloodAmt;
+      uniform vec3 uBlood;
       uniform vec3 uColor, uDisc, uSpot;
       uniform vec4 uRect;
       uniform vec2 uAnchor, uAng;
@@ -1686,6 +1695,11 @@
         // so the backdrop gif shows through while the rim keeps reading as
         // the moon. The hole radius grows with openness so a partial iris is
         // a smaller clear circle, not a milky full-size one.
+        // Blood-moon grade: remap the finished disc render to its luminance
+        // times the eclipse tint (slightly lifted so the red doesn't crush),
+        // like sunlight refracted through the earth's atmosphere.
+        float bloodLum = dot(col, vec3(0.2126, 0.7152, 0.0722));
+        col = mix(col, uBlood * pow(bloodLum, 0.85) * 1.25, uBloodAmt);
         float rr = length(d) / max(uDisc.z, 1e-4);
         float irisHole = uIris * (1.0 - smoothstep(uIrisR * uIris, uIrisR * uIris + uIrisFeather, rr));
         // Premultiplied output: alpha follows the moon body so the DOM
@@ -2470,6 +2484,10 @@
     if (IRIS_FEATHER !== 0.22) q.set("irisfeather", IRIS_FEATHER.toFixed(2));
     if (IRIS_ZOOM !== 2.5) q.set("iriszoom", IRIS_ZOOM.toFixed(2));
     if (MOON_SCALE !== 1) q.set("moonscale", MOON_SCALE.toFixed(2));
+    if (BLOOD_AMT > 0) {
+      q.set("bloodmoon", BLOOD_AMT.toFixed(2));
+      if (BLOOD_TINT !== "ff2c12") q.set("bloodtint", BLOOD_TINT);
+    }
     if (BACKDROP_SRC) {
       q.set("backdrop", BACKDROP_SRC);
       if (BACK_SCALE !== 1) q.set("backscale", BACK_SCALE.toFixed(2));
@@ -2512,6 +2530,8 @@
       irisfeather: IRIS_FEATHER,
       iriszoom: IRIS_ZOOM,
       moonscale: MOON_SCALE,
+      bloodmoon: BLOOD_AMT,
+      bloodtint: BLOOD_TINT,
       backdrop: BACKDROP_SRC,
       backscale: BACK_SCALE,
       backalpha: BACK_ALPHA,
@@ -2565,6 +2585,12 @@
         case "iris": IRIS_TARGET = Math.max(0, Math.min(1, v)); break;
         case "irisr": IRIS_R = Math.max(0.1, Math.min(1, v)); uniforms.uIrisR.value = IRIS_R; break;
         case "irisfeather": IRIS_FEATHER = Math.max(0.01, v); uniforms.uIrisFeather.value = IRIS_FEATHER; break;
+        case "bloodmoon": BLOOD_AMT = Math.max(0, Math.min(1, v)); uniforms.uBloodAmt.value = BLOOD_AMT; break;
+        case "bloodtint": {
+          const hex = String(v).replace(/[^0-9a-fA-F]/g, "");
+          if (hex.length === 6 || hex.length === 3) { BLOOD_TINT = hex; uniforms.uBlood.value.set("#" + hex); }
+          break;
+        }
         case "irissec": IRIS_SEC = Math.max(0.1, v); break;
         case "backdrop": setBackdrop(v); break;
         case "backscale": BACK_SCALE = Math.max(0.05, v); break;

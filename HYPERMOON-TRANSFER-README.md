@@ -31,6 +31,10 @@ latest versions). Then:
   act content — it triggers the iris reveal instead of the window.
 - **Sub-pixel disc centering**: the iris hole / backdrop alignment no longer
   drifts by a few pixels at fullscreen.
+- **Blood moon**: `🌕→🔴 blood moon` / `natural moon` buttons + a strength
+  slider and tint color picker — grades the whole disc to a copper-red
+  eclipse look, live, on any of the moon videos (`?bloodmoon=0..1`,
+  `?bloodtint=RRGGBB`). Craters and the word mosaic keep their relief.
 - **Fold loop clips** (`artifacts/fold-loops/*.mp4`): the fold repertoire
   pre-baked as square videos incl. red wireframe variants — usable as window
   content or backdrops on machines without the live makers.
