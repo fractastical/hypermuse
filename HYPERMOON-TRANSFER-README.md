@@ -35,6 +35,11 @@ latest versions). Then:
   slider and tint color picker — grades the whole disc to a copper-red
   eclipse look, live, on any of the moon videos (`?bloodmoon=0..1`,
   `?bloodtint=RRGGBB`). Craters and the word mosaic keep their relief.
+- **Blood fade timer**: `▶ fade to blood` / `▶ fade to natural` over N
+  minutes (default 120 — a two-hour eclipse), `✖ hold` freezes it where it
+  is. The fade runs inside the output window, so the controller can be
+  closed once it's started; the export query resumes a mid-fade eclipse
+  after a reload (`?bloodmoon=&bloodtarget=&bloodfade=`).
 - **Fold loop clips** (`artifacts/fold-loops/*.mp4`): the fold repertoire
   pre-baked as square videos incl. red wireframe variants — usable as window
   content or backdrops on machines without the live makers.

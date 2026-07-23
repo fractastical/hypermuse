@@ -564,6 +564,20 @@
             </td>
           </tr>
           <tr>
+            <td style="padding:2px 8px;color:rgba(207,233,255,0.62);">blood fade timer</td>
+            <td colspan="5" style="padding:2px 8px;">
+              over <input type="number" id="hmBloodFadeMin" value="120" min="1" max="720" step="1" style="width:52px;"
+                title="minutes for the full fade - 120 = a two-hour eclipse"/> min
+              <input type="button" id="hmBloodFadeRed" value="&#9654; fade to blood"
+                title="starts a slow fade to the full eclipse grade - runs in the output window, so this panel can be closed once started"/>
+              <input type="button" id="hmBloodFadeBack" value="&#9654; fade to natural"
+                title="the same slow fade back to the gray moon"/>
+              <input type="button" id="hmBloodFadeStop" value="&#10006; hold"
+                title="freezes the grade wherever the fade has reached"/>
+              <span id="hmBloodFadeStatus" style="color:rgba(255,120,90,0.8);font-size:10px;"></span>
+            </td>
+          </tr>
+          <tr>
             <td style="padding:2px 8px;color:rgba(207,233,255,0.62);">iris reveal</td>
             <td><input type="range" class="hm-slider" id="hmIris" data-key="iris" min="0" max="1" step="0.01" style="width:130px;"/></td>
             <td style="padding:2px 8px;"><span id="hmIrisVal">–</span></td>
@@ -2230,6 +2244,29 @@ document.getElementById('hmBloodTint').addEventListener('input', function() {
     if (hmChannel) hmChannel.postMessage({ type: 'moonConfig', set: { bloodtint: this.value.slice(1) } });
 });
 
+// Timed eclipse: fade the blood grade to a target over N minutes. The fade
+// itself runs in the output window (bloodfade/bloodtarget), so it survives
+// this panel closing; moving the blood moon slider or the instant buttons
+// cancels it by pinning the grade.
+function hmBloodFade(target) {
+    const min = Math.max(0.05, parseFloat(document.getElementById('hmBloodFadeMin').value) || 120);
+    if (hmChannel) hmChannel.postMessage({ type: 'moonConfig', set: {
+        bloodtint: document.getElementById('hmBloodTint').value.slice(1),
+        bloodfade: min * 60,
+        bloodtarget: target
+    } });
+    const eta = new Date(Date.now() + min * 60000);
+    document.getElementById('hmBloodFadeStatus').textContent =
+        '\u25CF fading to ' + (target > 0 ? 'blood' : 'natural') + ' \u2014 full at ' +
+        eta.toTimeString().slice(0, 5);
+}
+document.getElementById('hmBloodFadeRed').addEventListener('click', function() { hmBloodFade(1); });
+document.getElementById('hmBloodFadeBack').addEventListener('click', function() { hmBloodFade(0); });
+document.getElementById('hmBloodFadeStop').addEventListener('click', function() {
+    if (hmChannel) hmChannel.postMessage({ type: 'moonConfig', set: { bloodstop: 1 } });
+    document.getElementById('hmBloodFadeStatus').textContent = '\u25A0 held';
+});
+
 function hmApplySources() {
     if (!hmChannel) return;
     hmChannel.postMessage({ type: 'moonConfig', sources: {
@@ -2643,6 +2680,17 @@ if (hmChannel) {
         if (state.backdrop != null && document.activeElement !== backdropEl) backdropEl.value = state.backdrop;
         const bloodTintEl = document.getElementById('hmBloodTint');
         if (state.bloodtint && document.activeElement !== bloodTintEl) bloodTintEl.value = '#' + state.bloodtint;
+        if (state.bloodtarget != null && state.bloodmoon != null) {
+            const fading = Math.abs(state.bloodtarget - state.bloodmoon) > 0.001;
+            if (fading) {
+                const minsLeft = state.bloodfade > 0
+                    ? Math.abs(state.bloodtarget - state.bloodmoon) * state.bloodfade / 60 : 0;
+                document.getElementById('hmBloodFadeStatus').textContent =
+                    '\u25CF fading to ' + Math.round(state.bloodtarget * 100) + '% \u2014 now ' +
+                    Math.round(state.bloodmoon * 100) + '%' +
+                    (minsLeft ? ', ~' + Math.ceil(minsLeft) + ' min left' : '');
+            }
+        }
         const progEl = document.getElementById('hmProgramSelect');
         if (state.program != null && document.activeElement !== progEl) progEl.value = state.program;
         if (state.rotSeconds > 0) { hmRotSeconds = state.rotSeconds; hmProgRefresh(); }

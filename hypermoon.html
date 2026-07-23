@@ -154,6 +154,12 @@
   // craters and the letter mosaic keep their relief. 0 = natural moon.
   let BLOOD_TINT = String(params.get("bloodtint") || "ff2c12").replace(/[^0-9a-fA-F]/g, "") || "ff2c12";
   let BLOOD_AMT = Math.max(0, Math.min(1, num("bloodmoon", 0)));
+  // Timed fade (?bloodtarget=0..1&bloodfade=seconds): the render walks the
+  // grade toward the target at full-scale/bloodfade per second - e.g.
+  // bloodtarget=1&bloodfade=7200 reddens over a 2 h window. The fade runs in
+  // this window, so the controller can be closed once it's started.
+  let BLOOD_SEC = Math.max(0, num("bloodfade", 0));
+  let BLOOD_TARGET = Math.max(0, Math.min(1, num("bloodtarget", BLOOD_AMT)));
 
   // alpha:true so the canvas clears transparent and the gif backdrop shows
   // through wherever the moon isn't (or is faded via ?alpha=).
@@ -2451,6 +2457,16 @@
         ? IRIS_TARGET
         : cur + Math.sign(IRIS_TARGET - cur) * step;
     }
+    // Walk the blood-moon grade toward its target (instant when BLOOD_SEC=0)
+    // - this is what carries the multi-hour eclipse fades.
+    if (uniforms.uBloodAmt.value !== BLOOD_TARGET) {
+      const cur = uniforms.uBloodAmt.value;
+      const step = BLOOD_SEC > 0 ? dt / BLOOD_SEC : 1;
+      uniforms.uBloodAmt.value = Math.abs(BLOOD_TARGET - cur) <= step
+        ? BLOOD_TARGET
+        : cur + Math.sign(BLOOD_TARGET - cur) * step;
+      BLOOD_AMT = uniforms.uBloodAmt.value;
+    }
     centerQuad();
     positionBackdrop();
     zoomBackdrop();
@@ -2487,6 +2503,11 @@
     if (BLOOD_AMT > 0) {
       q.set("bloodmoon", BLOOD_AMT.toFixed(2));
       if (BLOOD_TINT !== "ff2c12") q.set("bloodtint", BLOOD_TINT);
+    }
+    // Mid-fade: the export query resumes the eclipse from where it is now.
+    if (BLOOD_TARGET !== BLOOD_AMT && BLOOD_SEC > 0) {
+      q.set("bloodtarget", BLOOD_TARGET.toFixed(2));
+      q.set("bloodfade", Math.round(BLOOD_SEC));
     }
     if (BACKDROP_SRC) {
       q.set("backdrop", BACKDROP_SRC);
@@ -2532,6 +2553,8 @@
       moonscale: MOON_SCALE,
       bloodmoon: BLOOD_AMT,
       bloodtint: BLOOD_TINT,
+      bloodtarget: BLOOD_TARGET,
+      bloodfade: BLOOD_SEC,
       backdrop: BACKDROP_SRC,
       backscale: BACK_SCALE,
       backalpha: BACK_ALPHA,
@@ -2585,7 +2608,10 @@
         case "iris": IRIS_TARGET = Math.max(0, Math.min(1, v)); break;
         case "irisr": IRIS_R = Math.max(0.1, Math.min(1, v)); uniforms.uIrisR.value = IRIS_R; break;
         case "irisfeather": IRIS_FEATHER = Math.max(0.01, v); uniforms.uIrisFeather.value = IRIS_FEATHER; break;
-        case "bloodmoon": BLOOD_AMT = Math.max(0, Math.min(1, v)); uniforms.uBloodAmt.value = BLOOD_AMT; break;
+        case "bloodmoon": BLOOD_AMT = Math.max(0, Math.min(1, v)); BLOOD_TARGET = BLOOD_AMT; uniforms.uBloodAmt.value = BLOOD_AMT; break;
+        case "bloodfade": BLOOD_SEC = Math.max(0, v); break;
+        case "bloodtarget": BLOOD_TARGET = Math.max(0, Math.min(1, v)); break;
+        case "bloodstop": BLOOD_TARGET = uniforms.uBloodAmt.value; BLOOD_AMT = BLOOD_TARGET; break;
         case "bloodtint": {
           const hex = String(v).replace(/[^0-9a-fA-F]/g, "");
           if (hex.length === 6 || hex.length === 3) { BLOOD_TINT = hex; uniforms.uBlood.value.set("#" + hex); }
