@@ -40,6 +40,11 @@ latest versions). Then:
   is. The fade runs inside the output window, so the controller can be
   closed once it's started; the export query resumes a mid-fade eclipse
   after a reload (`?bloodmoon=&bloodtarget=&bloodfade=`).
+- **Dancing mumins** (`?content=mumins`, or "dancing mumins" in the window
+  content dropdown): a ring of little round trolls hopping in a circle on the
+  dark side. Drawn in-page, so there's no asset to copy — `?mumins=1..9` sets
+  the troupe size and `?muminbpm=` the dance tempo. The window opens wider
+  than usual for them; the `window size ×` slider trims it.
 - **Fold loop clips** (`artifacts/fold-loops/*.mp4`): the fold repertoire
   pre-baked as square videos incl. red wireframe variants — usable as window
   content or backdrops on machines without the live makers.

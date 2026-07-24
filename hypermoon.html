@@ -26,7 +26,7 @@
   let CONTENT_SRC = params.get("content") || "";
   const CONTENT_KEY = CONTENT_SRC.trim().toLowerCase();
   const KEYWORD_CONTENT = [
-    "crt", "vajra", "incant", "screen",
+    "crt", "vajra", "incant", "screen", "mumins",
     "fold", "foldsonic", "foldhelix", "foldjitter", "foldgeo", "foldivm"
   ].includes(CONTENT_KEY);
   const MOSAIC_OFF = params.get("mosaic") === "0";
@@ -71,7 +71,7 @@
   let WIN = !!CONTENT_SRC && !TEXT_PARAM && (KEYWORD_CONTENT || !MOSAIC_OFF);
   // incant and the bucky folds render without the letter panel: the
   // geometry/mantra is the show, no word text over it.
-  const wordlessKey = (k) => k === "incant" || /^fold/.test(k);
+  const wordlessKey = (k) => k === "incant" || k === "mumins" || /^fold/.test(k);
   let WORDLESS_WIN = WIN && (wordlessKey(CONTENT_KEY) || MOSAIC_OFF);
   const useMosaic = !TEXT_PARAM && (!CONTENT_SRC || WIN);
   // Window/reveal behavior (all live-adjustable from the controller):
@@ -598,6 +598,110 @@
       texture: tex, aspect: W / H,
       advance() { idx++; redraw(); }
     };
+  }
+
+  // Dancing mumins (content=mumins): a chorus line of little round trolls
+  // hopping across the window, drawn procedurally so there is no asset to
+  // ship and the troupe can be resized live. Everything is painted on a
+  // transparent canvas because the shader adds the window texture as glow —
+  // so the bodies luminesce on the dark side and the eyes are punched back
+  // out with destination-out to read as holes.
+  const MUMIN_COUNT = Math.max(1, Math.min(9, Math.round(num("mumins", 3))));
+  const MUMIN_BPM = Math.max(20, num("muminbpm", 100));
+  function makeMumins() {
+    // Square canvas with the troupe in a middle band: the window cover-crops
+    // to its own box, so the empty margins get trimmed instead of the line.
+    const W = 1024, H = 1024;
+    const canvas = document.createElement("canvas");
+    canvas.width = W;
+    canvas.height = H;
+    const ctx = canvas.getContext("2d");
+    const tex = new THREE.CanvasTexture(canvas);
+    tex.minFilter = THREE.LinearFilter;
+    // Pale moon-milk tints, one per dancer, so the line reads as a troupe.
+    const TINTS = ["#fdf5e7", "#e6f1ff", "#ffe6f0", "#e8fff2", "#fff4d6", "#f0e8ff", "#e6fbff", "#fff0e0", "#f6ffe6"];
+
+    function limb(x0, y0, x1, y1, r) {
+      ctx.beginPath();
+      ctx.lineCap = "round";
+      ctx.lineWidth = r * 2;
+      ctx.strokeStyle = ctx.fillStyle;
+      ctx.moveTo(x0, y0);
+      ctx.lineTo(x1, y1);
+      ctx.stroke();
+    }
+    function blob(x, y, rx, ry, rot) {
+      ctx.beginPath();
+      ctx.ellipse(x, y, rx, ry, rot || 0, 0, Math.PI * 2);
+      ctx.fill();
+    }
+
+    // One dancer, drawn about its own feet at (cx, cy). ph drives the whole
+    // step: hop, lean, arm swing and the alternating kick.
+    function drawMumin(cx, cy, s, ph, tint, faceLeft) {
+      const hop = Math.abs(Math.sin(ph)) * 0.16 * s;
+      const lean = Math.sin(ph * 0.5) * 0.15;
+      const squash = 1 + 0.07 * Math.sin(ph * 2);
+      const swing = Math.sin(ph);
+      ctx.save();
+      ctx.translate(cx, cy - hop);
+      ctx.rotate(lean * 0.3);
+      if (faceLeft) ctx.scale(-1, 1);
+      ctx.scale(1 / squash, squash);
+      ctx.fillStyle = tint;
+      // legs kick alternately, so the troupe looks like it is stepping
+      limb(-0.11 * s, -0.30 * s, -0.15 * s + swing * 0.10 * s, -0.02 * s + Math.max(0, swing) * -0.10 * s, 0.075 * s);
+      limb(0.11 * s, -0.30 * s, 0.15 * s - swing * 0.10 * s, -0.02 * s + Math.max(0, -swing) * -0.10 * s, 0.075 * s);
+      // arms swing opposite the legs, thrown up on the beat
+      limb(-0.27 * s, -0.62 * s, -0.44 * s, -0.62 * s - swing * 0.22 * s, 0.065 * s);
+      limb(0.27 * s, -0.62 * s, 0.44 * s, -0.62 * s + swing * 0.22 * s, 0.065 * s);
+      // pear body, round head, and the big snout that makes the silhouette
+      blob(0, -0.46 * s, 0.30 * s, 0.34 * s);
+      blob(0, -0.92 * s, 0.29 * s, 0.27 * s);
+      blob(0.17 * s, -0.86 * s, 0.25 * s, 0.17 * s);
+      // ears
+      blob(-0.16 * s, -1.14 * s, 0.075 * s, 0.11 * s, -0.35);
+      blob(0.11 * s, -1.16 * s, 0.075 * s, 0.11 * s, 0.25);
+      // little tail
+      limb(-0.27 * s, -0.42 * s, -0.38 * s, -0.34 * s, 0.045 * s);
+      // eyes punched out of the glow
+      ctx.globalCompositeOperation = "destination-out";
+      blob(0.02 * s, -0.98 * s, 0.035 * s, 0.05 * s);
+      blob(0.17 * s, -1.00 * s, 0.035 * s, 0.05 * s);
+      ctx.globalCompositeOperation = "source-over";
+      ctx.restore();
+    }
+
+    // A ring dance rather than a chorus line: the troupe stays compact in the
+    // middle of the frame, so the window's cover-crop can't cut half of it
+    // off however the shadow patch is shaped.
+    function draw(t) {
+      ctx.clearRect(0, 0, W, H);
+      const beat = t * (MUMIN_BPM / 60) * Math.PI * 2;
+      const spin = t * 0.3;
+      const R = W * 0.24, cx = W / 2, cy = H * 0.54;
+      const base = Math.min(H * 0.34, (W / (MUMIN_COUNT + 1.1)) * 1.15);
+      const ring = [];
+      for (let i = 0; i < MUMIN_COUNT; i++) {
+        ring.push({ i, a: spin + i * (Math.PI * 2 / MUMIN_COUNT) });
+      }
+      // paint back to front so the near dancers overlap the far ones
+      ring.sort((p, q) => Math.sin(p.a) - Math.sin(q.a));
+      for (const d of ring) {
+        const near = Math.sin(d.a) * 0.5 + 0.5;
+        drawMumin(
+          cx + Math.cos(d.a) * R,
+          cy + Math.sin(d.a) * R * 0.34 + base * 0.5,
+          base * (0.82 + 0.3 * near),
+          beat - d.i * 0.7,
+          TINTS[d.i % TINTS.length],
+          Math.cos(d.a) > 0 // dancers on the right face back into the circle
+        );
+      }
+      tex.needsUpdate = true;
+    }
+    draw(0);
+    return { texture: tex, draw, aspect: W / H };
   }
 
   // Synergetics fold (content=fold): Fuller's 100.41 — a wireframe triangle
@@ -1146,6 +1250,7 @@
   let crt = (WIN && CONTENT_KEY === "crt") ? makeCrtTexture() : null;
   let cave = (WIN && CONTENT_KEY === "vajra") ? makeVajraCave() : null;
   let incant = (WIN && CONTENT_KEY === "incant") ? makeIncantTexture() : null;
+  let mumins = (WIN && CONTENT_KEY === "mumins") ? makeMumins() : null;
   const SONIC_LOOP = "artifacts/sample-sonicsphere-silent.webm";
   const FOLD_MAKERS = {
     fold: () => makeFold(),
@@ -1370,11 +1475,13 @@
   const winTexture = crt ? crt.texture
     : cave ? cave.texture
     : incant ? incant.texture
+    : mumins ? mumins.texture
     : fold ? fold.texture
     : (WIN && contentVideo) ? contentVideo.texture
     : (WIN && imageTextures.length) ? imageTextures[0]
     : null;
-  const winAspect0 = crt ? crt.aspect : cave ? cave.aspect : incant ? incant.aspect : fold ? fold.aspect : 16 / 9;
+  const winAspect0 = crt ? crt.aspect : cave ? cave.aspect : incant ? incant.aspect
+    : mumins ? mumins.aspect : fold ? fold.aspect : 16 / 9;
 
   const uniforms = {
     uMoon: { value: moon.texture },
@@ -1420,7 +1527,9 @@
     // The in-page generators are dark-background and need heat; photographed
     // pages and bright video need much less or they glare off the surface.
     uWinBright: {
-      value: num("winbright", KEYWORD_CONTENT ? 0.42 : isImageContent ? 0.14 : 0.24)
+      // The mumins are near-white fills, so they need far less heat than the
+      // dark-background generators or they clip to a blob.
+      value: num("winbright", CONTENT_KEY === "mumins" ? 0.3 : KEYWORD_CONTENT ? 0.42 : isImageContent ? 0.14 : 0.24)
     },
     uWordOn: { value: WORDLESS_WIN ? 0 : 1 }, // letter panel opacity
     uGate: { value: APPARITION > 0 ? 0 : 1 }, // apparition reveal gate
@@ -1505,7 +1614,7 @@
       if (screenCap.hint) screenCap.hint.remove();
     }
     if (fold) fold.dispose();
-    crt = null; cave = null; incant = null; fold = null; contentVideo = null; screenCap = null;
+    crt = null; cave = null; incant = null; mumins = null; fold = null; contentVideo = null; screenCap = null;
     imageTextures = [];
   }
   function setWindowContent(spec, wordlessOverride) {
@@ -1523,6 +1632,13 @@
     if (key === "crt") crt = makeCrtTexture();
     else if (key === "vajra") cave = makeVajraCave();
     else if (key === "incant") incant = makeIncantTexture();
+    else if (key === "mumins") {
+      mumins = makeMumins();
+      bright = 0.3;
+      // Same reason as the boot default: the ring needs a wider window than
+      // the measured shadow patch. Only nudge an untouched slider.
+      if (WIN_SCALE === 1) WIN_SCALE = 1.6;
+    }
     else if (FOLD_MAKERS[key]) { fold = FOLD_MAKERS[key](); bright = 0.55; }
     else if (key === "screen") { screenCap = makeScreenCapture(); bright = 0.5; }
     else if (spec) {
@@ -1549,12 +1665,14 @@
     uniforms.uWinTex.value = crt ? crt.texture
       : cave ? cave.texture
       : incant ? incant.texture
+      : mumins ? mumins.texture
       : fold ? fold.texture
       : screenCap ? screenCap.texture
       : contentVideo ? contentVideo.texture
       : imageTextures.length ? imageTextures[0]
       : moon.texture;
-    uniforms.uWinAspect.value = crt ? crt.aspect : cave ? cave.aspect : incant ? incant.aspect : fold ? fold.aspect : 16 / 9;
+    uniforms.uWinAspect.value = crt ? crt.aspect : cave ? cave.aspect : incant ? incant.aspect
+      : mumins ? mumins.aspect : fold ? fold.aspect : 16 / 9;
     if (WINBRIGHT_PARAM == null) { uniforms.uWinBright.value = bright; winBrightBase = bright; }
     uniforms.uWordOn.value = WORDLESS_WIN ? 0 : 1;
     // Sensible cycle defaults unless the URL pinned them explicitly.
@@ -2046,7 +2164,9 @@
   const angTarget = { w: ANG_W, h: ANG_H };
   // Master multiplier on the window/word footprint, live from the
   // controller: 1 = as measured, 2 = twice the angular size.
-  let WIN_SCALE = num("winscale", 1);
+  // The mumins need a wider window than the auto-measured shadow patch or
+  // the ring gets cropped to a single dancer.
+  let WIN_SCALE = num("winscale", CONTENT_KEY === "mumins" ? 1.6 : 1);
   let haveAnchor = false;
   let anchorLocked = false;
   let lastSampleT = -Infinity;
@@ -2379,6 +2499,7 @@
     }
     if (crt) crt.draw(t);
     if (cave) cave.draw(t);
+    if (mumins) mumins.draw(t);
     if (fold) fold.draw(t);
     const cnv = soloCtx.canvas;
     if (cnv.width !== window.innerWidth || cnv.height !== window.innerHeight) {
@@ -2387,7 +2508,7 @@
     }
     soloCtx.fillStyle = "#020411";
     soloCtx.fillRect(0, 0, cnv.width, cnv.height);
-    const maker = fold || crt || cave || incant;
+    const maker = fold || crt || cave || mumins || incant;
     const src = maker && maker.texture && maker.texture.image;
     if (src && src.width) {
       // cover-crop the (square) maker canvas into the viewport
@@ -2423,6 +2544,7 @@
     }
     if (crt) crt.draw(t);
     if (cave) cave.draw(t);
+    if (mumins) mumins.draw(t);
     if (fold) { fold.draw(t); window.__fold = fold; }
     pollMic();
     updateAudio(dt);
