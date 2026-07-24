@@ -636,6 +636,12 @@
             <td style="padding:2px 8px;"><span id="hmWinScaleVal">–</span></td>
             <td colspan="3" style="padding:2px 8px;color:rgba(207,233,255,0.45);">master multiplier on the dark-side window — drag right to enlarge the bleed-through live</td>
           </tr>
+          <tr>
+            <td style="padding:2px 8px;color:rgba(207,233,255,0.62);">window solidity</td>
+            <td><input type="range" class="hm-slider" id="hmWinSolid" data-key="winsolid" min="0" max="1" step="0.05" style="width:130px;"/></td>
+            <td style="padding:2px 8px;"><span id="hmWinSolidVal">–</span></td>
+            <td colspan="3" style="padding:2px 8px;color:rgba(207,233,255,0.45);">0 = content glows through as light (screens, wireframes), 1 = painted opaque on the surface (drawn figures)</td>
+          </tr>
         </table>
         <div style="margin-top:6px;border-top:1px solid rgba(207,233,255,0.12);padding-top:5px;">
           <b style="font-size:11px;">program editor</b>
@@ -2178,7 +2184,8 @@ const HM_FMT = {
     backspeed: function(v) { return v.toFixed(2) + '\u00d7'; },
     lon: function(v) { return v.toFixed(0); }, lat: function(v) { return v.toFixed(0); },
     angw: function(v) { return v.toFixed(2); }, angh: function(v) { return v.toFixed(2); },
-    winscale: function(v) { return v.toFixed(2) + '×'; }
+    winscale: function(v) { return v.toFixed(2) + '×'; },
+    winsolid: function(v) { return v <= 0 ? 'glow' : v >= 1 ? 'solid' : Math.round(v * 100) + '% solid'; }
 };
 
 document.querySelectorAll('#hypermoonPanel .hm-slider').forEach(function(slider) {

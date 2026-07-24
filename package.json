@@ -5,6 +5,9 @@
   "scripts": {
     "start": "npx http-server -c-1 -p 8080 .",
     "kiosk:hypermoon": "open -na \"Google Chrome\" --args --kiosk --user-data-dir=/tmp/hypermoon-kiosk --autoplay-policy=no-user-gesture-required \"http://localhost:8080/hypermoon.html?kiosk=1\"",
+    "show:mac": "bash scripts/mac-show-mode.sh on",
+    "show:mac:off": "bash scripts/mac-show-mode.sh off",
+    "show:mac:status": "bash scripts/mac-show-mode.sh status",
     "stream:server": "node scripts/stream-server.mjs",
     "manifest:videos": "node scripts/build-video-manifest.mjs",
     "guide:stills": "node scripts/capture-guide-stills.mjs",

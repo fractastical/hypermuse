@@ -46,6 +46,17 @@
   // click/keypress (browsers require a gesture). npm run kiosk:hypermoon
   // launches Chrome in true kiosk mode with autoplay enabled.
   const KIOSK = params.get("kiosk") === "1";
+  // Unattended-show survival. Two separate problems, two knobs:
+  // ?awake=0 drops the screen wake lock, which is what stops macOS idling
+  // into display sleep (and, with lock-on-sleep, into the login window).
+  // ?ticker= picks how frames are driven: auto keeps requestAnimationFrame
+  // but falls back to a timer whenever the compositor stops calling us
+  // (occluded window, blanked or locked display), so the canvas — and the
+  // LAN broadcast captured off it — keeps producing frames. raf/timer pin
+  // one source, mostly for testing.
+  const KEEP_AWAKE = params.get("awake") !== "0";
+  const TICKER = ["auto", "raf", "timer"].includes(params.get("ticker")) ? params.get("ticker") : "auto";
+  const KEEP_FPS = Math.max(1, Math.min(60, num("keepfps", 30)));
   // Solo mode (?solo=1 with a keyword content): render the window content
   // full-frame instead of compositing it onto the moon. Used to bake
   // standalone loop videos of the fold repertoire for the bleed-through
@@ -1531,6 +1542,9 @@
       // dark-background generators or they clip to a blob.
       value: num("winbright", CONTENT_KEY === "mumins" ? 0.3 : KEYWORD_CONTENT ? 0.42 : isImageContent ? 0.14 : 0.24)
     },
+    // 0 = window content added as light (glowing screens, wireframes),
+    // 1 = painted opaque over the surface (drawn figures like the mumins).
+    uWinSolid: { value: num("winsolid", CONTENT_KEY === "mumins" ? 1 : 0) },
     uWordOn: { value: WORDLESS_WIN ? 0 : 1 }, // letter panel opacity
     uGate: { value: APPARITION > 0 ? 0 : 1 }, // apparition reveal gate
     // Planar bleed spot: soft circular reveal window centered on the
@@ -1605,6 +1619,7 @@
   // Live window switcher: swap what lives inside the moon without a reload.
   // Works in mosaic (word) mode; other layouts fall back to a reload.
   const WINBRIGHT_PARAM = params.get("winbright");
+  const WINSOLID_PARAM = params.get("winsolid");
   const PEEK_PARAM = params.get("peek");
   function stopWindowContent() {
     if (cave) cave.videos.forEach((v) => { v.pause(); v.removeAttribute("src"); });
@@ -1674,6 +1689,7 @@
     uniforms.uWinAspect.value = crt ? crt.aspect : cave ? cave.aspect : incant ? incant.aspect
       : mumins ? mumins.aspect : fold ? fold.aspect : 16 / 9;
     if (WINBRIGHT_PARAM == null) { uniforms.uWinBright.value = bright; winBrightBase = bright; }
+    if (WINSOLID_PARAM == null) uniforms.uWinSolid.value = key === "mumins" ? 1 : 0;
     uniforms.uWordOn.value = WORDLESS_WIN ? 0 : 1;
     // Sensible cycle defaults unless the URL pinned them explicitly.
     if (PEEK_PARAM == null) PEEK = WIN && !WORDLESS_WIN ? 16 : 0;
@@ -1719,6 +1735,7 @@
       uniform sampler2D uMoon, uContent, uWinTex;
       uniform float uThresh, uFeather, uBright, uFlicker, uScroll, uTime, uIsVideoContent, uTint, uLift, uSphere, uRot;
       uniform float uWin, uWinDepth, uWinGrow, uWinAspect, uWinBright, uWordOn, uGate, uAlpha;
+      uniform float uWinSolid;
       uniform float uIris, uIrisR, uIrisFeather, uBloodAmt;
       uniform vec3 uBlood;
       uniform vec3 uColor, uDisc, uSpot;
@@ -1744,6 +1761,8 @@
         float reveal;
         float winMask = 0.0;
         vec3 winGlow = vec3(0.0);
+        vec3 winCol = vec3(0.0);
+        float winCov = 0.0;
         float caveDim = 0.0;
         if (uSphere > 0.5) {
           // Treat the disc as an orthographically projected globe: each pixel
@@ -1784,6 +1803,11 @@
             }
             vec4 wraw = texture2D(uWinTex, clamp(fuv + 0.5, 0.0, 1.0));
             winGlow = wraw.rgb * wraw.a * winMask;
+            // Solid-paint path (uWinSolid): drawn figures need to occlude the
+            // surface, not add light to it. Additive content over a lit grey
+            // moon can only ever look like a ghost.
+            winCol = wraw.rgb;
+            winCov = wraw.a * winMask;
           }
         } else {
           cuv = vUv;
@@ -1812,8 +1836,9 @@
         // it during peeks).
         vec3 col = moon.rgb * moon.a * (1.0 - caveDim)
           + vec3(0.9, 0.95, 1.05) * uLift * dark
-          + winGlow * uBright * uWinBright
+          + winGlow * uBright * uWinBright * (1.0 - uWinSolid)
           + content * reveal * uBright * flicker * uWordOn;
+        col = mix(col, winCol, winCov * uWinSolid);
         // Iris reveal: a fully clear hole in the disc centre (radius uIrisR
         // of the disc radius when open) feathering out to the untouched limb,
         // so the backdrop gif shows through while the rim keeps reading as
@@ -2021,6 +2046,19 @@
     get programRot() { return progApplied; },
     get iris() { return +uniforms.uIris.value; },
     get stream() { return streamStatus; },
+    // Unattended-show health: frame counters split by source so a stalled
+    // compositor (locked/blanked display) is visible as timer frames rather
+    // than as a silent freeze.
+    get pump() {
+      return {
+        ticker: TICKER,
+        frames: frameCount,
+        timerFrames,
+        stalls: stallCount,
+        sinceFrame: Math.round(performance.now() - lastFrameAt),
+        wakeLock: wakeLockState
+      };
+    },
     get audio() { return { bass: audio.bass, mid: audio.mid, high: audio.high, level: audio.level, beatEnv: audio.beatEnv, react: REACT, mic: MIC }; },
     moonReady: false
   };
@@ -2525,7 +2563,6 @@
     prevT = t;
     if (SOLO) {
       soloFrame(t);
-      requestAnimationFrame(animate);
       return;
     }
     uniforms.uTime.value = t;
@@ -2593,9 +2630,88 @@
     positionBackdrop();
     zoomBackdrop();
     renderer.render(scene, camera);
-    requestAnimationFrame(animate);
   }
-  animate();
+
+  // --- Frame pump ---------------------------------------------------------
+  // requestAnimationFrame is the good clock, but macOS stops driving it the
+  // moment the window is occluded, the display blanks or the session locks —
+  // and a frozen canvas freezes the LAN broadcast with it. So rAF stays the
+  // primary source and a timer watches the gap: if no frame has landed for
+  // longer than a couple of fallback intervals, the timer renders instead.
+  // The rAF chain is never cancelled, so the pump slides back to it silently
+  // the instant the compositor resumes.
+  const FALLBACK_MS = 1000 / KEEP_FPS;
+  const STALL_MS = Math.max(120, FALLBACK_MS * 2.5);
+  const REVIVE_MS = 2000;
+  let lastFrameAt = performance.now();
+  let frameCount = 0, stallCount = 0, timerFrames = 0;
+  let onTimer = TICKER === "timer";
+  function pump() {
+    animate();
+    lastFrameAt = performance.now();
+    frameCount++;
+  }
+  // Generation counter rather than a plain "pending" flag: a revival has to
+  // be able to replace a request that will never be answered, without
+  // leaving two live chains behind when a deferred callback finally lands.
+  let rafGen = 0, rafArmed = false, lastRafAt = performance.now(), lastReviveAt = 0;
+  function rafChain() {
+    if (rafArmed) return;
+    rafArmed = true;
+    const gen = ++rafGen;
+    requestAnimationFrame(() => {
+      if (gen !== rafGen) return; // superseded; let this branch die
+      rafArmed = false;
+      onTimer = false;            // the compositor is answering again
+      lastRafAt = performance.now();
+      pump();
+      rafChain();
+    });
+  }
+  if (TICKER !== "timer") rafChain();
+  if (TICKER !== "raf") {
+    setInterval(() => {
+      const now = performance.now();
+      if (!onTimer && now - lastFrameAt > STALL_MS) { onTimer = true; stallCount++; }
+      if (onTimer) { timerFrames++; pump(); }
+      // Re-arm a chain that is not merely late but gone (the request itself
+      // was dropped). Timed off the last rAF rather than the last frame,
+      // since the fallback keeps the frame clock fresh on its own, and
+      // rate-limited so an occluded hour cannot pile up requests.
+      if (TICKER !== "timer" && onTimer && now - lastRafAt > REVIVE_MS && now - lastReviveAt > REVIVE_MS) {
+        lastReviveAt = now;
+        rafArmed = false;
+        rafChain();
+      }
+    }, FALLBACK_MS);
+  }
+  if (TICKER === "timer") pump();
+
+  // Screen wake lock: the supported way to tell macOS not to idle the
+  // display out from under an unattended show. It is dropped automatically
+  // whenever the page is hidden, so it has to be re-taken on every return.
+  let wakeLock = null;
+  let wakeLockState = KEEP_AWAKE ? "pending" : "off";
+  async function takeWakeLock() {
+    if (!KEEP_AWAKE || wakeLock || !navigator.wakeLock || document.visibilityState !== "visible") return;
+    try {
+      wakeLock = await navigator.wakeLock.request("screen");
+      wakeLockState = "held";
+      wakeLock.addEventListener("release", () => { wakeLock = null; wakeLockState = "released"; });
+    } catch (e) {
+      wakeLockState = "denied: " + (e && e.name ? e.name : "error");
+    }
+  }
+  if (KEEP_AWAKE) {
+    takeWakeLock();
+    document.addEventListener("visibilitychange", () => {
+      if (document.visibilityState === "visible") takeWakeLock();
+    });
+    // Chrome can refuse the lock before any user activation; the first
+    // gesture in a kiosk session is a free retry.
+    window.addEventListener("pointerdown", takeWakeLock, { once: true });
+    window.addEventListener("keydown", takeWakeLock, { once: true });
+  }
 
   // --- Controller link (BroadcastChannel 'hypermoon') --------------------
   // The controller.html hypermoon panel drives this window live and asks it
@@ -2644,6 +2760,9 @@
     q.set("angw", (+uniforms.uAng.value.x).toFixed(2));
     q.set("angh", (+uniforms.uAng.value.y).toFixed(2));
     if (WIN_SCALE !== 1) q.set("winscale", WIN_SCALE.toFixed(2));
+    // winsolid is deliberately not exported: like winbright it is a property
+    // of the content in the window, and carrying it across a content switch
+    // would paint the next clip opaque.
     q.set("lonoff", (LON_OFF * 180 / Math.PI).toFixed(0));
     q.set("latoff", (LAT_OFF * 180 / Math.PI).toFixed(0));
     if (VAJRA_COUNT > 0) {
@@ -2688,6 +2807,7 @@
       angw: +uniforms.uAng.value.x,
       angh: +uniforms.uAng.value.y,
       winscale: WIN_SCALE,
+      winsolid: +uniforms.uWinSolid.value,
       lon: LON_OFF * 180 / Math.PI,
       lat: LAT_OFF * 180 / Math.PI,
       vajras: VAJRA_COUNT,
@@ -2753,6 +2873,8 @@
         case "angw": AUTO_ANG = false; angTarget.w = v; break;
         case "angh": AUTO_ANG = false; angTarget.h = v; break;
         case "winscale": WIN_SCALE = Math.max(0.3, v); break;
+        case "winsolid": uniforms.uWinSolid.value = Math.max(0, Math.min(1, v)); break;
+        case "winbright": winBrightBase = Math.max(0, v); uniforms.uWinBright.value = winBrightBase; break;
         case "lon": LON_OFF = v * (Math.PI / 180); pickAnchor(); break;
         case "lat": LAT_OFF = v * (Math.PI / 180); pickAnchor(); break;
         case "vajras": setVajraCount(v); break;

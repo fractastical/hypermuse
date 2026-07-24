@@ -45,6 +45,18 @@ latest versions). Then:
   dark side. Drawn in-page, so there's no asset to copy — `?mumins=1..9` sets
   the troupe size and `?muminbpm=` the dance tempo. The window opens wider
   than usual for them; the `window size ×` slider trims it.
+- **Window solidity** slider (`?winsolid=0..1`): window content is normally
+  added as *light*, which is right for glowing screens and wireframes but
+  turns drawn figures into ghosts. At 1 the content is painted opaque onto
+  the surface instead. Defaults to solid for the mumins, glow for everything
+  else, and is not carried across a content switch.
+- **Unattended-show survival** (macOS): `npm run show:mac` holds a power
+  assertion and launches the kiosk with occlusion/throttling disabled;
+  `npm run show:mac:status` reports what the machine will do, and
+  `npm run show:mac:off` releases it. The output page also takes a screen
+  wake lock on its own (`?awake=0` opts out) and keeps rendering off a timer
+  if the compositor stops calling it (`?ticker=`, `?keepfps=`), so the LAN
+  broadcast survives a blanked or occluded display. See "Locking" below.
 - **Fold loop clips** (`artifacts/fold-loops/*.mp4`): the fold repertoire
   pre-baked as square videos incl. red wireframe variants — usable as window
   content or backdrops on machines without the live makers.
@@ -75,6 +87,41 @@ controller (or open the moon with `?stream=1`):
 
 Other devices watch at `http://<live-machine-ip>:8080/stream-view.html`.
 The video flows peer-to-peer; the relay only handles the handshake.
+
+## Locking, sleep, and unattended runs (macOS)
+
+macOS gives no supported way to draw over the login window: once the session
+locks, the login window owns every display and the show is off screen until
+someone types the password. Screen recording is blocked there too. So the
+whole strategy is to keep the machine from reaching that state.
+
+    npm run show:mac:status   # displaysleep, lock delay, who's holding the display awake
+    npm run show:mac          # hold the assertion + launch the kiosk
+    npm run show:mac:off      # release it
+
+`show:mac` holds a `caffeinate -dimsu` assertion (no sudo, nothing on the
+system is modified) and launches Chrome with
+`--disable-backgrounding-occluded-windows`, `--disable-renderer-backgrounding`,
+`--disable-background-timer-throttling` and
+`--disable-features=CalculateNativeWinOcclusion`, without which Chrome starves
+an occluded window and the canvas freezes. It probes for whichever local port
+is actually serving `hypermoon.html` rather than assuming 8080 — worth knowing
+if another project already owns that port. `--harden` additionally disables the
+screensaver and sets `displaysleep 0` (sudo, restored by `off`).
+
+Two things still lock a Mac that this cannot prevent: locking it by hand
+(Ctrl-Cmd-Q, Apple menu) and closing the lid. Check `sysadminctl -screenLock
+status` — if the delay is "immediate", any display sleep locks the session
+instantly.
+
+The output page defends itself too. It takes a screen wake lock (visible as
+Chrome's "Blink Wake Lock" in `show:mac:status`) and re-takes it whenever the
+page becomes visible again. Its frame pump prefers `requestAnimationFrame` but
+falls back to a timer whenever the compositor stops answering, so the canvas —
+and the LAN broadcast captured from it — keeps producing frames even while the
+window is occluded or the display is blanked. `window.__hyperstitionStats.pump`
+reports `frames`, `timerFrames`, `stalls` and the wake lock state if you need
+to prove it is still alive.
 
 ## NOT included (too large)
 
