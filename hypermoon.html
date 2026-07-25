@@ -26,7 +26,7 @@
   let CONTENT_SRC = params.get("content") || "";
   const CONTENT_KEY = CONTENT_SRC.trim().toLowerCase();
   const KEYWORD_CONTENT = [
-    "crt", "vajra", "incant", "screen", "mumins", "fisher",
+    "crt", "vajra", "incant", "screen", "mumins", "fisher", "harmonics", "cymatics",
     "fold", "foldsonic", "foldhelix", "foldjitter", "foldgeo", "foldivm"
   ].includes(CONTENT_KEY);
   const MOSAIC_OFF = params.get("mosaic") === "0";
@@ -82,7 +82,8 @@
   let WIN = !!CONTENT_SRC && !TEXT_PARAM && (KEYWORD_CONTENT || !MOSAIC_OFF);
   // incant and the bucky folds render without the letter panel: the
   // geometry/mantra is the show, no word text over it.
-  const wordlessKey = (k) => k === "incant" || k === "mumins" || k === "fisher" || /^fold/.test(k);
+  const wordlessKey = (k) => k === "incant" || k === "mumins" || k === "fisher"
+    || k === "harmonics" || k === "cymatics" || /^fold/.test(k);
   // Figures painted on the surface rather than glowing through it.
   const drawnKey = (k) => k === "mumins" || k === "fisher";
   let WORDLESS_WIN = WIN && (wordlessKey(CONTENT_KEY) || MOSAIC_OFF);
@@ -192,6 +193,11 @@
   let ECL_TARGET = Math.max(0, Math.min(1, num("eclipsetarget", ECL_P)));
   let ECL_SEC = Math.max(0, num("eclipserun", 0));
   let ECL_PATH = Math.max(0, Math.min(3, num("eclipsepath", 0.35)));
+  // ?eclipseevery= minutes between transits. The show runs unattended for
+  // hours, so an eclipse is worth having as a recurring event rather than a
+  // single pass that leaves the sky empty afterwards. 0 keeps it one-shot.
+  let ECL_EVERY = Math.max(0, num("eclipseevery", 0));
+  let eclNextAt = 0; // seconds since start; 0 = not yet scheduled
   // How far down totality goes. The real thing is far darker than this; a
   // show wants it the way eclipse photographs look, not the way the meter
   // reads. 1 is closest to true darkness, 0 leaves the moon plainly lit.
@@ -300,13 +306,13 @@
   const VAJRA_CLIPS = VAJRA_NAMES.map((n) => VAJRA_WEB + "/" + n);
   let VAJRA_COUNT = Math.max(0, Math.min(6, Math.round(num("vajras", 0))));
   let VAJRA_RADIUS = num("vajraradius", num("vajraRadius", 1.25));
-  // How open the orbit lanes are: the ratio of the ellipse's vertical to
-  // horizontal radius. Near 0 the lane is edge-on, so the sprites just slide
-  // back and forth across the moon's face; near 1 it is a face-on ring. The
-  // default opens the inner lanes just short of the limb, so their far half
-  // ducks behind the disc and comes back out — which is what reads as
-  // orbiting. The outer lanes clear the limb entirely and ring it instead.
-  let VAJRA_TILT = Math.max(0.05, Math.min(1, num("vajratilt", num("vajraTilt", 0.7))));
+  // How far a lane opens vertically, as a fraction of the disc radius. A
+  // tilted circular orbit is closest to the disc centre on screen exactly
+  // where it is deepest in front or behind, so this is what decides whether
+  // the far half passes behind the moon at all: it has to stay inside the
+  // limb. At 0 the lanes are edge-on and the sprites just slide across the
+  // face; the default keeps every lane's turn well inside the disc.
+  let VAJRA_TILT = Math.max(0.05, Math.min(1, num("vajratilt", num("vajraTilt", 0.75))));
   const VAJRA_SCALE = num("vajrascale", 0.17); // sprite height in frame-height units
   const vajraSprites = [];
 
@@ -327,14 +333,56 @@
     const tex = new THREE.VideoTexture(v);
     tex.minFilter = THREE.LinearFilter;
     tex.magFilter = THREE.LinearFilter;
-    // Additive on color only: writing alpha too would stamp the clip's black
-    // rectangle over the DOM backdrop now that the canvas is transparent.
-    const mat = new THREE.MeshBasicMaterial({
-      map: tex, transparent: true,
-      blending: THREE.CustomBlending,
-      blendSrc: THREE.OneFactor, blendDst: THREE.OneFactor,
-      blendSrcAlpha: THREE.ZeroFactor, blendDstAlpha: THREE.OneFactor,
-      depthTest: false, depthWrite: false, opacity: 0
+    // The clips are dorjes on black, so the black is keyed out by luminance
+    // and the rest is composited premultiplied — a sprite in front of the
+    // moon then covers the surface instead of adding light to it, which is
+    // the difference between passing in front and being painted on. The far
+    // half of the orbit is clipped per pixel against the disc silhouette, so
+    // it is eaten by the limb on the way behind rather than fading out whole.
+    const mat = new THREE.ShaderMaterial({
+      uniforms: {
+        map: { value: tex },
+        uOpacity: { value: 0 },
+        uBehind: { value: 0 },
+        uCen: { value: new THREE.Vector2(0, 0) },
+        uInv: { value: new THREE.Vector2(1, 1) },
+        uR: { value: 0.5 }
+      },
+      transparent: true,
+      depthTest: false,
+      depthWrite: false,
+      blending: THREE.NormalBlending,
+      premultipliedAlpha: true,
+      vertexShader: `
+        varying vec2 vUv;
+        varying vec2 vWorld;
+        void main() {
+          vUv = uv;
+          vec4 wp = modelMatrix * vec4(position, 1.0);
+          vWorld = wp.xy;
+          gl_Position = projectionMatrix * viewMatrix * wp;
+        }
+      `,
+      fragmentShader: `
+        uniform sampler2D map;
+        uniform float uOpacity, uBehind, uR;
+        uniform vec2 uCen, uInv;
+        varying vec2 vUv;
+        varying vec2 vWorld;
+        void main() {
+          vec4 c = texture2D(map, vUv);
+          float luma = dot(c.rgb, vec3(0.2126, 0.7152, 0.0722));
+          float a = smoothstep(0.03, 0.20, luma) * uOpacity;
+          if (uBehind > 0.5) {
+            // Disc distance in frame-height units, the space the disc is
+            // round in; the world quad is letterboxed so x and y differ.
+            float d = length((vWorld - uCen) * uInv);
+            a *= smoothstep(uR * 0.995, uR * 1.035, d);
+          }
+          if (a <= 0.001) discard;
+          gl_FragColor = vec4(c.rgb * a, a);
+        }
+      `
     });
     const mesh = new THREE.Mesh(new THREE.PlaneGeometry(1, 1), mat);
     mesh.renderOrder = 2; // over the fullscreen moon quad
@@ -453,7 +501,10 @@
     for (let i = 0; i < VAJRA_COUNT; i++) {
       const s = vajraSprites[i];
       const rx = dv.z * VAJRA_RADIUS * (1.03 + s.lane * 0.085);
-      const ry = rx * Math.min(1, VAJRA_TILT + s.lane * 0.03);
+      // Vertical opening is set against the disc, not against rx: outer
+      // lanes swing wider at the sides but still turn inside the limb, so
+      // every lane passes behind the moon rather than only the innermost.
+      const ry = dv.z * Math.min(0.9, VAJRA_TILT * (0.45 + s.lane * 0.07));
       const laneRot = (s.lane - (VAJRA_COUNT - 1) / 2) * 0.14;
       const th = s.phase + t * s.speed;
       const depth = Math.sin(th); // > 0 = in front of the moon
@@ -467,12 +518,15 @@
       const scl = VAJRA_SCALE * (0.68 + 0.32 * (depth * 0.5 + 0.5)) * (1 + flare * 0.22);
       s.mesh.position.set(cx + px * fhX, cy + py * fhY, 0);
       s.mesh.scale.set(scl * s.aspect * fhX, scl * fhY, 1);
-      let op = 0.5 + 0.5 * (depth * 0.5 + 0.5);
-      if (depth < 0) {
-        // Behind the moon: hidden while over the disc, visible at the limbs.
-        op *= smooth01(Math.hypot(px, py), dv.z * 0.96, dv.z * 1.14);
-      }
-      s.mat.opacity = Math.min(1, op * (1 + flare * 0.9));
+      const op = 0.5 + 0.5 * (depth * 0.5 + 0.5);
+      const u = s.mat.uniforms;
+      u.uOpacity.value = Math.min(1, op * (1 + flare * 0.9));
+      // The far half is clipped by the disc in the fragment shader, which
+      // needs the disc in world space plus the letterbox scale to undo.
+      u.uBehind.value = depth < 0 ? 1 : 0;
+      u.uCen.value.set(cx, cy);
+      u.uInv.value.set(1 / fhX, 1 / fhY);
+      u.uR.value = dv.z;
     }
   }
 
@@ -994,6 +1048,44 @@
     return { texture: tex, draw, aspect: W / H };
   }
 
+  // The fisher as a companion instead of window content: the same little
+  // scene hung in the sky beside the moon, on its own layer, so it can keep
+  // fishing through whatever the window is running. Its canvas already has
+  // alpha, so it composites straight over the moon and the backdrop.
+  let FISHER_LIVE = num("fisherlive", 0) > 0;
+  let FISHER_LIVE_SIZE = Math.max(0.2, num("fisherlivesize", 1.15)); // square side, in disc radii
+  let FISHER_LIVE_ANG = num("fisherliveangle", 200);                 // degrees round the disc
+  let FISHER_LIVE_DIST = Math.max(0, num("fisherlivedist", 1.5));    // centre distance, in disc radii
+  let fisherLive = null;
+  function setFisherLive(on) {
+    FISHER_LIVE = !!on;
+    if (FISHER_LIVE && !fisherLive) {
+      const gen = makeStarFisher();
+      const mesh = new THREE.Mesh(new THREE.PlaneGeometry(1, 1), new THREE.MeshBasicMaterial({
+        map: gen.texture, transparent: true, depthTest: false, depthWrite: false
+      }));
+      mesh.renderOrder = 3; // over the moon quad and the orbiting vajras
+      scene.add(mesh);
+      fisherLive = { gen, mesh };
+    }
+    if (fisherLive) fisherLive.mesh.visible = FISHER_LIVE;
+  }
+  function updateFisherLive(t) {
+    if (!fisherLive || !FISHER_LIVE) return;
+    fisherLive.gen.draw(t);
+    const fhX = 2 * quad.scale.x * (9 / 16);
+    const fhY = 2 * quad.scale.y;
+    const dv = uniforms.uDisc.value;
+    const a = FISHER_LIVE_ANG * Math.PI / 180;
+    const side = FISHER_LIVE_SIZE * dv.z;
+    fisherLive.mesh.position.set(
+      (dv.x * 2 - 1) * quad.scale.x + quad.position.x + Math.cos(a) * FISHER_LIVE_DIST * dv.z * fhX,
+      (dv.y * 2 - 1) * quad.scale.y + quad.position.y + Math.sin(a) * FISHER_LIVE_DIST * dv.z * fhY,
+      0
+    );
+    fisherLive.mesh.scale.set(side * fhX, side * fhY, 1);
+  }
+
   // Synergetics fold (content=fold): Fuller's 100.41 — a wireframe triangle
   // folds its corners up into a tetrahedron, holds, unfolds, forever. Runs
   // as a second offscreen Three.js scene rendered into the window texture.
@@ -1100,6 +1192,250 @@
         rnd.dispose();
       }
     };
+  }
+
+  // Sonic sphere (content=harmonics): the actual normal modes of a vibrating
+  // sphere. The surface is displaced by a real spherical harmonic Y(l,m), so
+  // the lobes you see are the standing wave — warm where the surface is
+  // pushed out, cold where it is pulled in, with the nodal lines between
+  // them. It walks through the harmonic series, morphing one mode into the
+  // next, and the bass drives how hard the sphere is driven.
+  const HARM_SEC = Math.max(1.5, num("harmsec", 5));
+  function makeHarmonics() {
+    const SIZE = TEX_SIZE;
+    const rnd = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+    rnd.setSize(SIZE, SIZE);
+    const scene = new THREE.Scene();
+    scene.background = new THREE.Color(0x020411);
+    const cam = new THREE.PerspectiveCamera(38, 1, 0.1, 50);
+    cam.position.set(0, 1.15, 4.6);
+    cam.lookAt(0, 0, 0);
+
+    // Associated Legendre P(l,m) by the standard recurrence, then the real
+    // harmonic Y = P(l,m)(cos θ) cos(m φ). Unnormalised: only the shape and
+    // the sign matter here, and the amplitude is set separately.
+    function legendre(l, m, x) {
+      let pmm = 1;
+      if (m > 0) {
+        const s = Math.sqrt(Math.max(0, 1 - x * x));
+        let f = 1;
+        for (let i = 1; i <= m; i++) { pmm *= -f * s; f += 2; }
+      }
+      if (l === m) return pmm;
+      let pmmp1 = x * (2 * m + 1) * pmm;
+      if (l === m + 1) return pmmp1;
+      let pll = 0;
+      for (let ll = m + 2; ll <= l; ll++) {
+        pll = ((2 * ll - 1) * x * pmmp1 - (ll + m - 1) * pmm) / (ll - m);
+        pmm = pmmp1;
+        pmmp1 = pll;
+      }
+      return pll;
+    }
+    // Low modes first: they read at a glance, and the series climbing is the
+    // point. Each is scaled so no mode swamps the others.
+    const MODES = [[2, 0], [2, 1], [3, 2], [4, 0], [4, 3], [5, 2], [6, 5], [7, 3], [3, 1], [5, 4]];
+    const norm = MODES.map(([l, m]) => {
+      let peak = 1e-6;
+      for (let i = 0; i <= 64; i++) {
+        peak = Math.max(peak, Math.abs(legendre(l, m, -1 + (2 * i) / 64)));
+      }
+      return 1 / peak;
+    });
+
+    // A hidden-line lattice, like the rest of the bucky family: the wire grid
+    // carries the shape and an opaque shell just behind it hides the lines on
+    // the far side, so the deformation reads instead of turning into mesh.
+    const SEG_U = 72, SEG_V = 48, DEC = 4; // draw every 4th grid line
+    const geo = new THREE.SphereGeometry(1, SEG_U, SEG_V);
+    const base = geo.attributes.position.array.slice();
+    const count = geo.attributes.position.count;
+    const sph = new Float32Array(count * 2); // (cos θ, φ) per vertex, precomputed
+    for (let i = 0; i < count; i++) {
+      sph[i * 2] = base[i * 3 + 1];   // radius 1, so y is cos θ
+      sph[i * 2 + 1] = Math.atan2(base[i * 3 + 2], base[i * 3]);
+    }
+    geo.setAttribute("color", new THREE.BufferAttribute(new Float32Array(count * 3), 3));
+    const shell = new THREE.Mesh(geo, new THREE.MeshBasicMaterial({
+      color: 0x050a18, polygonOffset: true, polygonOffsetFactor: 1, polygonOffsetUnits: 1
+    }));
+    const group = new THREE.Group();
+    group.add(shell);
+    scene.add(group);
+
+    // SphereGeometry lays vertices out row by row: (SEG_V + 1) rings of
+    // (SEG_U + 1) vertices, so the grid lines are just index arithmetic.
+    const idx = [];
+    const at = (u, v) => v * (SEG_U + 1) + u;
+    for (let v = 0; v <= SEG_V; v++) {
+      for (let u = 0; u < SEG_U; u++) {
+        if (v % DEC === 0) idx.push(at(u, v), at(u + 1, v));
+        if (u % DEC === 0 && v < SEG_V) idx.push(at(u, v), at(u, v + 1));
+      }
+    }
+    const wireGeo = new THREE.BufferGeometry();
+    wireGeo.setAttribute("position", geo.attributes.position); // shared, moves with it
+    wireGeo.setAttribute("color", geo.attributes.color);
+    wireGeo.setIndex(idx);
+    group.add(new THREE.LineSegments(wireGeo, new THREE.LineBasicMaterial({
+      vertexColors: true, transparent: true, opacity: 0.95,
+      blending: THREE.AdditiveBlending, depthWrite: false
+    })));
+
+    const WARM = new THREE.Color(INK_HEX), COLD = new THREE.Color(INK2_HEX);
+    const tex = new THREE.CanvasTexture(rnd.domElement);
+    tex.minFilter = THREE.LinearFilter;
+    const ease = (x) => x * x * (3 - 2 * x);
+    const pos = geo.attributes.position, col = geo.attributes.color;
+    let phase = 0, lastT = 0;
+
+    function draw(t) {
+      // Hold each mode, then morph into the next over the last fifth of its
+      // turn, so the series flows instead of cutting.
+      const cyc = t / HARM_SEC;
+      const k = Math.floor(cyc), p = cyc - k;
+      const a = k % MODES.length, b = (k + 1) % MODES.length;
+      const blend = ease(Math.max(0, (p - 0.8) / 0.2));
+      const amp = 0.5 * (1 + REACT * (audio.bass * 0.35 + audio.beatEnv * 0.2));
+      const [la, ma] = MODES[a], [lb, mb] = MODES[b];
+      // A mode is a motion, not a shape: the whole surface swings in and out
+      // together and the lobes trade sign each half period, which is what a
+      // standing wave looks like. Higher modes ring faster.
+      const dtl = Math.min(0.1, Math.max(0, t - lastT));
+      lastT = t;
+      phase += dtl * (1.5 + 0.42 * (la + (lb - la) * blend));
+      const osc = Math.cos(phase);
+      for (let i = 0; i < count; i++) {
+        const cosT = sph[i * 2], phi = sph[i * 2 + 1];
+        const ya = legendre(la, ma, cosT) * Math.cos(ma * phi) * norm[a];
+        const yb = legendre(lb, mb, cosT) * Math.cos(mb * phi) * norm[b];
+        const shape = ya + (yb - ya) * blend;
+        const y = shape * osc;
+        const r = 1 + amp * y;
+        pos.array[i * 3] = base[i * 3] * r;
+        pos.array[i * 3 + 1] = base[i * 3 + 1] * r;
+        pos.array[i * 3 + 2] = base[i * 3 + 2] * r;
+        // Nodal lines stay dark: that is where the surface is not moving.
+        // Brightness follows the mode's own shape, not the swing, so the
+        // lobes stay legible and only their sign flips as it rings.
+        const s = 0.16 + 0.84 * Math.pow(Math.min(1, Math.abs(shape) * 1.5), 1.2);
+        const c = y >= 0 ? WARM : COLD;
+        col.array[i * 3] = c.r * s;
+        col.array[i * 3 + 1] = c.g * s;
+        col.array[i * 3 + 2] = c.b * s;
+      }
+      pos.needsUpdate = true;
+      col.needsUpdate = true;
+      group.rotation.y = t * 0.22;
+      group.rotation.x = Math.sin(t * 0.13) * 0.25;
+      rnd.render(scene, cam);
+      tex.needsUpdate = true;
+    }
+    draw(0);
+    return { texture: tex, draw, aspect: 1, dispose() { rnd.dispose(); } };
+  }
+
+  // Cymatics (content=cymatics): a Chladni plate. Sand wanders until it
+  // settles on the nodal lines of the driven square plate, where nothing is
+  // moving — so the pattern you see is the standing wave itself. The mode
+  // changes on the beat (or on a timer in silence) and the grains scatter
+  // and re-gather, which is the whole trick of the thing.
+  const CYM_SEC = Math.max(2, num("cymsec", 7));
+  const CYM_GRAINS = Math.max(200, Math.min(12000, Math.round(num("cymgrains", 4200))));
+  function makeCymatics() {
+    const W = 900, H = 900;
+    const canvas = document.createElement("canvas");
+    canvas.width = W;
+    canvas.height = H;
+    const ctx = canvas.getContext("2d");
+    const tex = new THREE.CanvasTexture(canvas);
+    tex.minFilter = THREE.LinearFilter;
+
+    // Chladni's law for a square plate: the nodes of the (n,m) mode are where
+    // this difference of the two standing waves crosses zero.
+    let n = 3, m = 2, nextAt = CYM_SEC;
+    const f = (x, y) => Math.cos(n * Math.PI * x) * Math.cos(m * Math.PI * y)
+                      - Math.cos(m * Math.PI * x) * Math.cos(n * Math.PI * y);
+    const grains = Array.from({ length: CYM_GRAINS }, () => ({
+      x: Math.random(), y: Math.random(), s: 0.55 + Math.random() * 0.8
+    }));
+
+    // The nodal curves are the same for the whole life of a mode, so they are
+    // rendered once into a small buffer and blown up: the glowing lines are
+    // where the plate is still, and the sand walks onto them.
+    const FN = 200;
+    const field = document.createElement("canvas");
+    field.width = FN;
+    field.height = FN;
+    const fctx = field.getContext("2d");
+    const img = fctx.createImageData(FN, FN);
+    function renderField() {
+      for (let j = 0; j < FN; j++) {
+        for (let i = 0; i < FN; i++) {
+          const v = Math.abs(f((i + 0.5) / FN, (j + 0.5) / FN));
+          const g = Math.exp(-v * 5.5);       // tight glow around the zeros
+          const o = (j * FN + i) * 4;
+          img.data[o] = 90 * g;
+          img.data[o + 1] = 150 * g + 10;
+          img.data[o + 2] = 210 * g + 24;
+          img.data[o + 3] = 255;
+        }
+      }
+      fctx.putImageData(img, 0, 0);
+    }
+    function reMode() {
+      const pn = n, pm = m;
+      for (let tries = 0; tries < 8; tries++) {
+        n = 1 + Math.floor(Math.random() * 7);
+        m = 1 + Math.floor(Math.random() * 7);
+        if (n !== m && (n !== pn || m !== pm)) break;
+      }
+      if (n === m) m = (m % 7) + 1;
+      renderField();
+    }
+    renderField();
+
+    function draw(t, dt) {
+      const step = Math.max(0.001, Math.min(0.05, dt || 0.016));
+      if (t >= nextAt) { reMode(); nextAt = t + CYM_SEC; }
+      // Louder means the plate is driven harder, so the sand is thrown about
+      // more before it settles.
+      const heat = (0.05 + REACT * (audio.level * 0.11 + audio.beatEnv * 0.18)) * step;
+      const h = 0.003;
+      const fall = step * 0.9;
+      for (const g of grains) {
+        const v = Math.abs(f(g.x, g.y));
+        // Walk down |f| by finite difference, one small step at a time: each
+        // grain finds the node nearest to it, which is what draws the whole
+        // figure instead of everything piling onto one strong line.
+        const gx = (Math.abs(f(g.x + h, g.y)) - Math.abs(f(g.x - h, g.y))) / (2 * h);
+        const gy = (Math.abs(f(g.x, g.y + h)) - Math.abs(f(g.x, g.y - h))) / (2 * h);
+        const m = Math.hypot(gx, gy) || 1;
+        const sp = fall * Math.min(1, m / 6);
+        g.x -= (gx / m) * sp + (Math.random() - 0.5) * heat * v;
+        g.y -= (gy / m) * sp + (Math.random() - 0.5) * heat * v;
+        g.x = Math.min(0.998, Math.max(0.002, g.x));
+        g.y = Math.min(0.998, Math.max(0.002, g.y));
+      }
+      ctx.fillStyle = "#04060f";
+      ctx.fillRect(0, 0, W, H);
+      const px = W * 0.04, pw = W * 0.92;
+      ctx.imageSmoothingEnabled = true;
+      ctx.drawImage(field, px, px, pw, pw);
+      ctx.strokeStyle = "rgba(207,233,255,0.22)";
+      ctx.lineWidth = 3;
+      ctx.strokeRect(px, px, pw, pw);
+      ctx.fillStyle = "#fff3d4";
+      for (const g of grains) {
+        ctx.fillRect(px + g.x * pw, px + g.y * pw, g.s * 2.6, g.s * 2.6);
+      }
+      ctx.fillStyle = "rgba(207,233,255,0.5)";
+      ctx.font = "500 26px ui-monospace, Menlo, monospace";
+      ctx.fillText(n + " \u00d7 " + m, W * 0.06, H * 0.985 - 12);
+      tex.needsUpdate = true;
+    }
+    draw(0, 0.016);
+    return { texture: tex, draw, aspect: W / H };
   }
 
   // Two helixes (content=foldhelix): Synergetics 108.01-03, "four triangles
@@ -1337,8 +1673,25 @@
       }
       return 0;
     }
+    // Driven from the room when there is a room to listen to: the bass
+    // collapses the vector equilibrium and it springs back open, so the
+    // geometry is reading the music rather than a clock. The linkage has one
+    // degree of freedom, which is exactly what makes this work — one number
+    // off the analyser is the whole shape. Silence falls back to the timer,
+    // so an unattended moon still cycles.
+    const OCTA = 60 * DEG;
+    let live = 0, spring = 0, vel = 0, lastT = 0;
     function draw(t) {
-      const theta = thetaAt(t);
+      const dt = Math.min(0.1, Math.max(0, t - lastT));
+      lastT = t;
+      const heard = Math.min(1, REACT * audio.level * 3.5);
+      live += (heard - live) * Math.min(1, dt * (heard > live ? 3 : 0.6));
+      const drive = Math.min(1, REACT * (audio.bass * 0.8 + audio.beatEnv * 0.75));
+      // Springy rather than tracking: a hit slams it shut and it rebounds,
+      // which is what gives the pump its snap on the beat.
+      vel += ((drive * OCTA - spring) * 120 - vel * 13) * dt;
+      spring = Math.max(0, Math.min(OCTA, spring + vel * dt));
+      const theta = thetaAt(t) * (1 - live) + spring * live;
       const d = distOf(theta);
       rotors.forEach((r) => {
         q.setFromAxisAngle(r.n, r.sigma * theta);
@@ -1542,6 +1895,8 @@
   let incant = (WIN && CONTENT_KEY === "incant") ? makeIncantTexture() : null;
   let mumins = (WIN && CONTENT_KEY === "mumins") ? makeMumins() : null;
   let fisher = (WIN && CONTENT_KEY === "fisher") ? makeStarFisher() : null;
+  let harmonics = (WIN && CONTENT_KEY === "harmonics") ? makeHarmonics() : null;
+  let cymatics = (WIN && CONTENT_KEY === "cymatics") ? makeCymatics() : null;
   const SONIC_LOOP = "artifacts/sample-sonicsphere-silent.webm";
   const FOLD_MAKERS = {
     fold: () => makeFold(),
@@ -1768,12 +2123,16 @@
     : incant ? incant.texture
     : mumins ? mumins.texture
     : fisher ? fisher.texture
+    : harmonics ? harmonics.texture
+    : cymatics ? cymatics.texture
     : fold ? fold.texture
     : (WIN && contentVideo) ? contentVideo.texture
     : (WIN && imageTextures.length) ? imageTextures[0]
     : null;
   const winAspect0 = crt ? crt.aspect : cave ? cave.aspect : incant ? incant.aspect
-    : mumins ? mumins.aspect : fisher ? fisher.aspect : fold ? fold.aspect : 16 / 9;
+    : mumins ? mumins.aspect : fisher ? fisher.aspect
+    : harmonics ? harmonics.aspect : cymatics ? cymatics.aspect
+    : fold ? fold.aspect : 16 / 9;
 
   const uniforms = {
     uMoon: { value: moon.texture },
@@ -1822,11 +2181,15 @@
       // The drawn figures are near-white fills, so they need far less heat
       // than the dark-background generators or they clip to a blob.
       value: num("winbright", CONTENT_KEY === "mumins" ? 0.3 : CONTENT_KEY === "fisher" ? 0.34
+        : CONTENT_KEY === "harmonics" ? 0.55 : CONTENT_KEY === "cymatics" ? 0.6
         : KEYWORD_CONTENT ? 0.42 : isImageContent ? 0.14 : 0.24)
     },
     // 0 = window content added as light (glowing screens, wireframes),
     // 1 = painted opaque over the surface (drawn figures like the mumins).
     uWinSolid: { value: num("winsolid", drawnKey(CONTENT_KEY) ? 1 : 0) },
+    // How much the content sits *inside* the shell rather than on it: the
+    // parallax shift as the window turns, plus the shading its walls cast.
+    uWinPar: { value: num("winparallax", drawnKey(CONTENT_KEY) ? 0.15 : 0.5) },
     uWordOn: { value: WORDLESS_WIN ? 0 : 1 }, // letter panel opacity
     uGate: { value: APPARITION > 0 ? 0 : 1 }, // apparition reveal gate
     // Planar bleed spot: soft circular reveal window centered on the
@@ -1907,6 +2270,7 @@
   // Works in mosaic (word) mode; other layouts fall back to a reload.
   const WINBRIGHT_PARAM = params.get("winbright");
   const WINSOLID_PARAM = params.get("winsolid");
+  const WINPAR_PARAM = params.get("winparallax");
   const PEEK_PARAM = params.get("peek");
   function stopWindowContent() {
     if (cave) cave.videos.forEach((v) => { v.pause(); v.removeAttribute("src"); });
@@ -1916,7 +2280,9 @@
       if (screenCap.hint) screenCap.hint.remove();
     }
     if (fold) fold.dispose();
-    crt = null; cave = null; incant = null; mumins = null; fisher = null; fold = null; contentVideo = null; screenCap = null;
+    if (harmonics) harmonics.dispose();
+    crt = null; cave = null; incant = null; mumins = null; fisher = null; fold = null;
+    harmonics = null; cymatics = null; contentVideo = null; screenCap = null;
     imageTextures = [];
   }
   function setWindowContent(spec, wordlessOverride) {
@@ -1946,6 +2312,8 @@
       bright = 0.34;
       if (WIN_SCALE === 1) WIN_SCALE = 1.6;
     }
+    else if (key === "harmonics") { harmonics = makeHarmonics(); bright = 0.55; }
+    else if (key === "cymatics") { cymatics = makeCymatics(); bright = 0.6; }
     else if (FOLD_MAKERS[key]) { fold = FOLD_MAKERS[key](); bright = 0.55; }
     else if (key === "screen") { screenCap = makeScreenCapture(); bright = 0.5; }
     else if (spec) {
@@ -1974,15 +2342,20 @@
       : incant ? incant.texture
       : mumins ? mumins.texture
       : fisher ? fisher.texture
+      : harmonics ? harmonics.texture
+      : cymatics ? cymatics.texture
       : fold ? fold.texture
       : screenCap ? screenCap.texture
       : contentVideo ? contentVideo.texture
       : imageTextures.length ? imageTextures[0]
       : moon.texture;
     uniforms.uWinAspect.value = crt ? crt.aspect : cave ? cave.aspect : incant ? incant.aspect
-      : mumins ? mumins.aspect : fisher ? fisher.aspect : fold ? fold.aspect : 16 / 9;
+      : mumins ? mumins.aspect : fisher ? fisher.aspect
+      : harmonics ? harmonics.aspect : cymatics ? cymatics.aspect
+      : fold ? fold.aspect : 16 / 9;
     if (WINBRIGHT_PARAM == null) { uniforms.uWinBright.value = bright; winBrightBase = bright; }
     if (WINSOLID_PARAM == null) uniforms.uWinSolid.value = drawnKey(key) ? 1 : 0;
+    if (WINPAR_PARAM == null) uniforms.uWinPar.value = drawnKey(key) ? 0.15 : 0.5;
     uniforms.uWordOn.value = WORDLESS_WIN ? 0 : 1;
     // Sensible cycle defaults unless the URL pinned them explicitly.
     if (PEEK_PARAM == null) PEEK = WIN && !WORDLESS_WIN ? 16 : 0;
@@ -2028,7 +2401,7 @@
       uniform sampler2D uMoon, uContent, uWinTex;
       uniform float uThresh, uFeather, uBright, uFlicker, uScroll, uTime, uIsVideoContent, uTint, uLift, uSphere, uRot;
       uniform float uWin, uWinDepth, uWinGrow, uWinAspect, uWinBright, uWordOn, uGate, uAlpha;
-      uniform float uWinSolid;
+      uniform float uWinSolid, uWinPar;
       uniform float uIris, uIrisR, uIrisFeather, uBloodAmt;
       uniform float uEclOn, uEclDeep;
       uniform vec4 uEcl;
@@ -2096,7 +2469,18 @@
             } else {
               fuv.y *= uWinAspect / boxAspect;
             }
+            // Parallax: the content hangs at depth inside the shell rather
+            // than being painted on the surface, so as the window turns away
+            // the interior slides against its frame. The shift is the
+            // tangential part of the view direction at the window's own
+            // longitude/latitude, which is zero when it faces us square on.
+            float lonC = uAnchor.x + uRot;
+            fuv -= uWinPar * 0.22 * vec2(sin(lonC), cos(lonC) * sin(uAnchor.y));
             vec4 wraw = texture2D(uWinTex, clamp(fuv + 0.5, 0.0, 1.0));
+            // The opening is a hole with walls, so the content dims into the
+            // rim and its corners are cut. Dark-background generators lose
+            // nothing; full-bleed content stops reading as a pasted rectangle.
+            wraw.rgb *= 1.0 - (0.55 + 0.4 * uWinPar) * smoothstep(0.4, 1.05, length(e));
             winGlow = wraw.rgb * wraw.a * winMask;
             // Solid-paint path (uWinSolid): drawn figures need to occlude the
             // surface, not add light to it. Additive content over a lit grey
@@ -2493,6 +2877,7 @@
     get programRot() { return progApplied; },
     get iris() { return +uniforms.uIris.value; },
     get eclipse() { return ECL_ON ? +ECL_P.toFixed(4) : 0; },
+    get sky() { return SKY_COUNT ? { stars: SKY_COUNT, meteors: sky.shots.length } : null; },
     get stream() { return streamStatus; },
     // Unattended-show health: frame counters split by source so a stalled
     // compositor (locked/blanked display) is visible as timer frames rather
@@ -2864,18 +3249,25 @@
   // window it loads the eye-seal gif behind the disc (if no backdrop is set)
   // and irises the moon open for that rotation, sealing again on the next.
   const PROGRAMS = {
+    // 201 rotations: at the nominal 18 s rotation that is just over an hour,
+    // which is the loop the show runs on. Keep it there — a program that
+    // overruns the hour gets cut off mid-act instead of landing.
     hour: [
-      { cycles: 8, dark: 2, reveal: 1, content: "crt" },
-      { cycles: 8, dark: 2, reveal: 1, content: "incant" },
-      { cycles: 8, dark: 2, reveal: 1, content: "vajra" },
-      { cycles: 6, dark: 2, reveal: 1, content: "fold" },
-      { cycles: 6, dark: 2, reveal: 1, content: "foldhelix" },
-      { cycles: 6, dark: 2, reveal: 1, content: "foldjitter" },
-      { cycles: 6, dark: 2, reveal: 1, content: "foldgeo" },
-      { cycles: 6, dark: 2, reveal: 1, content: "foldivm" },
-      { cycles: 6, dark: 2, reveal: 1, content: "foldsonic" },
-      { cycles: 6, dark: 2, reveal: 1, content: "fisher" },
-      { cycles: 8, dark: 2, reveal: 1, content: "artifacts/sample-sonicsphere-silent.webm" }
+      { cycles: 6, dark: 2, reveal: 1, content: "crt" },
+      { cycles: 6, dark: 2, reveal: 1, content: "incant", fisher: true },
+      { cycles: 6, dark: 2, reveal: 1, content: "vajra" },
+      { cycles: 5, dark: 2, reveal: 1, content: "fold" },
+      { cycles: 5, dark: 2, reveal: 1, content: "foldhelix" },
+      { cycles: 6, dark: 2, reveal: 1, content: "cymatics", fisher: true },
+      { cycles: 5, dark: 2, reveal: 1, content: "foldjitter" },
+      { cycles: 5, dark: 2, reveal: 1, content: "foldgeo" },
+      // The shadow comes on two thirds through and takes 18 min, so it is
+      // well clear before the lap ends and the hour brings it round again.
+      { cycles: 6, dark: 2, reveal: 1, content: "harmonics", eclipse: 18 },
+      { cycles: 4, dark: 2, reveal: 1, content: "foldivm" },
+      { cycles: 4, dark: 2, reveal: 1, content: "foldsonic" },
+      { cycles: 5, dark: 2, reveal: 1, content: "fisher" },
+      { cycles: 4, dark: 2, reveal: 1, content: "artifacts/sample-sonicsphere-silent.webm" }
     ],
     // Every effect we have, one per act, three rotations each: two dark
     // rotations on the word then one wordless reveal. Sequenced so no two
@@ -2885,9 +3277,11 @@
       { cycles: 1, dark: 2, reveal: 1, content: "crt" },
       { cycles: 1, dark: 2, reveal: 1, content: "fold" },
       { cycles: 1, dark: 2, reveal: 1, content: "mumins" },
-      { cycles: 1, dark: 2, reveal: 1, content: "incant" },
+      { cycles: 1, dark: 2, reveal: 1, content: "incant", fisher: true },
       { cycles: 1, dark: 2, reveal: 1, content: "foldhelix" },
+      { cycles: 1, dark: 2, reveal: 1, content: "cymatics" },
       { cycles: 1, dark: 2, reveal: 1, content: "fisher" },
+      { cycles: 1, dark: 2, reveal: 1, content: "harmonics" },
       { cycles: 1, dark: 2, reveal: 1, content: "vajra" },
       { cycles: 1, dark: 2, reveal: 1, content: "foldjitter" },
       { cycles: 1, dark: 2, reveal: 1, content: "eye" },
@@ -2895,6 +3289,26 @@
       { cycles: 1, dark: 2, reveal: 1, content: "artifacts/sample-sonicsphere-silent.webm" },
       { cycles: 1, dark: 2, reveal: 1, content: "foldivm" },
       { cycles: 1, dark: 2, reveal: 1, content: "foldsonic" }
+    ],
+    // Everything, one per rotation, with no word-only rotation in between:
+    // each effect gets exactly one pass of the window across the face before
+    // the next one takes over. Fifteen rotations, about 4.5 min a lap.
+    carousel: [
+      { cycles: 1, dark: 0, reveal: 1, content: "crt" },
+      { cycles: 1, dark: 0, reveal: 1, content: "fold" },
+      { cycles: 1, dark: 0, reveal: 1, content: "mumins" },
+      { cycles: 1, dark: 0, reveal: 1, content: "incant" },
+      { cycles: 1, dark: 0, reveal: 1, content: "foldhelix" },
+      { cycles: 1, dark: 0, reveal: 1, content: "cymatics" },
+      { cycles: 1, dark: 0, reveal: 1, content: "fisher" },
+      { cycles: 1, dark: 0, reveal: 1, content: "harmonics" },
+      { cycles: 1, dark: 0, reveal: 1, content: "vajra" },
+      { cycles: 1, dark: 0, reveal: 1, content: "foldjitter" },
+      { cycles: 1, dark: 0, reveal: 1, content: "eye" },
+      { cycles: 1, dark: 0, reveal: 1, content: "foldgeo" },
+      { cycles: 1, dark: 0, reveal: 1, content: "artifacts/sample-sonicsphere-silent.webm" },
+      { cycles: 1, dark: 0, reveal: 1, content: "foldivm" },
+      { cycles: 1, dark: 0, reveal: 1, content: "foldsonic" }
     ],
     // The soft program: someone is out on the crescent fishing stars, the
     // troupe turns up now and then, and the eye opens once a lap.
@@ -2930,6 +3344,7 @@
   let progName = "";
   let progApplied = -1;
   let progLoops = 0, progPrevVideoT = 0;
+  let progOwnsFisher = false; // the program only touches the companion if an act asks for it
   // Accepts a named program ("hour"), a custom act array from the
   // controller's program editor, or a JSON act array in the URL param.
   function setProgram(spec) {
@@ -2952,15 +3367,24 @@
       return;
     }
     progSchedule = [];
+    // An act can also carry the show around it: `fisher` brings the companion
+    // in for its stretch, `eclipse` starts a transit of that many minutes as
+    // the act opens. Because the schedule wraps, an act-triggered eclipse
+    // recurs once per lap on its own.
+    progOwnsFisher = acts.some((a) => a.fisher != null);
     for (const act of acts) {
       const cycles = Math.max(1, Math.round(+act.cycles || 1));
       const dark = Math.max(0, Math.round(act.dark == null ? 2 : +act.dark));
       const reveal = Math.max(1, Math.round(act.reveal == null ? 1 : +act.reveal));
       const content = String(act.content || "").trim();
+      const fisher = progOwnsFisher ? !!act.fisher : null;
+      const from = progSchedule.length;
       for (let c = 0; c < cycles; c++) {
-        for (let d = 0; d < dark; d++) progSchedule.push({ content: "", wordless: false });
-        for (let r = 0; r < reveal; r++) progSchedule.push({ content, wordless: true });
+        for (let d = 0; d < dark; d++) progSchedule.push({ content: "", wordless: false, fisher });
+        for (let r = 0; r < reveal; r++) progSchedule.push({ content, wordless: true, fisher });
       }
+      const eclipseMin = Math.max(0, +act.eclipse || 0);
+      if (eclipseMin > 0 && progSchedule[from]) progSchedule[from].eclipse = eclipseMin;
     }
     progApplied = -1; // apply the current rotation's entry on the next frame
   }
@@ -2974,6 +3398,16 @@
     if (rot === progApplied) return;
     progApplied = rot;
     const entry = progSchedule[rot % progSchedule.length];
+    if (entry.fisher != null && entry.fisher !== FISHER_LIVE) setFisherLive(entry.fisher);
+    if (entry.eclipse) {
+      ECL_ON = true;
+      uniforms.uEclOn.value = 1;
+      ECL_P = 0;
+      uniforms.uEcl.value.x = 0;
+      ECL_SEC = entry.eclipse * 60;
+      ECL_TARGET = 1;
+      eclNextAt = 0; // the act is the schedule now, not the repeat timer
+    }
     if (entry.content === "eye") {
       // Iris reveal instead of a window: load the eye seal behind the disc
       // (unless a backdrop is already chosen) and open for this rotation.
@@ -2993,6 +3427,7 @@
   // Screen-capture content can't be built at parse time (it registers its
   // own gesture handler); route it through the live switcher instead.
   if (useMosaic && CONTENT_KEY === "screen") setWindowContent("screen");
+  if (FISHER_LIVE) setFisherLive(true);
   if (params.get("program")) setProgram(params.get("program"));
 
   // --- Solo bake mode: blit the content maker straight to the screen ------
@@ -3014,6 +3449,8 @@
     if (cave) cave.draw(t);
     if (mumins) mumins.draw(t);
     if (fisher) fisher.draw(t);
+    if (harmonics) harmonics.draw(t);
+    if (cymatics) cymatics.draw(t, 1 / 60);
     if (fold) fold.draw(t);
     const cnv = soloCtx.canvas;
     if (cnv.width !== window.innerWidth || cnv.height !== window.innerHeight) {
@@ -3022,7 +3459,7 @@
     }
     soloCtx.fillStyle = "#020411";
     soloCtx.fillRect(0, 0, cnv.width, cnv.height);
-    const maker = fold || crt || cave || mumins || fisher || incant;
+    const maker = fold || crt || cave || mumins || fisher || harmonics || cymatics || incant;
     const src = maker && maker.texture && maker.texture.image;
     if (src && src.width) {
       // cover-crop the (square) maker canvas into the viewport
@@ -3038,6 +3475,10 @@
     const dt = Math.min(0.1, t - prevT);
     prevT = t;
     if (SOLO) {
+      // Solo is a preview of the generators, and several of them listen to
+      // the room now, so it needs the analyser feed too.
+      pollMic();
+      updateAudio(dt);
       soloFrame(t);
       return;
     }
@@ -3059,6 +3500,8 @@
     if (cave) cave.draw(t);
     if (mumins) mumins.draw(t);
     if (fisher) fisher.draw(t);
+    if (harmonics) harmonics.draw(t);
+    if (cymatics) cymatics.draw(t, dt);
     if (fold) { fold.draw(t); window.__fold = fold; }
     pollMic();
     updateAudio(dt);
@@ -3086,6 +3529,7 @@
     updatePeek(t, dt);
     adaptBleed(t);
     updateVajras(t);
+    updateFisherLive(t);
     // Ease the iris toward its target over ~IRIS_SEC with a smooth ramp.
     {
       const cur = uniforms.uIris.value;
@@ -3112,6 +3556,17 @@
         ? ECL_TARGET
         : ECL_P + Math.sign(ECL_TARGET - ECL_P) * step;
       uniforms.uEcl.value.x = ECL_P;
+    } else if (ECL_ON && ECL_EVERY > 0 && ECL_P >= 1) {
+      // A finished transit would otherwise sit there for the rest of the
+      // night. Rewind it to the far side (both ends are a clear moon, so
+      // nothing jumps) and let the shadow come round again.
+      if (eclNextAt === 0) eclNextAt = t + ECL_EVERY * 60;
+      else if (t >= eclNextAt) {
+        ECL_P = 0;
+        uniforms.uEcl.value.x = 0;
+        ECL_TARGET = 1;
+        eclNextAt = 0;
+      }
     }
     centerQuad();
     positionBackdrop();
@@ -3242,6 +3697,15 @@
         q.set("eclipsetarget", ECL_TARGET.toFixed(2));
         q.set("eclipserun", Math.round(ECL_SEC));
       }
+      if (ECL_EVERY > 0) {
+        q.set("eclipseevery", String(ECL_EVERY));
+        q.set("eclipserun", Math.round(ECL_SEC));
+      }
+    }
+    if (SKY_COUNT > 0) {
+      q.set("stars", String(SKY_COUNT));
+      if (SKY_METEORS !== 5) q.set("meteors", SKY_METEORS.toFixed(1));
+      if (SKY_DRIFT !== 1) q.set("stardrift", SKY_DRIFT.toFixed(2));
     }
     if (BACKDROP_SRC) {
       q.set("backdrop", BACKDROP_SRC);
@@ -3265,6 +3729,12 @@
       q.set("vajras", String(VAJRA_COUNT));
       q.set("vajraradius", VAJRA_RADIUS.toFixed(2));
       q.set("vajratilt", VAJRA_TILT.toFixed(2));
+    }
+    if (FISHER_LIVE) {
+      q.set("fisherlive", "1");
+      q.set("fisherlivesize", FISHER_LIVE_SIZE.toFixed(2));
+      q.set("fisherliveangle", FISHER_LIVE_ANG.toFixed(0));
+      q.set("fisherlivedist", FISHER_LIVE_DIST.toFixed(2));
     }
     if (BLEED > 0) q.set("bleed", BLEED.toFixed(1));
     if (APPARITION > 0) q.set("apparition", APPARITION.toFixed(1));
@@ -3297,8 +3767,12 @@
       eclipse: ECL_P,
       eclipsetarget: ECL_TARGET,
       eclipserun: ECL_SEC,
+      eclipseevery: ECL_EVERY,
       eclipsepath: ECL_PATH,
       eclipsedeep: ECL_DEEP,
+      stars: SKY_COUNT,
+      meteors: SKY_METEORS,
+      stardrift: SKY_DRIFT,
       backdrop: BACKDROP_SRC,
       backscale: BACK_SCALE,
       backalpha: BACK_ALPHA,
@@ -3311,11 +3785,16 @@
       angh: +uniforms.uAng.value.y,
       winscale: WIN_SCALE,
       winsolid: +uniforms.uWinSolid.value,
+      winparallax: +uniforms.uWinPar.value,
       lon: LON_OFF * 180 / Math.PI,
       lat: LAT_OFF * 180 / Math.PI,
       vajras: VAJRA_COUNT,
       vajraRadius: VAJRA_RADIUS,
       vajraTilt: VAJRA_TILT,
+      fisherlive: FISHER_LIVE ? 1 : 0,
+      fisherlivesize: FISHER_LIVE_SIZE,
+      fisherliveangle: FISHER_LIVE_ANG,
+      fisherlivedist: FISHER_LIVE_DIST,
       bleed: BLEED,
       apparition: APPARITION,
       when: WHEN,
@@ -3364,6 +3843,7 @@
           uniforms.uEcl.value.x = ECL_P;
           break;
         case "eclipserun": ECL_SEC = Math.max(0, v); break;
+        case "eclipseevery": ECL_EVERY = Math.max(0, v); eclNextAt = 0; break;
         case "eclipsetarget":
           ECL_ON = true; uniforms.uEclOn.value = 1;
           ECL_TARGET = Math.max(0, Math.min(1, v));
@@ -3372,7 +3852,7 @@
           ECL_PATH = Math.max(0, Math.min(3, v));
           uniforms.uEcl.value.w = ECL_PATH;
           break;
-        case "eclipsestop": ECL_TARGET = ECL_P; break;
+        case "eclipsestop": ECL_TARGET = ECL_P; eclNextAt = 0; break;
         case "eclipsedeep":
           ECL_DEEP = Math.max(0, Math.min(1, v));
           uniforms.uEclDeep.value = ECL_DEEP;
@@ -3393,6 +3873,9 @@
         case "backalpha": BACK_ALPHA = Math.max(0, Math.min(1, v)); break;
         case "backsec": BACK_SEC = Math.max(0, v); setBackdrop(BACKDROP_SRC); break;
         case "backspeed": BACK_SPEED = Math.max(0.1, v); break;
+        case "stars": setStars(v); break;
+        case "meteors": SKY_METEORS = Math.max(0, v); break;
+        case "stardrift": SKY_DRIFT = Math.max(0, v); break;
         case "iriszoom": IRIS_ZOOM = Math.max(1, v); break;
         case "moonscale": MOON_SCALE = Math.max(0.1, Math.min(2, v)); fitQuad(); break;
         case "react": REACT = Math.max(0, v); break;
@@ -3402,10 +3885,15 @@
         case "angh": AUTO_ANG = false; angTarget.h = v; break;
         case "winscale": WIN_SCALE = Math.max(0.3, v); break;
         case "winsolid": uniforms.uWinSolid.value = Math.max(0, Math.min(1, v)); break;
+        case "winparallax": uniforms.uWinPar.value = Math.max(0, Math.min(1, v)); break;
         case "winbright": winBrightBase = Math.max(0, v); uniforms.uWinBright.value = winBrightBase; break;
         case "lon": LON_OFF = v * (Math.PI / 180); pickAnchor(); break;
         case "lat": LAT_OFF = v * (Math.PI / 180); pickAnchor(); break;
         case "vajras": setVajraCount(v); break;
+        case "fisherlive": setFisherLive(!!v && v !== "0"); break;
+        case "fisherlivesize": FISHER_LIVE_SIZE = Math.max(0.2, v); break;
+        case "fisherliveangle": FISHER_LIVE_ANG = v; break;
+        case "fisherlivedist": FISHER_LIVE_DIST = Math.max(0, v); break;
         case "vajraRadius":
         case "vajraradius": VAJRA_RADIUS = v; break;
         case "vajraTilt":

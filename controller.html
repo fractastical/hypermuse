@@ -465,6 +465,8 @@
             <option value="foldivm">bucky octet truss (isotropic vector matrix)</option>
             <option value="mumins">dancing mumins (little trolls)</option>
             <option value="fisher">star fisher (troll on a crescent, hearts)</option>
+            <option value="harmonics">sonic sphere (spherical harmonic modes)</option>
+            <option value="cymatics">cymatics plate (sand on the nodal lines)</option>
             <option value="artifacts/sample-sonicsphere-silent.webm">sonicsphere (baked loop)</option>
             <option value="screen">another window (screen capture)</option>
             <option value="artifacts/crt-terminal-green.mp4">CRT terminal (baked video)</option>
@@ -492,6 +494,7 @@
             <option value="">off (manual)</option>
             <option value="hour">hour progression (reveal every 3rd rotation)</option>
             <option value="library">whole library (a different effect every 3rd rotation)</option>
+            <option value="carousel">carousel (a different effect every single rotation)</option>
             <option value="eye10">eye seal (irises open every 10th rotation)</option>
             <option value="folds">bucky folds (reveal every 3rd rotation)</option>
             <option value="eyefolds">folds + eye (folds every 3rd, eye every 10th)</option>
@@ -544,10 +547,25 @@
             <td colspan="3" style="padding:2px 8px;color:rgba(207,233,255,0.45);">how far the dorje clips orbit from the moon (1× = the halo ring)</td>
           </tr>
           <tr>
-            <td style="padding:2px 8px;color:rgba(207,233,255,0.62);">vajra orbit tilt</td>
+            <td style="padding:2px 8px;color:rgba(207,233,255,0.62);">vajra lane opening</td>
             <td><input type="range" class="hm-slider" id="hmVajraTilt" data-key="vajraTilt" min="0.05" max="1" step="0.05" style="width:130px;"/></td>
             <td style="padding:2px 8px;"><span id="hmVajraTiltVal">–</span></td>
-            <td colspan="3" style="padding:2px 8px;color:rgba(207,233,255,0.45);">edge-on lanes slide across the moon's face; open lanes arc over the top and pass behind</td>
+            <td colspan="3" style="padding:2px 8px;color:rgba(207,233,255,0.45);">how far the lanes open vertically — they always turn inside the limb, so each one passes behind the moon</td>
+          </tr>
+          <tr>
+            <td style="padding:2px 8px;color:rgba(207,233,255,0.62);">fisher companion</td>
+            <td style="padding:2px 8px;">
+              <label style="font-size:11px;" title="hangs the star fisher in the sky beside the moon on his own layer, so he keeps fishing whatever the window is running">
+                <input type="checkbox" id="hmFisherLive"/> on
+              </label>
+            </td>
+            <td style="padding:2px 8px;"><span id="hmFisherLiveVal">–</span></td>
+            <td colspan="3" style="padding:2px 8px;">
+              size <input type="range" class="hm-slider" id="hmFisherLiveSize" data-key="fisherlivesize" min="0.4" max="2.5" step="0.05" style="width:80px;vertical-align:middle;"/>
+              angle <input type="range" class="hm-slider" id="hmFisherLiveAngle" data-key="fisherliveangle" min="0" max="359" step="1" style="width:80px;vertical-align:middle;"/>
+              out <input type="range" class="hm-slider" id="hmFisherLiveDist" data-key="fisherlivedist" min="0" max="2.5" step="0.05" style="width:80px;vertical-align:middle;"/>
+              <span style="color:rgba(207,233,255,0.45);">he runs alongside the window content, not instead of it</span>
+            </td>
           </tr>
           <tr>
             <td style="padding:2px 8px;color:rgba(207,233,255,0.62);">moon size</td>
@@ -576,8 +594,8 @@
           <tr>
             <td style="padding:2px 8px;color:rgba(207,233,255,0.62);">blood fade timer</td>
             <td colspan="5" style="padding:2px 8px;">
-              over <input type="number" id="hmBloodFadeMin" value="120" min="1" max="720" step="1" style="width:52px;"
-                title="minutes for the full fade - 120 = a two-hour eclipse"/> min
+              over <input type="number" id="hmBloodFadeMin" value="45" min="1" max="720" step="1" style="width:52px;"
+                title="minutes for the full fade - keep it under 60 so the fade completes inside the hourly loop"/> min
               <input type="button" id="hmBloodFadeRed" value="&#9654; fade to blood"
                 title="starts a slow fade to the full eclipse grade - runs in the output window, so this panel can be closed once started"/>
               <input type="button" id="hmBloodFadeBack" value="&#9654; fade to natural"
@@ -586,6 +604,57 @@
                 title="freezes the grade wherever the fade has reached"/>
               <span id="hmBloodFadeStatus" style="color:rgba(255,120,90,0.8);font-size:10px;"></span>
             </td>
+          </tr>
+          <tr>
+            <td style="padding:2px 8px;color:rgba(207,233,255,0.62);">earth's shadow</td>
+            <td><input type="range" class="hm-slider" id="hmEclipse" data-key="eclipse" min="0" max="1" step="0.005" style="width:130px;"/></td>
+            <td style="padding:2px 8px;"><span id="hmEclipseVal">–</span></td>
+            <td colspan="3" style="padding:2px 8px;">
+              <input type="button" id="hmEclipseRun" value="&#9654; run eclipse"
+                title="starts the umbra crossing the moon over the minutes set below - runs in the output window, so this panel can be closed"/>
+              <input type="button" id="hmEclipseTotality" value="&#9679; jump to totality"
+                title="drops the shadow straight onto the middle of the transit"/>
+              <input type="button" id="hmEclipseHold" value="&#10006; hold"
+                title="freezes the shadow where it is"/>
+              <input type="button" id="hmEclipseClear" value="clear shadow"
+                title="removes the shadow entirely - back to the plain moon"/>
+              <span id="hmEclipseStatus" style="color:rgba(255,150,90,0.8);font-size:10px;"></span>
+            </td>
+          </tr>
+          <tr>
+            <td style="padding:2px 8px;color:rgba(207,233,255,0.62);">shadow path</td>
+            <td><input type="range" class="hm-slider" id="hmEclipsePath" data-key="eclipsepath" min="0" max="2.5" step="0.05" style="width:130px;"/></td>
+            <td style="padding:2px 8px;"><span id="hmEclipsePathVal">–</span></td>
+            <td style="padding:2px 8px;color:rgba(207,233,255,0.62);">totality depth</td>
+            <td><input type="range" class="hm-slider" id="hmEclipseDeep" data-key="eclipsedeep" min="0" max="1" step="0.02" style="width:130px;"/></td>
+            <td style="padding:2px 8px;"><span id="hmEclipseDeepVal">–</span></td>
+          </tr>
+          <tr>
+            <td style="padding:2px 8px;color:rgba(207,233,255,0.62);">eclipse timer</td>
+            <td colspan="5" style="padding:2px 8px;">
+              over <input type="number" id="hmEclipseMin" value="45" min="1" max="720" step="1" style="width:52px;"
+                title="minutes for the whole transit, first contact to last - keep it under 60 so the eclipse completes inside the hourly loop"/> min,
+              again every <input type="number" id="hmEclipseEvery" value="0" min="0" max="720" step="5" style="width:52px;"
+                title="minutes of clear sky between transits - 0 runs the eclipse once and leaves it clear afterwards"/> min
+              <span style="color:rgba(207,233,255,0.45);">first contact to last &#8212; under 60 so it completes inside the
+                hour loop. A central path spends about a third of that in totality. Repeat 0 runs it once.</span>
+            </td>
+          </tr>
+          <tr>
+            <td style="padding:2px 8px;color:rgba(207,233,255,0.62);">starfield</td>
+            <td><input type="range" class="hm-slider" id="hmStars" data-key="stars" min="0" max="1200" step="20" style="width:130px;"/></td>
+            <td style="padding:2px 8px;"><span id="hmStarsVal">–</span></td>
+            <td colspan="3" style="padding:2px 8px;color:rgba(207,233,255,0.45);">
+              stars behind everything, so the moon and the vajras move against a sky (0 = plain black)
+            </td>
+          </tr>
+          <tr>
+            <td style="padding:2px 8px;color:rgba(207,233,255,0.62);">meteors / min</td>
+            <td><input type="range" class="hm-slider" id="hmMeteors" data-key="meteors" min="0" max="40" step="1" style="width:130px;"/></td>
+            <td style="padding:2px 8px;"><span id="hmMeteorsVal">–</span></td>
+            <td style="padding:2px 8px;color:rgba(207,233,255,0.62);">sky drift</td>
+            <td><input type="range" class="hm-slider" id="hmStarDrift" data-key="stardrift" min="0" max="6" step="0.1" style="width:130px;"/></td>
+            <td style="padding:2px 8px;"><span id="hmStarDriftVal">–</span></td>
           </tr>
           <tr>
             <td style="padding:2px 8px;color:rgba(207,233,255,0.62);">iris reveal</td>
@@ -651,12 +720,20 @@
             <td style="padding:2px 8px;"><span id="hmWinSolidVal">–</span></td>
             <td colspan="3" style="padding:2px 8px;color:rgba(207,233,255,0.45);">0 = content glows through as light (screens, wireframes), 1 = painted opaque on the surface (drawn figures)</td>
           </tr>
+          <tr>
+            <td style="padding:2px 8px;color:rgba(207,233,255,0.62);">window depth</td>
+            <td><input type="range" class="hm-slider" id="hmWinPar" data-key="winparallax" min="0" max="1" step="0.05" style="width:130px;"/></td>
+            <td style="padding:2px 8px;"><span id="hmWinParVal">–</span></td>
+            <td colspan="3" style="padding:2px 8px;color:rgba(207,233,255,0.45);">how far inside the shell the content hangs — it slides against its frame as the window turns, and the opening's walls shade it</td>
+          </tr>
         </table>
         <div style="margin-top:6px;border-top:1px solid rgba(207,233,255,0.12);padding-top:5px;">
           <b style="font-size:11px;">program editor</b>
           <span style="color:rgba(207,233,255,0.45);font-size:10px;">each act repeats: [dark] rotations word-only &#8594; [reveal] rotations wordless content, &#215; cycles</span>
           <input type="button" id="hmProgLoadHour" value="load hour"/>
           <input type="button" id="hmProgAddAct" value="+ act"/>
+          <input type="button" id="hmProgFitHour" value="fit to hour"
+            title="scales every act's cycles so the whole program lands on the hour the show loops on"/>
           <input type="button" id="hmProgApply" value="&#9654; apply program (live)"/>
           <input type="button" id="hmProgStop" value="&#9632; stop"/>
           <span id="hmProgDuration" style="color:rgba(207,233,255,0.62);font-size:10px;"></span>
@@ -665,6 +742,8 @@
             <option value="eye"></option>
             <option value="mumins"></option>
             <option value="fisher"></option>
+            <option value="harmonics"></option>
+            <option value="cymatics"></option>
             <option value="crt"></option>
             <option value="incant"></option>
             <option value="vajra"></option>
@@ -2190,7 +2269,7 @@ const HM_FMT = {
     apparition: function(v) { return v.toFixed(1); },
     vajras: function(v) { return v.toFixed(0); },
     vajraRadius: function(v) { return v.toFixed(2) + '×'; },
-    vajraTilt: function(v) { return v >= 0.98 ? 'face-on' : v <= 0.1 ? 'edge-on' : v.toFixed(2); },
+    vajraTilt: function(v) { return v <= 0.1 ? 'edge-on' : v.toFixed(2) + ' of disc'; },
     thresh: function(v) { return v.toFixed(3); }, feather: function(v) { return v.toFixed(3); },
     lift: function(v) { return v.toFixed(3); }, flicker: function(v) { return v.toFixed(2); },
     alpha: function(v) { return Math.round(v * 100) + '%'; },
@@ -2205,8 +2284,33 @@ const HM_FMT = {
     lon: function(v) { return v.toFixed(0); }, lat: function(v) { return v.toFixed(0); },
     angw: function(v) { return v.toFixed(2); }, angh: function(v) { return v.toFixed(2); },
     winscale: function(v) { return v.toFixed(2) + '×'; },
-    winsolid: function(v) { return v <= 0 ? 'glow' : v >= 1 ? 'solid' : Math.round(v * 100) + '% solid'; }
+    winsolid: function(v) { return v <= 0 ? 'glow' : v >= 1 ? 'solid' : Math.round(v * 100) + '% solid'; },
+    winparallax: function(v) { return v <= 0 ? 'on the surface' : v.toFixed(2) + ' deep'; },
+    fisherlivesize: function(v) { return v.toFixed(2) + '\u00d7'; },
+    fisherliveangle: function(v) { return Math.round(v) + '\u00b0'; },
+    fisherlivedist: function(v) { return v.toFixed(2) + ' R'; },
+    eclipse: function(v) { return Math.round(v * 100) + '% \u2014 ' + hmEclipsePhase(v); },
+    eclipsepath: function(v) { return v <= 0.05 ? 'central' : v >= 1.6 ? v.toFixed(2) + ' (partial only)' : v.toFixed(2); },
+    eclipsedeep: function(v) { return Math.round(v * 100) + '%'; },
+    stars: function(v) { return v <= 0 ? 'off' : v.toFixed(0); },
+    meteors: function(v) { return v <= 0 ? 'none' : v.toFixed(0) + '/min'; },
+    stardrift: function(v) { return v <= 0 ? 'still' : v.toFixed(1) + '\u00d7'; }
 };
+
+// Which part of the transit a given progress lands in, from the same
+// geometry the shader uses: the umbra is 2.6 moon radii, the penumbra 4.6,
+// and the shadow travels a chord at the impact parameter set by "shadow path".
+function hmEclipsePhase(p) {
+    const pathEl = document.getElementById('hmEclipsePath');
+    const b = pathEl ? (parseFloat(pathEl.value) || 0) : 0.35;
+    const U = 2.6, P = 4.6;
+    const span = Math.sqrt(Math.max(0, (P + 1) * (P + 1) - b * b));
+    const d = Math.hypot(-span + 2 * span * p, b);
+    if (d >= P + 1) return 'clear';
+    if (d >= U + 1) return 'penumbral';
+    if (d > U - 1) return 'partial';
+    return 'totality';
+}
 
 document.querySelectorAll('#hypermoonPanel .hm-slider').forEach(function(slider) {
     slider.addEventListener('input', function() {
@@ -2278,7 +2382,7 @@ document.getElementById('hmBloodTint').addEventListener('input', function() {
 // this panel closing; moving the blood moon slider or the instant buttons
 // cancels it by pinning the grade.
 function hmBloodFade(target) {
-    const min = Math.max(0.05, parseFloat(document.getElementById('hmBloodFadeMin').value) || 120);
+    const min = Math.max(0.05, parseFloat(document.getElementById('hmBloodFadeMin').value) || 45);
     if (hmChannel) hmChannel.postMessage({ type: 'moonConfig', set: {
         bloodtint: document.getElementById('hmBloodTint').value.slice(1),
         bloodfade: min * 60,
@@ -2291,6 +2395,49 @@ function hmBloodFade(target) {
 }
 document.getElementById('hmBloodFadeRed').addEventListener('click', function() { hmBloodFade(1); });
 document.getElementById('hmBloodFadeBack').addEventListener('click', function() { hmBloodFade(0); });
+// Earth's shadow: the transit itself runs in the output window (eclipserun /
+// eclipsetarget), so once it is started this panel can go away. The slider
+// scrubs it by hand, which also stops any run in progress.
+function hmEclipseSet(set, status) {
+    if (hmChannel) hmChannel.postMessage({ type: 'moonConfig', set: set });
+    if (status != null) document.getElementById('hmEclipseStatus').textContent = status;
+}
+document.getElementById('hmEclipseRun').addEventListener('click', function() {
+    const min = Math.max(0.05, parseFloat(document.getElementById('hmEclipseMin').value) || 45);
+    const every = Math.max(0, parseFloat(document.getElementById('hmEclipseEvery').value) || 0);
+    hmEclipseSet({ eclipse: 0 });
+    hmEclipseSet({ eclipserun: min * 60, eclipseevery: every, eclipsetarget: 1 },
+        '\u25CF first contact \u2014 last contact at ' +
+        new Date(Date.now() + min * 60000).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) +
+        (every ? ', then again every ' + every + ' min' : ''));
+    const s = document.getElementById('hmEclipse');
+    s.value = 0;
+    document.getElementById('hmEclipseVal').textContent = HM_FMT.eclipse(0);
+});
+document.getElementById('hmEclipseTotality').addEventListener('click', function() {
+    hmEclipseSet({ eclipse: 0.5 }, '\u25CF totality');
+    const s = document.getElementById('hmEclipse');
+    s.value = 0.5;
+    document.getElementById('hmEclipseVal').textContent = HM_FMT.eclipse(0.5);
+});
+document.getElementById('hmEclipseHold').addEventListener('click', function() {
+    hmEclipseSet({ eclipsestop: 1, eclipseevery: 0 }, '\u25A0 held');
+    document.getElementById('hmEclipseEvery').value = 0;
+});
+document.getElementById('hmEclipseClear').addEventListener('click', function() {
+    hmEclipseSet({ eclipseon: 0, eclipseevery: 0 }, '');
+    document.getElementById('hmEclipseEvery').value = 0;
+    const s = document.getElementById('hmEclipse');
+    s.value = 0;
+    document.getElementById('hmEclipseVal').textContent = HM_FMT.eclipse(0);
+});
+
+document.getElementById('hmFisherLive').addEventListener('change', function() {
+    const on = this.checked;
+    if (hmChannel) hmChannel.postMessage({ type: 'moonConfig', set: { fisherlive: on ? 1 : 0 } });
+    document.getElementById('hmFisherLiveVal').textContent = on ? 'fishing' : '\u2013';
+});
+
 document.getElementById('hmBloodFadeStop').addEventListener('click', function() {
     if (hmChannel) hmChannel.postMessage({ type: 'moonConfig', set: { bloodstop: 1 } });
     document.getElementById('hmBloodFadeStatus').textContent = '\u25A0 held';
@@ -2661,17 +2808,22 @@ document.getElementById('hmProgramSelect').addEventListener('change', function()
 });
 
 // ── Program editor: compose the rotation arc act by act and apply live ──
+// Mirrors PROGRAMS.hour in hypermoon.html — 201 rotations, an hour at the
+// nominal 18 s rotation. "fit to hour" rescales whatever is in the editor.
 const HM_PROG_HOUR = [
-    { content: 'crt', cycles: 8, dark: 2, reveal: 1 },
-    { content: 'incant', cycles: 8, dark: 2, reveal: 1 },
-    { content: 'vajra', cycles: 8, dark: 2, reveal: 1 },
-    { content: 'fold', cycles: 6, dark: 2, reveal: 1 },
-    { content: 'foldhelix', cycles: 6, dark: 2, reveal: 1 },
-    { content: 'foldjitter', cycles: 6, dark: 2, reveal: 1 },
-    { content: 'foldgeo', cycles: 6, dark: 2, reveal: 1 },
-    { content: 'foldivm', cycles: 6, dark: 2, reveal: 1 },
-    { content: 'foldsonic', cycles: 6, dark: 2, reveal: 1 },
-    { content: 'artifacts/sample-sonicsphere-silent.webm', cycles: 8, dark: 2, reveal: 1 }
+    { content: 'crt', cycles: 6, dark: 2, reveal: 1 },
+    { content: 'incant', cycles: 6, dark: 2, reveal: 1, fisher: true },
+    { content: 'vajra', cycles: 6, dark: 2, reveal: 1 },
+    { content: 'fold', cycles: 5, dark: 2, reveal: 1 },
+    { content: 'foldhelix', cycles: 5, dark: 2, reveal: 1 },
+    { content: 'cymatics', cycles: 6, dark: 2, reveal: 1, fisher: true },
+    { content: 'foldjitter', cycles: 5, dark: 2, reveal: 1 },
+    { content: 'foldgeo', cycles: 5, dark: 2, reveal: 1 },
+    { content: 'harmonics', cycles: 6, dark: 2, reveal: 1, eclipse: 18 },
+    { content: 'foldivm', cycles: 4, dark: 2, reveal: 1 },
+    { content: 'foldsonic', cycles: 4, dark: 2, reveal: 1 },
+    { content: 'fisher', cycles: 5, dark: 2, reveal: 1 },
+    { content: 'artifacts/sample-sonicsphere-silent.webm', cycles: 4, dark: 2, reveal: 1 }
 ];
 let hmRotSeconds = 18; // refreshed from the output's state
 
@@ -2683,12 +2835,18 @@ function hmProgRow(act) {
         '<td><input type="text" class="prog-cycles" size="3"/></td>' +
         '<td><input type="text" class="prog-dark" size="3"/></td>' +
         '<td><input type="text" class="prog-reveal" size="3"/></td>' +
+        '<td style="text-align:center;"><input type="checkbox" class="prog-fisher"' +
+        ' title="bring the fisher companion in for this act (leave every act unticked to keep him under manual control)"/></td>' +
+        '<td><input type="text" class="prog-eclipse" size="3"' +
+        ' title="start an earth-shadow transit of this many minutes as the act opens - blank or 0 for none"/></td>' +
         '<td><input type="button" class="prog-del" value="&#215;" title="remove act"/>' +
         ' <input type="button" class="prog-up" value="&#8593;" title="move up"/></td>';
     tr.querySelector('.prog-content').value = act.content;
     tr.querySelector('.prog-cycles').value = act.cycles;
     tr.querySelector('.prog-dark').value = act.dark;
     tr.querySelector('.prog-reveal').value = act.reveal;
+    tr.querySelector('.prog-fisher').checked = !!act.fisher;
+    tr.querySelector('.prog-eclipse').value = act.eclipse || '';
     return tr;
 }
 function hmProgRender(acts) {
@@ -2699,14 +2857,25 @@ function hmProgRender(acts) {
 }
 function hmProgCollect() {
     return Array.prototype.map.call(document.querySelectorAll('#hmProgBody tr'), function(tr) {
-        return {
+        const act = {
             content: tr.querySelector('.prog-content').value.trim(),
             cycles: parseInt(tr.querySelector('.prog-cycles').value, 10) || 1,
             dark: parseInt(tr.querySelector('.prog-dark').value, 10) || 0,
             reveal: parseInt(tr.querySelector('.prog-reveal').value, 10) || 1
         };
+        // Only send these when they are actually used: an act array with no
+        // fisher key anywhere leaves the companion under manual control.
+        if (tr.querySelector('.prog-fisher').checked) act.fisher = true;
+        else if (hmProgAnyFisher()) act.fisher = false;
+        const ecl = parseFloat(tr.querySelector('.prog-eclipse').value);
+        if (ecl > 0) act.eclipse = ecl;
+        return act;
     });
 }
+// A program never stops: the output walks its rotations and wraps round to
+// the first act forever. The hour is a framing target, not a cutoff — this
+// only says how often the whole arc comes round.
+const HM_LOOP_MIN = 60;
 function hmProgRefresh() {
     let rot = 0;
     document.querySelectorAll('#hmProgBody tr').forEach(function(tr, i) {
@@ -2714,9 +2883,42 @@ function hmProgRefresh() {
     });
     hmProgCollect().forEach(function(a) { rot += a.cycles * (a.dark + a.reveal); });
     const min = rot * hmRotSeconds / 60;
-    document.getElementById('hmProgDuration').textContent =
-        rot + ' rotations \u2248 ' + (min >= 90 ? (min / 60).toFixed(1) + ' h' : Math.round(min) + ' min') +
-        ' at current speed';
+    const el = document.getElementById('hmProgDuration');
+    const over = min > HM_LOOP_MIN + 0.5;
+    const laps = min > 0 ? HM_LOOP_MIN / min : 0;
+    el.textContent = rot + ' rotations \u2248 ' +
+        (min >= 90 ? (min / 60).toFixed(1) + ' h' : Math.round(min) + ' min') +
+        ' at current speed \u2014 ' +
+        (over ? 'comes round every ' +
+                (min >= 90 ? (min / 60).toFixed(1) + ' h' : Math.round(min) + ' min') +
+                ', past the hour'
+              : laps >= 1.6 ? 'repeats ' + laps.toFixed(1) + '\u00d7 per hour'
+              : 'fits the hour');
+    el.style.color = over ? 'rgba(255,150,90,0.9)' : 'rgba(207,233,255,0.62)';
+}
+// Scale every act's cycles by the same factor so the whole program lands as
+// close to the hour as whole cycles allow.
+function hmProgFitHour() {
+    const rows = Array.prototype.slice.call(document.querySelectorAll('#hmProgBody tr'));
+    const acts = hmProgCollect();
+    const rotOf = function(a) { return a.cycles * (a.dark + a.reveal); };
+    const total = function() { return acts.reduce(function(n, a) { return n + rotOf(a); }, 0); };
+    const rot = total();
+    if (!rot || !hmRotSeconds) return;
+    const want = (HM_LOOP_MIN * 60) / hmRotSeconds;
+    acts.forEach(function(a) { a.cycles = Math.max(1, Math.round(a.cycles * (want / rot))); });
+    // Rounding can push it past the hour, so shave the longest act a cycle at
+    // a time until the whole program lands inside the loop rather than over it.
+    for (let guard = 0; guard < 999 && total() > want; guard++) {
+        let pick = -1, longest = -1;
+        acts.forEach(function(a, i) {
+            if (a.cycles > 1 && rotOf(a) > longest) { longest = rotOf(a); pick = i; }
+        });
+        if (pick < 0) break;
+        acts[pick].cycles--;
+    }
+    rows.forEach(function(tr, i) { tr.querySelector('.prog-cycles').value = acts[i].cycles; });
+    hmProgRefresh();
 }
 document.getElementById('hmProgBody').addEventListener('input', hmProgRefresh);
 document.getElementById('hmProgBody').addEventListener('click', function(e) {
@@ -2729,6 +2931,7 @@ document.getElementById('hmProgBody').addEventListener('click', function(e) {
     }
 });
 document.getElementById('hmProgLoadHour').addEventListener('click', function() { hmProgRender(HM_PROG_HOUR); });
+document.getElementById('hmProgFitHour').addEventListener('click', hmProgFitHour);
 document.getElementById('hmProgAddAct').addEventListener('click', function() {
     document.getElementById('hmProgBody').appendChild(hmProgRow({ content: '', cycles: 4, dark: 2, reveal: 1 }));
     hmProgRefresh();
@@ -2802,6 +3005,24 @@ if (hmChannel) {
                     '\u25CF fading to ' + Math.round(state.bloodtarget * 100) + '% \u2014 now ' +
                     Math.round(state.bloodmoon * 100) + '%' +
                     (minsLeft ? ', ~' + Math.ceil(minsLeft) + ' min left' : '');
+            }
+        }
+        const flEl = document.getElementById('hmFisherLive');
+        if (state.fisherlive != null && document.activeElement !== flEl) {
+            flEl.checked = !!state.fisherlive;
+            document.getElementById('hmFisherLiveVal').textContent = state.fisherlive ? 'fishing' : '\u2013';
+        }
+        if (state.eclipseon != null) {
+            const running = state.eclipseon && Math.abs(state.eclipsetarget - state.eclipse) > 0.0005;
+            const minsLeft = running && state.eclipserun > 0
+                ? Math.abs(state.eclipsetarget - state.eclipse) * state.eclipserun / 60 : 0;
+            document.getElementById('hmEclipseStatus').textContent = !state.eclipseon
+                ? ''
+                : (running ? '\u25CF ' : '\u25A0 ') + hmEclipsePhase(state.eclipse) +
+                  (minsLeft ? ', ~' + Math.ceil(minsLeft) + ' min to last contact' : '') +
+                  (state.eclipseevery > 0 ? ' \u2014 repeating every ' + state.eclipseevery + ' min' : '');
+            if (state.eclipseevery != null && document.activeElement !== document.getElementById('hmEclipseEvery')) {
+                document.getElementById('hmEclipseEvery').value = state.eclipseevery;
             }
         }
         const progEl = document.getElementById('hmProgramSelect');

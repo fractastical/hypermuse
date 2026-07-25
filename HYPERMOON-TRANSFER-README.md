@@ -24,8 +24,24 @@ latest versions). Then:
   (`?backspeed=`, needs Chrome for ImageDecoder — kiosk Chrome is fine).
 - **Moon size** slider (`?moonscale=`): shrinks/grows the whole moon while it
   stays pinned to the screen centre.
+- **A program never stops.** The output walks the schedule one entry per
+  rotation and wraps back to the first act forever, so leaving it running all
+  night is the intended way to use it — nothing has to be restarted and
+  nothing gets cut off. The hour is a *framing* target, not a cutoff: it is
+  how often you want the whole arc to come round. The program editor says
+  which side of that you're on ("fits the hour" / "repeats 2.4× per hour" /
+  an amber "comes round every 1.4 h, past the hour"), and `fit to hour`
+  rescales every act's cycles to land on it. The two timed effects (the
+  eclipse transit and the blood fade) default to 45 minutes for the same
+  reason, and the eclipse can be set to recur. At the nominal 18 s
+  rotation: `hour` is 201 rotations ≈ 60 min, `library` ≈ 13.5 min (so it
+  comes round 4× an hour), `folds` ≈ 11 min, `nightfishing` ≈ 4.5 min, `eye10`
+  and `eyefolds` ≈ 3 min.
 - **Program presets** in the program dropdown: `library` (the whole effect
   library, a different one every 3rd rotation — the good unattended default),
+  `carousel` (the same library with no word-only rotation between the acts, so
+  every single rotation is a different effect — 15 rotations ≈ 4.5 min a lap,
+  the one to run when the moon is the centrepiece rather than the wallpaper),
   `eye10` (word-only moon, the eye seal irises open every 10th rotation),
   `folds` (the bucky fold repertoire every 3rd rotation), `eyefolds` (folds +
   the eye every 10th), plus the original `hour`. In the custom program editor,
@@ -42,6 +58,35 @@ latest versions). Then:
   is. The fade runs inside the output window, so the controller can be
   closed once it's started; the export query resumes a mid-fade eclipse
   after a reload (`?bloodmoon=&bloodtarget=&bloodfade=`).
+- **Earth's shadow** (`?eclipse=0..1`): the eclipse as an event rather than a
+  grade. The umbra is a disc 2.6 moon radii across inside a 4.6-radius
+  penumbra — the real proportions — and the moon drifts through it along a
+  chord, so 0 is first contact on one side and 1 is last contact on the
+  other. The shadow's curved edge cuts across the craters on the way in;
+  inside it the surface is lit only by sunlight refracted through the earth's
+  atmosphere, copper and brighter toward the rim, with the turquoise fringe
+  the ozone layer puts just inside the edge. Controls: the `earth's shadow`
+  slider scrubs the transit by hand, `▶ run eclipse` runs it over N minutes
+  (default 45) and, with `again every N min` set (`?eclipseevery=`), leaves a
+  clear sky for that long and then brings the shadow round again — otherwise
+  it is a single pass, which is a lot of nothing across a long night. Both
+  ends of a transit are a clear moon, so the rewind is invisible. Also
+  `● jump to totality`, `✖ hold`, `clear shadow`. The value
+  readout names the phase (penumbral / partial / totality). `shadow path`
+  (`?eclipsepath=`) is how centrally it passes — 0 is dead through the
+  middle, past about 1.6 it never goes total — and `totality depth`
+  (`?eclipsedeep=`, default 0.7) is how dark totality gets, since the real
+  thing is far darker than a show wants. Like the blood fade, the transit
+  runs in the output window and survives the controller closing, and the
+  export query resumes it mid-eclipse.
+- **Starfield** (`?stars=N`): a parallax sky painted under everything, so the
+  moon and the orbiting vajras have something to move against instead of flat
+  black. Stars sit at their own depths — the near ones drift faster and carry
+  a faint diffraction cross — and each twinkles on its own phase, a little
+  harder when the music's highs are up. `meteors / min` (`?meteors=`, default
+  5) sets how often one crosses, `sky drift` (`?stardrift=`) scales the whole
+  sky's pace (near stars cross the screen in about ten minutes at 1×). The
+  moon occludes it, so the disc still reads as solid.
 - **Dancing mumins** (`?content=mumins`, or "dancing mumins" in the window
   content dropdown): a ring of little round trolls hopping in a circle on the
   dark side. Drawn in-page, so there's no asset to copy — `?mumins=1..9` sets
@@ -54,6 +99,42 @@ latest versions). Then:
   in-page: `?fishersec=` sets how long a catch takes (default 15s),
   `?fisherheart=` how many catches per heart (3), `?fisherzoom=` the size.
   The `nightfishing` program keeps it in rotation with the mumins and the eye.
+- **Fisher companion** (`?fisherlive=1`, or the `fisher companion` checkbox):
+  the same little scene hung in the sky beside the moon on its own layer
+  instead of inside the window — so he keeps fishing while the window runs the
+  sonic sphere, the folds, anything. Everything else carries on untouched.
+  `size` (`?fisherlivesize=`, in disc radii), `angle` (`?fisherliveangle=`,
+  degrees round the disc, 200 puts him at the lower left) and `out`
+  (`?fisherlivedist=`, how far from the centre) place him. He follows the moon
+  when you resize it.
+- **Sonic sphere** (`?content=harmonics`, or "sonic sphere" in the window
+  content dropdown): the actual normal modes of a vibrating sphere. A lattice
+  sphere is displaced by a real spherical harmonic Y(l,m) and rings in place —
+  the lobes swing out, pass through round, and come back inverted, trading
+  warm for cold, with the nodal lines staying dark because that is where the
+  surface never moves. It walks up the harmonic series, morphing each mode
+  into the next; `?harmsec=` sets how long a mode is held (default 5s). Bass
+  drives it harder. Drawn in-page, no assets.
+- **Cymatics plate** (`?content=cymatics`, or "cymatics plate"): a Chladni
+  figure. The glowing curves are the nodes of a driven square plate and the
+  sand walks downhill until it settles on them, because those are the only
+  places that are still. The mode changes every `?cymsec=` seconds (default 7)
+  and the grains scatter and re-gather; how violently they are thrown about
+  follows the music. `?cymgrains=` sets the amount of sand (default 4200).
+- **The jitterbug listens** (`?content=foldjitter`): Fuller's vector
+  equilibrium has exactly one degree of freedom — the whole collapse through
+  the icosahedron to the octahedron is a single number — so the bass can drive
+  it directly. A hit slams it shut and it springs back open, which turns the
+  geometry into a readout of the room rather than a clock. It is on a spring,
+  not a tracker, so the rebound is what you see on the beat. Scaled by the
+  `intensity` control like everything else musical; in silence it falls back
+  to the timed VE → icosa → octa cycle, so an unattended moon still moves.
+- **Window depth** slider (`?winparallax=0..1`): how far inside the shell the
+  content hangs. Above zero it slides against its own frame as the window
+  turns away, the way something at depth would, and the walls of the opening
+  shade it toward the rim — which is what makes the sonic sphere read as
+  suspended inside a hollow moon rather than screened on its surface.
+  Defaults low for the drawn figures and half open for everything else.
 - **Window solidity** slider (`?winsolid=0..1`): window content is normally
   added as *light*, which is right for glowing screens and wireframes but
   turns drawn figures into ghosts. At 1 the content is painted opaque onto
@@ -132,11 +213,16 @@ window is occluded or the display is blanked. `window.__hyperstitionStats.pump`
 reports `frames`, `timerFrames`, `stalls` and the wake lock state if you need
 to prove it is still alive.
 
-- **Vajra orbit tilt** slider (`?vajratilt=0.05..1`): how open the orbit lanes
-  are. Low values lay the lanes edge-on, so the dorjes just slide back and
-  forth across the moon's face; the default 0.7 opens them until the inner
-  lanes duck behind the disc and come back out, and the outer ones ring the
-  limb. `vajra orbit radius` still sets how wide the ring is.
+- **Vajras that actually orbit.** A dorje in front of the moon now *covers*
+  the surface (the clips are keyed off their black background and composited
+  properly, instead of being added as light, which made them look painted on)
+  and the far half of each lane is clipped per pixel against the disc, so a
+  dorje is eaten by the limb, vanishes behind the moon and comes out the
+  other side. The **vajra lane opening** slider (`?vajratilt=0.05..1`) sets
+  how far a lane opens vertically, measured against the disc rather than
+  against the lane's width — that is what guarantees every lane turns inside
+  the limb instead of only the innermost one. `vajra orbit radius` still sets
+  how wide they swing at the sides.
 
 ## Dorje clips
 
@@ -152,9 +238,10 @@ proxy is missing the sprite falls back to the master path automatically.
 ## Making a demo reel
 
 `npm run export:reel` walks every effect in turn — word mosaic, mumins, star
-fisher, CRT, incantation, vajra cave, the folds, orbiting vajras, the eye
-iris, blood moon, moon size — captions each one and writes
-`artifacts/hypermoon-effects-reel.mp4` (about 40 s). `SCENES=fisher,blood`
+fisher, CRT, incantation, vajra cave, the folds, the sonic sphere, the
+cymatics plate, orbiting vajras, the eye iris, blood moon, earth's shadow,
+starfield, moon size — captions each one and writes
+`artifacts/hypermoon-effects-reel.mp4` (about a minute). `SCENES=fisher,blood`
 renders just those, `SCENE_MS=` changes the time per scene.
 
 `npm run export:clips` captures the same pass but writes one little video per

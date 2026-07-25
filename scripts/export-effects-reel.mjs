@@ -77,12 +77,28 @@ const SCENES = [
     note: "Fuller 100.41: a triangle folding into a tetrahedron" },
   { id: "foldhelix", title: "fold helix", facing: true, q: { ...WIN, content: "foldhelix", winbright: "0.9" },
     note: "the same repertoire, wound into a helix" },
+  { id: "harmonics", title: "sonic sphere", facing: true, ms: 7000,
+    q: { ...WIN, content: "harmonics", winbright: "0.85", harmsec: "3.5", angw: "1.5", angh: "0.95" },
+    note: "the real normal modes of a vibrating sphere, ringing in place" },
+  { id: "cymatics", title: "cymatics plate", facing: true, ms: 7000,
+    q: { ...WIN, content: "cymatics", winbright: "0.75", cymsec: "3.5", angw: "1.4", angh: "0.95" },
+    note: "sand settling onto the nodal lines of a driven plate" },
   { id: "vajras", title: "orbiting vajras", q: { vajras: "6", vajraradius: "1.3" },
     note: "dorje sprites on tilted lanes, hidden behind the disc" },
+  { id: "fisherlive", title: "the fisher, alongside", ms: 8000,
+    q: { fisherlive: "1", vajras: "3", stars: "600", meteors: "12", fishersec: "7", fisherheart: "1" },
+    note: "the fisher on his own layer, so he keeps fishing through everything else" },
   { id: "eye", title: "eye seal iris reveal", q: { backdrop: EYE_GIF, iris: "1", iriszoom: "2.5", backscale: "0.98" },
     note: "the disc opens to a clear hole onto the seal behind it" },
   { id: "blood", title: "blood moon", q: { bloodmoon: "0.9" },
     note: "luminance-preserving eclipse grade over the whole disc" },
+  // Run the transit fast enough that the shadow visibly moves: the three
+  // seconds of pre-roll before recording carry it to first contact.
+  { id: "eclipse", title: "earth's shadow", ms: 6000,
+    q: { eclipse: "0", eclipsetarget: "1", eclipserun: "13", stars: "400", meteors: "0" },
+    note: "the umbra crosses the disc, totality lit by refracted sunlight" },
+  { id: "stars", title: "starfield sky", q: { stars: "700", meteors: "60", stardrift: "3", vajras: "3" },
+    note: "parallax stars behind everything, with the occasional meteor" },
   { id: "scale", title: "moon size", q: { moonscale: "0.55", vajras: "3" },
     note: "the whole render shrinks, backdrop and orbits following" }
 ];
