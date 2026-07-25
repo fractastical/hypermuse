@@ -3,7 +3,8 @@
  * Montage of every effect the hypermoon currently has, one scene each, with
  * a caption naming the effect and the query that produces it.
  *
- *   npm run export:reel
+ *   npm run export:reel                              # the montage
+ *   npm run export:clips                             # one video per effect
  *   SCENE_MS=4000 EXPORT_WIDTH=1920 EXPORT_HEIGHT=1080 npm run export:reel
  *   SCENES=mumins,vajras,blood npm run export:reel   # subset, in this order
  *
@@ -25,6 +26,10 @@ const PROJECT_ROOT = process.cwd();
 const ARTIFACTS_DIR = path.join(PROJECT_ROOT, "artifacts");
 const FRAMES_DIR = path.join(ARTIFACTS_DIR, "effects-reel-frames");
 const OUTPUT = path.resolve(PROJECT_ROOT, process.env.OUTPUT_VIDEO || "artifacts/hypermoon-effects-reel.mp4");
+const CLIPS_DIR = path.resolve(PROJECT_ROOT, process.env.CLIPS_DIR || "artifacts/demos/effects");
+// CLIPS=1 writes one little video per effect; REEL=0 skips the long montage.
+const CLIPS = process.env.CLIPS === "1";
+const REEL = process.env.REEL !== "0";
 const WIDTH = Number.parseInt(process.env.EXPORT_WIDTH || "1280", 10);
 const HEIGHT = Number.parseInt(process.env.EXPORT_HEIGHT || "720", 10);
 const SCENE_MS = Number.parseInt(process.env.SCENE_MS || "3200", 10);
@@ -56,17 +61,21 @@ const SCENES = [
   // A whole catch has to fit inside the scene, so this one runs a short cycle
   // and hearts on every catch rather than every third.
   { id: "fisher", title: "the star fisher", facing: true, ms: 7000,
-    q: { ...WIN, content: "fisher", fishersec: "6", fisherheart: "1", winbright: "0.38" },
+    q: { ...WIN, angw: "1.55", angh: "0.98", content: "fisher", fishersec: "6", fisherheart: "1", winbright: "0.38" },
     note: "hooks a star, cups it, lets it go — and the freed stars make a heart" },
-  { id: "crt", title: "CRT terminal", facing: true, q: { ...WIN, content: "crt" },
+  // mosaic=0 drops the letter panel that normally sits over these windows, so
+  // the reel shows the content itself rather than the word on top of it.
+  { id: "crt", title: "CRT terminal", facing: true, q: { ...WIN, content: "crt", mosaic: "0" },
     note: "a live terminal typing through the window" },
-  { id: "incant", title: "incantation", facing: true, q: { ...WIN, content: "incant" },
+  // apparition=0 stops the random open/shut gating, which otherwise leaves
+  // the scene shut for the few seconds it is on camera.
+  { id: "incant", title: "incantation", facing: true, q: { ...WIN, content: "incant", apparition: "0" },
     note: "mantra phrases surfacing one at a time" },
-  { id: "vajracave", title: "vajra cave", facing: true, q: { ...WIN, content: "vajra" },
+  { id: "vajracave", title: "vajra cave", facing: true, q: { ...WIN, content: "vajra", mosaic: "0" },
     note: "spinning dorjes recessed into the moon" },
-  { id: "fold", title: "synergetics fold", facing: true, q: { ...WIN, content: "fold" },
+  { id: "fold", title: "synergetics fold", facing: true, q: { ...WIN, content: "fold", winbright: "0.9" },
     note: "Fuller 100.41: a triangle folding into a tetrahedron" },
-  { id: "foldhelix", title: "fold helix", facing: true, q: { ...WIN, content: "foldhelix" },
+  { id: "foldhelix", title: "fold helix", facing: true, q: { ...WIN, content: "foldhelix", winbright: "0.9" },
     note: "the same repertoire, wound into a helix" },
   { id: "vajras", title: "orbiting vajras", q: { vajras: "6", vajraradius: "1.3" },
     note: "dorje sprites on tilted lanes, hidden behind the disc" },
@@ -133,6 +142,7 @@ async function main() {
   let frame = 0;
   let recordedMs = 0;
   const stamps = [];
+  const cuts = []; // one entry per scene, so each can be cut out on its own
   try {
     const context = await browser.newContext({ viewport: { width: WIDTH, height: HEIGHT } });
     const page = await context.newPage();
@@ -208,7 +218,12 @@ async function main() {
       await cdp.send("Page.stopScreencast").catch(() => {});
       // Per-scene span only: the gaps spent loading and waiting between
       // scenes must not drag the playback rate down.
-      if (frame - startIndex > 1) recordedMs += stamps[frame - 1] - stamps[startIndex];
+      const shot = frame - startIndex;
+      if (shot > 1) {
+        const ms = stamps[frame - 1] - stamps[startIndex];
+        recordedMs += ms;
+        cuts.push({ id: scene.id, title: scene.title, start: startIndex, count: shot, ms });
+      }
     }
     await context.close();
   } finally {
@@ -219,27 +234,41 @@ async function main() {
   }
 
   if (frame < 2) throw new Error("no frames captured");
-  // Encode at the rate we actually achieved so motion plays at true speed.
-  const spanSec = recordedMs / 1000;
-  const realFps = Math.max(4, Math.min(60, frame / Math.max(spanSec, 0.001)));
-  console.log(`[reel] ${frame} frames over ${spanSec.toFixed(1)}s -> encoding at ${realFps.toFixed(2)}fps`);
 
-  const ext = path.extname(OUTPUT).toLowerCase();
-  const args = ["-y", "-framerate", realFps.toFixed(3), "-i", path.join(FRAMES_DIR, "frame-%05d.jpg")];
-  if (ext === ".webm") args.push("-c:v", "libvpx-vp9", "-b:v", "4M");
-  else args.push("-c:v", "libx264", "-crf", "20", "-preset", "medium", "-vf", "format=yuv420p");
-  args.push(OUTPUT);
-  const enc = spawnSync(ffmpegPath, args, { encoding: "utf8" });
-  if (enc.status !== 0) throw new Error(enc.stderr || "ffmpeg failed");
+  // Encode at the rate actually achieved so motion plays at true speed.
+  function encode(out, start, count, ms) {
+    const fps = Math.max(4, Math.min(60, count / Math.max(ms / 1000, 0.001)));
+    const args = [
+      "-y", "-framerate", fps.toFixed(3),
+      "-start_number", String(start),
+      "-i", path.join(FRAMES_DIR, "frame-%05d.jpg"),
+      "-frames:v", String(count)
+    ];
+    if (path.extname(out).toLowerCase() === ".webm") args.push("-c:v", "libvpx-vp9", "-b:v", "4M");
+    else args.push("-c:v", "libx264", "-crf", "20", "-preset", "medium", "-vf", "format=yuv420p");
+    args.push(out);
+    const enc = spawnSync(ffmpegPath, args, { encoding: "utf8" });
+    if (enc.status !== 0) throw new Error(enc.stderr || "ffmpeg failed");
+    return { seconds: +(ms / 1000).toFixed(1), fps: +fps.toFixed(2) };
+  }
 
-  console.log(JSON.stringify({
-    output: path.relative(PROJECT_ROOT, OUTPUT),
-    scenes: scenes.map((s) => s.id),
-    frames: frame,
-    seconds: +spanSec.toFixed(1),
-    fps: +realFps.toFixed(2),
-    size: `${WIDTH}x${HEIGHT}`
-  }, null, 2));
+  const made = [];
+  if (CLIPS) {
+    ensureDir(CLIPS_DIR);
+    for (const c of cuts) {
+      const out = path.join(CLIPS_DIR, `hypermoon-${c.id}.mp4`);
+      const info = encode(out, c.start, c.count, c.ms);
+      console.log(`[reel] clip ${c.id}: ${info.seconds}s @ ${info.fps}fps`);
+      made.push({ id: c.id, title: c.title, file: path.relative(PROJECT_ROOT, out), ...info });
+    }
+  }
+  if (REEL) {
+    const info = encode(OUTPUT, 0, frame, recordedMs);
+    console.log(`[reel] reel: ${frame} frames, ${info.seconds}s @ ${info.fps}fps`);
+    made.push({ id: "reel", title: "all effects", file: path.relative(PROJECT_ROOT, OUTPUT), ...info });
+  }
+
+  console.log(JSON.stringify({ size: `${WIDTH}x${HEIGHT}`, frames: frame, outputs: made }, null, 2));
 }
 
 main().catch((e) => { console.error(e?.stack || String(e)); process.exit(1); });

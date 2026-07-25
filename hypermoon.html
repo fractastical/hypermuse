@@ -141,6 +141,13 @@
   let BACK_SCALE = num("backscale", 1);
   let BACK_ALPHA = Math.max(0, Math.min(1, num("backalpha", 1)));
   let BACK_SEC = num("backsec", 12);
+  // Sky (?stars=N): a parallax starfield painted under everything else, so
+  // the moon and the orbiting vajras have something to move against instead
+  // of flat black. ?meteors is shooting stars per minute, ?stardrift scales
+  // how fast the sky slides past (near stars cross in about ten minutes).
+  let SKY_COUNT = Math.max(0, Math.min(1600, Math.round(num("stars", 0))));
+  let SKY_METEORS = Math.max(0, num("meteors", 5));
+  let SKY_DRIFT = Math.max(0, num("stardrift", 1));
   // Backdrop playback rate (?backspeed=): plain <img> gifs are locked to the
   // frame delays baked into the file, so to cycle faster we decode the gif
   // and drive it on a canvas at this multiplier (2 = twice as fast).
@@ -173,6 +180,24 @@
   // this window, so the controller can be closed once it's started.
   let BLOOD_SEC = Math.max(0, num("bloodfade", 0));
   let BLOOD_TARGET = Math.max(0, Math.min(1, num("bloodtarget", BLOOD_AMT)));
+  // Earth's shadow (?eclipse=0..1): the real thing rather than a grade. At
+  // lunar distance the umbra is a disc about 2.6 moon radii across inside a
+  // penumbra of 4.6, and the moon drifts through it along a chord — so
+  // progress 0 is first contact on one side and 1 is last contact on the
+  // other, with totality in the middle. ?eclipsepath is how centrally it
+  // passes: 0 is dead through the middle, past ~1.6 it never goes total.
+  // ?eclipsetarget + ?eclipserun (seconds) run the transit on a timer.
+  let ECL_ON = params.has("eclipse") || params.has("eclipserun") || params.has("eclipsetarget");
+  let ECL_P = Math.max(0, Math.min(1, num("eclipse", 0)));
+  let ECL_TARGET = Math.max(0, Math.min(1, num("eclipsetarget", ECL_P)));
+  let ECL_SEC = Math.max(0, num("eclipserun", 0));
+  let ECL_PATH = Math.max(0, Math.min(3, num("eclipsepath", 0.35)));
+  // How far down totality goes. The real thing is far darker than this; a
+  // show wants it the way eclipse photographs look, not the way the meter
+  // reads. 1 is closest to true darkness, 0 leaves the moon plainly lit.
+  let ECL_DEEP = Math.max(0, Math.min(1, num("eclipsedeep", 0.7)));
+  const ECL_UMBRA = Math.max(1.05, num("eclipseumbra", 2.6));
+  const ECL_PEN = Math.max(ECL_UMBRA + 0.2, num("eclipsepen", 4.6));
 
   // alpha:true so the canvas clears transparent and the gif backdrop shows
   // through wherever the moon isn't (or is faded via ?alpha=).
@@ -274,7 +299,14 @@
   ];
   const VAJRA_CLIPS = VAJRA_NAMES.map((n) => VAJRA_WEB + "/" + n);
   let VAJRA_COUNT = Math.max(0, Math.min(6, Math.round(num("vajras", 0))));
-  let VAJRA_RADIUS = num("vajraradius", num("vajraRadius", 1.15));
+  let VAJRA_RADIUS = num("vajraradius", num("vajraRadius", 1.25));
+  // How open the orbit lanes are: the ratio of the ellipse's vertical to
+  // horizontal radius. Near 0 the lane is edge-on, so the sprites just slide
+  // back and forth across the moon's face; near 1 it is a face-on ring. The
+  // default opens the inner lanes just short of the limb, so their far half
+  // ducks behind the disc and comes back out — which is what reads as
+  // orbiting. The outer lanes clear the limb entirely and ring it instead.
+  let VAJRA_TILT = Math.max(0.05, Math.min(1, num("vajratilt", num("vajraTilt", 0.7))));
   const VAJRA_SCALE = num("vajrascale", 0.17); // sprite height in frame-height units
   const vajraSprites = [];
 
@@ -421,7 +453,7 @@
     for (let i = 0; i < VAJRA_COUNT; i++) {
       const s = vajraSprites[i];
       const rx = dv.z * VAJRA_RADIUS * (1.03 + s.lane * 0.085);
-      const ry = rx * (0.30 + s.lane * 0.05);
+      const ry = rx * Math.min(1, VAJRA_TILT + s.lane * 0.03);
       const laneRot = (s.lane - (VAJRA_COUNT - 1) / 2) * 0.14;
       const th = s.phase + t * s.speed;
       const depth = Math.sin(th); // > 0 = in front of the moon
@@ -805,7 +837,7 @@
       const th = Math.PI / 2 + (k / n) * Math.PI * 2;
       const x = 16 * Math.pow(Math.sin(th), 3);
       const y = 13 * Math.cos(th) - 5 * Math.cos(2 * th) - 2 * Math.cos(3 * th) - Math.cos(4 * th);
-      return { x: x * s * 0.04, y: -y * s * 0.04 };
+      return { x: x * s * 0.035, y: -y * s * 0.035 };
     }
 
     // Seated, one arm on the rod. wave lifts the free arm; pull bends it into
@@ -863,7 +895,7 @@
         const orb = { x: cx + Math.cos(a) * 0.95 * s, y: seat - 1.42 * s + Math.sin(a) * 0.3 * s + Math.sin(t * 1.1 + i) * 0.04 * s };
         if (heart <= 0) return orb;
         const h = heartAt(i, Math.max(n, 1), s);
-        return { x: orb.x + (cx + h.x - orb.x) * heart, y: orb.y + (seat - 1.05 * s + h.y - orb.y) * heart };
+        return { x: orb.x + (cx + h.x - orb.x) * heart, y: orb.y + (seat - 1.3 * s + h.y - orb.y) * heart };
       };
 
       // Crescent the fisher is perched on.
@@ -942,7 +974,7 @@
         ctx.beginPath();
         for (let i = 0; i <= 48; i++) {
           const h = heartAt(i, 48, s);
-          const px = cx + h.x, py = seat - 1.05 * s + h.y;
+          const px = cx + h.x, py = seat - 1.3 * s + h.y;
           if (i === 0) ctx.moveTo(px, py); else ctx.lineTo(px, py);
         }
         ctx.closePath();
@@ -1809,7 +1841,12 @@
     uIrisFeather: { value: IRIS_FEATHER },
     // Blood-moon grade: eclipse tint color + blend amount.
     uBlood: { value: new THREE.Color("#" + BLOOD_TINT) },
-    uBloodAmt: { value: BLOOD_AMT }
+    uBloodAmt: { value: BLOOD_AMT },
+    // Earth's shadow: on/off, then (transit progress, umbra radius, penumbra
+    // radius, impact parameter) with the radii in disc radii.
+    uEclOn: { value: ECL_ON ? 1 : 0 },
+    uEcl: { value: new THREE.Vector4(ECL_P, ECL_UMBRA, ECL_PEN, ECL_PATH) },
+    uEclDeep: { value: ECL_DEEP }
   };
 
   // Audio reactivity modulates uBright/uLift/uWinBright every frame, so the
@@ -1993,6 +2030,8 @@
       uniform float uWin, uWinDepth, uWinGrow, uWinAspect, uWinBright, uWordOn, uGate, uAlpha;
       uniform float uWinSolid;
       uniform float uIris, uIrisR, uIrisFeather, uBloodAmt;
+      uniform float uEclOn, uEclDeep;
+      uniform vec4 uEcl;
       uniform vec3 uBlood;
       uniform vec3 uColor, uDisc, uSpot;
       uniform vec4 uRect;
@@ -2105,6 +2144,29 @@
         // like sunlight refracted through the earth's atmosphere.
         float bloodLum = dot(col, vec3(0.2126, 0.7152, 0.0722));
         col = mix(col, uBlood * pow(bloodLum, 0.85) * 1.25, uBloodAmt);
+        // Earth's shadow: the umbra is a disc drifting along a chord past the
+        // moon with the penumbra graded around it. Outside the umbra the
+        // surface is just dimmed, so the shadow's curved edge cuts across the
+        // craters; inside it the only light left is sunlight bent through the
+        // earth's atmosphere — copper, brighter toward the rim, with the
+        // turquoise fringe the ozone layer puts just inside the edge.
+        // Everything here scales with the pixel's own luminance, so the empty
+        // sky around the disc stays empty: the canvas is premultiplied, and
+        // any colour left outside the moon would add light to the backdrop.
+        if (uEclOn > 0.5) {
+          vec2 pn = d / max(uDisc.z, 1e-4);
+          float span = sqrt(max(0.0, (uEcl.z + 1.0) * (uEcl.z + 1.0) - uEcl.w * uEcl.w));
+          float sd = length(pn - vec2(mix(-span, span, uEcl.x), uEcl.w));
+          float pen = 1.0 - smoothstep(uEcl.y, uEcl.z, sd);
+          float umb = 1.0 - smoothstep(uEcl.y - 0.035, uEcl.y + 0.035, sd);
+          float eLum = dot(col, vec3(0.2126, 0.7152, 0.0722));
+          vec3 copper = uBlood * pow(eLum, 0.85) * 1.25;
+          float rim = smoothstep(uEcl.y - 1.1, uEcl.y, sd);
+          vec3 shade = copper * mix(mix(0.55, 0.10, uEclDeep), mix(0.85, 0.42, uEclDeep), rim);
+          shade = mix(shade, vec3(0.20, 0.42, 0.52) * eLum * 1.1,
+                      0.35 * smoothstep(uEcl.y - 0.3, uEcl.y - 0.02, sd));
+          col = mix(col * mix(1.0, mix(0.78, 0.34, uEclDeep), pen * pen), shade, umb);
+        }
         float rr = length(d) / max(uDisc.z, 1e-4);
         float irisHole = uIris * (1.0 - smoothstep(uIrisR * uIris, uIrisR * uIris + uIrisFeather, rr));
         // Premultiplied output: alpha follows the moon body so the DOM
@@ -2133,6 +2195,7 @@
   window.addEventListener("resize", () => {
     renderer.setSize(window.innerWidth, window.innerHeight);
     fitQuad();
+    sizeSky();
   });
 
   // --- Backdrop layer: animated gifs (or stills) in the DOM behind the ----
@@ -2280,6 +2343,125 @@
   }
   setBackdrop(BACKDROP_SRC);
 
+  // --- Sky: a starfield under everything ----------------------------------
+  // Its canvas sits at z-index -1, below the backdrop gifs and below the
+  // transparent moon canvas, so the moon occludes it and the vajras orbit
+  // across it. Stars are distributed toward the far end of the depth range
+  // (a few near ones do most of the parallax), drift sideways at a speed
+  // scaled by depth, and twinkle each on its own phase — with the highs of
+  // the music, if a feed is running, pushing the twinkle a little harder.
+  const sky = { el: null, ctx: null, stars: [], shots: [], w: 0, h: 0, dpr: 1, next: 2 };
+  function sizeSky() {
+    if (!sky.el) return;
+    sky.dpr = Math.min(1.5, window.devicePixelRatio || 1);
+    sky.w = window.innerWidth;
+    sky.h = window.innerHeight;
+    sky.el.width = Math.round(sky.w * sky.dpr);
+    sky.el.height = Math.round(sky.h * sky.dpr);
+  }
+  function skyCanvas() {
+    if (sky.el) return sky.el;
+    const c = document.createElement("canvas");
+    c.style.cssText = "position:fixed;left:0;top:0;width:100vw;height:100vh;" +
+      "z-index:-1;pointer-events:none;";
+    document.body.appendChild(c);
+    sky.el = c;
+    sky.ctx = c.getContext("2d");
+    sizeSky();
+    return c;
+  }
+  function setStars(n) {
+    SKY_COUNT = Math.max(0, Math.min(1600, Math.round(n) || 0));
+    if (!SKY_COUNT) {
+      if (sky.el) { sky.el.style.display = "none"; sky.ctx.clearRect(0, 0, sky.el.width, sky.el.height); }
+      return;
+    }
+    skyCanvas().style.display = "";
+    while (sky.stars.length < SKY_COUNT) {
+      sky.stars.push({
+        x: Math.random(), y: Math.random(),
+        z: Math.pow(Math.random(), 2.2),
+        tw: 0.5 + Math.random() * 2.2,
+        ph: Math.random() * Math.PI * 2,
+        warm: Math.random() < 0.22
+      });
+    }
+    if (sky.stars.length > SKY_COUNT) sky.stars.length = SKY_COUNT;
+  }
+  function drawSky(t, dt) {
+    if (!SKY_COUNT || !sky.ctx) return;
+    if (sky.w !== window.innerWidth || sky.h !== window.innerHeight) sizeSky();
+    const ctx = sky.ctx, dpr = sky.dpr;
+    const W = sky.el.width, H = sky.el.height;
+    ctx.clearRect(0, 0, W, H);
+    const sparkle = REACT * audio.high * 0.3;
+    for (const s of sky.stars) {
+      s.x += (0.0004 + s.z * 0.0012) * SKY_DRIFT * dt;
+      if (s.x > 1) s.x -= 1;
+      const a = (0.22 + s.z * 0.78) * (0.72 + 0.28 * Math.sin(t * s.tw + s.ph)) + sparkle * s.z;
+      const x = s.x * W, y = s.y * H, r = (0.35 + s.z * 1.5) * dpr;
+      ctx.globalAlpha = Math.max(0, Math.min(1, a));
+      ctx.fillStyle = s.warm ? "#ffe7cb" : "#dceaff";
+      ctx.beginPath();
+      ctx.arc(x, y, r, 0, Math.PI * 2);
+      ctx.fill();
+      // The nearest handful get a faint diffraction cross, the way a bright
+      // star reads through an aperture.
+      if (s.z > 0.93) {
+        const f = r * 4.5;
+        ctx.globalAlpha *= 0.32;
+        ctx.strokeStyle = ctx.fillStyle;
+        ctx.lineWidth = dpr * 0.7;
+        ctx.beginPath();
+        ctx.moveTo(x - f, y); ctx.lineTo(x + f, y);
+        ctx.moveTo(x, y - f); ctx.lineTo(x, y + f);
+        ctx.stroke();
+      }
+    }
+    ctx.globalAlpha = 1;
+    // Meteors: Poisson-ish spacing around the requested rate, entering from
+    // either side on a shallow downward slope.
+    sky.next -= dt;
+    if (SKY_METEORS > 0 && sky.next <= 0) {
+      sky.next = (60 / SKY_METEORS) * (0.35 + Math.random() * 1.3);
+      const dir = Math.random() < 0.5 ? 1 : -1;
+      const sp = (0.5 + Math.random() * 0.6) * W;
+      const slope = 0.3 + Math.random() * 0.55;
+      sky.shots.push({
+        x: dir > 0 ? -0.06 * W : 1.06 * W,
+        y: Math.random() * 0.5 * H,
+        vx: dir * sp, vy: sp * slope,
+        life: 0, max: 1.0 + Math.random() * 0.9,
+        len: (0.05 + Math.random() * 0.09) * W
+      });
+    }
+    for (let i = sky.shots.length - 1; i >= 0; i--) {
+      const m = sky.shots[i];
+      m.x += m.vx * dt;
+      m.y += m.vy * dt;
+      m.life += dt;
+      if (m.life > m.max || m.x < -0.2 * W || m.x > 1.2 * W || m.y > 1.2 * H) {
+        sky.shots.splice(i, 1);
+        continue;
+      }
+      const n = Math.hypot(m.vx, m.vy) || 1;
+      const tx = m.x - (m.vx / n) * m.len, ty = m.y - (m.vy / n) * m.len;
+      const fade = Math.min(1, m.life * 5) * Math.max(0, 1 - m.life / m.max);
+      const g = ctx.createLinearGradient(m.x, m.y, tx, ty);
+      g.addColorStop(0, "rgba(236,246,255," + (0.95 * fade).toFixed(3) + ")");
+      g.addColorStop(0.45, "rgba(190,215,255," + (0.32 * fade).toFixed(3) + ")");
+      g.addColorStop(1, "rgba(190,215,255,0)");
+      ctx.strokeStyle = g;
+      ctx.lineWidth = 1.7 * dpr;
+      ctx.lineCap = "round";
+      ctx.beginPath();
+      ctx.moveTo(m.x, m.y);
+      ctx.lineTo(tx, ty);
+      ctx.stroke();
+    }
+  }
+  setStars(SKY_COUNT);
+
   window.__hyperstitionStats = {
     layout: "moon-darkside",
     moonSrc: MOON_SRC,
@@ -2310,6 +2492,7 @@
     get program() { return progName; },
     get programRot() { return progApplied; },
     get iris() { return +uniforms.uIris.value; },
+    get eclipse() { return ECL_ON ? +ECL_P.toFixed(4) : 0; },
     get stream() { return streamStatus; },
     // Unattended-show health: frame counters split by source so a stalled
     // compositor (locked/blanked display) is visible as timer frames rather
@@ -2694,6 +2877,25 @@
       { cycles: 6, dark: 2, reveal: 1, content: "fisher" },
       { cycles: 8, dark: 2, reveal: 1, content: "artifacts/sample-sonicsphere-silent.webm" }
     ],
+    // Every effect we have, one per act, three rotations each: two dark
+    // rotations on the word then one wordless reveal. Sequenced so no two
+    // neighbouring acts look alike — a fold never follows a fold. Screen
+    // capture is left out on purpose; it needs a click to grant the source.
+    library: [
+      { cycles: 1, dark: 2, reveal: 1, content: "crt" },
+      { cycles: 1, dark: 2, reveal: 1, content: "fold" },
+      { cycles: 1, dark: 2, reveal: 1, content: "mumins" },
+      { cycles: 1, dark: 2, reveal: 1, content: "incant" },
+      { cycles: 1, dark: 2, reveal: 1, content: "foldhelix" },
+      { cycles: 1, dark: 2, reveal: 1, content: "fisher" },
+      { cycles: 1, dark: 2, reveal: 1, content: "vajra" },
+      { cycles: 1, dark: 2, reveal: 1, content: "foldjitter" },
+      { cycles: 1, dark: 2, reveal: 1, content: "eye" },
+      { cycles: 1, dark: 2, reveal: 1, content: "foldgeo" },
+      { cycles: 1, dark: 2, reveal: 1, content: "artifacts/sample-sonicsphere-silent.webm" },
+      { cycles: 1, dark: 2, reveal: 1, content: "foldivm" },
+      { cycles: 1, dark: 2, reveal: 1, content: "foldsonic" }
+    ],
     // The soft program: someone is out on the crescent fishing stars, the
     // troupe turns up now and then, and the eye opens once a lap.
     nightfishing: [
@@ -2860,6 +3062,7 @@
     if (fold) { fold.draw(t); window.__fold = fold; }
     pollMic();
     updateAudio(dt);
+    drawSky(t, dt);
     // Music rides on top of the slider bases: earthshine breathes with the
     // bass, window glow shimmers with the highs + beats, content brightness
     // lifts with overall level.
@@ -2900,6 +3103,15 @@
         ? BLOOD_TARGET
         : cur + Math.sign(BLOOD_TARGET - cur) * step;
       BLOOD_AMT = uniforms.uBloodAmt.value;
+    }
+    // Same walk for the shadow transit: eclipserun is the seconds a full
+    // pass takes, so a 2 h eclipse is just a very slow one.
+    if (ECL_ON && ECL_P !== ECL_TARGET) {
+      const step = ECL_SEC > 0 ? dt / ECL_SEC : 1;
+      ECL_P = Math.abs(ECL_TARGET - ECL_P) <= step
+        ? ECL_TARGET
+        : ECL_P + Math.sign(ECL_TARGET - ECL_P) * step;
+      uniforms.uEcl.value.x = ECL_P;
     }
     centerQuad();
     positionBackdrop();
@@ -3022,6 +3234,15 @@
       q.set("bloodtarget", BLOOD_TARGET.toFixed(2));
       q.set("bloodfade", Math.round(BLOOD_SEC));
     }
+    if (ECL_ON) {
+      q.set("eclipse", ECL_P.toFixed(3));
+      if (ECL_PATH !== 0.35) q.set("eclipsepath", ECL_PATH.toFixed(2));
+      if (ECL_DEEP !== 0.7) q.set("eclipsedeep", ECL_DEEP.toFixed(2));
+      if (ECL_TARGET !== ECL_P) {
+        q.set("eclipsetarget", ECL_TARGET.toFixed(2));
+        q.set("eclipserun", Math.round(ECL_SEC));
+      }
+    }
     if (BACKDROP_SRC) {
       q.set("backdrop", BACKDROP_SRC);
       if (BACK_SCALE !== 1) q.set("backscale", BACK_SCALE.toFixed(2));
@@ -3043,6 +3264,7 @@
     if (VAJRA_COUNT > 0) {
       q.set("vajras", String(VAJRA_COUNT));
       q.set("vajraradius", VAJRA_RADIUS.toFixed(2));
+      q.set("vajratilt", VAJRA_TILT.toFixed(2));
     }
     if (BLEED > 0) q.set("bleed", BLEED.toFixed(1));
     if (APPARITION > 0) q.set("apparition", APPARITION.toFixed(1));
@@ -3071,6 +3293,12 @@
       bloodtint: BLOOD_TINT,
       bloodtarget: BLOOD_TARGET,
       bloodfade: BLOOD_SEC,
+      eclipseon: ECL_ON ? 1 : 0,
+      eclipse: ECL_P,
+      eclipsetarget: ECL_TARGET,
+      eclipserun: ECL_SEC,
+      eclipsepath: ECL_PATH,
+      eclipsedeep: ECL_DEEP,
       backdrop: BACKDROP_SRC,
       backscale: BACK_SCALE,
       backalpha: BACK_ALPHA,
@@ -3087,6 +3315,7 @@
       lat: LAT_OFF * 180 / Math.PI,
       vajras: VAJRA_COUNT,
       vajraRadius: VAJRA_RADIUS,
+      vajraTilt: VAJRA_TILT,
       bleed: BLEED,
       apparition: APPARITION,
       when: WHEN,
@@ -3129,6 +3358,30 @@
         case "bloodfade": BLOOD_SEC = Math.max(0, v); break;
         case "bloodtarget": BLOOD_TARGET = Math.max(0, Math.min(1, v)); break;
         case "bloodstop": BLOOD_TARGET = uniforms.uBloodAmt.value; BLOOD_AMT = BLOOD_TARGET; break;
+        case "eclipse":
+          ECL_ON = true; uniforms.uEclOn.value = 1;
+          ECL_P = Math.max(0, Math.min(1, v)); ECL_TARGET = ECL_P;
+          uniforms.uEcl.value.x = ECL_P;
+          break;
+        case "eclipserun": ECL_SEC = Math.max(0, v); break;
+        case "eclipsetarget":
+          ECL_ON = true; uniforms.uEclOn.value = 1;
+          ECL_TARGET = Math.max(0, Math.min(1, v));
+          break;
+        case "eclipsepath":
+          ECL_PATH = Math.max(0, Math.min(3, v));
+          uniforms.uEcl.value.w = ECL_PATH;
+          break;
+        case "eclipsestop": ECL_TARGET = ECL_P; break;
+        case "eclipsedeep":
+          ECL_DEEP = Math.max(0, Math.min(1, v));
+          uniforms.uEclDeep.value = ECL_DEEP;
+          break;
+        case "eclipseon":
+          ECL_ON = !!v && v !== "0";
+          uniforms.uEclOn.value = ECL_ON ? 1 : 0;
+          if (!ECL_ON) { ECL_TARGET = ECL_P; }
+          break;
         case "bloodtint": {
           const hex = String(v).replace(/[^0-9a-fA-F]/g, "");
           if (hex.length === 6 || hex.length === 3) { BLOOD_TINT = hex; uniforms.uBlood.value.set("#" + hex); }
@@ -3155,6 +3408,8 @@
         case "vajras": setVajraCount(v); break;
         case "vajraRadius":
         case "vajraradius": VAJRA_RADIUS = v; break;
+        case "vajraTilt":
+        case "vajratilt": VAJRA_TILT = Math.max(0.05, Math.min(1, v)); break;
         case "stream": setStreaming(!!v && v !== "0"); break;
         case "bleed": BLEED = Math.max(0, v); break;
         case "apparition": APPARITION = Math.max(0, v); break;

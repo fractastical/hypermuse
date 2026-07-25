@@ -491,6 +491,7 @@
           <select id="hmProgramSelect" title="rotation-based sequencer: dark rotations show just the word, every 3rd rotation the window opens wordless on the current act's content, acts progress over ~an hour, then it loops">
             <option value="">off (manual)</option>
             <option value="hour">hour progression (reveal every 3rd rotation)</option>
+            <option value="library">whole library (a different effect every 3rd rotation)</option>
             <option value="eye10">eye seal (irises open every 10th rotation)</option>
             <option value="folds">bucky folds (reveal every 3rd rotation)</option>
             <option value="eyefolds">folds + eye (folds every 3rd, eye every 10th)</option>
@@ -541,6 +542,12 @@
             <td><input type="range" class="hm-slider" id="hmVajraRadius" data-key="vajraRadius" min="0.3" max="2.2" step="0.05" style="width:130px;"/></td>
             <td style="padding:2px 8px;"><span id="hmVajraRadiusVal">–</span></td>
             <td colspan="3" style="padding:2px 8px;color:rgba(207,233,255,0.45);">how far the dorje clips orbit from the moon (1× = the halo ring)</td>
+          </tr>
+          <tr>
+            <td style="padding:2px 8px;color:rgba(207,233,255,0.62);">vajra orbit tilt</td>
+            <td><input type="range" class="hm-slider" id="hmVajraTilt" data-key="vajraTilt" min="0.05" max="1" step="0.05" style="width:130px;"/></td>
+            <td style="padding:2px 8px;"><span id="hmVajraTiltVal">–</span></td>
+            <td colspan="3" style="padding:2px 8px;color:rgba(207,233,255,0.45);">edge-on lanes slide across the moon's face; open lanes arc over the top and pass behind</td>
           </tr>
           <tr>
             <td style="padding:2px 8px;color:rgba(207,233,255,0.62);">moon size</td>
@@ -2183,6 +2190,7 @@ const HM_FMT = {
     apparition: function(v) { return v.toFixed(1); },
     vajras: function(v) { return v.toFixed(0); },
     vajraRadius: function(v) { return v.toFixed(2) + '×'; },
+    vajraTilt: function(v) { return v >= 0.98 ? 'face-on' : v <= 0.1 ? 'edge-on' : v.toFixed(2); },
     thresh: function(v) { return v.toFixed(3); }, feather: function(v) { return v.toFixed(3); },
     lift: function(v) { return v.toFixed(3); }, flicker: function(v) { return v.toFixed(2); },
     alpha: function(v) { return Math.round(v * 100) + '%'; },

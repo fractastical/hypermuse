@@ -6,6 +6,7 @@
     "start": "npx http-server -c-1 -p 8080 .",
     "kiosk:hypermoon": "open -na \"Google Chrome\" --args --kiosk --user-data-dir=/tmp/hypermoon-kiosk --autoplay-policy=no-user-gesture-required \"http://localhost:8080/hypermoon.html?kiosk=1\"",
     "export:reel": "node scripts/export-effects-reel.mjs",
+    "export:clips": "CLIPS=1 REEL=0 node scripts/export-effects-reel.mjs",
     "build:vajra:proxies": "node scripts/build-vajra-proxies.mjs",
     "show:mac": "bash scripts/mac-show-mode.sh on",
     "show:mac:off": "bash scripts/mac-show-mode.sh off",

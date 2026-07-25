@@ -24,11 +24,13 @@ latest versions). Then:
   (`?backspeed=`, needs Chrome for ImageDecoder — kiosk Chrome is fine).
 - **Moon size** slider (`?moonscale=`): shrinks/grows the whole moon while it
   stays pinned to the screen centre.
-- **Program presets** in the program dropdown: `eye10` (word-only moon, the
-  eye seal irises open every 10th rotation), `folds` (the bucky fold
-  repertoire every 3rd rotation), `eyefolds` (folds + the eye every 10th),
-  plus the original `hour`. In the custom program editor, `eye` is a valid
-  act content — it triggers the iris reveal instead of the window.
+- **Program presets** in the program dropdown: `library` (the whole effect
+  library, a different one every 3rd rotation — the good unattended default),
+  `eye10` (word-only moon, the eye seal irises open every 10th rotation),
+  `folds` (the bucky fold repertoire every 3rd rotation), `eyefolds` (folds +
+  the eye every 10th), plus the original `hour`. In the custom program editor,
+  `eye` is a valid act content — it triggers the iris reveal instead of the
+  window.
 - **Sub-pixel disc centering**: the iris hole / backdrop alignment no longer
   drifts by a few pixels at fullscreen.
 - **Blood moon**: `🌕→🔴 blood moon` / `natural moon` buttons + a strength
@@ -45,6 +47,13 @@ latest versions). Then:
   dark side. Drawn in-page, so there's no asset to copy — `?mumins=1..9` sets
   the troupe size and `?muminbpm=` the dance tempo. The window opens wider
   than usual for them; the `window size ×` slider trims it.
+- **The star fisher** (`?content=fisher`, or "star fisher" in the window
+  content dropdown): one mumin sits out on a crescent with a line in the
+  dark, hooks a drifting star, cups it and lets it go — and every third catch
+  the freed stars swing into a heart over its head while it waves. Also drawn
+  in-page: `?fishersec=` sets how long a catch takes (default 15s),
+  `?fisherheart=` how many catches per heart (3), `?fisherzoom=` the size.
+  The `nightfishing` program keeps it in rotation with the mumins and the eye.
 - **Window solidity** slider (`?winsolid=0..1`): window content is normally
   added as *light*, which is right for glowing screens and wireframes but
   turns drawn figures into ghosts. At 1 the content is painted opaque onto
@@ -123,8 +132,32 @@ window is occluded or the display is blanked. `window.__hyperstitionStats.pump`
 reports `frames`, `timerFrames`, `stalls` and the wake lock state if you need
 to prove it is still alive.
 
-## NOT included (too large)
+- **Vajra orbit tilt** slider (`?vajratilt=0.05..1`): how open the orbit lanes
+  are. Low values lay the lanes edge-on, so the dorjes just slide back and
+  forth across the moon's face; the default 0.7 opens them until the inner
+  lanes duck behind the disc and come back out, and the outer ones ring the
+  limb. `vajra orbit radius` still sets how wide the ring is.
 
-- `loops/VAJRA DORJE ANIMATIONS/` (~734 MB) — only needed if you turn the
-  orbiting-vajras slider up or use the vajra cave content. Copy that folder
-  separately if the show calls for it.
+## Dorje clips
+
+The orbiting vajras and the vajra cave play from
+`loops/VAJRA DORJE ANIMATIONS/web/` — 360p proxies, about 6 MB for the set,
+which travel with the kit. They exist because the masters are 1080p at
+32 Mbit/s each: decoding four or six of those at once tears the sprites into
+macroblock garbage, and nothing is gained when a sprite renders 120 px tall.
+Rebuild them from the masters with `npm run build:vajra:proxies`. The full
+`loops/VAJRA DORJE ANIMATIONS/` masters (~734 MB) are *not* included; if a
+proxy is missing the sprite falls back to the master path automatically.
+
+## Making a demo reel
+
+`npm run export:reel` walks every effect in turn — word mosaic, mumins, star
+fisher, CRT, incantation, vajra cave, the folds, orbiting vajras, the eye
+iris, blood moon, moon size — captions each one and writes
+`artifacts/hypermoon-effects-reel.mp4` (about 40 s). `SCENES=fisher,blood`
+renders just those, `SCENE_MS=` changes the time per scene.
+
+`npm run export:clips` captures the same pass but writes one little video per
+effect into `artifacts/demos/effects/` instead of the montage — handy for
+showing a single effect without scrubbing. `CLIPS=1 npm run export:reel`
+writes both.
