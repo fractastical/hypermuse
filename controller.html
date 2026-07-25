@@ -464,6 +464,7 @@
             <option value="foldgeo">bucky geodesic (icosa blooms into a dome)</option>
             <option value="foldivm">bucky octet truss (isotropic vector matrix)</option>
             <option value="mumins">dancing mumins (little trolls)</option>
+            <option value="fisher">star fisher (troll on a crescent, hearts)</option>
             <option value="artifacts/sample-sonicsphere-silent.webm">sonicsphere (baked loop)</option>
             <option value="screen">another window (screen capture)</option>
             <option value="artifacts/crt-terminal-green.mp4">CRT terminal (baked video)</option>
@@ -493,6 +494,7 @@
             <option value="eye10">eye seal (irises open every 10th rotation)</option>
             <option value="folds">bucky folds (reveal every 3rd rotation)</option>
             <option value="eyefolds">folds + eye (folds every 3rd, eye every 10th)</option>
+            <option value="nightfishing">night fishing (star fisher, mumins, eye)</option>
             <option value="custom">custom (from the editor below)</option>
           </select>
           <input type="button" id="hmApplySourcesButton" value="apply sources (reloads)"/>
@@ -655,6 +657,7 @@
           <datalist id="hmProgContentList">
             <option value="eye"></option>
             <option value="mumins"></option>
+            <option value="fisher"></option>
             <option value="crt"></option>
             <option value="incant"></option>
             <option value="vajra"></option>
@@ -732,6 +735,15 @@
         <div style="margin-top:6px;border-top:1px solid rgba(207,233,255,0.15);padding-top:5px;">
           <b style="font-size:11px;">music &#8594; moon</b>
           <label style="font-size:11px;"><input type="checkbox" id="adReactOn" checked/> drive hypermoon</label>
+          source <select id="adAudioSource" title="what the beat analyser listens to">
+            <option value="deck">audio deck (this window)</option>
+            <option value="http://192.168.1.83:1984/api/webrtc?src=sentinel">camera: sentinel (go2rtc)</option>
+            <option value="http://192.168.1.83:1984/api/webrtc?src=sparkle">camera: sparkle (go2rtc)</option>
+            <option value="custom">custom go2rtc URL&#8230;</option>
+          </select>
+          <input type="text" id="adCamUrl" size="36" style="display:none;" placeholder="http://host:1984/api/webrtc?src=name"/>
+          <label style="font-size:11px;" title="also hear the camera audio in this window"><input type="checkbox" id="adCamListen"/> listen</label>
+          <span id="adCamStatus" style="font-size:10px;color:rgba(207,233,255,0.62);"></span>
           intensity <input type="range" id="adReactAmt" min="0" max="2" step="0.05" value="1" style="width:110px;vertical-align:middle;"/>
           <span id="adReactVal" style="font-size:10px;color:rgba(207,233,255,0.62);">1.00&#215;</span>
           <label style="font-size:11px;" title="the moon output listens to its own microphone — for external / live music not played from this deck"><input type="checkbox" id="adMicOn"/> moon uses its mic</label>
@@ -2387,8 +2399,92 @@ function adTapAnalyser(el) {
         adAnalysis.tapped.add(el);
     } catch (e) { /* already wrapped or unsupported — plain playback continues */ }
 }
+// ── Camera / go2rtc audio source: pulls the Opus audio track of any go2rtc
+// stream over WebRTC (WHEP: POST the SDP offer to /api/webrtc?src=name) and
+// feeds it to its own analyser. The beat interval below reads whichever
+// source is live. Silent unless "listen" is ticked (gain node at 0).
+const adCam = { pc: null, ctx: null, analyser: null, data: null, gain: null, keeper: null, hist: [], lastBeat: 0, live: false };
+function adCamStatus(msg) { document.getElementById('adCamStatus').textContent = msg; }
+function adCamDisconnect() {
+    if (adCam.pc) { adCam.pc.close(); adCam.pc = null; }
+    if (adCam.keeper) { adCam.keeper.srcObject = null; adCam.keeper = null; }
+    adCam.live = false;
+    adCam.hist = [];
+    adCamStatus('');
+}
+async function adCamConnect(url) {
+    adCamDisconnect();
+    adCamStatus('connecting\u2026');
+    try {
+        if (!adCam.ctx) {
+            adCam.ctx = new (window.AudioContext || window.webkitAudioContext)();
+            adCam.analyser = adCam.ctx.createAnalyser();
+            adCam.analyser.fftSize = 2048;
+            adCam.analyser.smoothingTimeConstant = 0.3;
+            adCam.data = new Uint8Array(adCam.analyser.frequencyBinCount);
+            adCam.gain = adCam.ctx.createGain();
+            adCam.gain.gain.value = document.getElementById('adCamListen').checked ? 1 : 0;
+            adCam.analyser.connect(adCam.gain);
+            adCam.gain.connect(adCam.ctx.destination);
+        }
+        if (adCam.ctx.state === 'suspended') adCam.ctx.resume();
+        const pc = new RTCPeerConnection();
+        adCam.pc = pc;
+        pc.addTransceiver('audio', { direction: 'recvonly' });
+        pc.ontrack = function(ev) {
+            const stream = ev.streams[0] || new MediaStream([ev.track]);
+            // Chrome quirk: a remote WebRTC track only feeds WebAudio while
+            // some media element is consuming it — keep a muted one around.
+            adCam.keeper = new Audio();
+            adCam.keeper.muted = true;
+            adCam.keeper.srcObject = stream;
+            adCam.keeper.play().catch(function() {});
+            adCam.ctx.createMediaStreamSource(stream).connect(adCam.analyser);
+            adCam.live = true;
+            adCamStatus('live');
+        };
+        pc.onconnectionstatechange = function() {
+            if (pc !== adCam.pc) return;
+            if (pc.connectionState === 'failed' || pc.connectionState === 'disconnected') {
+                adCam.live = false;
+                adCamStatus(pc.connectionState);
+            }
+        };
+        const offer = await pc.createOffer();
+        await pc.setLocalDescription(offer);
+        // WHEP is non-trickle: wait for ICE gathering before posting.
+        await new Promise(function(resolve) {
+            if (pc.iceGatheringState === 'complete') return resolve();
+            const check = function() { if (pc.iceGatheringState === 'complete') { pc.removeEventListener('icegatheringstatechange', check); resolve(); } };
+            pc.addEventListener('icegatheringstatechange', check);
+            setTimeout(resolve, 2000);
+        });
+        const res = await fetch(url, { method: 'POST', headers: { 'Content-Type': 'application/sdp' }, body: pc.localDescription.sdp });
+        if (!res.ok) throw new Error('go2rtc ' + res.status);
+        await pc.setRemoteDescription({ type: 'answer', sdp: await res.text() });
+    } catch (e) {
+        adCamDisconnect();
+        adCamStatus('failed: ' + e.message);
+    }
+}
+document.getElementById('adAudioSource').addEventListener('change', function() {
+    const v = this.value;
+    const custom = document.getElementById('adCamUrl');
+    custom.style.display = v === 'custom' ? '' : 'none';
+    if (v === 'deck') { adCamDisconnect(); return; }
+    if (v === 'custom') { if (custom.value.trim()) adCamConnect(custom.value.trim()); return; }
+    adCamConnect(v);
+});
+document.getElementById('adCamUrl').addEventListener('change', function() {
+    if (document.getElementById('adAudioSource').value === 'custom' && this.value.trim()) adCamConnect(this.value.trim());
+});
+document.getElementById('adCamListen').addEventListener('change', function() {
+    if (adCam.gain) adCam.gain.gain.value = this.checked ? 1 : 0;
+});
+
 setInterval(function() {
-    const a = adAnalysis;
+    // Camera source wins while it's live; otherwise analyse the deck.
+    const a = (adCam.live && adCam.analyser) ? adCam : adAnalysis;
     const meter = document.getElementById('adReactMeter');
     if (!a.analyser || !document.getElementById('adReactOn').checked) { meter.textContent = ''; return; }
     a.analyser.getByteFrequencyData(a.data);
@@ -2409,7 +2505,7 @@ setInterval(function() {
     if (bass > 0.12 && (bass > avg * 1.22 || bass - avg > 0.07) && now - a.lastBeat > 0.18) { a.lastBeat = now; beat = true; }
     if (hmChannel) hmChannel.postMessage({ type: 'moonAudio', bass: bass, mid: mid, high: high, level: (bass + mid + high) / 3, beat: beat });
     const bar = function(v) { return '\u2581\u2582\u2583\u2584\u2585\u2586\u2587\u2588'[Math.min(7, Math.floor(v * 8))]; };
-    meter.textContent = bar(bass) + bar(mid) + bar(high) + (now - a.lastBeat < 0.15 ? ' \u25cf' : '');
+    meter.textContent = (a === adCam ? 'cam ' : '') + bar(bass) + bar(mid) + bar(high) + (now - a.lastBeat < 0.15 ? ' \u25cf' : '');
 }, 50);
 document.getElementById('adReactAmt').addEventListener('input', function() {
     document.getElementById('adReactVal').textContent = parseFloat(this.value).toFixed(2) + '\u00d7';

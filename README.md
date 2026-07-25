@@ -319,6 +319,17 @@ a DJ, a PA, or anything not played through the controller. Boot params on
 `hypermoon.html`: `?react=` (intensity) and `?mic=1`. Levels decay to zero
 within a second if the feed stops, so nothing freezes mid-flare.
 
+The **source** select can also listen to a **go2rtc camera stream** instead
+of the deck: pick *camera: sentinel* / *camera: sparkle* (the box at
+`192.168.1.83:1984`) or *custom go2rtc URL* for any other stream
+(`http://host:1984/api/webrtc?src=name`). The controller pulls just the
+Opus audio track over WebRTC (WHEP) and runs the same band/beat analysis —
+the meter shows a `cam` tag while the camera is the active source. It is
+analysis-only and silent by default; tick **listen** to also hear the
+camera in the controller window. The camera needs an audio track that
+go2rtc transcodes to Opus (e.g. `ffmpeg:name#audio=opus`), which both
+sentinel and sparkle already have. Test: `npm run test:audiocam`.
+
 #### Any video on the dark side
 
 `npm run manifest:videos` scans `loops/`, `artifacts/`, `assets/`,

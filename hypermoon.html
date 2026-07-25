@@ -26,7 +26,7 @@
   let CONTENT_SRC = params.get("content") || "";
   const CONTENT_KEY = CONTENT_SRC.trim().toLowerCase();
   const KEYWORD_CONTENT = [
-    "crt", "vajra", "incant", "screen", "mumins",
+    "crt", "vajra", "incant", "screen", "mumins", "fisher",
     "fold", "foldsonic", "foldhelix", "foldjitter", "foldgeo", "foldivm"
   ].includes(CONTENT_KEY);
   const MOSAIC_OFF = params.get("mosaic") === "0";
@@ -82,7 +82,9 @@
   let WIN = !!CONTENT_SRC && !TEXT_PARAM && (KEYWORD_CONTENT || !MOSAIC_OFF);
   // incant and the bucky folds render without the letter panel: the
   // geometry/mantra is the show, no word text over it.
-  const wordlessKey = (k) => k === "incant" || k === "mumins" || /^fold/.test(k);
+  const wordlessKey = (k) => k === "incant" || k === "mumins" || k === "fisher" || /^fold/.test(k);
+  // Figures painted on the surface rather than glowing through it.
+  const drawnKey = (k) => k === "mumins" || k === "fisher";
   let WORDLESS_WIN = WIN && (wordlessKey(CONTENT_KEY) || MOSAIC_OFF);
   const useMosaic = !TEXT_PARAM && (!CONTENT_SRC || WIN);
   // Window/reveal behavior (all live-adjustable from the controller):
@@ -256,15 +258,21 @@
   // disc. ?vajras=0..6 sets the count, ?vajraradius= scales the orbit
   // (1 = skimming the limb); both are live-adjustable from the controller.
   const VAJRA_DIR = "loops/VAJRA DORJE ANIMATIONS";
+  // The masters are 1080p/32Mbit; a sprite renders ~120px tall, and decoding
+  // four or six masters at once tears them into macroblock garbage. Play the
+  // 360p proxies (scripts/build-vajra-proxies.mjs) and fall back to the
+  // master only if a proxy is missing on this machine.
+  const VAJRA_WEB = VAJRA_DIR + "/web";
   // ROTATING 3 is excluded: its blue pedestal disc cannot be keyed additively.
-  const VAJRA_CLIPS = [
-    VAJRA_DIR + "/DORJE 3D ROTATING 1.mp4",
-    VAJRA_DIR + "/DORJE 3D ROTATING 2.mp4",
-    VAJRA_DIR + "/DORJE 3D ROTATING 4.mp4",
-    VAJRA_DIR + "/DORJE 3D ROTATING 5.mp4",
-    VAJRA_DIR + "/Hitem3d-1779724467167.mp4",
-    VAJRA_DIR + "/Hitem3d-1779724467167_2.mp4"
+  const VAJRA_NAMES = [
+    "DORJE 3D ROTATING 1.mp4",
+    "DORJE 3D ROTATING 2.mp4",
+    "DORJE 3D ROTATING 4.mp4",
+    "DORJE 3D ROTATING 5.mp4",
+    "Hitem3d-1779724467167.mp4",
+    "Hitem3d-1779724467167_2.mp4"
   ];
+  const VAJRA_CLIPS = VAJRA_NAMES.map((n) => VAJRA_WEB + "/" + n);
   let VAJRA_COUNT = Math.max(0, Math.min(6, Math.round(num("vajras", 0))));
   let VAJRA_RADIUS = num("vajraradius", num("vajraRadius", 1.15));
   const VAJRA_SCALE = num("vajrascale", 0.17); // sprite height in frame-height units
@@ -272,7 +280,15 @@
 
   function makeVajraSprite(i) {
     const v = document.createElement("video");
-    v.src = VAJRA_CLIPS[i % VAJRA_CLIPS.length];
+    const name = VAJRA_NAMES[i % VAJRA_NAMES.length];
+    v.src = VAJRA_WEB + "/" + name;
+    v.addEventListener("error", () => {
+      const master = VAJRA_DIR + "/" + name;
+      if (v.src.indexOf("/web/") === -1) return;
+      console.warn("vajra proxy missing, using master:", master);
+      v.src = master;
+      v.play().catch(() => {});
+    });
     v.loop = true;
     v.muted = true;
     v.playsInline = true;
@@ -619,6 +635,10 @@
   // out with destination-out to read as holes.
   const MUMIN_COUNT = Math.max(1, Math.min(9, Math.round(num("mumins", 3))));
   const MUMIN_BPM = Math.max(20, num("muminbpm", 100));
+  // The window samples the middle of the content canvas rather than all of
+  // it, so a troupe drawn to the full canvas comes out cropped to one huge
+  // dancer. ?muminzoom= pulls the ring in until the whole line fits.
+  const MUMIN_ZOOM = Math.max(0.15, Math.min(1.5, num("muminzoom", 0.42)));
   function makeMumins() {
     // Square canvas with the troupe in a middle band: the window cover-crops
     // to its own box, so the empty margins get trimmed instead of the line.
@@ -690,8 +710,8 @@
       ctx.clearRect(0, 0, W, H);
       const beat = t * (MUMIN_BPM / 60) * Math.PI * 2;
       const spin = t * 0.3;
-      const R = W * 0.24, cx = W / 2, cy = H * 0.54;
-      const base = Math.min(H * 0.34, (W / (MUMIN_COUNT + 1.1)) * 1.15);
+      const R = W * 0.24 * MUMIN_ZOOM, cx = W / 2, cy = H * 0.5;
+      const base = Math.min(H * 0.34, (W / (MUMIN_COUNT + 1.1)) * 1.15) * MUMIN_ZOOM;
       const ring = [];
       for (let i = 0; i < MUMIN_COUNT; i++) {
         ring.push({ i, a: spin + i * (Math.PI * 2 / MUMIN_COUNT) });
@@ -709,6 +729,233 @@
           Math.cos(d.a) > 0 // dancers on the right face back into the circle
         );
       }
+      tex.needsUpdate = true;
+    }
+    draw(0);
+    return { texture: tex, draw, aspect: W / H };
+  }
+
+  // The star fisher (content=fisher): one mumin sits out on a crescent with a
+  // line in the dark, hooks a drifting star, reels it up and cups it before
+  // letting it go. The freed stars gather over its head, and every third catch
+  // they swing into a heart and it waves at them until they scatter. Same
+  // procedural canvas trick as the mumins — no asset, tunable live.
+  const FISHER_SEC = Math.max(6, num("fishersec", 15));  // seconds per catch
+  // The window maps the whole content canvas into a patch a few hundred
+  // pixels wide, so the scene is composed tight and large: at zoom 1 the
+  // figure, its crescent and the heart just fill the frame.
+  const FISHER_ZOOM = Math.max(0.15, Math.min(2, num("fisherzoom", 1)));
+  const FISHER_HEART = Math.max(1, Math.round(num("fisherheart", 3))); // catches per heart
+  function makeStarFisher() {
+    const W = 1024, H = 1024;
+    const canvas = document.createElement("canvas");
+    canvas.width = W;
+    canvas.height = H;
+    const ctx = canvas.getContext("2d");
+    const tex = new THREE.CanvasTexture(canvas);
+    tex.minFilter = THREE.LinearFilter;
+    const FUR = "#fff3dd", SPARK = "#ffeab8", ROSE = "#ffc8da";
+    const ease = (x) => x * x * (3 - 2 * x);
+    const span = (p, a, b) => ease(Math.max(0, Math.min(1, (p - a) / (b - a))));
+    // Stars idling in the dark below, each on its own slow drift.
+    const SHOAL = Array.from({ length: 7 }, (_, i) => ({
+      x: (i * 0.37 % 1) * 2 - 1, y: (i * 0.61 % 1), sp: 0.18 + (i % 3) * 0.07, ph: i * 1.7
+    }));
+
+    function limb(x0, y0, x1, y1, r) {
+      ctx.beginPath();
+      ctx.lineCap = "round";
+      ctx.lineWidth = r * 2;
+      ctx.strokeStyle = ctx.fillStyle;
+      ctx.moveTo(x0, y0);
+      ctx.lineTo(x1, y1);
+      ctx.stroke();
+    }
+    function blob(x, y, rx, ry, rot) {
+      ctx.beginPath();
+      ctx.ellipse(x, y, rx, ry, rot || 0, 0, Math.PI * 2);
+      ctx.fill();
+    }
+    function star(x, y, r, a, tint) {
+      if (a <= 0.01) return;
+      ctx.save();
+      ctx.globalAlpha = Math.min(1, a);
+      const g = ctx.createRadialGradient(x, y, 0, x, y, r * 3.4);
+      g.addColorStop(0, tint);
+      g.addColorStop(0.3, "rgba(255,232,184,0.42)");
+      g.addColorStop(1, "rgba(255,232,184,0)");
+      ctx.fillStyle = g;
+      ctx.beginPath();
+      ctx.arc(x, y, r * 3.4, 0, Math.PI * 2);
+      ctx.fill();
+      // four-point sparkle: the glow alone reads as a smudge at window size
+      ctx.fillStyle = tint;
+      ctx.beginPath();
+      for (let i = 0; i < 4; i++) {
+        const a0 = i * Math.PI / 2;
+        ctx.lineTo(x + Math.cos(a0) * r * 2.3, y + Math.sin(a0) * r * 2.3);
+        ctx.lineTo(x + Math.cos(a0 + Math.PI / 4) * r * 0.5, y + Math.sin(a0 + Math.PI / 4) * r * 0.5);
+      }
+      ctx.closePath();
+      ctx.fill();
+      ctx.restore();
+    }
+    // Classic heart curve, sized in fisher units and drawn upright.
+    function heartAt(k, n, s) {
+      const th = Math.PI / 2 + (k / n) * Math.PI * 2;
+      const x = 16 * Math.pow(Math.sin(th), 3);
+      const y = 13 * Math.cos(th) - 5 * Math.cos(2 * th) - 2 * Math.cos(3 * th) - Math.cos(4 * th);
+      return { x: x * s * 0.04, y: -y * s * 0.04 };
+    }
+
+    // Seated, one arm on the rod. wave lifts the free arm; pull bends it into
+    // the line when a star is fighting the hook.
+    function drawFisher(x, y, s, t, wave, pull) {
+      const breathe = Math.sin(t * 1.5) * 0.02 * s;
+      const kick = Math.sin(t * 1.6);
+      ctx.save();
+      ctx.translate(x, y + breathe);
+      ctx.fillStyle = FUR;
+      // legs hang over the edge and swing gently
+      limb(-0.10 * s, -0.30 * s, -0.13 * s + kick * 0.05 * s, 0.30 * s, 0.075 * s);
+      limb(0.10 * s, -0.30 * s, 0.13 * s - kick * 0.05 * s, 0.32 * s, 0.075 * s);
+      // free arm: waving overhead, otherwise resting on the knee
+      const wa = -0.9 - wave * (1.1 + 0.35 * Math.sin(t * 9));
+      limb(-0.26 * s, -0.62 * s,
+        -0.26 * s + Math.cos(Math.PI + wa) * 0.42 * s,
+        -0.62 * s + Math.sin(Math.PI + wa) * 0.42 * s, 0.062 * s);
+      // rod arm reaches out to the grip
+      limb(0.26 * s, -0.62 * s, 0.52 * s, -0.74 * s - pull * 0.06 * s, 0.062 * s);
+      blob(0, -0.46 * s, 0.30 * s, 0.34 * s);
+      blob(0, -0.92 * s, 0.29 * s, 0.27 * s);
+      blob(0.17 * s, -0.86 * s, 0.25 * s, 0.17 * s);
+      blob(-0.16 * s, -1.14 * s, 0.075 * s, 0.11 * s, -0.35);
+      blob(0.11 * s, -1.16 * s, 0.075 * s, 0.11 * s, 0.25);
+      ctx.globalCompositeOperation = "destination-out";
+      blob(0.02 * s, -0.98 * s, 0.035 * s, 0.05 * s);
+      blob(0.17 * s, -1.00 * s, 0.035 * s, 0.05 * s);
+      ctx.globalCompositeOperation = "source-over";
+      ctx.restore();
+    }
+
+    function draw(t) {
+      ctx.clearRect(0, 0, W, H);
+      const s = W * 0.26 * FISHER_ZOOM;
+      const cx = W * 0.5, seat = H * 0.56;
+      const cycle = t / FISHER_SEC;
+      const k = Math.floor(cycle);        // which catch we are on
+      const p = cycle - k;                // phase within it
+      const inSet = ((k % FISHER_HEART) + FISHER_HEART) % FISHER_HEART;
+      const finale = inSet === FISHER_HEART - 1; // this catch completes a heart
+
+      // Rod and line geometry, all hung off the seated figure.
+      const pull = span(p, 0.40, 0.46) * (1 - span(p, 0.62, 0.70));
+      const tipX = cx + 1.0 * s, tipY = seat - 1.05 * s + pull * 0.18 * s;
+      const hookX = tipX + Math.sin(t * 0.6) * 0.05 * s;
+      const hookY = seat + 0.92 * s;
+
+      // Kept stars from earlier catches orbit above the head; on the finale
+      // they slide onto the heart and the fisher waves at them.
+      const heart = finale ? span(p, 0.80, 0.90) * (1 - span(p, 0.95, 1.0)) : 0;
+      const held = inSet + (p > 0.86 ? 1 : 0);
+      const keptPos = (i, n) => {
+        const a = -Math.PI / 2 + (i - (n - 1) / 2) * 0.5;
+        const orb = { x: cx + Math.cos(a) * 0.95 * s, y: seat - 1.42 * s + Math.sin(a) * 0.3 * s + Math.sin(t * 1.1 + i) * 0.04 * s };
+        if (heart <= 0) return orb;
+        const h = heartAt(i, Math.max(n, 1), s);
+        return { x: orb.x + (cx + h.x - orb.x) * heart, y: orb.y + (seat - 1.05 * s + h.y - orb.y) * heart };
+      };
+
+      // Crescent the fisher is perched on.
+      ctx.save();
+      ctx.strokeStyle = FUR;
+      ctx.globalAlpha = 0.5;
+      ctx.lineWidth = 0.1 * s;
+      ctx.lineCap = "round";
+      ctx.beginPath();
+      ctx.arc(cx + 0.1 * s, seat + 1.1 * s, 1.2 * s, Math.PI * 1.16, Math.PI * 1.94);
+      ctx.stroke();
+      ctx.restore();
+
+      // The shoal drifting in the dark under the line.
+      for (const f of SHOAL) {
+        const dx = Math.sin(t * f.sp + f.ph) * 1.0 * s + f.x * 0.45 * s;
+        const dy = hookY + 0.3 * s + Math.cos(t * f.sp * 0.8 + f.ph) * 0.2 * s + f.y * 0.35 * s;
+        star(cx + dx, dy, 0.05 * s, 0.35 + 0.2 * Math.sin(t * 2 + f.ph), SPARK);
+      }
+
+      // The catch: a star swims to the hook, is reeled up the line, cupped,
+      // then let go to join the ones already circling overhead.
+      const bite = span(p, 0.24, 0.40);
+      const reel = span(p, 0.46, 0.64);
+      const rise = span(p, 0.86, 1.0);
+      const handX = cx + 0.46 * s, handY = seat - 0.86 * s;
+      let sx, sy, sa = 1;
+      if (p < 0.40) {
+        const from = { x: cx - 1.1 * s, y: hookY + 0.5 * s };
+        sx = from.x + (hookX - from.x) * bite;
+        sy = from.y + (hookY - from.y) * bite;
+        sa = 0.4 + 0.6 * bite;
+      } else if (p < 0.64) {
+        sx = hookX + (handX - hookX) * reel;
+        sy = hookY + (handY - hookY) * reel + Math.sin(reel * Math.PI) * -0.25 * s;
+      } else if (p < 0.86) {
+        sx = handX;
+        sy = handY + Math.sin(t * 3) * 0.02 * s;
+      } else {
+        const slot = keptPos(inSet, Math.max(1, held));
+        sx = handX + (slot.x - handX) * rise;
+        sy = handY + (slot.y - handY) * rise;
+      }
+      const flare = 1 + 0.5 * span(p, 0.40, 0.46) + 0.35 * Math.sin(t * 4) * span(p, 0.64, 0.86);
+
+      // Line: slack until the bite, taut and bent while the star rides it up.
+      ctx.save();
+      ctx.strokeStyle = "rgba(255,243,221,0.5)";
+      ctx.lineWidth = 0.022 * s;
+      ctx.beginPath();
+      ctx.moveTo(tipX, tipY);
+      if (p < 0.64) {
+        const endX = p < 0.40 ? hookX : sx, endY = p < 0.40 ? hookY : sy;
+        const sag = (1 - Math.max(bite, reel)) * 0.3 * s;
+        ctx.quadraticCurveTo((tipX + endX) / 2 - sag * 0.4, (tipY + endY) / 2 + sag, endX, endY);
+      } else {
+        ctx.lineTo(handX, handY);
+      }
+      ctx.stroke();
+      // rod itself
+      ctx.strokeStyle = FUR;
+      ctx.globalAlpha = 0.85;
+      ctx.lineWidth = 0.045 * s;
+      ctx.lineCap = "round";
+      ctx.beginPath();
+      ctx.moveTo(cx + 0.52 * s, seat - 0.74 * s);
+      ctx.quadraticCurveTo(cx + 0.8 * s, seat - 1.0 * s - pull * 0.1 * s, tipX, tipY);
+      ctx.stroke();
+      ctx.restore();
+
+      if (heart > 0) {
+        ctx.save();
+        ctx.globalAlpha = heart * 0.9;
+        ctx.strokeStyle = ROSE;
+        ctx.lineWidth = 0.055 * s;
+        ctx.beginPath();
+        for (let i = 0; i <= 48; i++) {
+          const h = heartAt(i, 48, s);
+          const px = cx + h.x, py = seat - 1.05 * s + h.y;
+          if (i === 0) ctx.moveTo(px, py); else ctx.lineTo(px, py);
+        }
+        ctx.closePath();
+        ctx.stroke();
+        ctx.restore();
+      }
+
+      drawFisher(cx, seat, s, t, heart, pull);
+      for (let i = 0; i < inSet; i++) {
+        const q = keptPos(i, Math.max(1, held));
+        star(q.x, q.y, 0.062 * s, 0.85, SPARK);
+      }
+      star(sx, sy, 0.075 * s * flare, sa, SPARK);
       tex.needsUpdate = true;
     }
     draw(0);
@@ -1262,6 +1509,7 @@
   let cave = (WIN && CONTENT_KEY === "vajra") ? makeVajraCave() : null;
   let incant = (WIN && CONTENT_KEY === "incant") ? makeIncantTexture() : null;
   let mumins = (WIN && CONTENT_KEY === "mumins") ? makeMumins() : null;
+  let fisher = (WIN && CONTENT_KEY === "fisher") ? makeStarFisher() : null;
   const SONIC_LOOP = "artifacts/sample-sonicsphere-silent.webm";
   const FOLD_MAKERS = {
     fold: () => makeFold(),
@@ -1487,12 +1735,13 @@
     : cave ? cave.texture
     : incant ? incant.texture
     : mumins ? mumins.texture
+    : fisher ? fisher.texture
     : fold ? fold.texture
     : (WIN && contentVideo) ? contentVideo.texture
     : (WIN && imageTextures.length) ? imageTextures[0]
     : null;
   const winAspect0 = crt ? crt.aspect : cave ? cave.aspect : incant ? incant.aspect
-    : mumins ? mumins.aspect : fold ? fold.aspect : 16 / 9;
+    : mumins ? mumins.aspect : fisher ? fisher.aspect : fold ? fold.aspect : 16 / 9;
 
   const uniforms = {
     uMoon: { value: moon.texture },
@@ -1538,13 +1787,14 @@
     // The in-page generators are dark-background and need heat; photographed
     // pages and bright video need much less or they glare off the surface.
     uWinBright: {
-      // The mumins are near-white fills, so they need far less heat than the
-      // dark-background generators or they clip to a blob.
-      value: num("winbright", CONTENT_KEY === "mumins" ? 0.3 : KEYWORD_CONTENT ? 0.42 : isImageContent ? 0.14 : 0.24)
+      // The drawn figures are near-white fills, so they need far less heat
+      // than the dark-background generators or they clip to a blob.
+      value: num("winbright", CONTENT_KEY === "mumins" ? 0.3 : CONTENT_KEY === "fisher" ? 0.34
+        : KEYWORD_CONTENT ? 0.42 : isImageContent ? 0.14 : 0.24)
     },
     // 0 = window content added as light (glowing screens, wireframes),
     // 1 = painted opaque over the surface (drawn figures like the mumins).
-    uWinSolid: { value: num("winsolid", CONTENT_KEY === "mumins" ? 1 : 0) },
+    uWinSolid: { value: num("winsolid", drawnKey(CONTENT_KEY) ? 1 : 0) },
     uWordOn: { value: WORDLESS_WIN ? 0 : 1 }, // letter panel opacity
     uGate: { value: APPARITION > 0 ? 0 : 1 }, // apparition reveal gate
     // Planar bleed spot: soft circular reveal window centered on the
@@ -1629,7 +1879,7 @@
       if (screenCap.hint) screenCap.hint.remove();
     }
     if (fold) fold.dispose();
-    crt = null; cave = null; incant = null; mumins = null; fold = null; contentVideo = null; screenCap = null;
+    crt = null; cave = null; incant = null; mumins = null; fisher = null; fold = null; contentVideo = null; screenCap = null;
     imageTextures = [];
   }
   function setWindowContent(spec, wordlessOverride) {
@@ -1652,6 +1902,11 @@
       bright = 0.3;
       // Same reason as the boot default: the ring needs a wider window than
       // the measured shadow patch. Only nudge an untouched slider.
+      if (WIN_SCALE === 1) WIN_SCALE = 1.6;
+    }
+    else if (key === "fisher") {
+      fisher = makeStarFisher();
+      bright = 0.34;
       if (WIN_SCALE === 1) WIN_SCALE = 1.6;
     }
     else if (FOLD_MAKERS[key]) { fold = FOLD_MAKERS[key](); bright = 0.55; }
@@ -1681,15 +1936,16 @@
       : cave ? cave.texture
       : incant ? incant.texture
       : mumins ? mumins.texture
+      : fisher ? fisher.texture
       : fold ? fold.texture
       : screenCap ? screenCap.texture
       : contentVideo ? contentVideo.texture
       : imageTextures.length ? imageTextures[0]
       : moon.texture;
     uniforms.uWinAspect.value = crt ? crt.aspect : cave ? cave.aspect : incant ? incant.aspect
-      : mumins ? mumins.aspect : fold ? fold.aspect : 16 / 9;
+      : mumins ? mumins.aspect : fisher ? fisher.aspect : fold ? fold.aspect : 16 / 9;
     if (WINBRIGHT_PARAM == null) { uniforms.uWinBright.value = bright; winBrightBase = bright; }
-    if (WINSOLID_PARAM == null) uniforms.uWinSolid.value = key === "mumins" ? 1 : 0;
+    if (WINSOLID_PARAM == null) uniforms.uWinSolid.value = drawnKey(key) ? 1 : 0;
     uniforms.uWordOn.value = WORDLESS_WIN ? 0 : 1;
     // Sensible cycle defaults unless the URL pinned them explicitly.
     if (PEEK_PARAM == null) PEEK = WIN && !WORDLESS_WIN ? 16 : 0;
@@ -2042,6 +2298,15 @@
       return Math.abs(f) < Math.PI * 0.3;
     },
     get facingAngle() { return wrapPi(uniforms.uAnchor.value.x + uniforms.uRot.value); },
+    // Where the star fisher is in its catch, so an exporter can frame the
+    // scene on the heart instead of hoping to land on it.
+    get fisher() {
+      if (!fisher) return null;
+      const cyc = prevT / FISHER_SEC;
+      const k = Math.floor(cyc), p = cyc - k;
+      const inSet = ((k % FISHER_HEART) + FISHER_HEART) % FISHER_HEART;
+      return { catch: k, phase: +p.toFixed(3), finale: inSet === FISHER_HEART - 1, heart: inSet === FISHER_HEART - 1 && p > 0.8 };
+    },
     get program() { return progName; },
     get programRot() { return progApplied; },
     get iris() { return +uniforms.uIris.value; },
@@ -2426,7 +2691,15 @@
       { cycles: 6, dark: 2, reveal: 1, content: "foldgeo" },
       { cycles: 6, dark: 2, reveal: 1, content: "foldivm" },
       { cycles: 6, dark: 2, reveal: 1, content: "foldsonic" },
+      { cycles: 6, dark: 2, reveal: 1, content: "fisher" },
       { cycles: 8, dark: 2, reveal: 1, content: "artifacts/sample-sonicsphere-silent.webm" }
+    ],
+    // The soft program: someone is out on the crescent fishing stars, the
+    // troupe turns up now and then, and the eye opens once a lap.
+    nightfishing: [
+      { cycles: 4, dark: 1, reveal: 1, content: "fisher" },
+      { cycles: 2, dark: 2, reveal: 1, content: "mumins" },
+      { cycles: 1, dark: 0, reveal: 1, content: "eye" }
     ],
     // Word-only moon; the eye seal irises open once every 10th rotation.
     eye10: [
@@ -2538,6 +2811,7 @@
     if (crt) crt.draw(t);
     if (cave) cave.draw(t);
     if (mumins) mumins.draw(t);
+    if (fisher) fisher.draw(t);
     if (fold) fold.draw(t);
     const cnv = soloCtx.canvas;
     if (cnv.width !== window.innerWidth || cnv.height !== window.innerHeight) {
@@ -2546,7 +2820,7 @@
     }
     soloCtx.fillStyle = "#020411";
     soloCtx.fillRect(0, 0, cnv.width, cnv.height);
-    const maker = fold || crt || cave || mumins || incant;
+    const maker = fold || crt || cave || mumins || fisher || incant;
     const src = maker && maker.texture && maker.texture.image;
     if (src && src.width) {
       // cover-crop the (square) maker canvas into the viewport
@@ -2582,6 +2856,7 @@
     if (crt) crt.draw(t);
     if (cave) cave.draw(t);
     if (mumins) mumins.draw(t);
+    if (fisher) fisher.draw(t);
     if (fold) { fold.draw(t); window.__fold = fold; }
     pollMic();
     updateAudio(dt);
