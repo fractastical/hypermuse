@@ -1,0 +1,1665 @@
+{
+  "generatedAt": "2026-05-24T19:21:40.528Z",
+  "cubeSize": 64,
+  "analysisSize": 128,
+  "familyOrder": [
+    "black",
+    "silver",
+    "gray",
+    "white",
+    "red",
+    "orange",
+    "yellow",
+    "green",
+    "cyan",
+    "blue",
+    "purple",
+    "magenta"
+  ],
+  "families": {
+    "black": [
+      {
+        "sourceUrl": "loops/Moon and Astronauts/Astronauts/4.mov",
+        "cubeUrl": "artifacts/color-cubes/black/4-3.jpg",
+        "avgRgb": [
+          5,
+          8,
+          7
+        ],
+        "familyScore": 0.204,
+        "patchScore": 0.3698
+      },
+      {
+        "sourceUrl": "loops/Moon and Astronauts/Astronauts/animated-3d-astronaut-in-space-suit-rotating-again-2026-01-28-05-09-24-utc.mp4",
+        "cubeUrl": "artifacts/color-cubes/black/animated-3d-astronaut-in-space-suit-rotating-again-2026-01-28-05-09-24-utc-4.jpg",
+        "avgRgb": [
+          27,
+          30,
+          27
+        ],
+        "familyScore": 0.8361,
+        "patchScore": 0.3637
+      },
+      {
+        "sourceUrl": "loops/Moon and Astronauts/Astronauts/astronaut-depressed-walk-2026-02-18-12-47-43-utc.mov",
+        "cubeUrl": "artifacts/color-cubes/black/astronaut-depressed-walk-2026-02-18-12-47-43-utc-6.jpg",
+        "avgRgb": [
+          5,
+          5,
+          5
+        ],
+        "familyScore": 0.0436,
+        "patchScore": 0.3878
+      },
+      {
+        "sourceUrl": "loops/Moon and Astronauts/Astronauts/astronaut-floats-from-space-station-towards-distan-2026-01-28-03-41-41-utc.mov",
+        "cubeUrl": "artifacts/color-cubes/black/astronaut-floats-from-space-station-towards-distan-2026-01-28-03-41-41-utc-7.jpg",
+        "avgRgb": [
+          16,
+          18,
+          18
+        ],
+        "familyScore": 0.5633,
+        "patchScore": 0.3878
+      },
+      {
+        "sourceUrl": "loops/Moon and Astronauts/Astronauts/astronaut-head-to-space-station-2026-02-02-07-51-42-utc.mov",
+        "cubeUrl": "artifacts/color-cubes/black/astronaut-head-to-space-station-2026-02-02-07-51-42-utc-8.jpg",
+        "avgRgb": [
+          3,
+          4,
+          3
+        ],
+        "familyScore": 0.408,
+        "patchScore": 0.3878
+      },
+      {
+        "sourceUrl": "loops/Moon and Astronauts/Astronauts/astronaut-outside-the-international-space-station-2026-01-28-03-04-24-utc.mov",
+        "cubeUrl": "artifacts/color-cubes/black/astronaut-outside-the-international-space-station-2026-01-28-03-04-24-utc-15.jpg",
+        "avgRgb": [
+          14,
+          18,
+          13
+        ],
+        "familyScore": 0.3213,
+        "patchScore": 0.3608
+      },
+      {
+        "sourceUrl": "loops/Moon and Astronauts/Astronauts/astronauts-exploring-a-water-planet-in-space-loop-2026-01-28-04-35-26-utc.mov",
+        "cubeUrl": "artifacts/color-cubes/black/astronauts-exploring-a-water-planet-in-space-loop-2026-01-28-04-35-26-utc-18.jpg",
+        "avgRgb": [
+          11,
+          22,
+          28
+        ],
+        "familyScore": 0.3781,
+        "patchScore": 0.3788
+      },
+      {
+        "sourceUrl": "loops/Moon and Astronauts/Astronauts/astronauts-return-to-futuristic-mars-base-at-sunse-2026-01-28-02-30-34-utc.mov",
+        "cubeUrl": "artifacts/color-cubes/black/astronauts-return-to-futuristic-mars-base-at-sunse-2026-01-28-02-30-34-utc-19.jpg",
+        "avgRgb": [
+          25,
+          8,
+          11
+        ],
+        "familyScore": 0.1971,
+        "patchScore": 0.3743
+      },
+      {
+        "sourceUrl": "loops/Moon and Astronauts/Astronauts/astronauts-return-to-futuristic-mars-base-at-sunse-2026-01-28-03-56-29-utc.mov",
+        "cubeUrl": "artifacts/color-cubes/black/astronauts-return-to-futuristic-mars-base-at-sunse-2026-01-28-03-56-29-utc-20.jpg",
+        "avgRgb": [
+          18,
+          10,
+          14
+        ],
+        "familyScore": 0.1712,
+        "patchScore": 0.3878
+      },
+      {
+        "sourceUrl": "loops/Moon and Astronauts/Astronauts/astronauts-return-to-futuristic-mars-base-at-sunse-2026-01-28-04-20-41-utc.mov",
+        "cubeUrl": "artifacts/color-cubes/black/astronauts-return-to-futuristic-mars-base-at-sunse-2026-01-28-04-20-41-utc-21.jpg",
+        "avgRgb": [
+          23,
+          12,
+          15
+        ],
+        "familyScore": 0.1891,
+        "patchScore": 0.3878
+      },
+      {
+        "sourceUrl": "loops/Moon and Astronauts/Astronauts/astronauts-walking-loop-2026-01-28-05-08-38-utc.mov",
+        "cubeUrl": "artifacts/color-cubes/black/astronauts-walking-loop-2026-01-28-05-08-38-utc-22.jpg",
+        "avgRgb": [
+          18,
+          19,
+          18
+        ],
+        "familyScore": 0.611,
+        "patchScore": 0.3878
+      },
+      {
+        "sourceUrl": "loops/Moon and Astronauts/Astronauts/black-and-white-3d-astronaut-floating-in-deep-spac-2026-02-18-15-14-00-utc.mov",
+        "cubeUrl": "artifacts/color-cubes/black/black-and-white-3d-astronaut-floating-in-deep-spac-2026-02-18-15-14-00-utc-23.jpg",
+        "avgRgb": [
+          0,
+          0,
+          0
+        ],
+        "familyScore": 0.1659,
+        "patchScore": 0.2435
+      },
+      {
+        "sourceUrl": "loops/Moon and Astronauts/Astronauts/flight_1.mov",
+        "cubeUrl": "artifacts/color-cubes/black/flight-1-24.jpg",
+        "avgRgb": [
+          2,
+          2,
+          2
+        ],
+        "familyScore": 0.5567,
+        "patchScore": 0.3878
+      },
+      {
+        "sourceUrl": "loops/Moon and Astronauts/Astronauts/flight_2.mov",
+        "cubeUrl": "artifacts/color-cubes/black/flight-2-25.jpg",
+        "avgRgb": [
+          2,
+          2,
+          2
+        ],
+        "familyScore": 0.6298,
+        "patchScore": 0.3878
+      },
+      {
+        "sourceUrl": "loops/Moon and Astronauts/Astronauts/futuristic-astronaut-helmet-with-dynamic-galaxy-re-2026-01-28-02-57-18-utc.mov",
+        "cubeUrl": "artifacts/color-cubes/black/futuristic-astronaut-helmet-with-dynamic-galaxy-re-2026-01-28-02-57-18-utc-26.jpg",
+        "avgRgb": [
+          15,
+          12,
+          14
+        ],
+        "familyScore": 0.4135,
+        "patchScore": 0.2951
+      },
+      {
+        "sourceUrl": "loops/Moon and Astronauts/Astronauts/futuristic-astronauts-walking-in-glitch-space-scen-2026-01-28-05-38-16-utc.mp4",
+        "cubeUrl": "artifacts/color-cubes/black/futuristic-astronauts-walking-in-glitch-space-scen-2026-01-28-05-38-16-utc-28.jpg",
+        "avgRgb": [
+          16,
+          9,
+          8
+        ],
+        "familyScore": 0.607,
+        "patchScore": 0.3878
+      },
+      {
+        "sourceUrl": "loops/Moon and Astronauts/Astronauts/two-astronauts-in-space-suits-confidently-walking-2026-01-22-17-34-53-utc.mov",
+        "cubeUrl": "artifacts/color-cubes/black/two-astronauts-in-space-suits-confidently-walking-2026-01-22-17-34-53-utc-30.jpg",
+        "avgRgb": [
+          18,
+          22,
+          17
+        ],
+        "familyScore": 0.2105,
+        "patchScore": 0.3782
+      },
+      {
+        "sourceUrl": "loops/Moon and Astronauts/Astronauts/two-astronauts-in-space-suits-reveal-with-dynamic-2026-01-28-03-54-56-utc.mov",
+        "cubeUrl": "artifacts/color-cubes/black/two-astronauts-in-space-suits-reveal-with-dynamic-2026-01-28-03-54-56-utc-31.jpg",
+        "avgRgb": [
+          25,
+          26,
+          24
+        ],
+        "familyScore": 0.2705,
+        "patchScore": 0.2915
+      },
+      {
+        "sourceUrl": "loops/Moon and Astronauts/Astronauts/two-astronauts-in-white-spacesuits-stand-on-a-whit-2026-01-28-02-51-15-utc.mov",
+        "cubeUrl": "artifacts/color-cubes/black/two-astronauts-in-white-spacesuits-stand-on-a-whit-2026-01-28-02-51-15-utc-32.jpg",
+        "avgRgb": [
+          21,
+          27,
+          23
+        ],
+        "familyScore": 0.2337,
+        "patchScore": 0.2571
+      },
+      {
+        "sourceUrl": "loops/Moon and Astronauts/Astronauts/two-astronauts-on-moon-surface-gazing-at-earth-in-2026-01-28-03-15-15-utc.mov",
+        "cubeUrl": "artifacts/color-cubes/black/two-astronauts-on-moon-surface-gazing-at-earth-in-2026-01-28-03-15-15-utc-33.jpg",
+        "avgRgb": [
+          7,
+          16,
+          22
+        ],
+        "familyScore": 0.6212,
+        "patchScore": 0.3788
+      },
+      {
+        "sourceUrl": "loops/Moon and Astronauts/Astronauts/vecteezy_astronauts-explore-new-planets-in-a-parallel-universe_49435521.mp4",
+        "cubeUrl": "artifacts/color-cubes/black/vecteezy-astronauts-explore-new-planets-in-a-parallel-universe-49435521-36.jpg",
+        "avgRgb": [
+          15,
+          17,
+          14
+        ],
+        "familyScore": 0.1741,
+        "patchScore": 0.3833
+      },
+      {
+        "sourceUrl": "loops/Moon and Astronauts/Moon Loops/33 M S P.mov",
+        "cubeUrl": "artifacts/color-cubes/black/33-m-s-p-37.jpg",
+        "avgRgb": [
+          5,
+          6,
+          4
+        ],
+        "familyScore": 0.2121,
+        "patchScore": 0.3022
+      },
+      {
+        "sourceUrl": "loops/Moon and Astronauts/Moon Loops/634.mov",
+        "cubeUrl": "artifacts/color-cubes/black/634-39.jpg",
+        "avgRgb": [
+          3,
+          3,
+          2
+        ],
+        "familyScore": 0.5342,
+        "patchScore": 0.3878
+      },
+      {
+        "sourceUrl": "loops/Moon and Astronauts/Moon Loops/a-4k-close-up-of-the-lunar-surface-in-rotation-2026-01-21-20-16-29-utc.mp4",
+        "cubeUrl": "artifacts/color-cubes/black/a-4k-close-up-of-the-lunar-surface-in-rotation-2026-01-21-20-16-29-utc-40.jpg",
+        "avgRgb": [
+          17,
+          18,
+          12
+        ],
+        "familyScore": 0.5742,
+        "patchScore": 0.3878
+      },
+      {
+        "sourceUrl": "loops/Moon and Astronauts/Moon Loops/airplane-silhouetted-flying-past-a-fiery-glowing-2026-01-22-11-54-05-utc.mov",
+        "cubeUrl": "artifacts/color-cubes/black/airplane-silhouetted-flying-past-a-fiery-glowing-2026-01-22-11-54-05-utc-41.jpg",
+        "avgRgb": [
+          3,
+          2,
+          2
+        ],
+        "familyScore": 0.5962,
+        "patchScore": 0.3878
+      },
+      {
+        "sourceUrl": "loops/Moon and Astronauts/Moon Loops/an-airliner-lines-up-for-a-nighttime-final-approac-2025-12-17-14-30-05-utc.mov",
+        "cubeUrl": "artifacts/color-cubes/black/an-airliner-lines-up-for-a-nighttime-final-approac-2025-12-17-14-30-05-utc-42.jpg",
+        "avgRgb": [
+          12,
+          9,
+          8
+        ],
+        "familyScore": 0.7695,
+        "patchScore": 0.3878
+      },
+      {
+        "sourceUrl": "loops/Moon and Astronauts/Moon Loops/approach-and-flight-around-the-moon-2025-12-17-22-46-49-utc.mp4",
+        "cubeUrl": "artifacts/color-cubes/black/approach-and-flight-around-the-moon-2025-12-17-22-46-49-utc-43.jpg",
+        "avgRgb": [
+          16,
+          17,
+          12
+        ],
+        "familyScore": 0.5406,
+        "patchScore": 0.3878
+      },
+      {
+        "sourceUrl": "loops/Moon and Astronauts/Moon Loops/close-up-shot-of-the-moon-surface-2025-12-17-05-48-58-utc.mp4",
+        "cubeUrl": "artifacts/color-cubes/black/close-up-shot-of-the-moon-surface-2025-12-17-05-48-58-utc-44.jpg",
+        "avgRgb": [
+          10,
+          18,
+          21
+        ],
+        "familyScore": 0.2501,
+        "patchScore": 0.3833
+      },
+      {
+        "sourceUrl": "loops/Moon and Astronauts/Moon Loops/close-up-shot-of-the-textured-surface-of-moon-2025-12-17-03-33-50-utc.mp4",
+        "cubeUrl": "artifacts/color-cubes/black/close-up-shot-of-the-textured-surface-of-moon-2025-12-17-03-33-50-utc-45.jpg",
+        "avgRgb": [
+          13,
+          13,
+          10
+        ],
+        "familyScore": 0.3541,
+        "patchScore": 0.2931
+      },
+      {
+        "sourceUrl": "loops/Moon and Astronauts/Moon Loops/detailed-close-up-of-the-full-moon-at-night-2025-12-17-08-55-20-utc.mov",
+        "cubeUrl": "artifacts/color-cubes/black/detailed-close-up-of-the-full-moon-at-night-2025-12-17-08-55-20-utc-46.jpg",
+        "avgRgb": [
+          2,
+          4,
+          2
+        ],
+        "familyScore": 0.5604,
+        "patchScore": 0.3878
+      },
+      {
+        "sourceUrl": "loops/Moon and Astronauts/Moon Loops/detailed-footage-of-the-moon-s-cratered-surface-2026-01-21-12-57-56-utc.mp4",
+        "cubeUrl": "artifacts/color-cubes/black/detailed-footage-of-the-moon-s-cratered-surface-2026-01-21-12-57-56-utc-47.jpg",
+        "avgRgb": [
+          14,
+          16,
+          8
+        ],
+        "familyScore": 0.2355,
+        "patchScore": 0.3022
+      },
+      {
+        "sourceUrl": "loops/Moon and Astronauts/Moon Loops/detailed-gray-moon-surface-floating-in-space-2025-12-17-13-03-13-utc.mov",
+        "cubeUrl": "artifacts/color-cubes/black/detailed-gray-moon-surface-floating-in-space-2025-12-17-13-03-13-utc-48.jpg",
+        "avgRgb": [
+          5,
+          5,
+          5
+        ],
+        "familyScore": 0.3858,
+        "patchScore": 0.2571
+      },
+      {
+        "sourceUrl": "loops/Moon and Astronauts/Moon Loops/detailed-half-moon-drifting-in-black-void-2025-12-17-09-39-17-utc.mov",
+        "cubeUrl": "artifacts/color-cubes/black/detailed-half-moon-drifting-in-black-void-2025-12-17-09-39-17-utc-49.jpg",
+        "avgRgb": [
+          6,
+          7,
+          5
+        ],
+        "familyScore": 0.6108,
+        "patchScore": 0.2706
+      },
+      {
+        "sourceUrl": "loops/Moon and Astronauts/Moon Loops/detailed-shot-of-the-moon-surface-2025-12-17-12-47-08-utc.mov",
+        "cubeUrl": "artifacts/color-cubes/black/detailed-shot-of-the-moon-surface-2025-12-17-12-47-08-utc-50.jpg",
+        "avgRgb": [
+          15,
+          16,
+          15
+        ],
+        "familyScore": 0.4642,
+        "patchScore": 0.2841
+      },
+      {
+        "sourceUrl": "loops/Moon and Astronauts/Moon Loops/detailed-view-of-the-surface-of-the-moon-2026-01-21-15-50-54-utc.mp4",
+        "cubeUrl": "artifacts/color-cubes/black/detailed-view-of-the-surface-of-the-moon-2026-01-21-15-50-54-utc-51.jpg",
+        "avgRgb": [
+          9,
+          10,
+          9
+        ],
+        "familyScore": 0.3243,
+        "patchScore": 0.2435
+      },
+      {
+        "sourceUrl": "loops/Moon and Astronauts/Moon Loops/moon-rotating-to-reveal-planet-earth-with-usa-amer-2025-12-17-12-07-07-utc.mov",
+        "cubeUrl": "artifacts/color-cubes/black/moon-rotating-to-reveal-planet-earth-with-usa-amer-2025-12-17-12-07-07-utc-52.jpg",
+        "avgRgb": [
+          14,
+          13,
+          13
+        ],
+        "familyScore": 0.5994,
+        "patchScore": 0.3878
+      },
+      {
+        "sourceUrl": "loops/Moon and Astronauts/Moon Loops/moon-surface-close-up-animation-in-space-2025-12-17-11-34-44-utc.mp4",
+        "cubeUrl": "artifacts/color-cubes/black/moon-surface-close-up-animation-in-space-2025-12-17-11-34-44-utc-53.jpg",
+        "avgRgb": [
+          11,
+          19,
+          21
+        ],
+        "familyScore": 0.4483,
+        "patchScore": 0.3878
+      },
+      {
+        "sourceUrl": "loops/Moon and Astronauts/Moon Loops/Moon.mov",
+        "cubeUrl": "artifacts/color-cubes/black/moon-54.jpg",
+        "avgRgb": [
+          1,
+          3,
+          1
+        ],
+        "familyScore": 0.4956,
+        "patchScore": 0.2706
+      },
+      {
+        "sourceUrl": "loops/Moon and Astronauts/Moon Loops/spacecraft-flying-near-the-moon-in-outer-space-2025-12-17-22-43-08-utc.mp4",
+        "cubeUrl": "artifacts/color-cubes/black/spacecraft-flying-near-the-moon-in-outer-space-2025-12-17-22-43-08-utc-55.jpg",
+        "avgRgb": [
+          10,
+          20,
+          27
+        ],
+        "familyScore": 0.5105,
+        "patchScore": 0.3653
+      },
+      {
+        "sourceUrl": "loops/Moon and Astronauts/Moon Loops/spacecraft-flying-over-the-moon-s-surface-2025-12-17-15-50-47-utc.mov",
+        "cubeUrl": "artifacts/color-cubes/black/spacecraft-flying-over-the-moon-s-surface-2025-12-17-15-50-47-utc-56.jpg",
+        "avgRgb": [
+          18,
+          18,
+          17
+        ],
+        "familyScore": 0.522,
+        "patchScore": 0.248
+      },
+      {
+        "sourceUrl": "loops/Moon and Astronauts/Moon Walking Landing/astronaut-boot-leaves-first-footprint-on-lunar-sur-2026-01-28-03-56-55-utc.mov",
+        "cubeUrl": "artifacts/color-cubes/black/astronaut-boot-leaves-first-footprint-on-lunar-sur-2026-01-28-03-56-55-utc-57.jpg",
+        "avgRgb": [
+          16,
+          18,
+          15
+        ],
+        "familyScore": 0.2236,
+        "patchScore": 0.2804
+      },
+      {
+        "sourceUrl": "loops/Moon and Astronauts/Moon Walking Landing/astronaut-descending-from-lunar-module-on-moon-wit-2026-01-28-02-34-04-utc.mov",
+        "cubeUrl": "artifacts/color-cubes/black/astronaut-descending-from-lunar-module-on-moon-wit-2026-01-28-02-34-04-utc-58.jpg",
+        "avgRgb": [
+          22,
+          21,
+          20
+        ],
+        "familyScore": 0.6334,
+        "patchScore": 0.3878
+      },
+      {
+        "sourceUrl": "loops/Moon and Astronauts/Moon Walking Landing/astronaut-descends-from-lunar-lander-on-moon-surfa-2026-01-28-03-14-26-utc.mov",
+        "cubeUrl": "artifacts/color-cubes/black/astronaut-descends-from-lunar-lander-on-moon-surfa-2026-01-28-03-14-26-utc-59.jpg",
+        "avgRgb": [
+          18,
+          18,
+          19
+        ],
+        "familyScore": 0.6362,
+        "patchScore": 0.3833
+      },
+      {
+        "sourceUrl": "loops/Moon and Astronauts/Moon Walking Landing/astronaut-on-moon-surface-with-lunar-module-and-ea-2026-01-28-02-47-48-utc.mov",
+        "cubeUrl": "artifacts/color-cubes/black/astronaut-on-moon-surface-with-lunar-module-and-ea-2026-01-28-02-47-48-utc-60.jpg",
+        "avgRgb": [
+          18,
+          20,
+          18
+        ],
+        "familyScore": 0.7207,
+        "patchScore": 0.3782
+      },
+      {
+        "sourceUrl": "loops/Moon and Astronauts/Moon Walking Landing/astronaut-walking-on-moon-surface-3d-animation-2026-01-28-04-28-22-utc.mov",
+        "cubeUrl": "artifacts/color-cubes/black/astronaut-walking-on-moon-surface-3d-animation-2026-01-28-04-28-22-utc-62.jpg",
+        "avgRgb": [
+          12,
+          12,
+          10
+        ],
+        "familyScore": 0.5489,
+        "patchScore": 0.2976
+      },
+      {
+        "sourceUrl": "loops/Moon and Astronauts/Moon Walking Landing/astronaut-walks-and-waves-on-lunar-surface-with-la-2026-01-28-02-52-36-utc.mov",
+        "cubeUrl": "artifacts/color-cubes/black/astronaut-walks-and-waves-on-lunar-surface-with-la-2026-01-28-02-52-36-utc-63.jpg",
+        "avgRgb": [
+          11,
+          13,
+          11
+        ],
+        "familyScore": 0.5435,
+        "patchScore": 0.3878
+      },
+      {
+        "sourceUrl": "loops/Moon and Astronauts/Moon Walking Landing/old-television-sets-display-1969-moon-landing-2025-12-17-09-15-26-utc.mov",
+        "cubeUrl": "artifacts/color-cubes/black/old-television-sets-display-1969-moon-landing-2025-12-17-09-15-26-utc-64.jpg",
+        "avgRgb": [
+          4,
+          7,
+          6
+        ],
+        "familyScore": 0.6229,
+        "patchScore": 0.3878
+      },
+      {
+        "sourceUrl": "loops/Moon and Astronauts/Moon Walking Landing/rocket-launching-from-lunar-surface-in-outer-space-2025-12-17-09-11-24-utc.mp4",
+        "cubeUrl": "artifacts/color-cubes/black/rocket-launching-from-lunar-surface-in-outer-space-2025-12-17-09-11-24-utc-65.jpg",
+        "avgRgb": [
+          9,
+          21,
+          23
+        ],
+        "familyScore": 0.375,
+        "patchScore": 0.3878
+      },
+      {
+        "sourceUrl": "loops/Moon and Astronauts/NASA Footage/Around the Moon for All Humanity Artemis II title cuts.mp4",
+        "cubeUrl": "artifacts/color-cubes/black/around-the-moon-for-all-humanity-artemis-ii-title-cuts-66.jpg",
+        "avgRgb": [
+          19,
+          20,
+          19
+        ],
+        "familyScore": 0.5147,
+        "patchScore": 0.3878
+      },
+      {
+        "sourceUrl": "loops/Moon and Astronauts/NASA Footage/Artemis II at the pad Full Snow Moon 02012026 horizontal stablized~orig.mp4",
+        "cubeUrl": "artifacts/color-cubes/black/artemis-ii-at-the-pad-full-snow-moon-02012026-horizontal-stablized-orig-67.jpg",
+        "avgRgb": [
+          4,
+          5,
+          3
+        ],
+        "familyScore": 0.6773,
+        "patchScore": 0.3878
+      },
+      {
+        "sourceUrl": "loops/Moon and Astronauts/NASA Footage/Artemis II at the pad Full Snow Moon 02012026 vertical stablized~orig.mp4",
+        "cubeUrl": "artifacts/color-cubes/black/artemis-ii-at-the-pad-full-snow-moon-02012026-vertical-stablized-orig-68.jpg",
+        "avgRgb": [
+          5,
+          4,
+          2
+        ],
+        "familyScore": 0.7892,
+        "patchScore": 0.3878
+      },
+      {
+        "sourceUrl": "loops/Moon and Astronauts/NASA Footage/Artemis_I_Orion_in_space_animation4K_2021~orig cut no titles.mp4",
+        "cubeUrl": "artifacts/color-cubes/black/artemis-i-orion-in-space-animation4k-2021-orig-cut-no-titles-69.jpg",
+        "avgRgb": [
+          14,
+          20,
+          26
+        ],
+        "familyScore": 0.6019,
+        "patchScore": 0.3878
+      },
+      {
+        "sourceUrl": "loops/Moon and Astronauts/NASA Footage/video 1 with title cut.mp4",
+        "cubeUrl": "artifacts/color-cubes/black/video-1-with-title-cut-70.jpg",
+        "avgRgb": [
+          18,
+          20,
+          17
+        ],
+        "familyScore": 0.5129,
+        "patchScore": 0.3878
+      },
+      {
+        "sourceUrl": "loops/Moon and Astronauts/space odissey cuts/videoplayback 2.mp4",
+        "cubeUrl": "artifacts/color-cubes/black/videoplayback-2-71.jpg",
+        "avgRgb": [
+          9,
+          13,
+          13
+        ],
+        "familyScore": 0.8134,
+        "patchScore": 0.3878
+      },
+      {
+        "sourceUrl": "loops/Moon and Astronauts/space odissey cuts/videoplayback.webm",
+        "cubeUrl": "artifacts/color-cubes/black/videoplayback-72.jpg",
+        "avgRgb": [
+          21,
+          22,
+          23
+        ],
+        "familyScore": 0.6725,
+        "patchScore": 0.3878
+      }
+    ],
+    "silver": [
+      {
+        "sourceUrl": "loops/Moon and Astronauts/Astronauts/1.mov",
+        "cubeUrl": "artifacts/color-cubes/silver/1-0.jpg",
+        "avgRgb": [
+          167,
+          168,
+          162
+        ],
+        "familyScore": 0.2505,
+        "patchScore": 0.2397
+      },
+      {
+        "sourceUrl": "loops/Moon and Astronauts/Astronauts/2.mov",
+        "cubeUrl": "artifacts/color-cubes/silver/2-1.jpg",
+        "avgRgb": [
+          165,
+          167,
+          162
+        ],
+        "familyScore": 0.2887,
+        "patchScore": 0.2278
+      },
+      {
+        "sourceUrl": "loops/Moon and Astronauts/Astronauts/3.mov",
+        "cubeUrl": "artifacts/color-cubes/silver/3-2.jpg",
+        "avgRgb": [
+          170,
+          170,
+          168
+        ],
+        "familyScore": 0.4041,
+        "patchScore": 0.25
+      }
+    ],
+    "gray": [
+      {
+        "sourceUrl": "loops/Moon and Astronauts/Astronauts/4.mov",
+        "cubeUrl": "artifacts/color-cubes/gray/4-3.jpg",
+        "avgRgb": [
+          61,
+          65,
+          63
+        ],
+        "familyScore": 0.4438,
+        "patchScore": 0.1616
+      },
+      {
+        "sourceUrl": "loops/Moon and Astronauts/Astronauts/animated-3d-astronaut-in-space-suit-rotating-again-2026-01-28-05-09-24-utc.mp4",
+        "cubeUrl": "artifacts/color-cubes/gray/animated-3d-astronaut-in-space-suit-rotating-again-2026-01-28-05-09-24-utc-4.jpg",
+        "avgRgb": [
+          73,
+          76,
+          73
+        ],
+        "familyScore": 0.066,
+        "patchScore": 0.1848
+      },
+      {
+        "sourceUrl": "loops/Moon and Astronauts/Astronauts/astronaut-outside-the-international-space-station-2026-01-28-03-04-24-utc.mov",
+        "cubeUrl": "artifacts/color-cubes/gray/astronaut-outside-the-international-space-station-2026-01-28-03-04-24-utc-15.jpg",
+        "avgRgb": [
+          57,
+          62,
+          56
+        ],
+        "familyScore": 0.1559,
+        "patchScore": 0.1616
+      },
+      {
+        "sourceUrl": "loops/Moon and Astronauts/Astronauts/black-and-white-3d-astronaut-floating-in-deep-spac-2026-02-18-15-14-00-utc.mov",
+        "cubeUrl": "artifacts/color-cubes/gray/black-and-white-3d-astronaut-floating-in-deep-spac-2026-02-18-15-14-00-utc-23.jpg",
+        "avgRgb": [
+          63,
+          63,
+          62
+        ],
+        "familyScore": 0.7453,
+        "patchScore": 0.11
+      },
+      {
+        "sourceUrl": "loops/Moon and Astronauts/Astronauts/two-astronauts-in-space-suits-confidently-walking-2026-01-22-17-34-53-utc.mov",
+        "cubeUrl": "artifacts/color-cubes/gray/two-astronauts-in-space-suits-confidently-walking-2026-01-22-17-34-53-utc-30.jpg",
+        "avgRgb": [
+          58,
+          62,
+          59
+        ],
+        "familyScore": 0.1925,
+        "patchScore": 0.1616
+      },
+      {
+        "sourceUrl": "loops/Moon and Astronauts/Astronauts/two-astronauts-in-space-suits-reveal-with-dynamic-2026-01-28-03-54-56-utc.mov",
+        "cubeUrl": "artifacts/color-cubes/gray/two-astronauts-in-space-suits-reveal-with-dynamic-2026-01-28-03-54-56-utc-31.jpg",
+        "avgRgb": [
+          50,
+          50,
+          48
+        ],
+        "familyScore": 0.6391,
+        "patchScore": 0.1508
+      },
+      {
+        "sourceUrl": "loops/Moon and Astronauts/Astronauts/two-astronauts-in-white-spacesuits-stand-on-a-whit-2026-01-28-02-51-15-utc.mov",
+        "cubeUrl": "artifacts/color-cubes/gray/two-astronauts-in-white-spacesuits-stand-on-a-whit-2026-01-28-02-51-15-utc-32.jpg",
+        "avgRgb": [
+          46,
+          52,
+          48
+        ],
+        "familyScore": 0.6311,
+        "patchScore": 0.1779
+      },
+      {
+        "sourceUrl": "loops/Moon and Astronauts/Moon Loops/33 M S P.mov",
+        "cubeUrl": "artifacts/color-cubes/gray/33-m-s-p-37.jpg",
+        "avgRgb": [
+          64,
+          66,
+          59
+        ],
+        "familyScore": 0.255,
+        "patchScore": 0.1616
+      },
+      {
+        "sourceUrl": "loops/Moon and Astronauts/Moon Loops/detailed-gray-moon-surface-floating-in-space-2025-12-17-13-03-13-utc.mov",
+        "cubeUrl": "artifacts/color-cubes/gray/detailed-gray-moon-surface-floating-in-space-2025-12-17-13-03-13-utc-48.jpg",
+        "avgRgb": [
+          49,
+          48,
+          47
+        ],
+        "familyScore": 0.4174,
+        "patchScore": 0.1229
+      },
+      {
+        "sourceUrl": "loops/Moon and Astronauts/Moon Loops/detailed-shot-of-the-moon-surface-2025-12-17-12-47-08-utc.mov",
+        "cubeUrl": "artifacts/color-cubes/gray/detailed-shot-of-the-moon-surface-2025-12-17-12-47-08-utc-50.jpg",
+        "avgRgb": [
+          57,
+          61,
+          56
+        ],
+        "familyScore": 0.2505,
+        "patchScore": 0.1613
+      },
+      {
+        "sourceUrl": "loops/Moon and Astronauts/Moon Loops/detailed-view-of-the-surface-of-the-moon-2026-01-21-15-50-54-utc.mp4",
+        "cubeUrl": "artifacts/color-cubes/gray/detailed-view-of-the-surface-of-the-moon-2026-01-21-15-50-54-utc-51.jpg",
+        "avgRgb": [
+          59,
+          61,
+          59
+        ],
+        "familyScore": 0.4149,
+        "patchScore": 0.1103
+      },
+      {
+        "sourceUrl": "loops/Moon and Astronauts/Moon Loops/spacecraft-flying-over-the-moon-s-surface-2025-12-17-15-50-47-utc.mov",
+        "cubeUrl": "artifacts/color-cubes/gray/spacecraft-flying-over-the-moon-s-surface-2025-12-17-15-50-47-utc-56.jpg",
+        "avgRgb": [
+          39,
+          39,
+          38
+        ],
+        "familyScore": 0.1927,
+        "patchScore": 0.1071
+      },
+      {
+        "sourceUrl": "loops/Moon and Astronauts/Moon Walking Landing/astronaut-boot-leaves-first-footprint-on-lunar-sur-2026-01-28-03-56-55-utc.mov",
+        "cubeUrl": "artifacts/color-cubes/gray/astronaut-boot-leaves-first-footprint-on-lunar-sur-2026-01-28-03-56-55-utc-57.jpg",
+        "avgRgb": [
+          74,
+          76,
+          74
+        ],
+        "familyScore": 0.327,
+        "patchScore": 0.1613
+      },
+      {
+        "sourceUrl": "loops/Moon and Astronauts/Moon Walking Landing/astronaut-walking-on-moon-surface-3d-animation-2026-01-28-04-28-22-utc.mov",
+        "cubeUrl": "artifacts/color-cubes/gray/astronaut-walking-on-moon-surface-3d-animation-2026-01-28-04-28-22-utc-62.jpg",
+        "avgRgb": [
+          42,
+          42,
+          39
+        ],
+        "familyScore": 0.2159,
+        "patchScore": 0.1152
+      }
+    ],
+    "white": [],
+    "red": [
+      {
+        "sourceUrl": "loops/Moon and Astronauts/Astronauts/astronaut-floats-from-space-station-towards-distan-2026-01-28-03-41-41-utc.mov",
+        "cubeUrl": "artifacts/color-cubes/red/astronaut-floats-from-space-station-towards-distan-2026-01-28-03-41-41-utc-7.jpg",
+        "avgRgb": [
+          39,
+          10,
+          10
+        ],
+        "familyScore": 0.095,
+        "patchScore": 0.4194
+      },
+      {
+        "sourceUrl": "loops/Moon and Astronauts/Astronauts/astronaut-inside-the-orbital-space-station-2026-01-28-04-14-19-utc.mov",
+        "cubeUrl": "artifacts/color-cubes/red/astronaut-inside-the-orbital-space-station-2026-01-28-04-14-19-utc-11.jpg",
+        "avgRgb": [
+          76,
+          19,
+          10
+        ],
+        "familyScore": 0.2241,
+        "patchScore": 0.6088
+      },
+      {
+        "sourceUrl": "loops/Moon and Astronauts/Astronauts/futuristic-astronaut-helmet-with-dynamic-galaxy-re-2026-01-28-02-57-18-utc.mov",
+        "cubeUrl": "artifacts/color-cubes/red/futuristic-astronaut-helmet-with-dynamic-galaxy-re-2026-01-28-02-57-18-utc-26.jpg",
+        "avgRgb": [
+          56,
+          39,
+          39
+        ],
+        "familyScore": 0.4035,
+        "patchScore": 0.3835
+      },
+      {
+        "sourceUrl": "loops/Moon and Astronauts/Astronauts/futuristic-astronauts-walking-in-glitch-space-scen-2026-01-28-05-38-16-utc.mp4",
+        "cubeUrl": "artifacts/color-cubes/red/futuristic-astronauts-walking-in-glitch-space-scen-2026-01-28-05-38-16-utc-28.jpg",
+        "avgRgb": [
+          67,
+          22,
+          21
+        ],
+        "familyScore": 0.2699,
+        "patchScore": 0.7191
+      },
+      {
+        "sourceUrl": "loops/Moon and Astronauts/Astronauts/vecteezy_astronaut-spacewalk-above-earth_52003483.mov",
+        "cubeUrl": "artifacts/color-cubes/red/vecteezy-astronaut-spacewalk-above-earth-52003483-34.jpg",
+        "avgRgb": [
+          53,
+          17,
+          19
+        ],
+        "familyScore": 0.2063,
+        "patchScore": 0.5141
+      },
+      {
+        "sourceUrl": "loops/Moon and Astronauts/Moon Loops/an-airliner-lines-up-for-a-nighttime-final-approac-2025-12-17-14-30-05-utc.mov",
+        "cubeUrl": "artifacts/color-cubes/red/an-airliner-lines-up-for-a-nighttime-final-approac-2025-12-17-14-30-05-utc-42.jpg",
+        "avgRgb": [
+          38,
+          10,
+          9
+        ],
+        "familyScore": 0.0801,
+        "patchScore": 0.402
+      },
+      {
+        "sourceUrl": "loops/Moon and Astronauts/Moon Loops/moon-surface-close-up-animation-in-space-2025-12-17-11-34-44-utc.mp4",
+        "cubeUrl": "artifacts/color-cubes/red/moon-surface-close-up-animation-in-space-2025-12-17-11-34-44-utc-53.jpg",
+        "avgRgb": [
+          43,
+          11,
+          14
+        ],
+        "familyScore": 0.2724,
+        "patchScore": 0.4292
+      },
+      {
+        "sourceUrl": "loops/Moon and Astronauts/Moon Walking Landing/astronaut-on-moon-surface-with-lunar-module-and-ea-2026-01-28-02-47-48-utc.mov",
+        "cubeUrl": "artifacts/color-cubes/red/astronaut-on-moon-surface-with-lunar-module-and-ea-2026-01-28-02-47-48-utc-60.jpg",
+        "avgRgb": [
+          41,
+          2,
+          2
+        ],
+        "familyScore": 0.0848,
+        "patchScore": 0.4194
+      },
+      {
+        "sourceUrl": "loops/Moon and Astronauts/Moon Walking Landing/rocket-launching-from-lunar-surface-in-outer-space-2025-12-17-09-11-24-utc.mp4",
+        "cubeUrl": "artifacts/color-cubes/red/rocket-launching-from-lunar-surface-in-outer-space-2025-12-17-09-11-24-utc-65.jpg",
+        "avgRgb": [
+          44,
+          9,
+          12
+        ],
+        "familyScore": 0.2304,
+        "patchScore": 0.4338
+      }
+    ],
+    "orange": [
+      {
+        "sourceUrl": "loops/Moon and Astronauts/Astronauts/1.mov",
+        "cubeUrl": "artifacts/color-cubes/orange/1-0.jpg",
+        "avgRgb": [
+          134,
+          119,
+          103
+        ],
+        "familyScore": 0.3399,
+        "patchScore": 0.423
+      },
+      {
+        "sourceUrl": "loops/Moon and Astronauts/Astronauts/2.mov",
+        "cubeUrl": "artifacts/color-cubes/orange/2-1.jpg",
+        "avgRgb": [
+          125,
+          113,
+          97
+        ],
+        "familyScore": 0.2414,
+        "patchScore": 0.6791
+      },
+      {
+        "sourceUrl": "loops/Moon and Astronauts/Astronauts/3.mov",
+        "cubeUrl": "artifacts/color-cubes/orange/3-2.jpg",
+        "avgRgb": [
+          117,
+          103,
+          89
+        ],
+        "familyScore": 0.2674,
+        "patchScore": 0.4496
+      },
+      {
+        "sourceUrl": "loops/Moon and Astronauts/Astronauts/astronaut-careful-walk-2026-02-18-13-15-20-utc.mov",
+        "cubeUrl": "artifacts/color-cubes/orange/astronaut-careful-walk-2026-02-18-13-15-20-utc-5.jpg",
+        "avgRgb": [
+          63,
+          46,
+          30
+        ],
+        "familyScore": 0.3822,
+        "patchScore": 0.5836
+      },
+      {
+        "sourceUrl": "loops/Moon and Astronauts/Astronauts/astronaut-depressed-walk-2026-02-18-12-47-43-utc.mov",
+        "cubeUrl": "artifacts/color-cubes/orange/astronaut-depressed-walk-2026-02-18-12-47-43-utc-6.jpg",
+        "avgRgb": [
+          157,
+          123,
+          94
+        ],
+        "familyScore": 0.9143,
+        "patchScore": 0.7209
+      },
+      {
+        "sourceUrl": "loops/Moon and Astronauts/Astronauts/nasa-astronaut-space-suit-rotating-animation-2026-01-28-03-12-24-utc.mp4",
+        "cubeUrl": "artifacts/color-cubes/orange/nasa-astronaut-space-suit-rotating-animation-2026-01-28-03-12-24-utc-29.jpg",
+        "avgRgb": [
+          88,
+          48,
+          6
+        ],
+        "familyScore": 0.842,
+        "patchScore": 0.8073
+      },
+      {
+        "sourceUrl": "loops/Moon and Astronauts/Astronauts/vecteezy_astronauts-explore-new-planets-in-a-parallel-universe_49435521.mp4",
+        "cubeUrl": "artifacts/color-cubes/orange/vecteezy-astronauts-explore-new-planets-in-a-parallel-universe-49435521-36.jpg",
+        "avgRgb": [
+          78,
+          52,
+          32
+        ],
+        "familyScore": 0.3854,
+        "patchScore": 0.8073
+      },
+      {
+        "sourceUrl": "loops/Moon and Astronauts/Moon Loops/4k-movie-of-the-crescent-moon-2025-12-17-18-36-24-utc.mov",
+        "cubeUrl": "artifacts/color-cubes/orange/4k-movie-of-the-crescent-moon-2025-12-17-18-36-24-utc-38.jpg",
+        "avgRgb": [
+          60,
+          51,
+          41
+        ],
+        "familyScore": 0.2576,
+        "patchScore": 0.2881
+      },
+      {
+        "sourceUrl": "loops/Moon and Astronauts/NASA Footage/video 1 with title cut.mp4",
+        "cubeUrl": "artifacts/color-cubes/orange/video-1-with-title-cut-70.jpg",
+        "avgRgb": [
+          39,
+          25,
+          16
+        ],
+        "familyScore": 0.1163,
+        "patchScore": 0.4239
+      }
+    ],
+    "yellow": [
+      {
+        "sourceUrl": "loops/Moon and Astronauts/Astronauts/astronaut-performing-a-spacewalk-near-the-internat-2026-01-28-04-27-56-utc.mov",
+        "cubeUrl": "artifacts/color-cubes/yellow/astronaut-performing-a-spacewalk-near-the-internat-2026-01-28-04-27-56-utc-16.jpg",
+        "avgRgb": [
+          92,
+          94,
+          33
+        ],
+        "familyScore": 0.1532,
+        "patchScore": 0.8073
+      },
+      {
+        "sourceUrl": "loops/Moon and Astronauts/Astronauts/astronauts-return-to-futuristic-mars-base-at-sunse-2026-01-28-04-20-41-utc.mov",
+        "cubeUrl": "artifacts/color-cubes/yellow/astronauts-return-to-futuristic-mars-base-at-sunse-2026-01-28-04-20-41-utc-21.jpg",
+        "avgRgb": [
+          76,
+          61,
+          10
+        ],
+        "familyScore": 0.4065,
+        "patchScore": 0.5917
+      },
+      {
+        "sourceUrl": "loops/Moon and Astronauts/Moon Loops/airplane-silhouetted-flying-past-a-fiery-glowing-2026-01-22-11-54-05-utc.mov",
+        "cubeUrl": "artifacts/color-cubes/yellow/airplane-silhouetted-flying-past-a-fiery-glowing-2026-01-22-11-54-05-utc-41.jpg",
+        "avgRgb": [
+          39,
+          36,
+          7
+        ],
+        "familyScore": 0.2253,
+        "patchScore": 0.4194
+      },
+      {
+        "sourceUrl": "loops/Moon and Astronauts/Moon Walking Landing/astronaut-descends-from-lunar-lander-on-moon-surfa-2026-01-28-03-14-26-utc.mov",
+        "cubeUrl": "artifacts/color-cubes/yellow/astronaut-descends-from-lunar-lander-on-moon-surfa-2026-01-28-03-14-26-utc-59.jpg",
+        "avgRgb": [
+          40,
+          40,
+          4
+        ],
+        "familyScore": 0.1441,
+        "patchScore": 0.4194
+      }
+    ],
+    "green": [
+      {
+        "sourceUrl": "loops/Moon and Astronauts/Astronauts/astronaut-head-to-space-station-2026-02-02-07-51-42-utc.mov",
+        "cubeUrl": "artifacts/color-cubes/green/astronaut-head-to-space-station-2026-02-02-07-51-42-utc-8.jpg",
+        "avgRgb": [
+          25,
+          43,
+          15
+        ],
+        "familyScore": 0.1497,
+        "patchScore": 0.4375
+      },
+      {
+        "sourceUrl": "loops/Moon and Astronauts/Astronauts/astronaut-inside-the-orbital-space-station-2026-01-28-02-54-47-utc.mov",
+        "cubeUrl": "artifacts/color-cubes/green/astronaut-inside-the-orbital-space-station-2026-01-28-02-54-47-utc-9.jpg",
+        "avgRgb": [
+          40,
+          60,
+          47
+        ],
+        "familyScore": 0.3787,
+        "patchScore": 0.6133
+      },
+      {
+        "sourceUrl": "loops/Moon and Astronauts/Astronauts/astronaut-inside-the-orbital-space-station-2026-01-28-03-54-29-utc.mov",
+        "cubeUrl": "artifacts/color-cubes/green/astronaut-inside-the-orbital-space-station-2026-01-28-03-54-29-utc-10.jpg",
+        "avgRgb": [
+          41,
+          64,
+          50
+        ],
+        "familyScore": 0.2808,
+        "patchScore": 0.3875
+      },
+      {
+        "sourceUrl": "loops/Moon and Astronauts/Astronauts/astronaut-inside-the-orbital-space-station-2026-01-28-04-14-19-utc.mov",
+        "cubeUrl": "artifacts/color-cubes/green/astronaut-inside-the-orbital-space-station-2026-01-28-04-14-19-utc-11.jpg",
+        "avgRgb": [
+          42,
+          63,
+          50
+        ],
+        "familyScore": 0.2778,
+        "patchScore": 0.6071
+      },
+      {
+        "sourceUrl": "loops/Moon and Astronauts/Astronauts/astronaut-inside-the-orbital-space-station-2026-01-28-04-17-21-utc.mov",
+        "cubeUrl": "artifacts/color-cubes/green/astronaut-inside-the-orbital-space-station-2026-01-28-04-17-21-utc-12.jpg",
+        "avgRgb": [
+          42,
+          64,
+          50
+        ],
+        "familyScore": 0.312,
+        "patchScore": 0.4014
+      },
+      {
+        "sourceUrl": "loops/Moon and Astronauts/Astronauts/astronaut-inside-the-orbital-space-station-2026-01-28-04-29-04-utc.mov",
+        "cubeUrl": "artifacts/color-cubes/green/astronaut-inside-the-orbital-space-station-2026-01-28-04-29-04-utc-13.jpg",
+        "avgRgb": [
+          39,
+          60,
+          48
+        ],
+        "familyScore": 0.3021,
+        "patchScore": 0.6088
+      },
+      {
+        "sourceUrl": "loops/Moon and Astronauts/Astronauts/astronaut-inside-the-orbital-space-station-2026-01-28-04-47-33-utc.mov",
+        "cubeUrl": "artifacts/color-cubes/green/astronaut-inside-the-orbital-space-station-2026-01-28-04-47-33-utc-14.jpg",
+        "avgRgb": [
+          39,
+          63,
+          48
+        ],
+        "familyScore": 0.454,
+        "patchScore": 0.6008
+      },
+      {
+        "sourceUrl": "loops/Moon and Astronauts/Astronauts/astronauts-explore-alien-planet-with-lunar-rover-2026-01-22-17-23-46-utc.mov",
+        "cubeUrl": "artifacts/color-cubes/green/astronauts-explore-alien-planet-with-lunar-rover-2026-01-22-17-23-46-utc-17.jpg",
+        "avgRgb": [
+          34,
+          55,
+          10
+        ],
+        "familyScore": 0.1623,
+        "patchScore": 0.5141
+      },
+      {
+        "sourceUrl": "loops/Moon and Astronauts/Astronauts/astronauts-walking-loop-2026-01-28-05-08-38-utc.mov",
+        "cubeUrl": "artifacts/color-cubes/green/astronauts-walking-loop-2026-01-28-05-08-38-utc-22.jpg",
+        "avgRgb": [
+          22,
+          39,
+          15
+        ],
+        "familyScore": 0.0829,
+        "patchScore": 0.4194
+      },
+      {
+        "sourceUrl": "loops/Moon and Astronauts/Astronauts/flight_1.mov",
+        "cubeUrl": "artifacts/color-cubes/green/flight-1-24.jpg",
+        "avgRgb": [
+          21,
+          39,
+          19
+        ],
+        "familyScore": 0.0886,
+        "patchScore": 0.4194
+      },
+      {
+        "sourceUrl": "loops/Moon and Astronauts/Astronauts/flight_2.mov",
+        "cubeUrl": "artifacts/color-cubes/green/flight-2-25.jpg",
+        "avgRgb": [
+          23,
+          39,
+          19
+        ],
+        "familyScore": 0.0666,
+        "patchScore": 0.4194
+      },
+      {
+        "sourceUrl": "loops/Moon and Astronauts/Astronauts/nasa-astronaut-space-suit-rotating-animation-2026-01-28-03-12-24-utc.mp4",
+        "cubeUrl": "artifacts/color-cubes/green/nasa-astronaut-space-suit-rotating-animation-2026-01-28-03-12-24-utc-29.jpg",
+        "avgRgb": [
+          11,
+          78,
+          11
+        ],
+        "familyScore": 0.107,
+        "patchScore": 0.6828
+      },
+      {
+        "sourceUrl": "loops/Moon and Astronauts/Astronauts/vecteezy_astronauts-are-on-outer-space-and-the-moon-in-space-with-the_43254261.mp4",
+        "cubeUrl": "artifacts/color-cubes/green/vecteezy-astronauts-are-on-outer-space-and-the-moon-in-space-with-the-43254261-35.jpg",
+        "avgRgb": [
+          42,
+          96,
+          57
+        ],
+        "familyScore": 0.1318,
+        "patchScore": 0.8073
+      },
+      {
+        "sourceUrl": "loops/Moon and Astronauts/Moon Walking Landing/astronaut-walking-on-moon-in-dark-space-landscape-2025-12-17-04-06-15-utc.mov",
+        "cubeUrl": "artifacts/color-cubes/green/astronaut-walking-on-moon-in-dark-space-landscape-2025-12-17-04-06-15-utc-61.jpg",
+        "avgRgb": [
+          43,
+          73,
+          15
+        ],
+        "familyScore": 0.2524,
+        "patchScore": 0.5411
+      },
+      {
+        "sourceUrl": "loops/Moon and Astronauts/NASA Footage/Around the Moon for All Humanity Artemis II title cuts.mp4",
+        "cubeUrl": "artifacts/color-cubes/green/around-the-moon-for-all-humanity-artemis-ii-title-cuts-66.jpg",
+        "avgRgb": [
+          21,
+          39,
+          23
+        ],
+        "familyScore": 0.1612,
+        "patchScore": 0.4239
+      },
+      {
+        "sourceUrl": "loops/Moon and Astronauts/NASA Footage/Artemis II at the pad Full Snow Moon 02012026 horizontal stablized~orig.mp4",
+        "cubeUrl": "artifacts/color-cubes/green/artemis-ii-at-the-pad-full-snow-moon-02012026-horizontal-stablized-orig-67.jpg",
+        "avgRgb": [
+          28,
+          39,
+          23
+        ],
+        "familyScore": 0.0718,
+        "patchScore": 0.4104
+      },
+      {
+        "sourceUrl": "loops/Moon and Astronauts/NASA Footage/Artemis II at the pad Full Snow Moon 02012026 vertical stablized~orig.mp4",
+        "cubeUrl": "artifacts/color-cubes/green/artemis-ii-at-the-pad-full-snow-moon-02012026-vertical-stablized-orig-68.jpg",
+        "avgRgb": [
+          22,
+          39,
+          17
+        ],
+        "familyScore": 0.057,
+        "patchScore": 0.4239
+      },
+      {
+        "sourceUrl": "loops/Moon and Astronauts/space odissey cuts/videoplayback 2.mp4",
+        "cubeUrl": "artifacts/color-cubes/green/videoplayback-2-71.jpg",
+        "avgRgb": [
+          24,
+          39,
+          6
+        ],
+        "familyScore": 0.0743,
+        "patchScore": 0.4153
+      }
+    ],
+    "cyan": [
+      {
+        "sourceUrl": "loops/Moon and Astronauts/Astronauts/astronauts-exploring-a-water-planet-in-space-loop-2026-01-28-04-35-26-utc.mov",
+        "cubeUrl": "artifacts/color-cubes/cyan/astronauts-exploring-a-water-planet-in-space-loop-2026-01-28-04-35-26-utc-18.jpg",
+        "avgRgb": [
+          12,
+          37,
+          46
+        ],
+        "familyScore": 0.3991,
+        "patchScore": 0.4953
+      },
+      {
+        "sourceUrl": "loops/Moon and Astronauts/Astronauts/vecteezy_astronaut-spacewalk-above-earth_52003483.mov",
+        "cubeUrl": "artifacts/color-cubes/cyan/vecteezy-astronaut-spacewalk-above-earth-52003483-34.jpg",
+        "avgRgb": [
+          19,
+          46,
+          51
+        ],
+        "familyScore": 0.2476,
+        "patchScore": 0.5141
+      },
+      {
+        "sourceUrl": "loops/Moon and Astronauts/Astronauts/vecteezy_astronauts-are-on-outer-space-and-the-moon-in-space-with-the_43254261.mp4",
+        "cubeUrl": "artifacts/color-cubes/cyan/vecteezy-astronauts-are-on-outer-space-and-the-moon-in-space-with-the-43254261-35.jpg",
+        "avgRgb": [
+          39,
+          80,
+          80
+        ],
+        "familyScore": 0.1703,
+        "patchScore": 0.7972
+      },
+      {
+        "sourceUrl": "loops/Moon and Astronauts/Moon Loops/detailed-close-up-of-the-full-moon-at-night-2025-12-17-08-55-20-utc.mov",
+        "cubeUrl": "artifacts/color-cubes/cyan/detailed-close-up-of-the-full-moon-at-night-2025-12-17-08-55-20-utc-46.jpg",
+        "avgRgb": [
+          3,
+          36,
+          33
+        ],
+        "familyScore": 0.107,
+        "patchScore": 0.4239
+      },
+      {
+        "sourceUrl": "loops/Moon and Astronauts/Moon Loops/moon-rotating-to-reveal-planet-earth-with-usa-amer-2025-12-17-12-07-07-utc.mov",
+        "cubeUrl": "artifacts/color-cubes/cyan/moon-rotating-to-reveal-planet-earth-with-usa-amer-2025-12-17-12-07-07-utc-52.jpg",
+        "avgRgb": [
+          3,
+          41,
+          40
+        ],
+        "familyScore": 0.1536,
+        "patchScore": 0.4239
+      },
+      {
+        "sourceUrl": "loops/Moon and Astronauts/Moon Walking Landing/astronaut-descending-from-lunar-module-on-moon-wit-2026-01-28-02-34-04-utc.mov",
+        "cubeUrl": "artifacts/color-cubes/cyan/astronaut-descending-from-lunar-module-on-moon-wit-2026-01-28-02-34-04-utc-58.jpg",
+        "avgRgb": [
+          3,
+          39,
+          34
+        ],
+        "familyScore": 0.0844,
+        "patchScore": 0.4239
+      },
+      {
+        "sourceUrl": "loops/Moon and Astronauts/space odissey cuts/videoplayback.webm",
+        "cubeUrl": "artifacts/color-cubes/cyan/videoplayback-72.jpg",
+        "avgRgb": [
+          7,
+          39,
+          37
+        ],
+        "familyScore": 0.0652,
+        "patchScore": 0.4239
+      }
+    ],
+    "blue": [
+      {
+        "sourceUrl": "loops/Moon and Astronauts/Astronauts/astronaut-performing-a-spacewalk-near-the-internat-2026-01-28-04-27-56-utc.mov",
+        "cubeUrl": "artifacts/color-cubes/blue/astronaut-performing-a-spacewalk-near-the-internat-2026-01-28-04-27-56-utc-16.jpg",
+        "avgRgb": [
+          48,
+          54,
+          74
+        ],
+        "familyScore": 0.394,
+        "patchScore": 0.8018
+      },
+      {
+        "sourceUrl": "loops/Moon and Astronauts/Astronauts/astronauts-explore-alien-planet-with-lunar-rover-2026-01-22-17-23-46-utc.mov",
+        "cubeUrl": "artifacts/color-cubes/blue/astronauts-explore-alien-planet-with-lunar-rover-2026-01-22-17-23-46-utc-17.jpg",
+        "avgRgb": [
+          20,
+          31,
+          51
+        ],
+        "familyScore": 0.1989,
+        "patchScore": 0.5141
+      },
+      {
+        "sourceUrl": "loops/Moon and Astronauts/Astronauts/two-astronauts-on-moon-surface-gazing-at-earth-in-2026-01-28-03-15-15-utc.mov",
+        "cubeUrl": "artifacts/color-cubes/blue/two-astronauts-on-moon-surface-gazing-at-earth-in-2026-01-28-03-15-15-utc-33.jpg",
+        "avgRgb": [
+          26,
+          42,
+          58
+        ],
+        "familyScore": 0.1809,
+        "patchScore": 0.623
+      },
+      {
+        "sourceUrl": "loops/Moon and Astronauts/Moon Loops/4k-movie-of-the-crescent-moon-2025-12-17-18-36-24-utc.mov",
+        "cubeUrl": "artifacts/color-cubes/blue/4k-movie-of-the-crescent-moon-2025-12-17-18-36-24-utc-38.jpg",
+        "avgRgb": [
+          15,
+          6,
+          80
+        ],
+        "familyScore": 0.3217,
+        "patchScore": 0.5953
+      },
+      {
+        "sourceUrl": "loops/Moon and Astronauts/Moon Loops/634.mov",
+        "cubeUrl": "artifacts/color-cubes/blue/634-39.jpg",
+        "avgRgb": [
+          11,
+          7,
+          39
+        ],
+        "familyScore": 0.1168,
+        "patchScore": 0.4068
+      },
+      {
+        "sourceUrl": "loops/Moon and Astronauts/Moon Loops/a-4k-close-up-of-the-lunar-surface-in-rotation-2026-01-21-20-16-29-utc.mp4",
+        "cubeUrl": "artifacts/color-cubes/blue/a-4k-close-up-of-the-lunar-surface-in-rotation-2026-01-21-20-16-29-utc-40.jpg",
+        "avgRgb": [
+          5,
+          7,
+          39
+        ],
+        "familyScore": 0.2455,
+        "patchScore": 0.4153
+      },
+      {
+        "sourceUrl": "loops/Moon and Astronauts/Moon Loops/approach-and-flight-around-the-moon-2025-12-17-22-46-49-utc.mp4",
+        "cubeUrl": "artifacts/color-cubes/blue/approach-and-flight-around-the-moon-2025-12-17-22-46-49-utc-43.jpg",
+        "avgRgb": [
+          6,
+          7,
+          39
+        ],
+        "familyScore": 0.2798,
+        "patchScore": 0.4107
+      },
+      {
+        "sourceUrl": "loops/Moon and Astronauts/Moon Loops/close-up-shot-of-the-moon-surface-2025-12-17-05-48-58-utc.mp4",
+        "cubeUrl": "artifacts/color-cubes/blue/close-up-shot-of-the-moon-surface-2025-12-17-05-48-58-utc-44.jpg",
+        "avgRgb": [
+          35,
+          42,
+          56
+        ],
+        "familyScore": 0.2662,
+        "patchScore": 0.6133
+      },
+      {
+        "sourceUrl": "loops/Moon and Astronauts/Moon Loops/close-up-shot-of-the-textured-surface-of-moon-2025-12-17-03-33-50-utc.mp4",
+        "cubeUrl": "artifacts/color-cubes/blue/close-up-shot-of-the-textured-surface-of-moon-2025-12-17-03-33-50-utc-45.jpg",
+        "avgRgb": [
+          4,
+          4,
+          60
+        ],
+        "familyScore": 0.2659,
+        "patchScore": 0.5141
+      },
+      {
+        "sourceUrl": "loops/Moon and Astronauts/Moon Loops/detailed-footage-of-the-moon-s-cratered-surface-2026-01-21-12-57-56-utc.mp4",
+        "cubeUrl": "artifacts/color-cubes/blue/detailed-footage-of-the-moon-s-cratered-surface-2026-01-21-12-57-56-utc-47.jpg",
+        "avgRgb": [
+          5,
+          7,
+          81
+        ],
+        "familyScore": 0.283,
+        "patchScore": 0.6043
+      },
+      {
+        "sourceUrl": "loops/Moon and Astronauts/Moon Loops/detailed-half-moon-drifting-in-black-void-2025-12-17-09-39-17-utc.mov",
+        "cubeUrl": "artifacts/color-cubes/blue/detailed-half-moon-drifting-in-black-void-2025-12-17-09-39-17-utc-49.jpg",
+        "avgRgb": [
+          2,
+          3,
+          41
+        ],
+        "familyScore": 0.1637,
+        "patchScore": 0.4194
+      },
+      {
+        "sourceUrl": "loops/Moon and Astronauts/Moon Loops/Moon.mov",
+        "cubeUrl": "artifacts/color-cubes/blue/moon-54.jpg",
+        "avgRgb": [
+          2,
+          5,
+          40
+        ],
+        "familyScore": 0.2064,
+        "patchScore": 0.4194
+      },
+      {
+        "sourceUrl": "loops/Moon and Astronauts/Moon Loops/spacecraft-flying-near-the-moon-in-outer-space-2025-12-17-22-43-08-utc.mp4",
+        "cubeUrl": "artifacts/color-cubes/blue/spacecraft-flying-near-the-moon-in-outer-space-2025-12-17-22-43-08-utc-55.jpg",
+        "avgRgb": [
+          22,
+          37,
+          49
+        ],
+        "familyScore": 0.2738,
+        "patchScore": 0.5715
+      },
+      {
+        "sourceUrl": "loops/Moon and Astronauts/Moon Walking Landing/astronaut-walks-and-waves-on-lunar-surface-with-la-2026-01-28-02-52-36-utc.mov",
+        "cubeUrl": "artifacts/color-cubes/blue/astronaut-walks-and-waves-on-lunar-surface-with-la-2026-01-28-02-52-36-utc-63.jpg",
+        "avgRgb": [
+          4,
+          5,
+          40
+        ],
+        "familyScore": 0.1027,
+        "patchScore": 0.4239
+      },
+      {
+        "sourceUrl": "loops/Moon and Astronauts/NASA Footage/Artemis_I_Orion_in_space_animation4K_2021~orig cut no titles.mp4",
+        "cubeUrl": "artifacts/color-cubes/blue/artemis-i-orion-in-space-animation4k-2021-orig-cut-no-titles-69.jpg",
+        "avgRgb": [
+          16,
+          28,
+          39
+        ],
+        "familyScore": 0.1036,
+        "patchScore": 0.4059
+      }
+    ],
+    "purple": [
+      {
+        "sourceUrl": "loops/Moon and Astronauts/Astronauts/astronaut-careful-walk-2026-02-18-13-15-20-utc.mov",
+        "cubeUrl": "artifacts/color-cubes/purple/astronaut-careful-walk-2026-02-18-13-15-20-utc-5.jpg",
+        "avgRgb": [
+          41,
+          13,
+          72
+        ],
+        "familyScore": 0.2359,
+        "patchScore": 0.5616
+      },
+      {
+        "sourceUrl": "loops/Moon and Astronauts/Astronauts/astronaut-inside-the-orbital-space-station-2026-01-28-02-54-47-utc.mov",
+        "cubeUrl": "artifacts/color-cubes/purple/astronaut-inside-the-orbital-space-station-2026-01-28-02-54-47-utc-9.jpg",
+        "avgRgb": [
+          64,
+          6,
+          79
+        ],
+        "familyScore": 0.1313,
+        "patchScore": 0.5998
+      },
+      {
+        "sourceUrl": "loops/Moon and Astronauts/Astronauts/astronaut-inside-the-orbital-space-station-2026-01-28-03-54-29-utc.mov",
+        "cubeUrl": "artifacts/color-cubes/purple/astronaut-inside-the-orbital-space-station-2026-01-28-03-54-29-utc-10.jpg",
+        "avgRgb": [
+          68,
+          8,
+          78
+        ],
+        "familyScore": 0.3206,
+        "patchScore": 0.6043
+      },
+      {
+        "sourceUrl": "loops/Moon and Astronauts/Astronauts/astronaut-inside-the-orbital-space-station-2026-01-28-04-17-21-utc.mov",
+        "cubeUrl": "artifacts/color-cubes/purple/astronaut-inside-the-orbital-space-station-2026-01-28-04-17-21-utc-12.jpg",
+        "avgRgb": [
+          68,
+          7,
+          77
+        ],
+        "familyScore": 0.2698,
+        "patchScore": 0.6088
+      },
+      {
+        "sourceUrl": "loops/Moon and Astronauts/Astronauts/astronaut-inside-the-orbital-space-station-2026-01-28-04-29-04-utc.mov",
+        "cubeUrl": "artifacts/color-cubes/purple/astronaut-inside-the-orbital-space-station-2026-01-28-04-29-04-utc-13.jpg",
+        "avgRgb": [
+          68,
+          7,
+          78
+        ],
+        "familyScore": 0.2341,
+        "patchScore": 0.6133
+      },
+      {
+        "sourceUrl": "loops/Moon and Astronauts/Astronauts/astronaut-inside-the-orbital-space-station-2026-01-28-04-47-33-utc.mov",
+        "cubeUrl": "artifacts/color-cubes/purple/astronaut-inside-the-orbital-space-station-2026-01-28-04-47-33-utc-14.jpg",
+        "avgRgb": [
+          68,
+          7,
+          78
+        ],
+        "familyScore": 0.2367,
+        "patchScore": 0.5962
+      },
+      {
+        "sourceUrl": "loops/Moon and Astronauts/Astronauts/astronauts-return-to-futuristic-mars-base-at-sunse-2026-01-28-02-30-34-utc.mov",
+        "cubeUrl": "artifacts/color-cubes/purple/astronauts-return-to-futuristic-mars-base-at-sunse-2026-01-28-02-30-34-utc-19.jpg",
+        "avgRgb": [
+          50,
+          25,
+          70
+        ],
+        "familyScore": 0.4722,
+        "patchScore": 0.5637
+      },
+      {
+        "sourceUrl": "loops/Moon and Astronauts/Astronauts/astronauts-return-to-futuristic-mars-base-at-sunse-2026-01-28-03-56-29-utc.mov",
+        "cubeUrl": "artifacts/color-cubes/purple/astronauts-return-to-futuristic-mars-base-at-sunse-2026-01-28-03-56-29-utc-20.jpg",
+        "avgRgb": [
+          60,
+          34,
+          70
+        ],
+        "familyScore": 0.4147,
+        "patchScore": 0.5825
+      },
+      {
+        "sourceUrl": "loops/Moon and Astronauts/Astronauts/futuristic-astronauts-walk-through-neon-ring-tunne-2026-01-23-02-29-54-utc.mov",
+        "cubeUrl": "artifacts/color-cubes/purple/futuristic-astronauts-walk-through-neon-ring-tunne-2026-01-23-02-29-54-utc-27.jpg",
+        "avgRgb": [
+          46,
+          15,
+          59
+        ],
+        "familyScore": 0.1729,
+        "patchScore": 0.6043
+      }
+    ],
+    "magenta": [
+      {
+        "sourceUrl": "loops/Moon and Astronauts/Astronauts/futuristic-astronauts-walk-through-neon-ring-tunne-2026-01-23-02-29-54-utc.mov",
+        "cubeUrl": "artifacts/color-cubes/magenta/futuristic-astronauts-walk-through-neon-ring-tunne-2026-01-23-02-29-54-utc-27.jpg",
+        "avgRgb": [
+          65,
+          24,
+          49
+        ],
+        "familyScore": 0.4018,
+        "patchScore": 0.5934
+      },
+      {
+        "sourceUrl": "loops/Moon and Astronauts/Moon Walking Landing/astronaut-walking-on-moon-in-dark-space-landscape-2025-12-17-04-06-15-utc.mov",
+        "cubeUrl": "artifacts/color-cubes/magenta/astronaut-walking-on-moon-in-dark-space-landscape-2025-12-17-04-06-15-utc-61.jpg",
+        "avgRgb": [
+          68,
+          20,
+          53
+        ],
+        "familyScore": 0.3489,
+        "patchScore": 0.4933
+      },
+      {
+        "sourceUrl": "loops/Moon and Astronauts/Moon Walking Landing/old-television-sets-display-1969-moon-landing-2025-12-17-09-15-26-utc.mov",
+        "cubeUrl": "artifacts/color-cubes/magenta/old-television-sets-display-1969-moon-landing-2025-12-17-09-15-26-utc-64.jpg",
+        "avgRgb": [
+          40,
+          3,
+          19
+        ],
+        "familyScore": 0.1003,
+        "patchScore": 0.4107
+      }
+    ]
+  },
+  "stats": {
+    "black": 55,
+    "silver": 3,
+    "gray": 14,
+    "white": 0,
+    "red": 9,
+    "orange": 9,
+    "yellow": 4,
+    "green": 18,
+    "cyan": 7,
+    "blue": 15,
+    "purple": 9,
+    "magenta": 3
+  },
+  "videosScanned": 73
+}

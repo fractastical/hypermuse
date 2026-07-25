@@ -1,15 +1,31 @@
 creds.js
 images
 node_modules/
-loops/
-assets/
 audio/
 external/
 infinitestreams/
 .DS_Store
 
+# Media folders stay out of git EXCEPT the small web-ready set hypermoon
+# needs at runtime, so a fresh clone can run every effect (moon discs, vajra
+# proxies, mosaic tiles, eye backdrop, sonic loop). Masters stay ignored.
+loops/*
+!loops/3d moon/
+loops/3d moon/*
+!loops/3d moon/web/
+!loops/VAJRA DORJE ANIMATIONS/
+loops/VAJRA DORJE ANIMATIONS/*
+!loops/VAJRA DORJE ANIMATIONS/web/
+
+assets/*
+!assets/esoteric-geometries-circles-warp.gif
+
 # Generated exports, caches, datasets, PDFs, and media (videos, wav, LED samples, DJ cache, …)
-artifacts/
+artifacts/*
+!artifacts/moon-cube-index.json
+!artifacts/color-cubes/
+!artifacts/sample-sonicsphere-silent.webm
+
 video-manifest.json
 audio-manifest.json
 .pnpm-store/
