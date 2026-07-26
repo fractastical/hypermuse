@@ -3026,12 +3026,24 @@ if (hmChannel) {
             }
         }
         const progEl = document.getElementById('hmProgramSelect');
-        if (state.program != null && document.activeElement !== progEl) progEl.value = state.program;
+        const progStatusEl = document.getElementById('hmProgStatus');
+        if (state.program != null && !state.programUnknown && document.activeElement !== progEl) {
+            progEl.value = state.program;
+        }
         if (state.rotSeconds > 0) { hmRotSeconds = state.rotSeconds; hmProgRefresh(); }
-        document.getElementById('hmProgStatus').textContent = state.program
-            ? '\u25CF running "' + state.program + '" \u2014 rotation ' +
-              ((state.programRot % Math.max(1, state.programLen)) + 1) + ' / ' + state.programLen
-            : '';
+        // An output page opened before a preset was written doesn't have it and
+        // falls back to the bare word, which looks like the program is broken.
+        if (state.programUnknown) {
+            progStatusEl.textContent = '\u26A0 the moon page has no program called "' + state.programUnknown +
+                '" \u2014 reload it (or hit "apply sources") to pick up newer presets';
+            progStatusEl.style.color = 'rgba(255,190,120,0.95)';
+        } else {
+            progStatusEl.style.color = '';
+            progStatusEl.textContent = state.program
+                ? '\u25CF running "' + state.program + '" \u2014 rotation ' +
+                  ((state.programRot % Math.max(1, state.programLen)) + 1) + ' / ' + state.programLen
+                : '';
+        }
         const presetEl = document.getElementById('hmContentPreset');
         if (sources.content != null && document.activeElement !== presetEl) {
             const match = Array.prototype.find.call(presetEl.options, function(o) { return o.value === sources.content; });

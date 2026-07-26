@@ -3342,6 +3342,7 @@
   let progEyeOn = false;
   let progSchedule = null; // flat: one entry per rotation, loops forever
   let progName = "";
+  let progUnknown = "";
   let progApplied = -1;
   let progLoops = 0, progPrevVideoT = 0;
   let progOwnsFisher = false; // the program only touches the companion if an act asks for it
@@ -3364,8 +3365,16 @@
     if (!acts || !acts.length) {
       progSchedule = null;
       progName = "";
+      // A name this build doesn't know is almost always a page left open from
+      // before the preset was written. Say which one, so the controller can
+      // ask for a reload instead of the moon just going quiet on the word.
+      progUnknown = typeof spec === "string" && spec.trim() ? spec.trim() : "";
+      if (progUnknown) {
+        console.warn('hypermoon: no program named "' + progUnknown + '" in this page - reload to pick up newer presets');
+      }
       return;
     }
+    progUnknown = "";
     progSchedule = [];
     // An act can also carry the show around it: `fisher` brings the companion
     // in for its stretch, `eclipse` starts a transit of that many minutes as
@@ -3799,6 +3808,7 @@
       apparition: APPARITION,
       when: WHEN,
       program: progName,
+      programUnknown: progUnknown,
       programRot: progApplied,
       programLen: progSchedule ? progSchedule.length : 0,
       rotSeconds: rotationPeriod() / Math.max(SPEED, 0.001),
