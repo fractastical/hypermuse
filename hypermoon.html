@@ -2071,8 +2071,6 @@
     let boxAspect = ANG_W / ANG_H;
     const scratch = document.createElement("canvas");
     const sctx = scratch.getContext("2d", { willReadFrequently: true });
-    const shade = document.createElement("canvas");
-    const shctx = shade.getContext("2d");
     // The word is wrapped onto `lines` rows so the block can match the shape
     // of the shadow region (1 line for a wide shadow, more for a narrow
     // crescent). The layout fills the whole canvas; the shader stretches the
@@ -2092,23 +2090,8 @@
       if (h > size * 0.9) { h = size * 0.9; w = h * target; }
       const x0 = (size - w) / 2, y0 = (size - h) / 2;
       if (LOGO_MODE === "plain") {
-        // The panel is added as light, so a mark drawn in dark ink would be
-        // nothing at all on an unlit moon. Marks that arrive that way are
-        // shown as their own silhouette in moonlight instead.
         ctx.globalAlpha = LOGO_INK;
-        if (entry.dark) {
-          shade.width = Math.max(1, Math.round(w));
-          shade.height = Math.max(1, Math.round(h));
-          shctx.clearRect(0, 0, shade.width, shade.height);
-          shctx.drawImage(entry.img, 0, 0, shade.width, shade.height);
-          shctx.globalCompositeOperation = "source-in";
-          shctx.fillStyle = "#e6efff";
-          shctx.fillRect(0, 0, shade.width, shade.height);
-          shctx.globalCompositeOperation = "source-over";
-          ctx.drawImage(shade, x0, y0, w, h);
-        } else {
-          ctx.drawImage(entry.img, x0, y0, w, h);
-        }
+        ctx.drawImage(entry.lit || entry.img, x0, y0, w, h);
         ctx.globalAlpha = 1;
         tex.needsUpdate = true;
         return;
@@ -2210,9 +2193,33 @@
       if (slots.length) redraw();
     }
 
+    // The panel is added as light, so a mark drawn in dark ink arrives as
+    // nothing at all. Those are turned into their own silhouette in
+    // moonlight, once, at load. The mask is darkness rather than coverage, so
+    // counter-shapes painted white instead of cut out of the alpha — a ring,
+    // letters knocked out of a badge — stay as holes rather than filling in.
+    function makeSilhouette(img) {
+      const w = Math.min(1024, img.naturalWidth || 512);
+      const h = Math.max(1, Math.round(w / ((img.naturalWidth || 1) / (img.naturalHeight || 1))));
+      const c = document.createElement("canvas");
+      c.width = w;
+      c.height = h;
+      const cx = c.getContext("2d", { willReadFrequently: true });
+      cx.drawImage(img, 0, 0, w, h);
+      let d;
+      try { d = cx.getImageData(0, 0, w, h); } catch { return null; }
+      const px = d.data;
+      for (let i = 0; i < px.length; i += 4) {
+        const lum = (0.2126 * px[i] + 0.7152 * px[i + 1] + 0.0722 * px[i + 2]) / 255;
+        px[i + 3] = Math.round(px[i + 3] * (1 - lum));
+        px[i] = 230; px[i + 1] = 239; px[i + 2] = 255;
+      }
+      cx.putImageData(d, 0, 0);
+      return c;
+    }
+
     // Mean brightness of the ink, ignoring whatever the mark is cut out of.
-    // A wordmark supplied as black-on-transparent is perfectly normal and
-    // would otherwise arrive as nothing.
+    // A wordmark supplied as black-on-transparent is perfectly normal.
     function inkIsDark(img) {
       const w = 48, h = Math.max(1, Math.round(48 / ((img.naturalWidth || 1) / (img.naturalHeight || 1))));
       scratch.width = w;
@@ -2241,11 +2248,13 @@
         if (src.toLowerCase() === "word") { next.push({ src: "word" }); continue; }
         const img = await loadImage(src);
         if (!img) { console.warn("hypermoon: could not load logo " + src); continue; }
-        next.push({
+        const entry = {
           src, img,
           aspect: (img.naturalWidth || 1) / (img.naturalHeight || 1),
           dark: inkIsDark(img)
-        });
+        };
+        if (entry.dark) entry.lit = makeSilhouette(img);
+        next.push(entry);
       }
       slots = next;
       slot = 0;

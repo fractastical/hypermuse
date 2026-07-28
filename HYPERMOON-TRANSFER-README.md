@@ -194,7 +194,12 @@ Worth knowing:
 - **Dark artwork still works.** The panel is added as light, so a mark supplied
   as black-on-transparent would otherwise be nothing at all on an unlit moon.
   Those are detected and shown as their own silhouette in moonlight instead, so
-  you can hand over whatever the guest sent.
+  you can hand over whatever the guest sent. The silhouette is cut by darkness
+  rather than by coverage, so counter-shapes painted white instead of knocked
+  out of the alpha — a ring, letters reversed out of a badge — stay as holes
+  with the terrain showing through.
+- **SVG works**, which is usually what a press kit sends. So do PNG and any
+  other format the browser can decode.
 - **A guest gets a wider panel than the word** (`logoscale`, default 1.7×),
   because the word reads at the measured patch size only by virtue of being
   five cells to a glyph.
