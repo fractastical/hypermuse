@@ -46,7 +46,10 @@
   const STEPS = Math.max(60, num("steps", 640));// angular samples a revolution
   const RPM = num("rpm", 420);
   const BLADES = Math.max(1, Math.round(num("blades", 4)));
-  const HUB = num("hub", 0.085);                // motor boss, as a fraction of R
+  // The LEDs run in almost to the middle and the motor is small and hidden
+  // behind the picture, so there is no dark hole at the centre — footage of
+  // these things shows a filled disc.
+  const HUB = num("hub", 0);                    // unlit centre, as a fraction of R
   const GAIN = num("gain", 1.35);
   const GLOW = num("glow", 0.4);
   const HAZE = num("haze", 0.38);
@@ -54,6 +57,7 @@
   const DUTY = num("duty", 0.52);               // how much of the LED pitch lights
   const FALLOFF = num("falloff", 0.25);         // thinning of light toward the rim
   const SEAM = num("seam", 1);
+  const ARTIFACTS = num("artifacts", 1);        // shutter banding, dropped slices
   const FLICKER = num("flicker", 0.5);
   const FRINGE = num("fringe", 0.9);
   const CENTER_H = num("height", 1.5);          // disc centre off the floor
@@ -145,6 +149,7 @@
     uGain: { value: GAIN }, uTime: { value: 0 }, uRev: { value: RPM / 60 },
     uBlades: { value: BLADES }, uSeam: { value: SEAM }, uFlicker: { value: FLICKER },
     uFringe: { value: FRINGE }, uDuty: { value: DUTY }, uFalloff: { value: FALLOFF },
+    uArt: { value: ARTIFACTS },
     uFade: { value: 0 } // 1 on the floor reflection, which fades as it drops
   };
   const ledMat = new THREE.ShaderMaterial({
@@ -155,7 +160,7 @@
     blending: THREE.AdditiveBlending,
     fragmentShader: COMMON + `
       uniform float uLeds, uSteps, uHub, uGain, uTime, uRev, uBlades;
-      uniform float uSeam, uFlicker, uFringe, uDuty, uFalloff, uFade;
+      uniform float uSeam, uFlicker, uFringe, uDuty, uFalloff, uFade, uArt;
       vec3 at(float r, float a) { return src(vec2(cos(a), sin(a)) * r); }
       void main() {
         vec2 p = vUv * 2.0 - 1.0;
@@ -213,8 +218,19 @@
         lit *= 1.0 - uSeam * 0.16 * (1.0 - smoothstep(0.0, 0.09, rel));
         lit *= 1.0 + uSeam * 0.05 * sin((a + turn * TAU) * uBlades);
 
+        // Footage of these fans always has some artefact in it: a rolling
+        // shutter beating against the LEDs' own switching drifts a soft band
+        // through the picture, and every so often a slice of a turn never
+        // gets written at all.
+        lit *= 1.0 - uArt * 0.09 * (0.5 + 0.5 * sin((p.y * 4.5 - uTime * 1.1) * TAU));
+        float tick = floor(uTime * 0.22);
+        float pick = fract(sin(tick * 78.233) * 43758.5453);
+        float drop = step(pick, 0.4) * (1.0 - smoothstep(0.0, 0.06, fract(uTime * 0.22)));
+        float d = abs(fract((a / TAU + 0.5) - pick + 0.5) - 0.5);
+        lit *= 1.0 - uArt * 0.6 * drop * (1.0 - smoothstep(0.0, 0.09, d));
+
         // Same step count at every radius, so the light thins toward the rim.
-        float dens = mix(1.0, clamp(0.45 / max(r, 0.12), 0.0, 1.7), uFalloff);
+        float dens = mix(1.0, clamp(0.45 / max(r, 0.12), 0.0, 1.45), uFalloff);
         float flick = 1.0 - uFlicker * 0.045 * (0.5 + 0.5 * sin(uTime * 46.0));
         // The reflection is the same image seen in the floor, dimming with
         // distance from the waterline.
@@ -303,22 +319,18 @@
   bloom.renderOrder = 4;
   fan.add(bloom);
 
-  const haze = new THREE.Mesh(new THREE.CircleGeometry(R * 2.6, 64), blurMat(2.6, HAZE * 0.5, 0.42));
+  const haze = new THREE.Mesh(new THREE.CircleGeometry(R * 1.95, 64), blurMat(1.95, HAZE * 0.5, 0.4));
   haze.position.z = -0.01;
   haze.renderOrder = 2;
   fan.add(haze);
 
-  // Motor boss and the arm hub, in silhouette against the picture. Everything
-  // structural stays near-black: the only thing in this room that should read
-  // as bright is the light hanging in the air.
   // Near-black on purpose: the disc adds its light to whatever is behind it,
-  // so a merely dark pole would still print a bright bar across the picture.
+  // so merely dark hardware would still print a bright bar across the picture.
+  // Nothing at all goes at the centre — the motor lives behind the sweep, and
+  // in footage of these fans the middle of the image is simply filled in.
   const dark = new THREE.MeshStandardMaterial({ color: 0x05060a, roughness: 1, metalness: 0 });
-  const boss = new THREE.Mesh(new THREE.CylinderGeometry(R * HUB * 0.95, R * HUB * 0.95, 0.11, 40), dark);
-  boss.rotation.x = Math.PI / 2;
-  fan.add(boss);
-  const ring = new THREE.Mesh(new THREE.TorusGeometry(R * 0.995, 0.010, 8, 128),
-    new THREE.MeshStandardMaterial({ color: 0x0c0f14, roughness: 0.85, metalness: 0.15 }));
+  const ring = new THREE.Mesh(new THREE.TorusGeometry(R * 0.995, 0.009, 8, 128),
+    new THREE.MeshBasicMaterial({ color: 0x0d1219 }));
   fan.add(ring);
 
   // --- the room -------------------------------------------------------------
@@ -362,19 +374,29 @@
     wall.position.set(0, 3, -7);
     scene.add(wall);
 
-    // Stand: a pole up the back to the motor and a weighted base, the usual
-    // way one of these is rigged when it is not flown. It stops at the hub —
-    // nothing crosses the picture.
-    const poleH = CENTER_H - R * HUB;
-    const pole = new THREE.Mesh(new THREE.CylinderGeometry(0.024, 0.038, poleH, 20), dark);
-    pole.position.set(0, poleH / 2, -0.95);
-    scene.add(pole);
-    const yoke = new THREE.Mesh(new THREE.BoxGeometry(0.05, 0.1, 0.95), dark);
-    yoke.position.set(0, CENTER_H - R * HUB * 0.7, -0.48);
-    scene.add(yoke);
-    const base = new THREE.Mesh(new THREE.CylinderGeometry(0.42, 0.48, 0.05, 36), dark);
-    base.position.set(0, 0.025, -0.95);
+    // The rig you actually notice in footage of these fans is the frame
+    // underneath: a base, a column, and the controller box the disc rises out
+    // of. Nothing crosses the picture — the spine that carries the motor sits
+    // far enough back to stay unlit.
+    // Below the disc, so it can be lit like the object it is.
+    const rig = new THREE.MeshStandardMaterial({ color: 0x0a0d13, roughness: 0.8, metalness: 0.2 });
+    const sill = CENTER_H - R;                  // where the disc bottoms out
+    const column = new THREE.Mesh(new THREE.BoxGeometry(0.17, sill - 0.14, 0.15), rig);
+    column.position.set(0, (sill - 0.14) / 2 + 0.05, -0.5);
+    scene.add(column);
+    const box = new THREE.Mesh(new THREE.BoxGeometry(0.56, 0.15, 0.3), rig);
+    box.position.set(0, sill - 0.06, -0.5);
+    scene.add(box);
+    const base = new THREE.Mesh(new THREE.CylinderGeometry(0.4, 0.46, 0.05, 36), rig);
+    base.position.set(0, 0.025, -0.5);
     scene.add(base);
+    // This one does sit behind the picture, so it takes no light and is kept
+    // as slim as a mount can be: whatever it hides of the room behind reads
+    // as a smudge through the image.
+    const spine = new THREE.Mesh(new THREE.BoxGeometry(0.032, R, 0.05),
+      new THREE.MeshBasicMaterial({ color: 0x070a10 }));
+    spine.position.set(0, CENTER_H - R * 0.5, -1.05);
+    scene.add(spine);
 
     // The picture caught in the floor. Drawn over the floor rather than under
     // it, since an additive quad below an opaque plane would never be seen.
@@ -433,11 +455,13 @@
 
   // A dimension line under the disc, so the size is stated and not just felt.
   if (DIMLINE) {
-    const y = -R - 0.16, tick = 0.075, head = 0.075;
+    // Set forward of the disc so it reads as an annotation over the rig rather
+    // than something bolted to it.
+    const y = -R - 0.13, z = 0.45, tick = 0.075, head = 0.075;
     const pts = [
-      [-R, y - tick, 0], [-R, y + tick, 0], [-R, y, 0], [R, y, 0], [R, y - tick, 0], [R, y + tick, 0],
-      [R, y, 0], [R - head, y + head * 0.55, 0], [R - head, y - head * 0.55, 0], [R, y, 0],
-      [-R, y, 0], [-R + head, y + head * 0.55, 0], [-R + head, y - head * 0.55, 0], [-R, y, 0]
+      [-R, y - tick, z], [-R, y + tick, z], [-R, y, z], [R, y, z], [R, y - tick, z], [R, y + tick, z],
+      [R, y, z], [R - head, y + head * 0.55, z], [R - head, y - head * 0.55, z], [R, y, z],
+      [-R, y, z], [-R + head, y + head * 0.55, z], [-R + head, y - head * 0.55, z], [-R, y, z]
     ];
     const geo = new THREE.BufferGeometry().setFromPoints(pts.map((p) => new THREE.Vector3(...p)));
     const line = new THREE.Line(geo, new THREE.LineBasicMaterial({
@@ -460,7 +484,7 @@
       map: ltex, transparent: true, depthTest: false, opacity: 0.9
     }));
     label.scale.set(0.86, 0.215, 1);
-    label.position.set(0, y - 0.2, 0);
+    label.position.set(0, y - 0.2, z);
     label.renderOrder = 7;
     label.userData.base = 0.9;
     fan.add(label);
@@ -506,10 +530,11 @@
     const ang = ORBIT ? Math.sin((t / ORBIT_SEC) * TAU) * ORBIT_DEG * Math.PI / 180 : 0;
     camera.position.set(Math.sin(ang) * dist, 1.46 + (CENTER_H - 1.46) * k + Math.sin(t * 0.13) * 0.05, Math.cos(ang) * dist);
     camera.lookAt(0, CENTER_H - 0.16 * (1 - k), 0);
-    // The annotation has said its piece by the time the disc fills the frame.
+    // The annotation has said its piece well before the push-in crops it.
     const near = 1 - Math.min(1, Math.max(0, (dist - DIST2) / Math.max(0.001, DIST - DIST2)));
+    const gone = Math.min(1, near / 0.3);
     for (const o of fan.userData.notes || []) {
-      o.material.opacity = o.userData.base * (1 - near * 0.95);
+      o.material.opacity = o.userData.base * (1 - gone);
     }
 
     if (scene.userData.person) scene.userData.person.quaternion.copy(camera.quaternion);
