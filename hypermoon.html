@@ -42,6 +42,22 @@
   const TEXT_PARAM = params.get("text");
   const TEXT = (TEXT_PARAM || "HYPERSTITION|THE DARK SIDE SPEAKS|WAIT FOR THE TURN").split("|");
   let MOSAIC_WORD = String(params.get("word") || "hyperstition").toLowerCase();
+  // Guest marks (?logo=a.png,b.svg): someone else's logo takes the word's
+  // place on the shadowed panel, so it rides the same tracked dark patch and
+  // curves off the limb with it. The token "word" is the mosaic itself, so a
+  // list can alternate a host word with its guests. logomode=plain draws the
+  // artwork as supplied, dimmed by logoink, which is what a guest normally
+  // wants; cubes rebuilds the mark out of the same image cubes the letters
+  // are made of, which suits a bold monogram and destroys a wordmark.
+  // logosec is how long a mark holds the panel.
+  let LOGO_SRC = params.get("logo") || "";
+  let LOGO_MODE = String(params.get("logomode") || "plain").toLowerCase();
+  let LOGO_INK = Math.max(0, Math.min(1, num("logoink", 0.42)));
+  let LOGO_SEC = Math.max(0, num("logosec", 24));
+  // A guest gets a wider panel than the word does. The word is sized to the
+  // measured dark patch and reads at that size because its glyphs are five
+  // cells wide; a wordmark carries much finer detail and vanishes there.
+  let LOGO_SCALE = Math.max(0.3, num("logoscale", 1.7));
   // Kiosk mode (?kiosk=1): hide the cursor and go fullscreen on the first
   // click/keypress (browsers require a gesture). npm run kiosk:hypermoon
   // launches Chrome in true kiosk mode with autoplay enabled.
@@ -2017,6 +2033,27 @@
     }
   }
 
+  // Which cube family a guest logo's own ink should be built from. Greys go
+  // to moonlight rather than to their literal value: a black wordmark made of
+  // black cubes would be an invisible mark on an unlit moon.
+  function cubeFamilyFor(r, g, b) {
+    const mx = Math.max(r, g, b), mn = Math.min(r, g, b);
+    if (mx - mn < 0.18) return mx > 0.6 ? "white" : "silver";
+    let h = 0;
+    if (mx === r) h = ((g - b) / (mx - mn) + 6) % 6;
+    else if (mx === g) h = (b - r) / (mx - mn) + 2;
+    else h = (r - g) / (mx - mn) + 4;
+    h *= 60;
+    if (h < 20) return "red";
+    if (h < 45) return "orange";
+    if (h < 70) return "yellow";
+    if (h < 160) return "green";
+    if (h < 200) return "cyan";
+    if (h < 260) return "blue";
+    if (h < 310) return "purple";
+    return "magenta";
+  }
+
   function makeMosaicTexture() {
     const size = 1024;
     const canvas = document.createElement("canvas");
@@ -2025,13 +2062,107 @@
     const ctx = canvas.getContext("2d");
     let letters = MOSAIC_WORD.split("").filter((ch) => GLYPHS[ch]);
     let n = Math.max(1, letters.length);
+    // Guest marks sharing the panel with the word. Each slot is either the
+    // word itself or a loaded image; the panel shows one at a time.
+    let slots = [];
+    let slot = 0;
+    // On-screen shape of the anchored box, so a mark can be fitted to it
+    // instead of arriving stretched.
+    let boxAspect = ANG_W / ANG_H;
+    const scratch = document.createElement("canvas");
+    const sctx = scratch.getContext("2d", { willReadFrequently: true });
+    const shade = document.createElement("canvas");
+    const shctx = shade.getContext("2d");
     // The word is wrapped onto `lines` rows so the block can match the shape
     // of the shadow region (1 line for a wide shadow, more for a narrow
     // crescent). The layout fills the whole canvas; the shader stretches the
     // canvas into the tracked dark-region rectangle.
     let lines = 2;
 
+    // A mark is fitted into the panel rather than wrapped like a word. The
+    // square canvas is stretched into the angular box by the shader, so the
+    // box's own shape has to be divided out here or every logo arrives
+    // squashed. Latitude radians stand taller on screen than longitude ones,
+    // the same 0.72 the window's cover-crop uses.
+    function drawLogo(entry) {
+      ctx.clearRect(0, 0, size, size);
+      const screenBox = boxAspect * 0.72;
+      const target = entry.aspect / screenBox;
+      let w = size * 0.9, h = w / target;
+      if (h > size * 0.9) { h = size * 0.9; w = h * target; }
+      const x0 = (size - w) / 2, y0 = (size - h) / 2;
+      if (LOGO_MODE === "plain") {
+        // The panel is added as light, so a mark drawn in dark ink would be
+        // nothing at all on an unlit moon. Marks that arrive that way are
+        // shown as their own silhouette in moonlight instead.
+        ctx.globalAlpha = LOGO_INK;
+        if (entry.dark) {
+          shade.width = Math.max(1, Math.round(w));
+          shade.height = Math.max(1, Math.round(h));
+          shctx.clearRect(0, 0, shade.width, shade.height);
+          shctx.drawImage(entry.img, 0, 0, shade.width, shade.height);
+          shctx.globalCompositeOperation = "source-in";
+          shctx.fillStyle = "#e6efff";
+          shctx.fillRect(0, 0, shade.width, shade.height);
+          shctx.globalCompositeOperation = "source-over";
+          ctx.drawImage(shade, x0, y0, w, h);
+        } else {
+          ctx.drawImage(entry.img, x0, y0, w, h);
+        }
+        ctx.globalAlpha = 1;
+        tex.needsUpdate = true;
+        return;
+      }
+      // Rebuild the mark out of the cubes the letters are made of, so a guest
+      // sits in the surface as the word does instead of being stuck on it.
+      // Wide marks get more cells, or their detail lands between the cubes.
+      const cols = Math.round(Math.max(26, Math.min(64, 26 * Math.sqrt(entry.aspect))));
+      const cell = w / cols;
+      const rows = Math.max(1, Math.round(h / cell));
+      scratch.width = cols;
+      scratch.height = rows;
+      sctx.clearRect(0, 0, cols, rows);
+      sctx.drawImage(entry.img, 0, 0, cols, rows);
+      let px;
+      try { px = sctx.getImageData(0, 0, cols, rows).data; } catch { return; }
+      // What counts as background is read off the corners, so a cut-out PNG,
+      // a mark on white and a mark on black all come out as the mark.
+      const corners = [0, cols - 1, (rows - 1) * cols, rows * cols - 1];
+      let br = 0, bg = 0, bb = 0, ba = 0;
+      for (const c of corners) {
+        br += px[c * 4] / 255; bg += px[c * 4 + 1] / 255;
+        bb += px[c * 4 + 2] / 255; ba += px[c * 4 + 3] / 255;
+      }
+      br /= 4; bg /= 4; bb /= 4; ba /= 4;
+      const cut = ba < 0.15;
+      for (let gy = 0; gy < rows; gy++) {
+        for (let gx = 0; gx < cols; gx++) {
+          const i = (gy * cols + gx) * 4;
+          const a = px[i + 3] / 255;
+          const r = px[i] / 255, g = px[i + 1] / 255, b = px[i + 2] / 255;
+          const off = (Math.abs(r - br) + Math.abs(g - bg) + Math.abs(b - bb)) / 1.5;
+          const cover = cut ? a : a * Math.min(1, off / 0.45);
+          if (cover < 0.22) continue;
+          // Edge cells get smaller cubes, which is all the antialiasing a
+          // mosaic can have.
+          const s = cell * (0.6 + 0.4 * cover) * 0.94;
+          const cx = x0 + (gx + 0.5) * cell, cy = y0 + (gy + 0.5) * cell;
+          const fam = cubeFamilyFor(r, g, b);
+          const img = pickImage(fam, gx * 17 + gy * 29);
+          if (img) {
+            ctx.drawImage(img, cx - s / 2, cy - s / 2, s, s);
+          } else {
+            ctx.fillStyle = REFERENCE_SWATCHES[fam] || "#888";
+            ctx.fillRect(cx - s / 2, cy - s / 2, s, s);
+          }
+        }
+      }
+      tex.needsUpdate = true;
+    }
+
     function redraw() {
+      const entry = slots[slot % Math.max(1, slots.length)];
+      if (entry && entry.img) { drawLogo(entry); return; }
       ctx.clearRect(0, 0, size, size);
       const cols = Math.ceil(n / lines);
       const cellW = size / (cols * (GLYPH_W + 1));
@@ -2071,6 +2202,63 @@
       }
     }
 
+    // The measured dark patch changes shape as the survey settles, and a mark
+    // is fitted to it, so refit when it has moved enough to see.
+    function setBox(aspect) {
+      if (!(aspect > 0) || Math.abs(Math.log(aspect / boxAspect)) < 0.02) return;
+      boxAspect = aspect;
+      if (slots.length) redraw();
+    }
+
+    // Mean brightness of the ink, ignoring whatever the mark is cut out of.
+    // A wordmark supplied as black-on-transparent is perfectly normal and
+    // would otherwise arrive as nothing.
+    function inkIsDark(img) {
+      const w = 48, h = Math.max(1, Math.round(48 / ((img.naturalWidth || 1) / (img.naturalHeight || 1))));
+      scratch.width = w;
+      scratch.height = h;
+      sctx.clearRect(0, 0, w, h);
+      sctx.drawImage(img, 0, 0, w, h);
+      let px;
+      try { px = sctx.getImageData(0, 0, w, h).data; } catch { return false; }
+      let sum = 0, wt = 0;
+      for (let i = 0; i < px.length; i += 4) {
+        const a = px[i + 3] / 255;
+        if (a < 0.5) continue;
+        sum += a * (0.2126 * px[i] + 0.7152 * px[i + 1] + 0.0722 * px[i + 2]) / 255;
+        wt += a;
+      }
+      return wt > 0 && sum / wt < 0.35;
+    }
+
+    // Guest list: image paths, plus the token "word" for the mosaic itself.
+    // Anything that fails to load is dropped rather than leaving a hole.
+    async function setLogos(spec) {
+      const list = String(spec == null ? "" : spec)
+        .split(",").map((s) => s.trim()).filter(Boolean);
+      const next = [];
+      for (const src of list) {
+        if (src.toLowerCase() === "word") { next.push({ src: "word" }); continue; }
+        const img = await loadImage(src);
+        if (!img) { console.warn("hypermoon: could not load logo " + src); continue; }
+        next.push({
+          src, img,
+          aspect: (img.naturalWidth || 1) / (img.naturalHeight || 1),
+          dark: inkIsDark(img)
+        });
+      }
+      slots = next;
+      slot = 0;
+      redraw();
+      return slots.length;
+    }
+
+    function nextSlot() {
+      if (slots.length < 2) return;
+      slot = (slot + 1) % slots.length;
+      redraw();
+    }
+
     // Live word swap from the controller — rebuild the letter list and
     // redraw in place, no reload needed.
     function setWord(word) {
@@ -2086,7 +2274,15 @@
     tex.minFilter = THREE.LinearFilter;
     redraw();
     buildPools().then(redraw);
-    return { texture: tex, redraw, setLines, setWord, get letterCount() { return n; } };
+    if (LOGO_SRC) setLogos(LOGO_SRC);
+    return {
+      texture: tex, redraw, setLines, setWord, setBox, setLogos, nextSlot,
+      get letterCount() { return n; },
+      get logoCount() { return slots.length; },
+      // True only while a mark is actually on the panel: a list holding the
+      // word as one of its slots still wraps letters on the word's turn.
+      get showingLogo() { return !!(slots[slot % Math.max(1, slots.length)] || {}).img; }
+    };
   }
 
   // Text content: drawn once into a wrapping canvas texture, scrolled in the
@@ -2377,6 +2573,8 @@
   // Wrap the mosaic word onto the line count that best fits the angular box.
   function chooseLines(boxAspect) {
     if (!mosaic) return;
+    mosaic.setBox(boxAspect);
+    if (mosaic.showingLogo) return; // a mark is fitted to the box, not wrapped
     let best = 1, bestErr = Infinity;
     for (let L = 1; L <= Math.min(6, mosaic.letterCount); L++) {
       const cols = Math.ceil(mosaic.letterCount / L);
@@ -3116,8 +3314,9 @@
       a.x += wrapPi(anchorTarget.lon - a.x) * 0.1;
       a.y += (anchorTarget.lat - a.y) * 0.1;
       const g = uniforms.uAng.value;
-      const tw = Math.min(2.9, angTarget.w * WIN_SCALE);
-      const th = Math.min(2.4, angTarget.h * WIN_SCALE);
+      const scale = WIN_SCALE * (mosaic && mosaic.showingLogo ? LOGO_SCALE : 1);
+      const tw = Math.min(2.9, angTarget.w * scale);
+      const th = Math.min(2.4, angTarget.h * scale);
       g.x += (tw - g.x) * 0.1;
       g.y += (th - g.y) * 0.1;
       chooseLines(g.x / g.y);
@@ -3188,6 +3387,20 @@
     peek.grow += (growTarget - peek.grow) * Math.min(1, dt * 3);
     uniforms.uWordOn.value = peek.wordOn;
     uniforms.uWinGrow.value = peek.grow;
+  }
+
+  // Guest marks change hands round the back of the moon. Waiting for the
+  // panel to turn away costs nothing — the next mark is simply already there
+  // when it comes round — and it means nobody ever watches a logo cut to
+  // another one. If the panel somehow stays facing, swap anyway rather than
+  // letting one guest hold the slot for ever.
+  let logoNextAt = LOGO_SEC;
+  function updateLogos(t) {
+    if (!mosaic || mosaic.logoCount < 2 || LOGO_SEC <= 0) return;
+    if (t < logoNextAt) return;
+    if (anchorFacing() && t < logoNextAt + rotationPeriod() / SPEED) return;
+    mosaic.nextSlot();
+    logoNextAt = t + LOGO_SEC;
   }
 
   // Adaptive planar bleed: keep the revealed area near BLEED% of the disc by
@@ -3532,6 +3745,7 @@
         mosaicFrame = frame;
         mosaic.redraw();
       }
+      updateLogos(t);
     }
     updateProgram();
     updateApparition(t, dt);
@@ -3723,6 +3937,13 @@
       if (BACK_SEC !== 12) q.set("backsec", BACK_SEC.toFixed(1));
       if (BACK_SPEED !== 1) q.set("backspeed", BACK_SPEED.toFixed(2));
     }
+    if (LOGO_SRC) {
+      q.set("logo", LOGO_SRC);
+      if (LOGO_MODE !== "cubes") q.set("logomode", LOGO_MODE);
+      if (LOGO_INK !== 0.42) q.set("logoink", LOGO_INK.toFixed(2));
+      if (LOGO_SEC !== 24) q.set("logosec", LOGO_SEC.toFixed(0));
+      if (LOGO_SCALE !== 1.7) q.set("logoscale", LOGO_SCALE.toFixed(2));
+    }
     if (REACT !== 1) q.set("react", REACT.toFixed(2));
     if (MIC) q.set("mic", "1");
     q.set("flicker", (+uniforms.uFlicker.value).toFixed(2));
@@ -3783,6 +4004,11 @@
       meteors: SKY_METEORS,
       stardrift: SKY_DRIFT,
       backdrop: BACKDROP_SRC,
+      logo: LOGO_SRC,
+      logomode: LOGO_MODE,
+      logoink: LOGO_INK,
+      logosec: LOGO_SEC,
+      logoscale: LOGO_SCALE,
       backscale: BACK_SCALE,
       backalpha: BACK_ALPHA,
       backsec: BACK_SEC,
@@ -3919,6 +4145,25 @@
             chooseLines(uniforms.uAng.value.x / uniforms.uAng.value.y);
           }
           break;
+        case "logo":
+          LOGO_SRC = String(v == null ? "" : v).trim();
+          if (mosaic) {
+            mosaic.setLogos(LOGO_SRC).then(() => {
+              logoNextAt = (performance.now() - start) / 1000 + LOGO_SEC;
+              chooseLines(uniforms.uAng.value.x / uniforms.uAng.value.y);
+            });
+          }
+          break;
+        case "logomode":
+          LOGO_MODE = String(v || "cubes").trim().toLowerCase();
+          if (mosaic) mosaic.redraw();
+          break;
+        case "logoink":
+          LOGO_INK = Math.max(0, Math.min(1, v));
+          if (mosaic) mosaic.redraw();
+          break;
+        case "logosec": LOGO_SEC = Math.max(0, v); break;
+        case "logoscale": LOGO_SCALE = Math.max(0.3, v); break;
         case "when":
           WHEN = String(v || "").trim() || WHEN;
           if (crt) crt.setWhen();

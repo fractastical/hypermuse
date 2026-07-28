@@ -24,6 +24,8 @@ latest versions). Then:
   (`?backspeed=`, needs Chrome for ImageDecoder — kiosk Chrome is fine).
 - **Moon size** slider (`?moonscale=`): shrinks/grows the whole moon while it
   stays pinned to the screen centre.
+- **Guest logos** (`guest logo` field, or `?logo=`): someone else's mark takes
+  the word's place on the shadowed panel. See below.
 - **A program never stops.** The output walks the schedule one entry per
   rotation and wraps back to the first act forever, so leaving it running all
   night is the intended way to use it — nothing has to be restarted and
@@ -150,6 +152,57 @@ latest versions). Then:
 - **Fold loop clips** (`artifacts/fold-loops/*.mp4`): the fold repertoire
   pre-baked as square videos incl. red wireframe variants — usable as window
   content or backdrops on machines without the live makers.
+
+## Putting someone else's logo on the moon
+
+The word already owns a panel on the shadowed side: the survey finds the
+darkest patch of terrain in the first revolution and pins the letters to it, so
+they curve with the sphere and slide off the limb. A guest mark rides exactly
+the same panel. Paste a path into `guest logo` in the controller and it takes
+the word's place, live:
+
+```
+hypermoon.html?logo=assets/synbiobeta-logo.png
+```
+
+Several guests are comma-separated, and they change hands round the back of the
+moon rather than cutting in front of anyone — the next mark is simply already
+there when the panel comes round. `hold` is how long each one keeps the slot.
+The token `word` is the mosaic itself, so a list can keep the host in the
+rotation:
+
+```
+?logo=word,assets/one.png,assets/two.png&logosec=40
+```
+
+Check a mark before an audience does:
+
+```
+npm run preview:logo -- assets/synbiobeta-logo.png
+```
+
+which writes `artifacts/logo-preview-plain.png` and `-cubes.png`, shot with the
+panel square to the camera.
+
+Worth knowing:
+
+- **Two treatments.** `plain` (the default) draws the supplied artwork, which
+  is what a guest normally wants and the only thing a wordmark survives.
+  `cubes` rebuilds the mark out of the same astronaut/moon image cubes the
+  letters are made of, so a guest is made of the same material as the word —
+  good for a bold monogram, and it will shred anything finer.
+- **Dark artwork still works.** The panel is added as light, so a mark supplied
+  as black-on-transparent would otherwise be nothing at all on an unlit moon.
+  Those are detected and shown as their own silhouette in moonlight instead, so
+  you can hand over whatever the guest sent.
+- **A guest gets a wider panel than the word** (`logoscale`, default 1.7×),
+  because the word reads at the measured patch size only by virtue of being
+  five cells to a glyph.
+- `logoink` (default 0.42) dims plain artwork; raise it for a mark that is
+  getting lost, lower it for one that glares.
+- The panel is one slot, so a running program still owns it: on the rotations
+  where an effect opens the window wordless, the guest steps aside with the
+  word and comes back on the next word rotation.
 
 ## Included assets
 

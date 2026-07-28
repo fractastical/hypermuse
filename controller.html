@@ -477,6 +477,19 @@
           backdrop <input type="text" id="hmBackdropInput" value="" size="30"
             placeholder="circle gifs behind the moon, comma-separated"
             title="animated gifs (or images) pinned exactly behind the moon disc — fade the moon opacity slider down to reveal them; applies live on enter"/>
+          <span style="white-space:nowrap;">
+            guest logo <input type="text" id="hmLogoInput" value="" size="30"
+              placeholder="logo image path(s) — 'word' = the mosaic word"
+              title="someone else's mark takes the word's place on the shadowed panel, riding the same tracked dark patch. Comma-separated for several guests: they change hands while the panel is round the back of the moon. Include the token 'word' to keep hyperstition in the rotation."/>
+            <select id="hmLogoMode" title="plain draws the supplied artwork, dimmed to sit in the surface — a mark in dark ink is shown as its own silhouette in moonlight so it doesn't vanish. cubes rebuilds the mark out of the same astronaut/moon image cubes the letters are made of, which suits a bold monogram and will shred a wordmark.">
+              <option value="plain">artwork as given</option>
+              <option value="cubes">built from moon cubes</option>
+            </select>
+            hold <input type="number" id="hmLogoSec" value="24" min="0" max="900" step="1" style="width:56px"
+              title="seconds each guest holds the panel (0 = never change). The swap always waits for the panel to turn away, so nobody watches one logo cut to another."/>s
+            <input type="button" id="hmLogoClearButton" value="clear" title="give the panel back to the word"/>
+            <span id="hmLogoStatus" style="color:rgba(207,233,255,0.5);font-size:10px;"></span>
+          </span>
           <input type="button" id="hmEyeRevealButton" value="&#9673; reveal eye seal"
             title="loads the esoteric eye-seal gif behind the moon and irises the disc open so it shows through the centre"/>
           <input type="button" id="hmIrisSealButton" value="&#9679; seal moon"
@@ -2345,6 +2358,29 @@ document.getElementById('hmBackdropInput').addEventListener('change', function()
     if (hmChannel) hmChannel.postMessage({ type: 'moonConfig', set: { backdrop: this.value.trim() } });
 });
 
+// Guest logos take the word's place on the shadowed panel. All live over the
+// channel; the status line reports how many of the listed marks actually
+// loaded, since a mistyped path is otherwise a silent no-show.
+function hmSendLogos() {
+    const list = document.getElementById('hmLogoInput').value.trim();
+    if (hmChannel) hmChannel.postMessage({ type: 'moonConfig', set: { logo: list } });
+    const names = list.split(',').map(function(s) { return s.trim(); }).filter(Boolean);
+    document.getElementById('hmLogoStatus').textContent = names.length
+        ? names.length + (names.length === 1 ? ' mark' : ' marks')
+        : 'word';
+}
+document.getElementById('hmLogoInput').addEventListener('change', hmSendLogos);
+document.getElementById('hmLogoMode').addEventListener('change', function() {
+    if (hmChannel) hmChannel.postMessage({ type: 'moonConfig', set: { logomode: this.value } });
+});
+document.getElementById('hmLogoSec').addEventListener('change', function() {
+    if (hmChannel) hmChannel.postMessage({ type: 'moonConfig', set: { logosec: +this.value || 0 } });
+});
+document.getElementById('hmLogoClearButton').addEventListener('click', function() {
+    document.getElementById('hmLogoInput').value = '';
+    hmSendLogos();
+});
+
 // One-click eye-seal reveal: load the gif behind the disc and iris open so
 // the inner 70% of the moon goes fully clear. "seal moon" eases it shut.
 const HM_EYE_GIF = 'assets/esoteric-geometries-circles-warp.gif';
@@ -2994,6 +3030,12 @@ if (hmChannel) {
         if (sources.content != null && document.activeElement !== contentEl) contentEl.value = sources.content;
         const backdropEl = document.getElementById('hmBackdropInput');
         if (state.backdrop != null && document.activeElement !== backdropEl) backdropEl.value = state.backdrop;
+        const logoEl = document.getElementById('hmLogoInput');
+        if (state.logo != null && document.activeElement !== logoEl) logoEl.value = state.logo;
+        const logoModeEl = document.getElementById('hmLogoMode');
+        if (state.logomode && document.activeElement !== logoModeEl) logoModeEl.value = state.logomode;
+        const logoSecEl = document.getElementById('hmLogoSec');
+        if (state.logosec != null && document.activeElement !== logoSecEl) logoSecEl.value = state.logosec;
         const bloodTintEl = document.getElementById('hmBloodTint');
         if (state.bloodtint && document.activeElement !== bloodTintEl) bloodTintEl.value = '#' + state.bloodtint;
         if (state.bloodtarget != null && state.bloodmoon != null) {
