@@ -48,6 +48,7 @@ const ANCHOR_MS = Number.parseInt(process.env.ANCHOR_MS || "12000", 10);
 const WIDTH = Number.parseInt(process.env.EXPORT_WIDTH || "1920", 10);
 const HEIGHT = Number.parseInt(process.env.EXPORT_HEIGHT || "1080", 10);
 const FAN_MS = Number.parseInt(process.env.FAN_MS || "46000", 10);
+const FAN_NTH = Number.parseInt(process.env.FAN_NTH || "2", 10);
 const DIAM = process.env.DIAM || "180";
 const PORT = Number.parseInt(process.env.SERVER_PORT || "8233", 10);
 
@@ -70,7 +71,7 @@ async function serverUp(url, timeoutMs) {
 // Records compositor frames off the DevTools screencast, which keeps up with
 // motion in a way repeated screenshots never do, and reports the rate actually
 // achieved so the encode plays at true speed.
-async function record(context, page, ms, size) {
+async function record(context, page, ms, size, nth = 1) {
   if (fs.existsSync(FRAMES)) fs.rmSync(FRAMES, { recursive: true, force: true });
   ensureDir(FRAMES);
   const cdp = await context.newCDPSession(page);
@@ -85,7 +86,7 @@ async function record(context, page, ms, size) {
     frame++;
   });
   await cdp.send("Page.startScreencast", {
-    format: "jpeg", quality: 88, maxWidth: size.width, maxHeight: size.height, everyNthFrame: 1
+    format: "jpeg", quality: 88, maxWidth: size.width, maxHeight: size.height, everyNthFrame: nth
   });
   on = true;
   await page.waitForTimeout(ms);
@@ -210,8 +211,12 @@ async function main() {
       await page.screenshot({ path: still });
       console.log(`[holofan] still -> ${path.relative(ROOT, still)}`);
     } else {
-      console.log(`[holofan] filming the fan, ${(FAN_MS / 1000).toFixed(0)}s at ${WIDTH}x${HEIGHT}`);
-      const r = await record(ctx, page, FAN_MS, { width: WIDTH, height: HEIGHT });
+      console.log(`[holofan] filming the fan, ${(FAN_MS / 1000).toFixed(0)}s at ${WIDTH}x${HEIGHT}, ${60 / FAN_NTH}fps`);
+      // Every other compositor frame, so the fan is filmed at 30 like the
+      // phone footage it is imitating. At 500 rpm on four blades that is just
+      // over one arm pass per frame, and the near-miss is what sets the
+      // shutter wedge crawling instead of strobing.
+      const r = await record(ctx, page, FAN_MS, { width: WIDTH, height: HEIGHT }, FAN_NTH);
       encode(OUT, r.frame, r.fps);
       console.log(JSON.stringify({
         output: path.relative(ROOT, OUT), frames: r.frame,

@@ -42,19 +42,30 @@
   const SRC = P.get("src") || "artifacts/holofan-source.mp4";
   const DIAM = num("diam", 180) / 100;          // metres across the swept disc
   const R = DIAM / 2;
-  const LEDS = Math.max(24, num("leds", 240));  // LEDs down one arm (~3.7 mm pitch)
-  const STEPS = Math.max(60, num("steps", 640));// angular samples a revolution
-  // Close to a whole number of arm passes per captured frame, so the shutter
-  // wedge crawls the way it does in real footage instead of jumping about.
-  const RPM = num("rpm", 880);
+  // Defaults are a real 180 cm four-blade unit (HD-F180 class): 2512 LEDs over
+  // four arms is 628 down each one, and they turn at 500 rpm, which is 33 image
+  // refreshes a second. Filmed at 30 fps that lands just past one arm pass per
+  // frame, and that near-miss is what makes the shutter wedge crawl in every
+  // phone video of these things.
+  const LEDS = Math.max(24, num("leds", 628));  // LEDs down one arm (~1.4 mm pitch)
+  const STEPS = Math.max(60, num("steps", 960));// angular samples a revolution
+  const RPM = num("rpm", 500);
   const BLADES = Math.max(1, Math.round(num("blades", 4)));
   // The LEDs run in almost to the middle and the motor is small and hidden
   // behind the picture, so there is no dark hole at the centre — footage of
   // these things shows a filled disc.
   const HUB = num("hub", 0);                    // unlit centre, as a fraction of R
-  const GAIN = num("gain", 1.35);
-  const GLOW = num("glow", 0.4);
-  const HAZE = num("haze", 0.38);
+  // Where it is standing. The sales footage for these is always a bright
+  // panelled lobby, which is the better demonstration: the house lights and
+  // the wall behind carry straight on through the picture. dark is the venue
+  // version, where the disc is the only thing lighting anything.
+  const LOBBY = (P.get("venue") || "lobby").toLowerCase() !== "dark";
+  // 2500 nits is a great deal brighter than a lobby, which is the whole reason
+  // these read at all under house lights, so the disc has to out-punch the
+  // room rather than sit level with it.
+  const GAIN = num("gain", LOBBY ? 4.2 : 1.35);
+  const GLOW = num("glow", LOBBY ? 0.55 : 0.4);
+  const HAZE = num("haze", LOBBY ? 0.16 : 0.38);
   const ZOOM = num("zoom", 1);
   const DUTY = num("duty", 0.52);               // how much of the LED pitch lights
   const FALLOFF = num("falloff", 0.25);         // thinning of light toward the rim
@@ -82,14 +93,14 @@
   const renderer = new THREE.WebGLRenderer({ antialias: true, powerPreference: "high-performance" });
   renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
   renderer.setSize(window.innerWidth, window.innerHeight);
-  renderer.setClearColor(0x04060a, 1);
+  renderer.setClearColor(LOBBY ? 0x14100c : 0x04060a, 1);
   renderer.outputColorSpace = THREE.SRGBColorSpace;
   renderer.toneMapping = THREE.ACESFilmicToneMapping;
   renderer.toneMappingExposure = num("exposure", 1.05);
   document.body.appendChild(renderer.domElement);
 
   const scene = new THREE.Scene();
-  scene.fog = new THREE.FogExp2(0x04060a, 0.055);
+  scene.fog = new THREE.FogExp2(LOBBY ? 0x14100c : 0x04060a, LOBBY ? 0.018 : 0.055);
   const camera = new THREE.PerspectiveCamera(FOV, window.innerWidth / window.innerHeight, 0.05, 120);
 
   // --- the clip the fan is playing -----------------------------------------
@@ -231,7 +242,7 @@
         float phase = fract(rel * uBlades);
         lit *= 1.0 - uArt * 0.5 * smoothstep(uShutter, min(1.0, uShutter + 0.2), phase);
         // and the arm caught mid-exposure, a bright edge leading each wedge
-        lit *= 1.0 + uArt * 0.26 * (1.0 - smoothstep(0.0, 0.08, phase));
+        lit *= 1.0 + uArt * 0.13 * (1.0 - smoothstep(0.0, 0.08, phase));
 
         // Footage of these fans always has some artefact in it: a rolling
         // shutter beating against the LEDs' own switching drifts a soft band
@@ -300,14 +311,20 @@
   // The blades themselves: a faint disc of moving metal you catch behind the
   // picture, which is how you can tell there is a machine there at all.
   const bladeMat = new THREE.ShaderMaterial({
-    uniforms: { uTime: { value: 0 }, uRev: { value: RPM / 60 }, uBlades: { value: BLADES }, uHub: { value: HUB } },
+    uniforms: {
+      uTime: { value: 0 }, uRev: { value: RPM / 60 }, uBlades: { value: BLADES }, uHub: { value: HUB },
+      // Under house lights you cannot see the blades at all: the dark parts
+      // of the picture are simply the room. Only a dark venue gives them
+      // enough contrast to catch.
+      uBladeAmt: { value: num("blades_visible", LOBBY ? 0.25 : 1) }
+    },
     vertexShader: VERT,
     transparent: true,
     depthWrite: false,
     blending: THREE.NormalBlending,
     fragmentShader: `
       #define TAU 6.28318530718
-      uniform float uTime, uRev, uBlades, uHub;
+      uniform float uTime, uRev, uBlades, uHub, uBladeAmt;
       varying vec2 vUv;
       void main() {
         vec2 p = vUv * 2.0 - 1.0;
@@ -315,7 +332,7 @@
         if (r > 1.0 || r < uHub) discard;
         float a = atan(p.y, p.x) + uTime * uRev * TAU;
         float arms = 0.5 + 0.5 * sin(a * uBlades);
-        float v = 0.030 + 0.045 * pow(arms, 6.0);
+        float v = (0.030 + 0.045 * pow(arms, 6.0)) * uBladeAmt;
         v *= 1.0 - smoothstep(0.9, 1.0, r);
         gl_FragColor = vec4(vec3(0.42, 0.48, 0.58) * v, v);
       }
@@ -344,9 +361,13 @@
   // Nothing at all goes at the centre — the motor lives behind the sweep, and
   // in footage of these fans the middle of the image is simply filled in.
   const dark = new THREE.MeshStandardMaterial({ color: 0x05060a, roughness: 1, metalness: 0 });
-  const ring = new THREE.Mesh(new THREE.TorusGeometry(R * 0.995, 0.009, 8, 128),
-    new THREE.MeshBasicMaterial({ color: 0x0d1219 }));
-  fan.add(ring);
+  // Against a bright wall a dark hoop at the sweep radius reads as a drawn
+  // circle, and there is no such line in life — the guard is thin and lost in
+  // the glow. It only earns its place in a dark room, as a hint of an edge.
+  if (!LOBBY) {
+    fan.add(new THREE.Mesh(new THREE.TorusGeometry(R * 0.995, 0.009, 8, 128),
+      new THREE.MeshBasicMaterial({ color: 0x0d1219 })));
+  }
 
   // --- the room -------------------------------------------------------------
   // Set well in front of the disc, or it scorches the hub it is meant to be
@@ -354,34 +375,63 @@
   const lamp = new THREE.PointLight(0x9fc4e8, 10, 26, 2);
   lamp.position.set(0, CENTER_H, 0.85);
   scene.add(lamp);
-  scene.add(new THREE.AmbientLight(0x0c1219, 1.0));
+  scene.add(new THREE.AmbientLight(LOBBY ? 0x3a3126 : 0x0c1219, LOBBY ? 1.5 : 1.0));
 
   if (ROOM) {
     const floor = new THREE.Mesh(
       new THREE.PlaneGeometry(40, 40),
-      new THREE.MeshStandardMaterial({ color: 0x080a0f, roughness: 0.42, metalness: 0.3 })
+      LOBBY
+        // Polished stone: bright enough to bounce the house lights, still
+        // glossy enough to hold the disc's reflection.
+        ? new THREE.MeshStandardMaterial({ color: 0x46443f, roughness: 0.34, metalness: 0.1 })
+        : new THREE.MeshStandardMaterial({ color: 0x080a0f, roughness: 0.42, metalness: 0.3 })
     );
     floor.rotation.x = -Math.PI / 2;
     scene.add(floor);
 
-    // The wall carries a dim house light, which is the cheapest proof that
-    // the picture is not on a screen: it goes on showing through the moon.
+    // Whatever is on the wall is the cheapest proof that the picture is not on
+    // a screen: it goes on showing through the moon. In the lobby that is warm
+    // panelling under downlights, which is a much harder test than a dark room
+    // — the room is brighter than most of the image and the image still holds.
     const wc = document.createElement("canvas");
-    wc.width = 64; wc.height = 256;
+    wc.width = LOBBY ? 512 : 64;
+    wc.height = 256;
     const wg = wc.getContext("2d");
-    const wbase = wg.createLinearGradient(0, 0, 0, 256);
-    wbase.addColorStop(0, "#04060a");
-    wbase.addColorStop(0.62, "#0a0e16");
-    wbase.addColorStop(1, "#05070c");
-    wg.fillStyle = wbase; wg.fillRect(0, 0, 64, 256);
-    const band = wg.createLinearGradient(0, 158, 0, 196);
-    band.addColorStop(0, "rgba(70,110,160,0)");
-    band.addColorStop(0.5, "rgba(88,134,190,0.28)");
-    band.addColorStop(1, "rgba(70,110,160,0)");
-    wg.fillStyle = band; wg.fillRect(0, 150, 64, 56);
+    if (LOBBY) {
+      const wbase = wg.createLinearGradient(0, 0, 0, 256);
+      wbase.addColorStop(0, "#191108");
+      wbase.addColorStop(0.35, "#372513");
+      wbase.addColorStop(0.8, "#281c10");
+      wbase.addColorStop(1, "#150e08");
+      wg.fillStyle = wbase; wg.fillRect(0, 0, 512, 256);
+      // Panel seams, and a pool of downlight over every third one.
+      for (let i = 0; i <= 512; i += 64) {
+        wg.fillStyle = "rgba(14,9,4,0.75)";
+        wg.fillRect(i - 1.5, 0, 3, 256);
+        if ((i / 64) % 3 === 0) {
+          const pool = wg.createRadialGradient(i + 32, 40, 4, i + 32, 40, 96);
+          pool.addColorStop(0, "rgba(255,226,178,0.26)");
+          pool.addColorStop(1, "rgba(255,226,178,0)");
+          wg.fillStyle = pool;
+          wg.fillRect(i - 64, 0, 192, 200);
+        }
+      }
+    } else {
+      const wbase = wg.createLinearGradient(0, 0, 0, 256);
+      wbase.addColorStop(0, "#04060a");
+      wbase.addColorStop(0.62, "#0a0e16");
+      wbase.addColorStop(1, "#05070c");
+      wg.fillStyle = wbase; wg.fillRect(0, 0, 64, 256);
+      const band = wg.createLinearGradient(0, 158, 0, 196);
+      band.addColorStop(0, "rgba(70,110,160,0)");
+      band.addColorStop(0.5, "rgba(88,134,190,0.28)");
+      band.addColorStop(1, "rgba(70,110,160,0)");
+      wg.fillStyle = band; wg.fillRect(0, 150, 64, 56);
+    }
     const wtex = new THREE.CanvasTexture(wc);
     wtex.colorSpace = THREE.SRGBColorSpace;
     wtex.wrapS = THREE.RepeatWrapping;
+    if (LOBBY) wtex.repeat.x = 5;
     const wall = new THREE.Mesh(
       new THREE.PlaneGeometry(40, 9),
       new THREE.MeshBasicMaterial({ map: wtex })
@@ -389,28 +439,61 @@
     wall.position.set(0, 3, -7);
     scene.add(wall);
 
-    // The rig you actually notice in footage of these fans is the frame
-    // underneath: a base, a column, and the controller box the disc rises out
-    // of. Nothing crosses the picture — the spine that carries the motor sits
-    // far enough back to stay unlit.
-    // Below the disc, so it can be lit like the object it is.
-    const rig = new THREE.MeshStandardMaterial({ color: 0x0a0d13, roughness: 0.8, metalness: 0.2 });
+    if (LOBBY) {
+      // House lights, so the rig and the figure are lit by the room rather
+      // than only by the disc.
+      const ceil = new THREE.PointLight(0xffe0b0, 26, 30, 2);
+      ceil.position.set(-2.4, 3.4, 2.2);
+      scene.add(ceil);
+      const ceil2 = new THREE.PointLight(0xffe0b0, 18, 30, 2);
+      ceil2.position.set(3.0, 3.4, 1.2);
+      scene.add(ceil2);
+    }
+
+    // The stand in every one of these videos is a rolling floor tripod: one
+    // slim upright behind the disc, splayed legs on castors, and the power and
+    // controller sitting on the floor beside it on its own cable.
+    const rig = new THREE.MeshStandardMaterial({
+      color: LOBBY ? 0x15171b : 0x0a0d13, roughness: 0.6, metalness: 0.35
+    });
     const sill = CENTER_H - R;                  // where the disc bottoms out
-    const column = new THREE.Mesh(new THREE.BoxGeometry(0.17, sill - 0.14, 0.15), rig);
-    column.position.set(0, (sill - 0.14) / 2 + 0.05, -0.5);
-    scene.add(column);
-    const box = new THREE.Mesh(new THREE.BoxGeometry(0.56, 0.15, 0.3), rig);
-    box.position.set(0, sill - 0.06, -0.5);
-    scene.add(box);
-    const base = new THREE.Mesh(new THREE.CylinderGeometry(0.4, 0.46, 0.05, 36), rig);
-    base.position.set(0, 0.025, -0.5);
-    scene.add(base);
-    // This one does sit behind the picture, so it takes no light and is kept
-    // as slim as a mount can be: whatever it hides of the room behind reads
-    // as a smudge through the image.
+    // The upright is set well back and takes no light of its own: it sits in
+    // the disc's own glare, and anything that catches there prints a bar
+    // straight across the picture.
+    const postMat = new THREE.MeshBasicMaterial({ color: LOBBY ? 0x191510 : 0x070a10 });
+    const post = new THREE.Mesh(new THREE.CylinderGeometry(0.042, 0.05, CENTER_H, 20), postMat);
+    post.position.set(0, CENTER_H / 2, -0.78);
+    scene.add(post);
+    // Splayed legs, each on a castor, exactly as far apart as they need to be
+    // to hold 180 cm of spinning disc up.
+    for (let i = 0; i < 4; i++) {
+      const ang = Math.PI / 4 + (i * Math.PI) / 2;
+      const leg = new THREE.Mesh(new THREE.BoxGeometry(0.055, 0.05, 0.66), rig);
+      leg.position.set(Math.sin(ang) * 0.23, 0.09, -0.78 + Math.cos(ang) * 0.23);
+      leg.rotation.y = -ang;
+      scene.add(leg);
+      const castor = new THREE.Mesh(new THREE.CylinderGeometry(0.038, 0.038, 0.028, 14), rig);
+      castor.rotation.z = Math.PI / 2;
+      castor.position.set(Math.sin(ang) * 0.46, 0.038, -0.78 + Math.cos(ang) * 0.46);
+      scene.add(castor);
+    }
+    // The controller/power brick, off to one side on the floor with its one
+    // lit panel, which is the detail that dates these installs.
+    const brick = new THREE.Mesh(new THREE.BoxGeometry(0.34, 0.26, 0.24), rig);
+    brick.position.set(-1.15, 0.13, -0.3);
+    scene.add(brick);
+    const panel = new THREE.Mesh(
+      new THREE.PlaneGeometry(0.2, 0.12),
+      new THREE.MeshBasicMaterial({ color: 0x8e1410 })
+    );
+    panel.position.set(-1.15, 0.15, -0.178);
+    scene.add(panel);
+    // The mount behind the picture takes no light and is kept as slim as it
+    // can be: whatever it hides of the room reads as a smudge through the
+    // image, which is exactly how it looks in life.
     const spine = new THREE.Mesh(new THREE.BoxGeometry(0.032, R, 0.05),
-      new THREE.MeshBasicMaterial({ color: 0x070a10 }));
-    spine.position.set(0, CENTER_H - R * 0.5, -1.05);
+      new THREE.MeshBasicMaterial({ color: LOBBY ? 0x1a1712 : 0x070a10 }));
+    spine.position.set(0, CENTER_H - R * 0.5, -0.9);
     scene.add(spine);
 
     // The picture caught in the floor. Drawn over the floor rather than under
@@ -432,14 +515,16 @@
     const c = document.createElement("canvas");
     c.width = 256; c.height = 720;
     const g = c.getContext("2d");
-    g.fillStyle = "#05070b";
+    // Under house lights a pure silhouette reads as a cardboard cutout, so
+    // the figure takes some of the room's warmth.
+    g.fillStyle = LOBBY ? "#241d18" : "#05070b";
     g.beginPath(); g.ellipse(128, 74, 39, 45, 0, 0, TAU); g.fill();      // head
     g.fillRect(115, 112, 26, 24);                                        // neck
     g.beginPath();                                                       // torso
     g.moveTo(74, 140); g.quadraticCurveTo(128, 122, 182, 140);
     g.lineTo(168, 352); g.quadraticCurveTo(128, 368, 88, 352);
     g.closePath(); g.fill();
-    g.lineCap = "round"; g.strokeStyle = "#05070b";
+    g.lineCap = "round"; g.strokeStyle = LOBBY ? "#241d18" : "#05070b";
     g.lineWidth = 23; g.beginPath();                                     // arms
     g.moveTo(80, 152); g.quadraticCurveTo(52, 250, 62, 352);
     g.moveTo(176, 152); g.quadraticCurveTo(204, 250, 194, 352); g.stroke();
@@ -462,7 +547,10 @@
       new THREE.PlaneGeometry(1.75 * (256 / 720), 1.75),
       new THREE.MeshBasicMaterial({ map: ptex, transparent: true, depthWrite: false })
     );
-    person.position.set(num("personx", 1.62), 1.75 / 2, num("personz", 0.5));
+    // Clear of the haze disc, which is additive and would otherwise light the
+    // figure up like a lamp, and roughly where a person stands to look at one
+    // of these: beside it, not in it.
+    person.position.set(num("personx", 1.95), 1.75 / 2, num("personz", 0.6));
     person.renderOrder = 5;
     scene.add(person);
     scene.userData.person = person;

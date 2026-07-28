@@ -310,8 +310,16 @@ writes both.
 ## Rendering it onto a holographic fan
 
 `npm run export:holofan` shows what the moon looks like on one of those
-spinning LED "3D hologram" fans, at a size worth having: a 180 cm disc in a
-dark room with a figure beside it for scale.
+spinning LED "3D hologram" fans, at a size worth having: a 180 cm disc with a
+figure beside it for scale.
+
+The numbers are a real unit rather than invented ones. A 180 cm four-blade fan
+of the HD-F180 class carries 2512 LEDs, which is 628 down each arm, and turns
+at 500 rpm — 33 image refreshes a second. It is filmed at 30 fps, like the
+phone footage it is imitating, and that is worth knowing because it is where
+the look comes from: 33 passes a second against 30 frames lands just past one
+arm pass per frame, and that near-miss is what sets the shutter wedge crawling
+slowly round the disc instead of strobing. Change the rpm and it will strobe.
 
 It runs in two passes. First it films the moon square, the way a clip would be
 loaded onto the fan's own controller, cueing a short sequence by hand — the
@@ -346,6 +354,12 @@ Worth knowing:
 - `STILL=1` writes a single frame instead of a video, for eyeballing changes.
 - `DIAM=` in centimetres. The dimension line and the caption follow it, and so
   does everything physical, so `DIAM=65` really does look like a desk fan.
+- `venue=lobby` (the default) stands it in a bright panelled room under house
+  lights, which is where all the manufacturers' footage is shot and the harder
+  demonstration by far: the room is brighter than most of the picture and the
+  wall's panel seams run straight on through the moon. `venue=dark` is the
+  version for an actual venue, where the disc is the only thing lighting
+  anything. The two want different gain, and pick it up automatically.
 - `FAN_QUERY=` passes anything through to the page, e.g.
   `FAN_QUERY="leds=448&rpm=900&dollysec=0&orbit=0"`.
 - `MOON_QUERY=` does the same for the moon pass.
@@ -353,9 +367,7 @@ Worth knowing:
 `holofan.html` also runs on its own against any clip:
 `holofan.html?src=artifacts/demos/effects/hypermoon-eye.mp4&diam=180`. Useful
 knobs are `leds` (per arm), `steps` (angular samples a turn), `rpm`, `gain`,
-`glow`, `haze`, `duty`, `zoom`, `shutter`, `artifacts`, and `person`, `dim`,
-`room`, `label` to strip the room back to just the disc.
-
-`rpm` defaults to 880 rather than a round number: at four arms that is close to
-a whole number of passes per captured frame, so the wedges crawl the way they
-do in real footage instead of jumping about. Change it and they will strobe.
+`glow`, `haze`, `duty`, `zoom`, `shutter`, `artifacts`, `venue`, and `person`,
+`dim`, `room`, `label` to strip the room back to just the disc. `FAN_NTH=1`
+films at 60 fps instead of 30, which is worth seeing once for how much worse
+the wedges look.
