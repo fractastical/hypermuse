@@ -8,6 +8,7 @@
  *
  *   npm run export:holofan
  *   SKIP_SOURCE=1 npm run export:holofan          # reuse the square clip
+ *   SHOT=room SKIP_SOURCE=1 npm run export:holofan  # from across the lobby
  *   DIAM=120 FAN_MS=20000 npm run export:holofan
  *   STILL=1 npm run export:holofan                # just a frame, to eyeball
  */
@@ -22,7 +23,11 @@ import ffmpegPath from "ffmpeg-static";
 const ROOT = process.cwd();
 const FRAMES = path.join(ROOT, "artifacts", "holofan-frames");
 const SOURCE = path.resolve(ROOT, process.env.SOURCE_VIDEO || "artifacts/holofan-source.mp4");
-const OUT = path.resolve(ROOT, process.env.OUTPUT_VIDEO || "artifacts/demos/hypermoon-holofan-180cm.mp4");
+const SHOT = (process.env.SHOT || "push").toLowerCase();
+const WIDE = SHOT === "room" || SHOT === "wide";
+const OUT = path.resolve(ROOT, process.env.OUTPUT_VIDEO || (WIDE
+  ? "artifacts/demos/hypermoon-holofan-180cm-room.mp4"
+  : "artifacts/demos/hypermoon-holofan-180cm.mp4"));
 const STILL = process.env.STILL === "1";
 const SKIP_SOURCE = process.env.SKIP_SOURCE === "1";
 
@@ -194,11 +199,15 @@ async function main() {
     const ctx = await browser.newContext({ viewport: { width: WIDTH, height: HEIGHT } });
     const page = await ctx.newPage();
     page.on("pageerror", (e) => console.warn("[holofan] fan page error:", e.message));
-    // Opens wide enough to read 180 cm against the room, then pushes in until
-    // the LED rings and the update seam are visible.
+    // push opens wide enough to read 180 cm against the room, then goes in
+    // until the LED rings and the update seam are visible. room stays back
+    // across the lobby for the whole shot and barely moves, so the disc is
+    // read at the distance an audience actually stands at.
     const fq = new URLSearchParams({
-      src: path.relative(ROOT, SOURCE), diam: DIAM,
-      gain: "1.05", dist: "5.3", dist2: "2.6", dollysec: String(Math.round(FAN_MS * 0.72 / 1000)),
+      src: path.relative(ROOT, SOURCE), diam: DIAM, gain: "1.05",
+      ...(WIDE
+        ? { shot: "room", dollysec: String(Math.round(FAN_MS * 0.9 / 1000)) }
+        : { dist: "5.3", dist2: "2.6", dollysec: String(Math.round(FAN_MS * 0.72 / 1000)) }),
       ...(process.env.FAN_QUERY ? Object.fromEntries(new URLSearchParams(process.env.FAN_QUERY)) : {})
     });
     await page.goto(`http://127.0.0.1:${PORT}/holofan.html?${fq}`, { waitUntil: "domcontentloaded", timeout: 45000 });

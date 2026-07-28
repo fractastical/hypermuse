@@ -360,10 +360,35 @@ the LEDs' own switching beats against the frame rate, and every few seconds a
 slice of a turn never gets written at all. `shutter=1` turns the wedges off,
 `artifacts=0` turns the lot off.
 
+### Two framings
+
+The default shot is about the hardware: it opens wide enough to read 180 cm off
+the figure beside it, then pushes in until the LED rings and the update seam
+resolve.
+
+`SHOT=room npm run export:holofan` is the other one, and stands back across the
+lobby for the whole shot — roughly where an audience is when they come across
+the thing. It writes
+`artifacts/demos/hypermoon-holofan-180cm-room.mp4`. At that range the disc
+stops being a diagram of a fan and starts being an object hanging in a space,
+which is the version to show somebody deciding whether to put one in a room.
+
+Standing back needs more set, so the shot brings its own: a ceiling (open black
+above a lobby reads as a void), and six people rather than one. One of them
+stands behind the disc and on the limb rather than dead centre — a silhouette
+running unbroken out of the room and into the picture is the whole claim of the
+format in a single frame, and it only reads where the moon is dim enough not to
+wash it out. It is at its best over the blood moon.
+
+Both framings are on `holofan.html` directly as `?shot=push` (default) and
+`?shot=room`, and everything the preset picks — `dist`, `dist2`, `people`,
+`ceil`, `ceilh`, `orbitdeg`, `notefade` — can still be set by hand on top.
+
 Worth knowing:
 
 - `SKIP_SOURCE=1` reuses `artifacts/holofan-source.mp4` instead of re-filming
-  the moon, which is most of the runtime.
+  the moon, which is most of the runtime. Both framings can share one source
+  clip, so the second one costs only the minute it takes to film the fan.
 - `STILL=1` writes a single frame instead of a video, for eyeballing changes.
 - `DIAM=` in centimetres. The dimension line and the caption follow it, and so
   does everything physical, so `DIAM=65` really does look like a desk fan.

@@ -81,13 +81,26 @@
   const PERSON = flag("person", true);
   const DIMLINE = flag("dim", true);
   const LABEL = flag("label", true);
-  const ORBIT_DEG = num("orbitdeg", 15);
+  // Two framings. push is the existing shot: wide enough to read 180 cm off the
+  // figure beside it, then in until the LED rings and the update seam resolve —
+  // a shot about the hardware. room stands back across the lobby, where the
+  // disc stops being a diagram of a fan and becomes a thing hanging in a space
+  // that people are walking through, which is how you actually come across one.
+  // Standing back needs the set to carry further: a ceiling, and more than one
+  // person in it.
+  const SHOT = (P.get("shot") || "push").toLowerCase();
+  const WIDE = SHOT === "room" || SHOT === "wide";
+  const ORBIT_DEG = num("orbitdeg", WIDE ? 7 : 15);
   const ORBIT_SEC = num("orbitsec", 44);
   const ORBIT = flag("orbit", true) && ORBIT_DEG > 0;
-  const DIST = num("dist", 5.3);
-  const DIST2 = num("dist2", 2.95);             // the shot pushes in to here
+  const DIST = num("dist", WIDE ? 11 : 5.3);
+  const DIST2 = num("dist2", WIDE ? 8.5 : 2.95); // the shot pushes in to here
   const DOLLY_SEC = num("dollysec", 30);
   const FOV = num("fov", 33);
+  const PEOPLE = Math.max(0, Math.round(num("people", WIDE ? 6 : 1)));
+  const CEIL = flag("ceil", WIDE);
+  const EYE = num("eye", 1.46);                 // camera height at the wide end
+  const NOTE_FADE = flag("notefade", !WIDE);
   const TAU = Math.PI * 2;
 
   const renderer = new THREE.WebGLRenderer({ antialias: true, powerPreference: "high-performance" });
@@ -450,6 +463,37 @@
       scene.add(ceil2);
     }
 
+    // From across the room the frame reaches over the wall, and open black
+    // above a lobby reads as a void rather than as a ceiling. Closing it also
+    // gives the downlights something to be recessed into, and the run of them
+    // converging away is most of what says how far back the disc is standing.
+    if (CEIL) {
+      const cc = document.createElement("canvas");
+      cc.width = 256; cc.height = 256;
+      const cg = cc.getContext("2d");
+      cg.fillStyle = LOBBY ? "#18120b" : "#05070c";
+      cg.fillRect(0, 0, 256, 256);
+      if (LOBBY) {
+        const pool = cg.createRadialGradient(128, 128, 1, 128, 128, 26);
+        pool.addColorStop(0, "rgba(255,232,192,0.72)");
+        pool.addColorStop(0.3, "rgba(255,226,178,0.16)");
+        pool.addColorStop(1, "rgba(255,226,178,0)");
+        cg.fillStyle = pool;
+        cg.fillRect(0, 0, 256, 256);
+      }
+      const ctex = new THREE.CanvasTexture(cc);
+      ctex.colorSpace = THREE.SRGBColorSpace;
+      ctex.wrapS = ctex.wrapT = THREE.RepeatWrapping;
+      ctex.repeat.set(10, 10);            // a downlight every four metres
+      const ceiling = new THREE.Mesh(
+        new THREE.PlaneGeometry(40, 40),
+        new THREE.MeshBasicMaterial({ map: ctex })
+      );
+      ceiling.rotation.x = Math.PI / 2;
+      ceiling.position.y = num("ceilh", 5);
+      scene.add(ceiling);
+    }
+
     // The stand in every one of these videos is a rolling floor tripod: one
     // slim upright behind the disc, splayed legs on castors, and the power and
     // controller sitting on the floor beside it on its own cable.
@@ -543,17 +587,52 @@
 
     const ptex = new THREE.CanvasTexture(c);
     ptex.colorSpace = THREE.SRGBColorSpace;
-    const person = new THREE.Mesh(
-      new THREE.PlaneGeometry(1.75 * (256 / 720), 1.75),
-      new THREE.MeshBasicMaterial({ map: ptex, transparent: true, depthWrite: false })
-    );
-    // Clear of the haze disc, which is additive and would otherwise light the
-    // figure up like a lamp, and roughly where a person stands to look at one
-    // of these: beside it, not in it.
-    person.position.set(num("personx", 1.95), 1.75 / 2, num("personz", 0.6));
-    person.renderOrder = 5;
-    scene.add(person);
-    scene.userData.person = person;
+    const pmat = new THREE.MeshBasicMaterial({ map: ptex, transparent: true, depthWrite: false });
+
+    // The first is the one the close shot is built around: clear of the haze
+    // disc, which is additive and would otherwise light the figure up like a
+    // lamp, and roughly where somebody stands to look at one of these — beside
+    // it, not in it. The rest only matter from across the room, where a single
+    // figure states the scale but a scattering of them makes it a place. They
+    // stand at the depths a lobby puts people at rather than in a line, since
+    // it is their spread front to back that reads as distance.
+    // One of them stands behind the disc on purpose, and on the limb rather
+    // than dead centre: a silhouette running unbroken out of the room and into
+    // the picture is the whole claim of the format in one shot, and it only
+    // reads where the moon is dim enough not to wash it out.
+    const spots = [
+      [num("personx", 1.95), num("personz", 0.6), 1.75],
+      [-2.75, 2.2, 1.69],
+      [3.0, 2.4, 1.79],
+      [-5.4, -1.4, 1.73],
+      [5.9, -1.8, 1.66],
+      [-1.05, -2.6, 1.72],
+      [-2.6, 4.6, 1.77],
+      [3.2, -2.8, 1.68]
+    ];
+    const people = [];
+    for (let i = 0; i < Math.min(PEOPLE, spots.length); i++) {
+      const [x, z, h] = spots[i];
+      const mat = pmat.clone();
+      // Further from the disc is less of its light, which stops a row of the
+      // same drawing reading as a row of the same drawing.
+      const dim = Math.max(0.45, Math.min(1, 1.15 - 0.055 * Math.hypot(x, z)));
+      mat.color.setScalar(dim);
+      const fig = new THREE.Mesh(new THREE.PlaneGeometry(h * (256 / 720), h), mat);
+      fig.position.set(x, h / 2, z);
+      // The rim light is painted down one edge, so a figure on the far side of
+      // the disc is mirrored to keep it lit from the disc rather than from
+      // nothing.
+      if (x < 0) fig.scale.x = -1;
+      // Nothing in the fan writes depth — it is all additive, so it can be seen
+      // through — which means a figure standing behind it would otherwise be
+      // painted straight over the picture. Anyone upstage of the disc is drawn
+      // before it instead, and the light lands on them the way it would.
+      fig.renderOrder = z < 0 ? 0 : 5;
+      scene.add(fig);
+      people.push(fig);
+    }
+    scene.userData.people = people;
   }
 
   // A dimension line under the disc, so the size is stated and not just felt.
@@ -631,16 +710,18 @@
     const k = DOLLY_SEC > 0 ? Math.min(1, t / DOLLY_SEC) : 0;
     const dist = DIST + (DIST2 - DIST) * (k * k * (3 - 2 * k));
     const ang = ORBIT ? Math.sin((t / ORBIT_SEC) * TAU) * ORBIT_DEG * Math.PI / 180 : 0;
-    camera.position.set(Math.sin(ang) * dist, 1.46 + (CENTER_H - 1.46) * k + Math.sin(t * 0.13) * 0.05, Math.cos(ang) * dist);
+    camera.position.set(Math.sin(ang) * dist, EYE + (CENTER_H - EYE) * k + Math.sin(t * 0.13) * 0.05, Math.cos(ang) * dist);
     camera.lookAt(0, CENTER_H - 0.16 * (1 - k), 0);
-    // The annotation has said its piece well before the push-in crops it.
+    // The annotation has said its piece well before the push-in crops it. From
+    // across the room there is no push-in to speak of and the disc is small in
+    // frame, so the size is worth stating for the whole shot.
     const near = 1 - Math.min(1, Math.max(0, (dist - DIST2) / Math.max(0.001, DIST - DIST2)));
-    const gone = Math.min(1, near / 0.3);
+    const gone = NOTE_FADE ? Math.min(1, near / 0.3) : 0;
     for (const o of fan.userData.notes || []) {
       o.material.opacity = o.userData.base * (1 - gone);
     }
 
-    if (scene.userData.person) scene.userData.person.quaternion.copy(camera.quaternion);
+    for (const fig of scene.userData.people || []) fig.quaternion.copy(camera.quaternion);
 
     renderer.render(scene, camera);
     if (!ready && video.readyState >= 2 && t > 0.4) {
