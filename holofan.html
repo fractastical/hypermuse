@@ -44,7 +44,9 @@
   const R = DIAM / 2;
   const LEDS = Math.max(24, num("leds", 240));  // LEDs down one arm (~3.7 mm pitch)
   const STEPS = Math.max(60, num("steps", 640));// angular samples a revolution
-  const RPM = num("rpm", 420);
+  // Close to a whole number of arm passes per captured frame, so the shutter
+  // wedge crawls the way it does in real footage instead of jumping about.
+  const RPM = num("rpm", 880);
   const BLADES = Math.max(1, Math.round(num("blades", 4)));
   // The LEDs run in almost to the middle and the motor is small and hidden
   // behind the picture, so there is no dark hole at the centre — footage of
@@ -58,6 +60,9 @@
   const FALLOFF = num("falloff", 0.25);         // thinning of light toward the rim
   const SEAM = num("seam", 1);
   const ARTIFACTS = num("artifacts", 1);        // shutter banding, dropped slices
+  // How much of the gap between arm passes the camera's shutter is open for.
+  // 1 is a long exposure and a clean disc; lower leaves a rotating dark wedge.
+  const SHUTTER = num("shutter", 0.84);
   const FLICKER = num("flicker", 0.5);
   const FRINGE = num("fringe", 0.9);
   const CENTER_H = num("height", 1.5);          // disc centre off the floor
@@ -149,7 +154,7 @@
     uGain: { value: GAIN }, uTime: { value: 0 }, uRev: { value: RPM / 60 },
     uBlades: { value: BLADES }, uSeam: { value: SEAM }, uFlicker: { value: FLICKER },
     uFringe: { value: FRINGE }, uDuty: { value: DUTY }, uFalloff: { value: FALLOFF },
-    uArt: { value: ARTIFACTS },
+    uArt: { value: ARTIFACTS }, uShutter: { value: SHUTTER },
     uFade: { value: 0 } // 1 on the floor reflection, which fades as it drops
   };
   const ledMat = new THREE.ShaderMaterial({
@@ -160,7 +165,7 @@
     blending: THREE.AdditiveBlending,
     fragmentShader: COMMON + `
       uniform float uLeds, uSteps, uHub, uGain, uTime, uRev, uBlades;
-      uniform float uSeam, uFlicker, uFringe, uDuty, uFalloff, uFade, uArt;
+      uniform float uSeam, uFlicker, uFringe, uDuty, uFalloff, uFade, uArt, uShutter;
       vec3 at(float r, float a) { return src(vec2(cos(a), sin(a)) * r); }
       void main() {
         vec2 p = vUv * 2.0 - 1.0;
@@ -217,6 +222,16 @@
         float rel = fract((a / TAU + 0.5) - turn);
         lit *= 1.0 - uSeam * 0.16 * (1.0 - smoothstep(0.0, 0.09, rel));
         lit *= 1.0 + uSeam * 0.05 * sin((a + turn * TAU) * uBlades);
+
+        // The artefact everyone knows from phone footage of these fans: a
+        // shutter open for less than the gap between arm passes never sees
+        // the whole sweep, so whatever was painted earliest in the frame has
+        // already gone out and a soft wedge chases the rotation. Its own beat
+        // against the frame rate is why it seems to crawl or run backwards.
+        float phase = fract(rel * uBlades);
+        lit *= 1.0 - uArt * 0.5 * smoothstep(uShutter, min(1.0, uShutter + 0.2), phase);
+        // and the arm caught mid-exposure, a bright edge leading each wedge
+        lit *= 1.0 + uArt * 0.26 * (1.0 - smoothstep(0.0, 0.08, phase));
 
         // Footage of these fans always has some artefact in it: a rolling
         // shutter beating against the LEDs' own switching drifts a soft band

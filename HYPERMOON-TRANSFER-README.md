@@ -272,6 +272,15 @@ so they are crisp when the camera is close and dissolve into an even glow when
 it is not — which is what a camera does and what stops the whole thing turning
 into a moire starburst.
 
+It also films badly on purpose, because a clean one of these does not exist on
+video. The shutter is open for less than the gap between arm passes, so part of
+each sweep has already gone dark by the time the frame is read: soft wedges
+crawl round the disc behind a bright edge where the arm itself was caught
+mid-exposure. On top of that a rolling-shutter band drifts through the picture,
+the LEDs' own switching beats against the frame rate, and every few seconds a
+slice of a turn never gets written at all. `shutter=1` turns the wedges off,
+`artifacts=0` turns the lot off.
+
 Worth knowing:
 
 - `SKIP_SOURCE=1` reuses `artifacts/holofan-source.mp4` instead of re-filming
@@ -286,5 +295,9 @@ Worth knowing:
 `holofan.html` also runs on its own against any clip:
 `holofan.html?src=artifacts/demos/effects/hypermoon-eye.mp4&diam=180`. Useful
 knobs are `leds` (per arm), `steps` (angular samples a turn), `rpm`, `gain`,
-`glow`, `haze`, `duty`, `zoom`, and `person`, `dim`, `room`, `label` to strip
-the room back to just the disc.
+`glow`, `haze`, `duty`, `zoom`, `shutter`, `artifacts`, and `person`, `dim`,
+`room`, `label` to strip the room back to just the disc.
+
+`rpm` defaults to 880 rather than a round number: at four arms that is close to
+a whole number of passes per captured frame, so the wedges crawl the way they
+do in real footage instead of jumping about. Change it and they will strobe.
