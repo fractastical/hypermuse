@@ -156,6 +156,10 @@
   // backalpha fades the layer, backsec crossfades through the list.
   let BACKDROP_SRC = params.get("backdrop") || "";
   let BACK_SCALE = num("backscale", 1);
+  // backfit=0 seats a backdrop by its file canvas instead of by its artwork
+  // (see measureFit) - the old behaviour, for a source that is deliberately
+  // framed off centre.
+  let BACK_FIT = num("backfit", 1) !== 0;
   let BACK_ALPHA = Math.max(0, Math.min(1, num("backalpha", 1)));
   let BACK_SEC = num("backsec", 12);
   // Sky (?stars=N): a parallax starfield painted under everything else, so
@@ -2799,6 +2803,62 @@
   // ImageDecoder) and drawn to a canvas so their whole loop can be sped up or
   // slowed live via BACK_SPEED - a plain <img> is stuck at the file's baked
   // frame delays. Stills / unsupported types fall back to a CSS image.
+  // Where the artwork actually sits inside its own file. A circular gif is
+  // routinely exported with a margin around the disc - the eye seal carries
+  // about 8% - and once it is pinned to the moon by its canvas rather than by
+  // its artwork it floats inside the limb with a ring of moon around it, and
+  // any lopsidedness in that margin reads as the whole thing being off centre.
+  // Measuring the union of the visible content across the loop (the union, so
+  // a warping seal is not clipped at its widest) gives the offset and scale
+  // that seat the artwork itself on the disc.
+  const FIT_N = 128;
+  let fitCtx = null;
+  function measureFit(imgs, iw, ih) {
+    if (!BACK_FIT || !imgs.length || !iw || !ih) return null;
+    if (!fitCtx) {
+      const c = document.createElement("canvas");
+      c.width = FIT_N;
+      c.height = FIT_N;
+      fitCtx = c.getContext("2d", { willReadFrequently: true });
+    }
+    let x0 = FIT_N, x1 = -1, y0 = FIT_N, y1 = -1;
+    const step = Math.max(1, Math.floor(imgs.length / 8));
+    for (let n = 0; n < imgs.length; n += step) {
+      fitCtx.clearRect(0, 0, FIT_N, FIT_N);
+      let d;
+      try {
+        fitCtx.drawImage(imgs[n], 0, 0, FIT_N, FIT_N);
+        d = fitCtx.getImageData(0, 0, FIT_N, FIT_N).data;
+      } catch (e) {
+        return null; // tainted or undecodable - leave the layer as authored
+      }
+      for (let y = 0; y < FIT_N; y++) {
+        for (let x = 0; x < FIT_N; x++) {
+          const i = (y * FIT_N + x) * 4;
+          if (d[i + 3] < 90) continue;
+          // A black surround counts as margin too: these gifs are as often
+          // matted onto black as cut out.
+          if (0.2126 * d[i] + 0.7152 * d[i + 1] + 0.0722 * d[i + 2] < 26) continue;
+          if (x < x0) x0 = x;
+          if (x > x1) x1 = x;
+          if (y < y0) y0 = y;
+          if (y > y1) y1 = y;
+        }
+      }
+    }
+    if (x1 < 0) return null;
+    // object-fit:contain letterboxes the image inside the square layer box, so
+    // the shorter side of the source covers less than the full box.
+    const fw = iw >= ih ? 1 : iw / ih;
+    const fh = ih >= iw ? 1 : ih / iw;
+    const ox = ((x0 + x1 + 1) / 2 / FIT_N - 0.5) * fw;
+    const oy = ((y0 + y1 + 1) / 2 / FIT_N - 0.5) * fh;
+    const ew = ((x1 + 1 - x0) / FIT_N) * fw;
+    const eh = ((y1 + 1 - y0) / FIT_N) * fh;
+    const s = Math.min(2, 1 / Math.max(ew, eh, 0.05));
+    if (s < 1.02 && Math.abs(ox) < 0.004 && Math.abs(oy) < 0.004) return null;
+    return { ox, oy, s };
+  }
   function makeBackdropLayer(src) {
     const layer = { node: null, raf: 0, frames: null, i: 0, acc: 0, last: 0, disposed: false };
     const base = "position:absolute;left:0;top:0;width:100%;height:100%;" +
@@ -2829,6 +2889,7 @@
           canvas.width = frames[0].bmp.width;
           canvas.height = frames[0].bmp.height;
           layer.frames = frames;
+          layer.fit = measureFit(frames.map((f) => f.bmp), canvas.width, canvas.height);
           layer.last = performance.now();
           const loop = (now) => {
             if (layer.disposed) return;
@@ -2852,6 +2913,9 @@
       const img = document.createElement("img");
       img.src = src;
       img.style.cssText = base;
+      img.addEventListener("load", () => {
+        layer.fit = measureFit([img], img.naturalWidth, img.naturalHeight);
+      }, { once: true });
       layer.node = img;
     }
     return layer;
@@ -2925,9 +2989,17 @@
   function zoomBackdrop() {
     if (!backdrop.players.length) return;
     const z = 1 + (IRIS_ZOOM - 1) * uniforms.uIris.value;
-    const t = "scale(" + z.toFixed(4) + ")";
     backdrop.players.forEach((p) => {
       if (!p.node) return;
+      // The fit is folded into the same transform: shift the artwork's own
+      // centre onto the box centre, then scale about that so both the seating
+      // and the iris zoom pivot on the artwork rather than on the file.
+      const fit = BACK_FIT ? p.fit : null;
+      const t = "scale(" + (z * (fit ? fit.s : 1)).toFixed(4) + ")" + (fit
+        ? " translate(" + (-fit.ox * 100).toFixed(3) + "%," + (-fit.oy * 100).toFixed(3) + "%)"
+        : "");
+      if (p.tkey === t) return;
+      p.tkey = t;
       p.node.style.transformOrigin = "center center";
       p.node.style.transform = t;
     });
@@ -3145,31 +3217,37 @@
     // Pass 1: measure the moon disc from the alpha channel (covers the full
     // sphere, lit and dark alike).
     if (AUTO_DISC) {
-      let aMinU = 1, aMaxU = 0, aMinV = 1, aMaxV = 0, aCount = 0, aSumU = 0, aSumV = 0;
+      // Coverage, not a hard mask. Drawing the video down to the sample grid
+      // averages the alpha, so an edge cell's alpha IS the fraction of it that
+      // lies inside the disc. The window opens above the video's faint glow
+      // ring (alpha ~0.15) so the halo is never counted as body.
+      let cov = 0, sumU = 0, sumV = 0;
       for (let py = 0; py < SAMPLE_H; py++) {
         const v = 1 - (py + 0.5) / SAMPLE_H; // canvas is top-down, UV is bottom-up
         for (let px = 0; px < SAMPLE_W; px++) {
-          if (data[(py * SAMPLE_W + px) * 4 + 3] < 235) continue; // skip the glow halo
-          const u = (px + 0.5) / SAMPLE_W;
-          aCount++;
-          aSumU += u;
-          aSumV += v;
-          if (u < aMinU) aMinU = u;
-          if (u > aMaxU) aMaxU = u;
-          if (v < aMinV) aMinV = v;
-          if (v > aMaxV) aMaxV = v;
+          const a = data[(py * SAMPLE_W + px) * 4 + 3] / 255;
+          if (a <= 0.3) continue;
+          const c = a >= 0.7 ? 1 : (a - 0.3) / 0.4;
+          cov += c;
+          sumU += ((px + 0.5) / SAMPLE_W) * c;
+          sumV += v * c;
         }
       }
-      if (aCount > 40) {
-        // Centre from the mask centroid, not the bbox midpoint: the bbox
+      if (cov > 20) {
+        // Centre from the coverage centroid, not the bbox midpoint: the bbox
         // quantises to the coarse sample grid (~2px on screen and worse on
         // big displays), while the centroid of a solid disc is sub-pixel
         // accurate - the iris hole, backdrop gif and centering all ride on it.
-        disc.x = aSumU / aCount;
-        disc.y = aSumV / aCount;
-        const rX = ((aMaxU - aMinU) / 2) * (16 / 9);
-        const rY = (aMaxV - aMinV) / 2;
-        disc.r = Math.min(rX, rY) * 0.99;
+        disc.x = sumU / cov;
+        disc.y = sumV / cov;
+        // Radius from area rather than from that bounding box. A bbox rounds
+        // out to whole cells (~9px of screen at 900p), its two axes disagree
+        // about where the edge fell, and taking the smaller of them left the
+        // disc a few percent small and breathing as the rounding flipped from
+        // one axis to the other. Area converges well inside a cell and holds
+        // still: measured against the source frame this lands within 0.3% of
+        // the true radius, where the bbox was 3.5% under.
+        disc.r = Math.sqrt((cov / (SAMPLE_W * SAMPLE_H)) * (16 / 9) / Math.PI);
         uniforms.uDisc.value.set(disc.x, disc.y, disc.r);
       }
     }
@@ -3942,6 +4020,7 @@
     if (BACKDROP_SRC) {
       q.set("backdrop", BACKDROP_SRC);
       if (BACK_SCALE !== 1) q.set("backscale", BACK_SCALE.toFixed(2));
+      if (!BACK_FIT) q.set("backfit", "0");
       if (BACK_ALPHA !== 1) q.set("backalpha", BACK_ALPHA.toFixed(2));
       if (BACK_SEC !== 12) q.set("backsec", BACK_SEC.toFixed(1));
       if (BACK_SPEED !== 1) q.set("backspeed", BACK_SPEED.toFixed(2));
@@ -4019,6 +4098,7 @@
       logosec: LOGO_SEC,
       logoscale: LOGO_SCALE,
       backscale: BACK_SCALE,
+      backfit: BACK_FIT ? 1 : 0,
       backalpha: BACK_ALPHA,
       backsec: BACK_SEC,
       backspeed: BACK_SPEED,
@@ -4115,6 +4195,7 @@
         case "irissec": IRIS_SEC = Math.max(0.1, v); break;
         case "backdrop": setBackdrop(v); break;
         case "backscale": BACK_SCALE = Math.max(0.05, v); break;
+        case "backfit": BACK_FIT = !!v; setBackdrop(BACKDROP_SRC); break;
         case "backalpha": BACK_ALPHA = Math.max(0, Math.min(1, v)); break;
         case "backsec": BACK_SEC = Math.max(0, v); setBackdrop(BACKDROP_SRC); break;
         case "backspeed": BACK_SPEED = Math.max(0.1, v); break;

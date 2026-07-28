@@ -51,6 +51,19 @@ latest versions). Then:
   window.
 - **Sub-pixel disc centering**: the iris hole / backdrop alignment no longer
   drifts by a few pixels at fullscreen.
+- **The backdrop now seats on the moon properly.** Two things used to leave a
+  gif sitting small inside the limb with a ring of moon around it, which reads
+  as it being off centre. The disc's radius was measured from a bounding box on
+  a coarse sample grid, which came out about 3.5% under and breathed as the
+  rounding flipped between the two axes; it is now taken from the mask's area,
+  which lands within 0.3% and holds still. And a gif was pinned by its file
+  canvas rather than by its artwork, so the margin a circular gif is usually
+  exported with (about 8% on the eye seal) became a gap. The visible content is
+  now measured over the loop and seated on the disc by its own centre and
+  extent, so any gif fills the disc whatever padding it ships with. `backfit=0`
+  restores the old behaviour for a source framed off centre deliberately, and
+  `backscale` still trims the result. `npm run probe:center` prints where the
+  backdrop and the moon each landed, in pixels.
 - **Blood moon**: `🌕→🔴 blood moon` / `natural moon` buttons + a strength
   slider and tint color picker — grades the whole disc to a copper-red
   eclipse look, live, on any of the moon videos (`?bloodmoon=0..1`,

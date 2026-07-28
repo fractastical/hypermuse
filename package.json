@@ -56,7 +56,8 @@
     "build:color:theme-set": "node scripts/build-color-theme-set.mjs",
     "export:holofan": "node scripts/export-holofan.mjs",
     "export:holofan:still": "STILL=1 node scripts/export-holofan.mjs",
-    "preview:logo": "node scripts/preview-logo.mjs"
+    "preview:logo": "node scripts/preview-logo.mjs",
+    "probe:center": "node scripts/probe-center.mjs"
   },
   "devDependencies": {
     "@playwright/test": "^1.44.0",
