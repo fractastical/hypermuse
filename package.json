@@ -53,7 +53,9 @@
     "export:fold": "CAPTURE_MS=40000 HYPERSTITION_PAGE=synergetics-fold.html HYPERSTITION_EXTRA_QUERY=label=0 OUTPUT_VIDEO=artifacts/synergetics-fold.mp4 node scripts/export-hyperstition-moon-video.mjs",
     "export:fold:loops": "node scripts/export-fold-loops.mjs",
     "export:fold:associate": "CAPTURE_MS=35000 HYPERSTITION_PAGE=synergetics-fold.html \"HYPERSTITION_EXTRA_QUERY=mode=associate&label=0\" OUTPUT_VIDEO=artifacts/synergetics-associate.mp4 node scripts/export-hyperstition-moon-video.mjs",
-    "build:color:theme-set": "node scripts/build-color-theme-set.mjs"
+    "build:color:theme-set": "node scripts/build-color-theme-set.mjs",
+    "export:holofan": "node scripts/export-holofan.mjs",
+    "export:holofan:still": "STILL=1 node scripts/export-holofan.mjs"
   },
   "devDependencies": {
     "@playwright/test": "^1.44.0",

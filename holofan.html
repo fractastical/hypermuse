@@ -1,0 +1,534 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<title>hypermoon on a holographic fan</title>
+<style>
+  html, body { margin: 0; height: 100%; background: #04060a; overflow: hidden; }
+  canvas { display: block; }
+  #cap {
+    position: fixed; left: 40px; bottom: 34px; z-index: 5; pointer-events: none;
+    font: 600 20px/1.3 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    color: #dfeaf7; text-shadow: 0 2px 14px rgba(0,0,0,0.85); letter-spacing: 0.01em;
+  }
+  #cap small {
+    display: block; margin-top: 5px; letter-spacing: 0.02em;
+    font: 400 12px/1.5 ui-monospace, Menlo, monospace; color: rgba(150,190,230,0.8);
+  }
+</style>
+</head>
+<body>
+<script src="js/threejs.org_build_three.js"></script>
+<script>
+/**
+ * A 3D holographic LED fan, simulated: a spinning arm of LEDs draws the source
+ * clip in polar coordinates, so the picture arrives as concentric rings of
+ * light rather than as a grid of square pixels, and only the lit parts exist —
+ * black is simply an LED that never came on, so the room shows straight
+ * through it. The disc is built at true size (1.8 m across by default) and set
+ * in a dark room with a figure beside it, because the whole point of the
+ * format is how big the thing in the air reads.
+ *
+ *   holofan.html?src=artifacts/holofan-source.mp4&diam=180
+ *
+ * Notable knobs: leds (per arm), steps (angular samples a revolution), rpm,
+ * gain, glow, haze, zoom (crop into the source), person, dim, orbit.
+ */
+(function () {
+  const P = new URLSearchParams(location.search);
+  const num = (k, d) => { const v = parseFloat(P.get(k)); return Number.isFinite(v) ? v : d; };
+  const flag = (k, d) => { const v = P.get(k); return v == null ? d : !(v === "0" || v === "false"); };
+
+  const SRC = P.get("src") || "artifacts/holofan-source.mp4";
+  const DIAM = num("diam", 180) / 100;          // metres across the swept disc
+  const R = DIAM / 2;
+  const LEDS = Math.max(24, num("leds", 240));  // LEDs down one arm (~3.7 mm pitch)
+  const STEPS = Math.max(60, num("steps", 640));// angular samples a revolution
+  const RPM = num("rpm", 420);
+  const BLADES = Math.max(1, Math.round(num("blades", 4)));
+  const HUB = num("hub", 0.085);                // motor boss, as a fraction of R
+  const GAIN = num("gain", 1.35);
+  const GLOW = num("glow", 0.4);
+  const HAZE = num("haze", 0.38);
+  const ZOOM = num("zoom", 1);
+  const DUTY = num("duty", 0.52);               // how much of the LED pitch lights
+  const FALLOFF = num("falloff", 0.25);         // thinning of light toward the rim
+  const SEAM = num("seam", 1);
+  const FLICKER = num("flicker", 0.5);
+  const FRINGE = num("fringe", 0.9);
+  const CENTER_H = num("height", 1.5);          // disc centre off the floor
+  const ROOM = flag("room", true);
+  const PERSON = flag("person", true);
+  const DIMLINE = flag("dim", true);
+  const LABEL = flag("label", true);
+  const ORBIT_DEG = num("orbitdeg", 15);
+  const ORBIT_SEC = num("orbitsec", 44);
+  const ORBIT = flag("orbit", true) && ORBIT_DEG > 0;
+  const DIST = num("dist", 5.3);
+  const DIST2 = num("dist2", 2.95);             // the shot pushes in to here
+  const DOLLY_SEC = num("dollysec", 30);
+  const FOV = num("fov", 33);
+  const TAU = Math.PI * 2;
+
+  const renderer = new THREE.WebGLRenderer({ antialias: true, powerPreference: "high-performance" });
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
+  renderer.setSize(window.innerWidth, window.innerHeight);
+  renderer.setClearColor(0x04060a, 1);
+  renderer.outputColorSpace = THREE.SRGBColorSpace;
+  renderer.toneMapping = THREE.ACESFilmicToneMapping;
+  renderer.toneMappingExposure = num("exposure", 1.05);
+  document.body.appendChild(renderer.domElement);
+
+  const scene = new THREE.Scene();
+  scene.fog = new THREE.FogExp2(0x04060a, 0.055);
+  const camera = new THREE.PerspectiveCamera(FOV, window.innerWidth / window.innerHeight, 0.05, 120);
+
+  // --- the clip the fan is playing -----------------------------------------
+  const video = document.createElement("video");
+  video.src = SRC;
+  video.loop = true;
+  video.muted = true;
+  video.playsInline = true;
+  video.crossOrigin = "anonymous";
+  video.play().catch(() => {});
+  const tex = new THREE.VideoTexture(video);
+  tex.minFilter = THREE.LinearFilter;
+  tex.magFilter = THREE.LinearFilter;
+  tex.generateMipmaps = false;
+  tex.colorSpace = THREE.SRGBColorSpace;
+
+  // The disc is the only thing lighting the room, so the floor pool has to
+  // take its colour from whatever is on screen at that moment.
+  const probe = document.createElement("canvas");
+  probe.width = probe.height = 8;
+  const pctx = probe.getContext("2d", { willReadFrequently: true });
+  let probeAt = 0;
+  const lampCol = new THREE.Color(0x8fb6de);
+  let lampAmt = 0.5;
+  function readAverage(now) {
+    if (now - probeAt < 110 || video.readyState < 2) return;
+    probeAt = now;
+    try { pctx.drawImage(video, 0, 0, 8, 8); } catch { return; }
+    const d = pctx.getImageData(0, 0, 8, 8).data;
+    let r = 0, g = 0, b = 0;
+    for (let i = 0; i < d.length; i += 4) { r += d[i]; g += d[i + 1]; b += d[i + 2]; }
+    const n = d.length / 4 * 255;
+    r /= n; g /= n; b /= n;
+    const lum = Math.max(0.02, 0.2126 * r + 0.7152 * g + 0.0722 * b);
+    lampCol.setRGB(r / lum * 0.6 + 0.4, g / lum * 0.6 + 0.4, b / lum * 0.6 + 0.4);
+    lampAmt += (Math.min(1.6, lum * 5.5) - lampAmt) * 0.25;
+  }
+
+  // --- the LED image --------------------------------------------------------
+  const COMMON = `
+    #define TAU 6.28318530718
+    uniform sampler2D map;
+    uniform float uZoom;
+    varying vec2 vUv;
+    vec3 src(vec2 q) {
+      vec2 uv = q * 0.5 / uZoom + 0.5;
+      if (uv.x < 0.0 || uv.x > 1.0 || uv.y < 0.0 || uv.y > 1.0) return vec3(0.0);
+      return texture2D(map, uv).rgb;
+    }
+  `;
+  const VERT = `
+    varying vec2 vUv;
+    void main() {
+      vUv = uv;
+      gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+    }
+  `;
+
+  const ledUniforms = {
+    map: { value: tex }, uZoom: { value: ZOOM },
+    uLeds: { value: LEDS }, uSteps: { value: STEPS }, uHub: { value: HUB },
+    uGain: { value: GAIN }, uTime: { value: 0 }, uRev: { value: RPM / 60 },
+    uBlades: { value: BLADES }, uSeam: { value: SEAM }, uFlicker: { value: FLICKER },
+    uFringe: { value: FRINGE }, uDuty: { value: DUTY }, uFalloff: { value: FALLOFF },
+    uFade: { value: 0 } // 1 on the floor reflection, which fades as it drops
+  };
+  const ledMat = new THREE.ShaderMaterial({
+    uniforms: ledUniforms,
+    vertexShader: VERT,
+    transparent: true,
+    depthWrite: false,
+    blending: THREE.AdditiveBlending,
+    fragmentShader: COMMON + `
+      uniform float uLeds, uSteps, uHub, uGain, uTime, uRev, uBlades;
+      uniform float uSeam, uFlicker, uFringe, uDuty, uFalloff, uFade;
+      vec3 at(float r, float a) { return src(vec2(cos(a), sin(a)) * r); }
+      void main() {
+        vec2 p = vUv * 2.0 - 1.0;
+        float r = length(p);
+        if (r > 1.0) discard;
+        float a = atan(p.y, p.x);
+
+        // How much of the disc one screen pixel covers. Once the LED pitch is
+        // finer than that, a real camera sees the average rather than the
+        // rings, so the structure has to dissolve into its own mean instead of
+        // aliasing into a moire starburst. Tangential footprint is taken from
+        // the radial one to avoid the discontinuity in atan at the seam.
+        float pix = max(fwidth(r), 1e-5);
+        float ringPx = pix * uLeds;
+        float stepPx = (pix / max(r, 0.02)) / (TAU / uSteps);
+        float rBlend = smoothstep(0.7, 1.6, ringPx);
+        float aBlend = smoothstep(0.5, 1.2, stepPx);
+
+        // Where the arm actually was when it lit this pixel: radius snaps to
+        // the LED pitch, angle to the controller's step. That quantisation is
+        // the whole look — rings of light instead of a grid of pixels.
+        float rq = mix((floor(r * uLeds) + 0.5) / uLeds, r, rBlend);
+        float aq = mix(((floor((a / TAU + 0.5) * uSteps) + 0.5) / uSteps - 0.5) * TAU, a, aBlend);
+
+        // A step is a short arc swept at speed, not a dot, so the eye gets the
+        // average across it.
+        float ad = TAU / uSteps;
+        vec3 c = at(rq, aq) * 0.5 + at(rq, aq - ad * 0.3) * 0.25 + at(rq, aq + ad * 0.3) * 0.25;
+
+        // The three dies in one LED sit a hair apart along the arm.
+        if (uFringe > 0.0 && rBlend < 0.9) {
+          float d = uFringe / uLeds;
+          c.r = mix(c.r, at(rq + d, aq).r, 0.5 * (1.0 - rBlend));
+          c.b = mix(c.b, at(rq - d, aq).b, 0.5 * (1.0 - rBlend));
+        }
+
+        // Gaps between the LEDs down the arm. The pattern is periodic, so
+        // rather than sampling it and fighting the moire, it is written as a
+        // couple of harmonics and each one is attenuated by the sinc of the
+        // pixel footprint. Up close the rings are crisp; at a distance they
+        // dissolve into an even glow of exactly the same brightness, which is
+        // what a camera does.
+        float ph = TAU * (r * uLeds - 0.5);
+        float k1 = 3.14159265 * ringPx, k3 = 3.0 * k1;
+        float s1 = k1 > 1e-4 ? sin(k1) / k1 : 1.0;
+        float s3 = k3 > 1e-4 ? sin(k3) / k3 : 1.0;
+        float amp = (1.0 - uDuty) * 0.5;
+        float rings = (1.0 + uDuty) * 0.5 + amp * (cos(ph) * s1 * 0.82 + cos(3.0 * ph) * s3 * 0.18);
+        float lit = rings * smoothstep(uHub, uHub + max(0.015, pix * 2.0), r);
+
+        // One arm lays down a fresh frame each pass: a faint seam chases the
+        // rotation and the arms beat against the shutter.
+        float turn = fract(uTime * uRev);
+        float rel = fract((a / TAU + 0.5) - turn);
+        lit *= 1.0 - uSeam * 0.16 * (1.0 - smoothstep(0.0, 0.09, rel));
+        lit *= 1.0 + uSeam * 0.05 * sin((a + turn * TAU) * uBlades);
+
+        // Same step count at every radius, so the light thins toward the rim.
+        float dens = mix(1.0, clamp(0.45 / max(r, 0.12), 0.0, 1.7), uFalloff);
+        float flick = 1.0 - uFlicker * 0.045 * (0.5 + 0.5 * sin(uTime * 46.0));
+        // The reflection is the same image seen in the floor, dimming with
+        // distance from the waterline.
+        float fade = mix(1.0, 0.18 * smoothstep(1.0, -0.2, p.y), uFade);
+        gl_FragColor = vec4(c * uGain * lit * dens * flick * fade, 1.0);
+      }
+    `
+  });
+
+  // Bloom and room haze: the same picture, blurred wide and laid in softly.
+  function blurMat(spread, amount, softness) {
+    return new THREE.ShaderMaterial({
+      uniforms: {
+        map: { value: tex }, uZoom: { value: ZOOM },
+        uSpread: { value: spread }, uAmt: { value: amount }, uSoft: { value: softness },
+        uHub: { value: HUB }
+      },
+      vertexShader: VERT,
+      transparent: true,
+      depthWrite: false,
+      blending: THREE.AdditiveBlending,
+      fragmentShader: COMMON + `
+        uniform float uSpread, uAmt, uSoft, uHub;
+        void main() {
+          vec2 p = (vUv * 2.0 - 1.0) * uSpread;
+          float r = length(p / uSpread);
+          vec3 acc = vec3(0.0);
+          float wsum = 0.0;
+          // A coarse spiral of taps is enough once it is this soft.
+          for (int i = 0; i < 16; i++) {
+            float f = float(i);
+            float ang = f * 2.39996;
+            float rad = sqrt((f + 0.5) / 16.0) * uSoft;
+            vec2 o = vec2(cos(ang), sin(ang)) * rad;
+            float w = 1.0 - rad / max(uSoft, 0.0001) * 0.6;
+            acc += src(p + o) * w;
+            wsum += w;
+          }
+          acc /= max(wsum, 0.0001);
+          float vign = 1.0 - smoothstep(0.55, 1.0, r);
+          gl_FragColor = vec4(acc * uAmt * vign, 1.0);
+        }
+      `
+    });
+  }
+
+  const discGeo = new THREE.CircleGeometry(R, 192);
+  const fan = new THREE.Group();
+  fan.position.set(0, CENTER_H, 0);
+  scene.add(fan);
+
+  // The blades themselves: a faint disc of moving metal you catch behind the
+  // picture, which is how you can tell there is a machine there at all.
+  const bladeMat = new THREE.ShaderMaterial({
+    uniforms: { uTime: { value: 0 }, uRev: { value: RPM / 60 }, uBlades: { value: BLADES }, uHub: { value: HUB } },
+    vertexShader: VERT,
+    transparent: true,
+    depthWrite: false,
+    blending: THREE.NormalBlending,
+    fragmentShader: `
+      #define TAU 6.28318530718
+      uniform float uTime, uRev, uBlades, uHub;
+      varying vec2 vUv;
+      void main() {
+        vec2 p = vUv * 2.0 - 1.0;
+        float r = length(p);
+        if (r > 1.0 || r < uHub) discard;
+        float a = atan(p.y, p.x) + uTime * uRev * TAU;
+        float arms = 0.5 + 0.5 * sin(a * uBlades);
+        float v = 0.030 + 0.045 * pow(arms, 6.0);
+        v *= 1.0 - smoothstep(0.9, 1.0, r);
+        gl_FragColor = vec4(vec3(0.42, 0.48, 0.58) * v, v);
+      }
+    `
+  });
+  const blades = new THREE.Mesh(discGeo, bladeMat);
+  blades.renderOrder = 1;
+  fan.add(blades);
+
+  const led = new THREE.Mesh(discGeo, ledMat);
+  led.renderOrder = 3;
+  fan.add(led);
+
+  const bloom = new THREE.Mesh(new THREE.CircleGeometry(R * 1.25, 96), blurMat(1.25, GLOW, 0.14));
+  bloom.position.z = 0.004;
+  bloom.renderOrder = 4;
+  fan.add(bloom);
+
+  const haze = new THREE.Mesh(new THREE.CircleGeometry(R * 2.6, 64), blurMat(2.6, HAZE * 0.5, 0.42));
+  haze.position.z = -0.01;
+  haze.renderOrder = 2;
+  fan.add(haze);
+
+  // Motor boss and the arm hub, in silhouette against the picture. Everything
+  // structural stays near-black: the only thing in this room that should read
+  // as bright is the light hanging in the air.
+  // Near-black on purpose: the disc adds its light to whatever is behind it,
+  // so a merely dark pole would still print a bright bar across the picture.
+  const dark = new THREE.MeshStandardMaterial({ color: 0x05060a, roughness: 1, metalness: 0 });
+  const boss = new THREE.Mesh(new THREE.CylinderGeometry(R * HUB * 0.95, R * HUB * 0.95, 0.11, 40), dark);
+  boss.rotation.x = Math.PI / 2;
+  fan.add(boss);
+  const ring = new THREE.Mesh(new THREE.TorusGeometry(R * 0.995, 0.010, 8, 128),
+    new THREE.MeshStandardMaterial({ color: 0x0c0f14, roughness: 0.85, metalness: 0.15 }));
+  fan.add(ring);
+
+  // --- the room -------------------------------------------------------------
+  // Set well in front of the disc, or it scorches the hub it is meant to be
+  // sitting behind.
+  const lamp = new THREE.PointLight(0x9fc4e8, 10, 26, 2);
+  lamp.position.set(0, CENTER_H, 0.85);
+  scene.add(lamp);
+  scene.add(new THREE.AmbientLight(0x0c1219, 1.0));
+
+  if (ROOM) {
+    const floor = new THREE.Mesh(
+      new THREE.PlaneGeometry(40, 40),
+      new THREE.MeshStandardMaterial({ color: 0x080a0f, roughness: 0.42, metalness: 0.3 })
+    );
+    floor.rotation.x = -Math.PI / 2;
+    scene.add(floor);
+
+    // The wall carries a dim house light, which is the cheapest proof that
+    // the picture is not on a screen: it goes on showing through the moon.
+    const wc = document.createElement("canvas");
+    wc.width = 64; wc.height = 256;
+    const wg = wc.getContext("2d");
+    const wbase = wg.createLinearGradient(0, 0, 0, 256);
+    wbase.addColorStop(0, "#04060a");
+    wbase.addColorStop(0.62, "#0a0e16");
+    wbase.addColorStop(1, "#05070c");
+    wg.fillStyle = wbase; wg.fillRect(0, 0, 64, 256);
+    const band = wg.createLinearGradient(0, 158, 0, 196);
+    band.addColorStop(0, "rgba(70,110,160,0)");
+    band.addColorStop(0.5, "rgba(88,134,190,0.28)");
+    band.addColorStop(1, "rgba(70,110,160,0)");
+    wg.fillStyle = band; wg.fillRect(0, 150, 64, 56);
+    const wtex = new THREE.CanvasTexture(wc);
+    wtex.colorSpace = THREE.SRGBColorSpace;
+    wtex.wrapS = THREE.RepeatWrapping;
+    const wall = new THREE.Mesh(
+      new THREE.PlaneGeometry(40, 9),
+      new THREE.MeshBasicMaterial({ map: wtex })
+    );
+    wall.position.set(0, 3, -7);
+    scene.add(wall);
+
+    // Stand: a pole up the back to the motor and a weighted base, the usual
+    // way one of these is rigged when it is not flown. It stops at the hub —
+    // nothing crosses the picture.
+    const poleH = CENTER_H - R * HUB;
+    const pole = new THREE.Mesh(new THREE.CylinderGeometry(0.024, 0.038, poleH, 20), dark);
+    pole.position.set(0, poleH / 2, -0.95);
+    scene.add(pole);
+    const yoke = new THREE.Mesh(new THREE.BoxGeometry(0.05, 0.1, 0.95), dark);
+    yoke.position.set(0, CENTER_H - R * HUB * 0.7, -0.48);
+    scene.add(yoke);
+    const base = new THREE.Mesh(new THREE.CylinderGeometry(0.42, 0.48, 0.05, 36), dark);
+    base.position.set(0, 0.025, -0.95);
+    scene.add(base);
+
+    // The picture caught in the floor. Drawn over the floor rather than under
+    // it, since an additive quad below an opaque plane would never be seen.
+    const refl = new THREE.Mesh(discGeo, ledMat.clone());
+    refl.material.uniforms = THREE.UniformsUtils.clone(ledUniforms);
+    refl.material.uniforms.map.value = tex;
+    refl.material.uniforms.uFade.value = 1;
+    refl.material.depthTest = false;
+    refl.position.set(0, -CENTER_H, 0);
+    refl.scale.y = -1;
+    refl.renderOrder = 6;
+    fan.add(refl);
+    fan.userData.refl = refl;
+  }
+
+  // A figure alongside, because 180 cm only means something next to somebody.
+  if (PERSON) {
+    const c = document.createElement("canvas");
+    c.width = 256; c.height = 720;
+    const g = c.getContext("2d");
+    g.fillStyle = "#05070b";
+    g.beginPath(); g.ellipse(128, 74, 39, 45, 0, 0, TAU); g.fill();      // head
+    g.fillRect(115, 112, 26, 24);                                        // neck
+    g.beginPath();                                                       // torso
+    g.moveTo(74, 140); g.quadraticCurveTo(128, 122, 182, 140);
+    g.lineTo(168, 352); g.quadraticCurveTo(128, 368, 88, 352);
+    g.closePath(); g.fill();
+    g.lineCap = "round"; g.strokeStyle = "#05070b";
+    g.lineWidth = 23; g.beginPath();                                     // arms
+    g.moveTo(80, 152); g.quadraticCurveTo(52, 250, 62, 352);
+    g.moveTo(176, 152); g.quadraticCurveTo(204, 250, 194, 352); g.stroke();
+    g.lineWidth = 38; g.beginPath();                                     // legs
+    g.moveTo(106, 340); g.quadraticCurveTo(92, 520, 84, 694);
+    g.moveTo(150, 340); g.quadraticCurveTo(164, 520, 172, 694); g.stroke();
+    g.lineWidth = 18; g.beginPath();                                     // feet
+    g.moveTo(88, 700); g.lineTo(64, 702); g.moveTo(168, 700); g.lineTo(192, 702); g.stroke();
+    // A thin rim light down the edge facing the disc; the rest stays in
+    // silhouette, which is all a scale reference needs to be.
+    g.globalCompositeOperation = "source-atop";
+    const grd = g.createLinearGradient(48, 0, 96, 0);
+    grd.addColorStop(0, "rgba(150,196,240,0.42)");
+    grd.addColorStop(1, "rgba(150,196,240,0)");
+    g.fillStyle = grd; g.fillRect(0, 0, 256, 720);
+
+    const ptex = new THREE.CanvasTexture(c);
+    ptex.colorSpace = THREE.SRGBColorSpace;
+    const person = new THREE.Mesh(
+      new THREE.PlaneGeometry(1.75 * (256 / 720), 1.75),
+      new THREE.MeshBasicMaterial({ map: ptex, transparent: true, depthWrite: false })
+    );
+    person.position.set(num("personx", 1.62), 1.75 / 2, num("personz", 0.5));
+    person.renderOrder = 5;
+    scene.add(person);
+    scene.userData.person = person;
+  }
+
+  // A dimension line under the disc, so the size is stated and not just felt.
+  if (DIMLINE) {
+    const y = -R - 0.16, tick = 0.075, head = 0.075;
+    const pts = [
+      [-R, y - tick, 0], [-R, y + tick, 0], [-R, y, 0], [R, y, 0], [R, y - tick, 0], [R, y + tick, 0],
+      [R, y, 0], [R - head, y + head * 0.55, 0], [R - head, y - head * 0.55, 0], [R, y, 0],
+      [-R, y, 0], [-R + head, y + head * 0.55, 0], [-R + head, y - head * 0.55, 0], [-R, y, 0]
+    ];
+    const geo = new THREE.BufferGeometry().setFromPoints(pts.map((p) => new THREE.Vector3(...p)));
+    const line = new THREE.Line(geo, new THREE.LineBasicMaterial({
+      color: 0x86b8e8, transparent: true, opacity: 0.62, depthTest: false
+    }));
+    line.renderOrder = 7;
+    line.userData.base = 0.62;
+    fan.add(line);
+
+    const lc = document.createElement("canvas");
+    lc.width = 512; lc.height = 128;
+    const lg = lc.getContext("2d");
+    lg.fillStyle = "rgba(180,214,246,0.92)";
+    lg.font = "600 62px -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif";
+    lg.textAlign = "center"; lg.textBaseline = "middle";
+    lg.fillText("\u00D8 " + Math.round(DIAM * 100) + " cm", 256, 66);
+    const ltex = new THREE.CanvasTexture(lc);
+    ltex.colorSpace = THREE.SRGBColorSpace;
+    const label = new THREE.Sprite(new THREE.SpriteMaterial({
+      map: ltex, transparent: true, depthTest: false, opacity: 0.9
+    }));
+    label.scale.set(0.86, 0.215, 1);
+    label.position.set(0, y - 0.2, 0);
+    label.renderOrder = 7;
+    label.userData.base = 0.9;
+    fan.add(label);
+    fan.userData.notes = [line, label];
+  }
+
+  if (LABEL) {
+    const cap = document.createElement("div");
+    cap.id = "cap";
+    cap.innerHTML = "hypermoon on a \u00D8" + Math.round(DIAM * 100) + " cm holographic fan" +
+      "<small>" + Math.round(LEDS) + " LEDs per arm \u00B7 " + Math.round(STEPS) +
+      " steps a turn \u00B7 " + Math.round(RPM) + " rpm \u00B7 unlit pixels are simply air</small>";
+    document.body.appendChild(cap);
+  }
+
+  function resize() {
+    camera.aspect = window.innerWidth / window.innerHeight;
+    camera.updateProjectionMatrix();
+    renderer.setSize(window.innerWidth, window.innerHeight);
+  }
+  window.addEventListener("resize", resize);
+  resize();
+
+  const t0 = performance.now();
+  let ready = false;
+  function frame(now) {
+    requestAnimationFrame(frame);
+    const t = (now - t0) / 1000;
+    readAverage(now);
+
+    ledUniforms.uTime.value = t;
+    bladeMat.uniforms.uTime.value = t;
+    const refl = fan.userData.refl;
+    if (refl) refl.material.uniforms.uTime.value = t;
+
+    lamp.color.copy(lampCol);
+    lamp.intensity = 3.2 + 7.5 * lampAmt;
+
+    // Wide enough to read the size against the room, then in close enough
+    // that the LED rings and the update seam resolve.
+    const k = DOLLY_SEC > 0 ? Math.min(1, t / DOLLY_SEC) : 0;
+    const dist = DIST + (DIST2 - DIST) * (k * k * (3 - 2 * k));
+    const ang = ORBIT ? Math.sin((t / ORBIT_SEC) * TAU) * ORBIT_DEG * Math.PI / 180 : 0;
+    camera.position.set(Math.sin(ang) * dist, 1.46 + (CENTER_H - 1.46) * k + Math.sin(t * 0.13) * 0.05, Math.cos(ang) * dist);
+    camera.lookAt(0, CENTER_H - 0.16 * (1 - k), 0);
+    // The annotation has said its piece by the time the disc fills the frame.
+    const near = 1 - Math.min(1, Math.max(0, (dist - DIST2) / Math.max(0.001, DIST - DIST2)));
+    for (const o of fan.userData.notes || []) {
+      o.material.opacity = o.userData.base * (1 - near * 0.95);
+    }
+
+    if (scene.userData.person) scene.userData.person.quaternion.copy(camera.quaternion);
+
+    renderer.render(scene, camera);
+    if (!ready && video.readyState >= 2 && t > 0.4) {
+      ready = true;
+      window.__holofanReady = true;
+    }
+  }
+  requestAnimationFrame(frame);
+
+  window.__holofanStats = {
+    get playing() { return !video.paused && video.readyState >= 2; },
+    get time() { return video.currentTime; },
+    get duration() { return video.duration; },
+    src: SRC, diam: DIAM, leds: LEDS, steps: STEPS, rpm: RPM
+  };
+})();
+</script>
+</body>
+</html>

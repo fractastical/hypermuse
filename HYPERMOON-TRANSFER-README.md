@@ -248,3 +248,43 @@ renders just those, `SCENE_MS=` changes the time per scene.
 effect into `artifacts/demos/effects/` instead of the montage — handy for
 showing a single effect without scrubbing. `CLIPS=1 npm run export:reel`
 writes both.
+
+## Rendering it onto a holographic fan
+
+`npm run export:holofan` shows what the moon looks like on one of those
+spinning LED "3D hologram" fans, at a size worth having: a 180 cm disc in a
+dark room with a figure beside it for scale.
+
+It runs in two passes. First it films the moon square, the way a clip would be
+loaded onto the fan's own controller, cueing a short sequence by hand — the
+iris opening on the eye seal, the sonic sphere in the window, blood moon, then
+a slow earth's shadow that is at its deepest as the shot ends. Then
+`holofan.html` plays that clip back through a simulated arm of LEDs and the
+result is filmed in turn, ending at
+`artifacts/demos/hypermoon-holofan-180cm.mp4` (about 45 s).
+
+What the simulation actually does: the picture is resampled into polar
+coordinates, so it arrives as concentric rings of light on the LED pitch rather
+than as square pixels; unlit pixels are simply air, so the room shows straight
+through the dark side of the moon; the arm leaves a faint update seam chasing
+the rotation; and the LED rings are band-limited against the pixel footprint,
+so they are crisp when the camera is close and dissolve into an even glow when
+it is not — which is what a camera does and what stops the whole thing turning
+into a moire starburst.
+
+Worth knowing:
+
+- `SKIP_SOURCE=1` reuses `artifacts/holofan-source.mp4` instead of re-filming
+  the moon, which is most of the runtime.
+- `STILL=1` writes a single frame instead of a video, for eyeballing changes.
+- `DIAM=` in centimetres. The dimension line and the caption follow it, and so
+  does everything physical, so `DIAM=65` really does look like a desk fan.
+- `FAN_QUERY=` passes anything through to the page, e.g.
+  `FAN_QUERY="leds=448&rpm=900&dollysec=0&orbit=0"`.
+- `MOON_QUERY=` does the same for the moon pass.
+
+`holofan.html` also runs on its own against any clip:
+`holofan.html?src=artifacts/demos/effects/hypermoon-eye.mp4&diam=180`. Useful
+knobs are `leds` (per arm), `steps` (angular samples a turn), `rpm`, `gain`,
+`glow`, `haze`, `duty`, `zoom`, and `person`, `dim`, `room`, `label` to strip
+the room back to just the disc.
