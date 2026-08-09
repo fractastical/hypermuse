@@ -102,6 +102,7 @@ function encodeFramesToVideo(framesDir, outputPath, fps) {
     throw new Error("ffmpeg-static not available");
   }
   const ext = path.extname(outputPath).toLowerCase();
+  fs.mkdirSync(path.dirname(outputPath), { recursive: true });
   const args = [
     "-y",
     "-framerate", String(fps),

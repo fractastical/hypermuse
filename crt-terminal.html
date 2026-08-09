@@ -12,25 +12,152 @@
 <canvas id="c"></canvas>
 <script>
 (function () {
-  // Standalone phosphor terminal for real CRT monitors and side screens.
+  // Standalone phosphor terminal for real CRT monitors, side screens and
+  // projections.
   //
   //   ?when=WEDNESDAY 22:00   announced time on the event frames
   //   ?text=LINE|LINE~NEXT    custom script: | = new line, ~ = next screen
+  //   ?poem=trinitypoem.txt   load a text file, blank lines separating stanzas
   //   ?color=green            green | amber | purple | cyan | white | RRGGBB
   //   ?cps=17                 typed characters per second
   //   ?fx=1                   synthetic scanlines/roll/flicker. Pass fx=0 on a
   //                           genuine CRT - the tube supplies its own artifacts.
   //   ?safe=0.1               margin fraction kept clear for CRT overscan
+  //
+  // On a projection the type size is the whole game, and it is set by the
+  // tallest screen in the script rather than by choice: everything has to fit,
+  // so nine lines at once on a 2.26 m high surface is about 7 cm of capital and
+  // runs out of legibility at ten metres or so. Showing fewer lines at a time
+  // is what buys the size back, which is what group is for.
+  //
+  //   ?group=3                break every screen into runs of this many lines,
+  //                           divided evenly and never spanning a stanza
+  //   ?align=center           center | left (left is the terminal convention
+  //                           and stays the default)
+  //   ?vcenter=1              sit the block in the middle of the frame rather
+  //                           than at the top, so short screens are not adrift
+  //   ?scale=1                nudge the fitted type size
+  //   ?fit=1                  which line the width is fitted to, as a quantile.
+  //                           1 fits the longest, which is the safe reading and
+  //                           the default. The poem's median line is 16
+  //                           characters and its longest is 28, so fitting the
+  //                           longest costs every other line a third of its
+  //                           size for the sake of two lines out of 243; at
+  //                           0.97 those two are condensed a few percent to fit
+  //                           and everything else is bigger.
+  //   ?start=0                screen to open on, for picking the poem up part
+  //                           way through
+  //
+  // The poem is three words to the line and nine lines to the stanza, so a
+  // screen of three lines is nine words - which is three words to a side of a
+  // triangle, and the reason group=3 and layout=triangle belong together.
+  //
+  //   ?layout=triangle        set each screen around an equilateral triangle,
+  //                           one line per side: the first along the base, the
+  //                           next up the right-hand side, the last up the
+  //                           left. Costs about half the type size of flat
+  //                           lines, because an equilateral triangle in a 16:9
+  //                           frame runs out of height long before it runs out
+  //                           of width.
+  //   ?trifollow=1            turn a third at a time so the line being written
+  //                           is always the one along the bottom, reading left
+  //                           to right. Finished lines ride up the other two
+  //                           sides, and the triangle has gone round once by
+  //                           the end of each screen. This is free: an
+  //                           equilateral triangle fills the same box whichever
+  //                           of its three faces is down, so it is only during
+  //                           the turn itself that it needs more room, and it
+  //                           gives back a little size for that moment.
+  //   ?triease=0.9            seconds each third of a turn takes. Nothing is
+  //                           written while it turns - otherwise the opening
+  //                           characters of every line go down while their side
+  //                           is still swinging - so this is time added to each
+  //                           line rather than overlapped with it, and a screen
+  //                           costs its lines times this. Drop the hold by as
+  //                           much to keep the old length.
+  //   ?trighost=6             how many older lines stay on screen behind the
+  //                           three that make the triangle. A line keeps its
+  //                           place in the turn, so three lines later it comes
+  //                           round to the same side again - and is drawn a
+  //                           step smaller and fainter each time rather than
+  //                           landing on the live one. The poem spirals into
+  //                           the middle of the seal and dims out, so nothing
+  //                           is cut and there is no seam between screens. 0
+  //                           for the three lines alone.
+  //   ?trighostz=0.62         size each step back, as a fraction. Below 1 they
+  //                           recede into the middle, which is where the room
+  //                           is; above 1 they swell outward and off the frame.
+  //                           Has to be under about 0.75 to clear the line in
+  //                           front of it.
+  //   ?trighostfade=0.55      brightness each step back
+  //   ?trispin=0              degrees a second, as a plain unending spin.
+  //                           Overrides trifollow, and costs a third of the
+  //                           type size, since a triangle turning through every
+  //                           angle has to stay inside its circumcircle.
+  //   ?triline=0              0-1 opacity of the triangle's own edges
+  //   ?tripad=0.86            fraction of each side the words may occupy, so
+  //                           the corners stay clear
+  //   ?live=1                 take direction from the controller over the
+  //                           hypermoon channel, and answer the keyboard. Off
+  //                           by default, so a terminal embedded in the moon's
+  //                           window ignores poem cues and keystrokes.
+  //
+  // Pace can be held to the music rather than to a stopwatch. Tap `t` along to
+  // the beat and every screen is then given a whole number of beats, however
+  // long its own lines are: the hold absorbs the difference, and the typing is
+  // only hurried if the words would not otherwise land in time.
+  //
+  //   ?beat=0                 seconds a beat, 0 for no lock. Tapping sets it.
+  //   ?beats=8                beats a screen when locked
+  //
+  // Keys, with ?live=1 (same set in the controller's poem panel). The arrows
+  // are on words rather than screens, so the poem can be walked along by hand
+  // in time with a reading: pause with space and it only moves when you move
+  // it. Shift gives a bigger step where there is one.
+  //
+  //   right/left  a word on / a word back, rolling into the next or previous
+  //               screen at either end
+  //   space       pause          home        restart
+  //   r t         type slower / faster       1-9   speed straight off
+  //   - =         hold shorter / longer      0     pace back to its defaults
+  //   pgdn/pgup   a screen on / back, which is what a presenter's clicker sends
+  //   b           tap the beat; shift+b drops the lock
+  //   , .         fewer / more beats a screen
   const params = new URLSearchParams(location.search);
   const num = (key, fallback) => {
     const v = Number.parseFloat(params.get(key));
     return Number.isFinite(v) ? v : fallback;
   };
   const WHEN = params.get("when") || "WEDNESDAY 22:00";
-  const CPS = num("cps", 17);
-  const FX = params.get("fx") !== "0";
+  let CPS = num("cps", 17);
+  let FX = params.get("fx") !== "0";
   const SAFE = num("safe", 0.1);
-  const HOLD = num("hold", 3.2); // seconds a finished screen stays up
+  let HOLD = num("hold", 3.2); // seconds a finished screen stays up
+  let BEAT = Math.max(0, num("beat", 0));  // seconds a beat, 0 = free running
+  let BEATS = Math.max(1, Math.round(num("beats", 8))); // beats a screen
+  const CPS0 = CPS, HOLD0 = HOLD; // what `0` puts the pace back to
+  // The 1-9 keys, from a crawl to faster than anyone reads aloud.
+  const SPEEDS = [4, 6, 8, 10, 13, 17, 22, 30, 40];
+  // Characters the reveal has been pushed on or held back by hand, cleared
+  // whenever the screen changes.
+  let nudge = 0;
+  let GROUP = Math.max(0, Math.round(num("group", 0))); // 0 = whole screen
+  let ALIGN = (params.get("align") || "left").toLowerCase() === "center" ? "center" : "left";
+  let VCENTER = params.get("vcenter") === "1";
+  let SCALE = Math.max(0.2, Math.min(3, num("scale", 1)));
+  let FIT = Math.max(0.5, Math.min(1, num("fit", 1)));
+  const START = Math.max(0, Math.round(num("start", 0)));
+  let TRI = (params.get("layout") || "").toLowerCase() === "triangle";
+  let TRISPIN = num("trispin", 0);
+  let TRIFOLLOW = params.get("trifollow") !== "0";
+  let TRIEASE = Math.max(0, num("triease", 0.9));
+  let TRILINE = Math.max(0, Math.min(1, num("triline", 0)));
+  let TRIGHOST = Math.max(0, Math.min(9, Math.round(num("trighost", 6))));
+  let TRIGHOSTZ = Math.max(0.2, Math.min(2, num("trighostz", 0.62)));
+  let TRIGHOSTFADE = Math.max(0.05, Math.min(0.95, num("trighostfade", 0.55)));
+  const TRIPAD = Math.max(0.4, Math.min(1, num("tripad", 0.86)));
+  let PAUSED = false;
+  const LIVE = params.get("live") === "1";
 
   const COLORS = {
     green:  ["#49ff7d", "#2bff62"],
@@ -39,12 +166,18 @@
     cyan:   ["#7df3ff", "#2bd9ff"],
     white:  ["#f2f4f6", "#c8d0da"]
   };
-  const colorKey = (params.get("color") || "green").toLowerCase();
-  const [INK, GLOW] = COLORS[colorKey]
-    || [("#" + colorKey).replace(/^##/, "#"), ("#" + colorKey).replace(/^##/, "#")];
+  let inkKey = "green", INK = "#49ff7d", GLOW = "#2bff62";
+  function setInk(key) {
+    inkKey = String(key || "green").toLowerCase();
+    const pair = COLORS[inkKey]
+      || [("#" + inkKey).replace(/^##/, "#"), ("#" + inkKey).replace(/^##/, "#")];
+    INK = pair[0];
+    GLOW = pair[1];
+  }
+  setInk(params.get("color") || "green");
 
   const TEXT_PARAM = params.get("text");
-  const frames = TEXT_PARAM
+  const SOURCE = TEXT_PARAM
     ? TEXT_PARAM.split("~").map((screen) => screen.split("|"))
     : [
         ["> CARRIER LOCKED", "> SELENE FREQUENCIES", "", "HYPERSTITION", "", WHEN],
@@ -53,6 +186,96 @@
         ["ASCEND THE LUNAR DISC", "VISUALIZE THE", "ADAMANTINE GEM", "", WHEN],
         ["VAJRAM AHAM", "", "(I AM A VAJRA)"]
       ];
+
+  // Split a screen into runs of about GROUP lines, evenly: nine lines at three
+  // to a screen is 3/3/3, but ten is 3/3/2/2 rather than 3/3/3/1, because a
+  // single line left over at the end of a stanza looks like a mistake.
+  function regroup(screens, size) {
+    if (!size) return screens.map((s) => s.slice());
+    const out = [];
+    for (const screen of screens) {
+      const n = screen.length;
+      if (n <= size) { out.push(screen.slice()); continue; }
+      const chunks = Math.ceil(n / size);
+      const base = Math.floor(n / chunks);
+      let extra = n % chunks;
+      let i = 0;
+      for (let c = 0; c < chunks; c++) {
+        const take = base + (extra > 0 ? 1 : 0);
+        if (extra > 0) extra--;
+        out.push(screen.slice(i, i + take));
+        i += take;
+      }
+    }
+    return out;
+  }
+
+  // The type size is fitted to the tallest and widest screen in the script, so
+  // it only changes when the script does - worth keeping off the draw loop now
+  // that a whole poem can be loaded.
+  const start = performance.now();
+  // The ungrouped screens, kept so the grouping can be changed live without
+  // reloading the poem.
+  let sourceScreens = SOURCE;
+  let frames = [];
+  let metrics = { maxLines: 1, longest: 1 };
+  let lastFs = 0;
+  let frameIdx = 0;
+  let frameStart = 0;
+
+  // The triangle's turn, and the lines it is still carrying. Declared up here
+  // because setFrames clears them and runs before the drawing code.
+  const THIRD = (2 * Math.PI) / 3;
+  // Thirds of a turn since the first line; where the eased turn has got to;
+  // how big the last step was, since a two-line screen makes it two thirds.
+  let triThirds = 0, triAhead = 1, triProg = 1;
+  let triAngle = 0, triFrom = 0, triTo = 0, triAt = 0, triKey = null;
+  // Every line still on screen, oldest first: the newest three make the
+  // triangle and the rest are receding inside it. `step` is the thirds count
+  // when the line was begun, which is both its age and its side.
+  let triLog = [];
+  let triTyped = 0; // characters shown of the newest line
+  // Where the triangle was last drawn, for the probes and tests.
+  let triWhere = { x: 0, y: 0, R: 0 };
+  function triReset() {
+    triLog = [];
+    triKey = null;
+    triThirds = 0; triAhead = 1; triProg = 1;
+    triAngle = 0; triFrom = 0; triTo = 0;
+  }
+
+  function setFrames(screens) {
+    triReset();
+    frames = screens.length ? screens : [[""]];
+    const lens = frames.flat().map((l) => l.length).sort((a, b) => a - b);
+    const at = Math.min(lens.length - 1, Math.floor(lens.length * FIT));
+    metrics = {
+      maxLines: Math.max(...frames.map((f) => f.length), 1),
+      longest: Math.max(lens[at] || 1, 1)
+    };
+    frameIdx = Math.min(START, frames.length - 1);
+    frameStart = (performance.now() - start) / 1000;
+  }
+
+  const POEM = params.get("poem");
+  if (POEM) {
+    fetch(POEM)
+      .then((r) => { if (!r.ok) throw new Error(r.status); return r.text(); })
+      .then((raw) => {
+        const stanzas = [];
+        let cur = [];
+        for (const line of raw.replace(/\r/g, "").split("\n")) {
+          const t = line.trim();
+          if (!t) { if (cur.length) { stanzas.push(cur); cur = []; } } else cur.push(t);
+        }
+        if (cur.length) stanzas.push(cur);
+        if (stanzas.length) {
+          sourceScreens = stanzas;
+          setFrames(regroup(stanzas, GROUP));
+        }
+      })
+      .catch((e) => console.warn("poem failed to load:", POEM, e));
+  }
 
   const canvas = document.getElementById("c");
   const ctx = canvas.getContext("2d");
@@ -63,50 +286,217 @@
   resize();
   window.addEventListener("resize", resize);
 
-  let frameIdx = 0;
-  let frameStart = 0;
-  const start = performance.now();
+  setFrames(regroup(SOURCE, GROUP));
 
+  // Type size for a given box, in one place so the draw and the size quoted to
+  // the controller cannot drift apart.
+  const ROOT3 = Math.sqrt(3);
+
+  // Where an equilateral triangle turned by `angle` sits in a box: the biggest
+  // circumradius that fits, and the shift that centres its bounding box on the
+  // frame. A triangle's centroid is not the middle of its bounding box - a
+  // standing one sits a quarter of the circumradius high - so it always needs
+  // that shift; working it out per angle is what lets the shape hold still and
+  // fill the frame while it turns.
+  function triGeom(angle, boxW, boxH) {
+    let x0 = 1, x1 = -1, y0 = 1, y1 = -1;
+    for (let k = 0; k < 3; k++) {
+      const a = -Math.PI / 2 + angle + k * THIRD;
+      const x = Math.cos(a), y = Math.sin(a);
+      x0 = Math.min(x0, x); x1 = Math.max(x1, x);
+      y0 = Math.min(y0, y); y1 = Math.max(y1, y);
+    }
+    const R = Math.min(boxW / (x1 - x0), boxH / (y1 - y0));
+    return { R, dx: -((x0 + x1) / 2) * R, dy: -((y0 + y1) / 2) * R };
+  }
+
+  function fitType(boxW, boxH, angle) {
+    if (!TRI) {
+      return { fs: SCALE * Math.min(boxH / (metrics.maxLines * 1.7), (boxW / metrics.longest) * 1.75) };
+    }
+    // A plain spin passes through every angle, so it has to stay inside its
+    // circumcircle for all of them and pays a third of its size for the
+    // privilege. Turning a third at a time does not: the three resting
+    // orientations of an equilateral triangle are the same shape, so it is
+    // full size whenever it is still and only draws in during a turn.
+    const g = TRISPIN !== 0
+      ? { R: Math.min(boxW, boxH) / 2, dx: 0, dy: 0 }
+      : triGeom(angle || 0, boxW, boxH);
+    const side = g.R * ROOT3;
+    // Words sit along a side, and are also kept clear of the middle - three
+    // sides each reaching inward would otherwise collide around the centre.
+    const fs = Math.min(
+      SCALE * ((side * TRIPAD) / metrics.longest) * 1.75,
+      g.R * 0.31
+    );
+    return { fs, R: g.R, side, dx: g.dx, dy: g.dy };
+  }
+
+  // The same fit, but against a 16:9 frame and with the triangle at rest, so
+  // the size can be quoted for the projector from a preview window of any
+  // shape. Capitals run about 0.7 of the em in this face.
+  function capFractionAt169() {
+    return 0.7 * fitType((16 / 9) * (1 - 2 * SAFE), 1 - 2 * SAFE, 0).fs;
+  }
+
+  // Advance the turn and the log of lines, and give back the angle to draw at.
+  // Counted in thirds of a turn and never wound back, so the triangle rolls one
+  // way for the whole poem rather than snapping home at every screen.
+  function triTurn(lines, t) {
+    const n = Math.min(lines.length, 3);
+    // Which line the cursor is on, and how far into it. Once the screen is full
+    // it stays on the last one, so a finished triangle rests with its newest
+    // line down.
+    let rem = revealed;
+    let cur = 0;
+    triTyped = rem;
+    for (let i = 0; i < n; i++) {
+      cur = i;
+      triTyped = rem;
+      if (rem < lines[i].length + 1) break;
+      rem -= lines[i].length + 1;
+    }
+
+    const key = frameIdx + ":" + cur;
+    if (key !== triKey) {
+      const first = triKey === null;
+      triKey = key;
+      // One third a line, always. Lines are placed relative to the newest, so
+      // there is nothing to keep in step modulo three - and a screen of two
+      // lines no longer has to swing two thirds at once to get back in phase.
+      const ahead = first ? 0 : 1;
+      triThirds += ahead;
+      triAhead = ahead;
+      // The rest angle is zero, because the newest line is drawn at the angle
+      // and zero is the base. Advancing the count shifts every line already up
+      // there back by a third at once, so the turn starts a third ahead and
+      // eases home: the words move, the line being written arrives at the base.
+      triFrom = ahead * THIRD;
+      triTo = 0;
+      triAt = t;
+      triLog.push({ text: lines[cur] || "", step: triThirds });
+      // Three lines make the triangle and the rest are the receding tail.
+      if (triLog.length > 3 + TRIGHOST) triLog = triLog.slice(-(3 + TRIGHOST));
+    }
+
+    const k = TRIEASE > 0 ? Math.min(1, (t - triAt) / TRIEASE) : 1;
+    triProg = k < 0.5 ? 4 * k * k * k : 1 - Math.pow(2 - 2 * k, 3) / 2;
+    if (TRISPIN !== 0) return (triAngle = (TRISPIN * t * Math.PI) / 180);
+    // Held still, the shape never moves and the lines take the three sides in
+    // turn instead - which is the same drawing with the turn cancelled out.
+    if (!TRIFOLLOW) return (triAngle = triThirds * THIRD);
+    triAngle = triFrom + (triTo - triFrom) * triProg;
+    return triAngle;
+  }
+
+  // The rate actually typed at this screen, which is CPS unless a beat lock is
+  // hurrying it along, and how many characters of it are down.
+  let pace = CPS;
+  let revealed = 0;
+  // Characters' worth of time given to the turns rather than to the words.
+  let stall = 0, lastDrawAt = 0;
+  let clock = 0, wasAt = performance.now();
   function draw() {
-    const t = (performance.now() - start) / 1000;
+    // A pause holds the clock rather than the frame, so nothing jumps when it
+    // is let go again.
+    const nowMs = performance.now();
+    if (!PAUSED) clock += nowMs - wasAt;
+    wasAt = nowMs;
+    const t = clock / 1000;
     const W = canvas.width, H = canvas.height;
     const lines = frames[frameIdx % frames.length];
     const totalChars = lines.reduce((a, l) => a + l.length + 1, 0);
-    const shown = Math.floor((t - frameStart) * CPS);
-    if (shown > totalChars + HOLD * CPS) {
+    // Held to the beat, a screen gets a fixed slice of time whatever its lines
+    // are, and the hold soaks up the difference. Typing is only hurried when
+    // the words would not otherwise be down in time - the operator's chosen
+    // speed is the floor, never the target.
+    const period = BEAT > 0 ? BEAT * BEATS : 0;
+    // A locked screen also has to fit its turns, which are time the words are
+    // not being written in.
+    const turns = TRI && TRIFOLLOW && TRISPIN === 0 ? lines.length * TRIEASE : 0;
+    pace = period > 0
+      ? Math.max(CPS, totalChars / Math.max(0.1, period * 0.85 - turns))
+      : CPS;
+    // Nothing is written while the triangle is turning. Otherwise the first
+    // characters of every line go down while the side they belong to is still
+    // swinging into place, which is the one thing the turn exists to prevent -
+    // and the slower and more legible the turn, the more of the line it spoils.
+    const dt = Math.max(0, Math.min(0.25, t - lastDrawAt));
+    lastDrawAt = t;
+    if (turns && triKey !== null && t - triAt < TRIEASE) stall += pace * dt;
+    // How much of this screen is written. Everything downstream reads this one
+    // number, so walking the poem on by hand moves the words, the triangle's
+    // turn and the roll into the next screen together.
+    revealed = Math.max(0, Math.floor((t - frameStart) * pace - stall) + nudge);
+    // Held to a beat the clock owns the roll, so a nudge moves the words
+    // within the screen without stealing time from the next one.
+    const done = period > 0
+      ? t - frameStart >= period
+      : revealed > totalChars + HOLD * pace;
+    if (done) {
       frameIdx++;
       frameStart = t;
+      nudge = 0; stall = 0;
+      revealed = 0;
     }
 
     ctx.fillStyle = "#020703";
     ctx.fillRect(0, 0, W, H);
 
-    // Fit the longest screen inside the overscan-safe box.
-    const x0 = W * SAFE, y0 = H * (SAFE + 0.02);
+    // Fit the tallest and widest screen inside the overscan-safe box.
     const boxW = W * (1 - 2 * SAFE), boxH = H * (1 - 2 * SAFE);
-    const maxLines = Math.max(...frames.map((f) => f.length));
-    const longest = Math.max(...frames.flat().map((l) => l.length), 1);
-    const fs = Math.min(boxH / (maxLines * 1.7), (boxW / longest) * 1.75);
+    const angle = TRI ? triTurn(lines, t) : 0;
+    const fit = fitType(boxW, boxH, angle);
+    const fs = fit.fs;
+    lastFs = fs;
+    const step = fs * 1.7;
+
+    if (TRI) {
+      drawTriangle(fit, angle, t, W, H);
+      if (FX) drawFx(t, W, H);
+      requestAnimationFrame(draw);
+      return;
+    }
+    // Centred vertically on the lines this screen actually has, but using the
+    // full count rather than the count typed so far, so the block does not
+    // creep upward as it fills.
+    const y0 = VCENTER
+      ? H / 2 - (lines.length * step) / 2
+      : H * (SAFE + 0.02);
+    const x0 = ALIGN === "center" ? W / 2 : W * SAFE;
     ctx.font = `bold ${fs}px "JetBrains Mono", "Menlo", monospace`;
+    ctx.textAlign = ALIGN === "center" ? "center" : "left";
     ctx.textBaseline = "top";
     ctx.shadowColor = GLOW;
     ctx.shadowBlur = FX ? fs * 0.32 : fs * 0.18;
     ctx.fillStyle = INK;
 
-    let budget = Math.floor((t - frameStart) * CPS);
+    let budget = revealed;
     lines.forEach((line, i) => {
       if (budget <= 0) return;
       const part = line.slice(0, budget);
       budget -= line.length + 1;
-      ctx.fillText(part, x0, y0 + i * fs * 1.7);
+      const y = y0 + i * step;
+      // The width cap condenses the occasional line that runs past the box
+      // rather than letting it off the edge - only in play when fit < 1.
+      ctx.fillText(part, x0, y, boxW);
       // Blinking block cursor at the end of the last typed line.
       if (budget <= 0 && Math.floor(t * 2.4) % 2 === 0) {
-        ctx.fillRect(x0 + ctx.measureText(part).width + fs * 0.2, y0 + i * fs * 1.7, fs * 0.55, fs * 0.9);
+        const w = Math.min(ctx.measureText(part).width, boxW);
+        const cx = ALIGN === "center" ? x0 + w / 2 : x0 + w;
+        ctx.fillRect(cx + fs * 0.2, y, fs * 0.55, fs * 0.9);
       }
     });
     ctx.shadowBlur = 0;
+    ctx.textAlign = "left";
 
-    if (FX) {
+    if (FX) drawFx(t, W, H);
+
+    requestAnimationFrame(draw);
+  }
+
+  function drawFx(t, W, H) {
+    {
       // Scanlines, slow roll bar, edge vignette, faint flicker.
       ctx.fillStyle = "rgba(0,0,0,0.28)";
       for (let y = 0; y < H; y += 4) ctx.fillRect(0, y, W, 2);
@@ -125,8 +515,85 @@
       ctx.fillStyle = `rgba(0,0,0,${0.04 + 0.03 * Math.sin(t * 11.3) * Math.sin(t * 3.1)})`;
       ctx.fillRect(0, 0, W, H);
     }
+  }
 
-    requestAnimationFrame(draw);
+  // One line to a side of an equilateral triangle, starting at the base and
+  // going up the right. Every side is the same draw seen from a different
+  // angle, so the whole thing is one rotation about the centroid: the words are
+  // laid along the base and the frame is turned under them a third at a time.
+  //
+  // A line is not finished with when its screen is. It keeps its place in the
+  // turn, so after three more lines it comes round to the same side again - and
+  // rather than land on top of the live one it is drawn smaller and fainter,
+  // one step further into the middle. The poem therefore spirals inward and
+  // dims out instead of being cut at each screen, and there is no visible seam
+  // between one screen and the next.
+  function drawTriangle(fit, spin, t, W, H) {
+    const R = fit.R, fs = fit.fs;
+    const cx = W / 2 + fit.dx, cy = H / 2 + fit.dy;
+    const inradius = R / 2;
+    const room = R * ROOT3 * TRIPAD;
+    ctx.textAlign = "center";
+    ctx.textBaseline = "alphabetic";
+
+    if (TRILINE > 0) {
+      ctx.save();
+      ctx.translate(cx, cy);
+      ctx.rotate(spin);
+      ctx.beginPath();
+      for (let i = 0; i < 3; i++) {
+        const a = -Math.PI / 2 + i * THIRD;
+        const x = Math.cos(a) * R, y = Math.sin(a) * R;
+        if (i === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
+      }
+      ctx.closePath();
+      ctx.globalAlpha = TRILINE;
+      ctx.strokeStyle = INK;
+      ctx.lineWidth = Math.max(1, fs * 0.03);
+      ctx.stroke();
+      ctx.globalAlpha = 1;
+      ctx.restore();
+    }
+
+    ctx.shadowColor = GLOW;
+    ctx.fillStyle = INK;
+    // How far the turn has got, in thirds, as a real number: the same quantity
+    // the angle is interpolating, so a line's retreat happens over exactly the
+    // turn that displaces it rather than jumping when the turn is over.
+    const now = triThirds - (1 - triProg) * triAhead;
+    // Oldest first, so the live line is laid over its own ghosts.
+    triLog.forEach((entry, i) => {
+      const live = i === triLog.length - 1;
+      const text = live ? entry.text.slice(0, Math.max(0, triTyped)) : entry.text;
+      if (!text && !live) return;
+      // Nothing recedes until it has been round once - the newest three lines
+      // are the triangle and stay on it at full size.
+      const back = Math.max(0, now - entry.step - 2);
+      const z = Math.pow(TRIGHOSTZ, back);
+      const alpha = Math.pow(TRIGHOSTFADE, back);
+      if (alpha < 0.02 || z < 0.02) return;
+      const efs = fs * z;
+      ctx.save();
+      ctx.translate(cx, cy);
+      // Negative thirds of a turn run the sides base, right, left.
+      ctx.rotate(spin - (triThirds - entry.step) * THIRD);
+      ctx.globalAlpha = alpha;
+      ctx.font = `bold ${efs}px "JetBrains Mono", "Menlo", monospace`;
+      ctx.shadowBlur = (FX ? fs * 0.32 : fs * 0.18) * z;
+      // The baseline sits on the side itself - the incircle touches each side
+      // at its midpoint - so the words rest on the edge and grow inward.
+      ctx.fillText(text, 0, inradius * z, room * z);
+      if (live && Math.floor(t * 2.4) % 2 === 0) {
+        const w = Math.min(ctx.measureText(text).width, room * z);
+        ctx.fillRect(w / 2 + efs * 0.2, inradius * z - efs * 0.72, efs * 0.55, efs * 0.9);
+      }
+      ctx.restore();
+    });
+    ctx.globalAlpha = 1;
+    ctx.shadowBlur = 0;
+    ctx.textAlign = "left";
+    ctx.textBaseline = "top";
+    triWhere = { x: cx, y: cy, R };
   }
   draw();
 
@@ -134,10 +601,238 @@
   window.__hyperstitionStats = {
     layout: "crt-terminal",
     when: WHEN,
-    color: colorKey,
-    fx: FX,
-    get frame() { return frameIdx; }
+    poem: POEM || "",
+    get color() { return inkKey; },
+    get fx() { return FX; },
+    get group() { return GROUP; },
+    get align() { return ALIGN; },
+    get shape() { return TRI ? "triangle" : "lines"; },
+    get trifollow() { return TRIFOLLOW; },
+    get triAngle() { return triAngle; },
+    // Which way up the line being written is, in degrees off the base, signed
+    // and wrapped. Zero is along the bottom reading left to right, which is
+    // where it has to come to rest - the angle alone cannot say, since the
+    // lines are placed relative to it.
+    get triLive() {
+      const deg = ((((triAngle * 180) / Math.PI) % 360) + 360) % 360;
+      return deg > 180 ? deg - 360 : deg;
+    },
+    // Settled, as against merely close: the last degree of the ease still
+    // creeps every line by a few pixels, which is a lot of changed screen.
+    get triSettled() { return triProg >= 1; },
+    get triGhosts() { return Math.max(0, triLog.length - 3); },
+    get triWhere() { return { x: triWhere.x, y: triWhere.y, R: triWhere.R }; },
+    get scale() { return SCALE; },
+    get cps() { return CPS; },
+    get pace() { return pace; },
+    get hold() { return HOLD; },
+    get beat() { return BEAT; },
+    get beats() { return BEATS; },
+    get paused() { return PAUSED; },
+    get frame() { return frameIdx % frames.length; },
+    get frames() { return frames.length; },
+    get fontPx() { return lastFs; },
+    get lines() { return (frames[frameIdx % frames.length] || []).join(" / "); },
+    // What is actually down on the screen at this moment, as against the whole
+    // screen's worth in `lines`.
+    get written() {
+      let rem = revealed;
+      const out = [];
+      for (const line of frames[frameIdx % frames.length] || []) {
+        if (rem <= 0) break;
+        out.push(line.slice(0, rem));
+        rem -= line.length + 1;
+      }
+      return out.join(" ").trim();
+    }
   };
+
+  const state = () => ({
+    type: "poemState",
+    state: {
+      color: inkKey, cps: CPS, group: GROUP, align: ALIGN, scale: SCALE,
+      fx: FX, vcenter: VCENTER, hold: HOLD, paused: PAUSED, fit: FIT,
+      layout: TRI ? "triangle" : "lines", trispin: TRISPIN, triline: TRILINE,
+      trifollow: TRIFOLLOW, triease: TRIEASE,
+      trighost: TRIGHOST, trighostz: TRIGHOSTZ, trighostfade: TRIGHOSTFADE,
+      beat: BEAT, beats: BEATS, pace: pace,
+      frame: frameIdx % frames.length, frames: frames.length, poem: POEM || "",
+      fontPx: lastFs, viewH: canvas.height,
+      // Capital height as a fraction of screen height, worked out for a 16:9
+      // surface rather than for whatever shape this window happens to be.
+      // The fit is width-bound at three lines, so a preview window in a
+      // normal browser - taller and narrower than 16:9 - would otherwise
+      // report type a third smaller than the projector will show.
+      capFrac169: capFractionAt169()
+    }
+  });
+
+  // Tapped tempo. Wall time rather than the poem's clock, so tapping through a
+  // pause still measures the room. A gap longer than a couple of seconds is
+  // taken as a fresh count-in rather than a very slow beat.
+  const BEATS0 = BEATS;
+  let taps = [];
+  function tapBeat() {
+    const now = performance.now() / 1000;
+    if (taps.length && now - taps[taps.length - 1] > 2.5) taps = [];
+    taps.push(now);
+    if (taps.length > 5) taps.shift();
+    if (taps.length > 1) BEAT = (taps[taps.length - 1] - taps[0]) / (taps.length - 1);
+  }
+
+  // Where a word ends on the current screen, counted the way the reveal counts:
+  // every line costs its length and one more for the break.
+  function wordEnds() {
+    const lines = frames[frameIdx % frames.length];
+    const out = [];
+    let base = 0;
+    for (const line of lines) {
+      const word = /\S+/g;
+      let m;
+      while ((m = word.exec(line))) out.push(base + m.index + m[0].length);
+      base += line.length + 1;
+      out.push(base);
+    }
+    return out.filter((v, i) => i === 0 || v !== out[i - 1]);
+  }
+
+  // Walk the poem on or back a word by hand. Paused, this is the only thing
+  // that moves it, which is how it is driven along with a reading.
+  function stepWord(dir) {
+    const ends = wordEnds();
+    let target = null;
+    if (dir > 0) {
+      target = ends.find((b) => b > revealed);
+      if (target == null) { applyCue({ step: 1 }); return; }
+    } else {
+      for (const b of ends) if (b < revealed) target = b;
+      if (target == null) {
+        // Back off the top of a screen lands on the one before, written out.
+        applyCue({ step: -1 });
+        const done = wordEnds();
+        nudge = revealed = done.length ? done[done.length - 1] : 0;
+        return;
+      }
+    }
+    nudge += target - revealed;
+    revealed = target;
+  }
+
+  // Every change the poem screen answers to, from the controller or the
+  // keyboard, in one place so the two cannot drift apart.
+  function applyCue(s) {
+    if (s.pace != null) {
+      const big = !!Number(s.big);
+      switch (String(s.pace)) {
+        case "slower": CPS = Math.max(1, CPS - (big ? 5 : 1)); break;
+        case "faster": CPS = Math.min(400, CPS + (big ? 5 : 1)); break;
+        case "shorter": HOLD = Math.max(0, HOLD - (big ? 1 : 0.2)); break;
+        case "longer": HOLD = Math.min(60, HOLD + (big ? 1 : 0.2)); break;
+        case "fewer": BEATS = Math.max(1, BEATS - (big ? 4 : 1)); break;
+        case "more": BEATS = Math.min(64, BEATS + (big ? 4 : 1)); break;
+        case "tap": tapBeat(); break;
+        case "free": BEAT = 0; taps = []; break;
+        case "speed": CPS = SPEEDS[Math.max(1, Math.min(9, Math.round(Number(s.n) || 5))) - 1]; break;
+        case "reset":
+          CPS = CPS0; HOLD = HOLD0; BEAT = 0; BEATS = BEATS0; taps = []; nudge = 0;
+          break;
+      }
+    }
+    if (s.word != null) stepWord(Number(s.word) > 0 ? 1 : -1);
+    if (s.beat != null) { BEAT = Math.max(0, Number(s.beat) || 0); taps = []; }
+    if (s.beats != null) BEATS = Math.max(1, Math.min(64, Math.round(Number(s.beats) || 8)));
+    if (s.color != null) setInk(String(s.color));
+    if (s.cps != null) CPS = Math.max(1, Number(s.cps) || CPS);
+    if (s.hold != null) HOLD = Math.max(0, Number(s.hold));
+    if (s.scale != null) SCALE = Math.max(0.2, Math.min(3, Number(s.scale) || 1));
+    if (s.fit != null) {
+      FIT = Math.max(0.5, Math.min(1, Number(s.fit) || 1));
+      setFrames(regroup(sourceScreens, GROUP));
+    }
+    if (s.fx != null) FX = !!Number(s.fx);
+    if (s.vcenter != null) VCENTER = !!Number(s.vcenter);
+    if (s.align != null) ALIGN = String(s.align) === "center" ? "center" : "left";
+    if (s.layout != null) TRI = String(s.layout) === "triangle";
+    if (s.trispin != null) TRISPIN = Number(s.trispin) || 0;
+    if (s.trifollow != null) TRIFOLLOW = !!Number(s.trifollow);
+    if (s.triease != null) TRIEASE = Math.max(0, Number(s.triease) || 0);
+    if (s.trighost != null) TRIGHOST = Math.max(0, Math.min(9, Math.round(Number(s.trighost) || 0)));
+    if (s.trighostz != null) TRIGHOSTZ = Math.max(0.2, Math.min(2, Number(s.trighostz) || 0.62));
+    if (s.trighostfade != null) TRIGHOSTFADE = Math.max(0.05, Math.min(0.95, Number(s.trighostfade) || 0.55));
+    if (s.triline != null) TRILINE = Math.max(0, Math.min(1, Number(s.triline) || 0));
+    if (s.paused != null) PAUSED = !!Number(s.paused);
+    if (s.group != null) {
+      GROUP = Math.max(0, Math.round(Number(s.group) || 0));
+      // Regrouping renumbers the screens, so hold the place by stanza.
+      setFrames(regroup(sourceScreens, GROUP));
+    }
+    if (s.step != null) {
+      frameIdx = (frameIdx + Number(s.step) + frames.length) % frames.length;
+      frameStart = clock / 1000;
+      nudge = 0; stall = 0; revealed = 0;
+    }
+    if (s.frame != null) {
+      frameIdx = Math.max(0, Math.min(frames.length - 1, Math.round(Number(s.frame))));
+      frameStart = clock / 1000;
+      nudge = 0; stall = 0; revealed = 0;
+    }
+    if (s.restart != null) {
+      frameIdx = 0; frameStart = clock / 1000;
+      nudge = 0; stall = 0; revealed = 0;
+    }
+  }
+
+  // Live direction from the controller. Deliberately opt-in: a terminal
+  // embedded in the moon's window is on the same channel and has no business
+  // answering poem cues or keystrokes.
+  const ch = (LIVE && "BroadcastChannel" in window) ? new BroadcastChannel("hypermoon") : null;
+  if (ch) {
+    ch.addEventListener("message", (e) => {
+      const msg = e.data;
+      if (!msg || typeof msg !== "object") return;
+      if (msg.type === "poemRequestState") { ch.postMessage(state()); return; }
+      if (msg.type !== "poemConfig" || !msg.set) return;
+      applyCue(msg.set);
+      ch.postMessage(state());
+    });
+    ch.postMessage(state());
+    // Screens advance on their own, so the controller's readout would otherwise
+    // go stale between cues.
+    setInterval(() => ch.postMessage(state()), 1000);
+  }
+
+  // The poem window is the one that is fullscreen on the projector, so it has
+  // to be drivable from the keyboard without going back to the controller.
+  if (LIVE) {
+    const nudger = (name) => (big) => ({ pace: name, big });
+    // Shifted punctuation arrives as a different key entirely, so the bigger
+    // step needs the shifted character listed alongside the plain one.
+    const KEYS = {
+      " ": () => ({ paused: PAUSED ? 0 : 1 }),
+      ArrowRight: () => ({ word: 1 }),
+      ArrowLeft: () => ({ word: -1 }),
+      PageDown: () => ({ step: 1 }),
+      PageUp: () => ({ step: -1 }),
+      Home: () => ({ restart: 1 }),
+      r: nudger("slower"),
+      t: nudger("faster"),
+      "-": nudger("shorter"), _: nudger("shorter"),
+      "=": nudger("longer"), "+": nudger("longer"),
+      ",": nudger("fewer"), "<": nudger("fewer"),
+      ".": nudger("more"), ">": nudger("more"),
+      b: (big) => ({ pace: big ? "free" : "tap" }),
+      0: () => ({ pace: "reset" })
+    };
+    for (let i = 1; i <= 9; i++) KEYS[String(i)] = () => ({ pace: "speed", n: i });
+    window.addEventListener("keydown", (e) => {
+      if (e.metaKey || e.ctrlKey || e.altKey) return;
+      const make = KEYS[e.key] || KEYS[e.key.toLowerCase()];
+      if (!make) return;
+      e.preventDefault();
+      applyCue(make(e.shiftKey ? 1 : 0));
+      if (ch) ch.postMessage(state());
+    });
+  }
 })();
 </script>
 </body>

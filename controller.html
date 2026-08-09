@@ -780,6 +780,80 @@
         </div>
         <div id="hmStateReadout" style="font-size:10px;color:rgba(207,233,255,0.62);margin-top:6px;word-break:break-all;line-height:1.4;">no hypermoon window connected yet — open one above</div>
     </div>
+    <div class="input-group" id="poemPanel" style="grid-column: 1 / -1;">
+        Poem screen (second projector):
+        <div class="muted" style="font-size:11px;color:rgba(207,233,255,0.62);margin:4px 0 8px;line-height:1.4;">
+          The poem on its own surface, beside the moon. Sized for a projection rather than a monitor:
+          fewer lines at once means bigger type, and the readout below tells you how far back it reads.
+          Put this window on the second output and leave the moon on the first.
+        </div>
+        <div style="display:flex;flex-wrap:wrap;gap:8px;margin:6px 0;align-items:center;">
+          <input type="button" id="poemOpenButton" value="open poem output"/>
+          text <input type="text" id="poemSrcInput" value="trinitypoem.txt" size="18"/>
+          look
+          <select id="poemColorSelect">
+            <option value="white">quiet (white)</option>
+            <option value="green">transmission (green)</option>
+            <option value="amber">amber</option>
+            <option value="cyan">cyan</option>
+            <option value="purple">purple</option>
+          </select>
+          <label><input type="checkbox" id="poemFxCheck"/> phosphor fx</label>
+          shape
+          <select id="poemShapeSelect">
+            <option value="lines">flat lines</option>
+            <option value="triangle">triangle (a line per side)</option>
+          </select>
+        </div>
+        <div id="poemTriRow" style="display:none;flex-wrap:wrap;gap:14px;margin:6px 0;align-items:center;">
+          <span style="font-size:11px;color:rgba(207,233,255,0.62);">three words a side — nine words is one screen of three lines</span>
+          <label><input type="checkbox" id="poemFollowCheck" checked/> turn to the line being written</label>
+          <label>turn takes <input type="range" id="poemEaseSlider" min="0" max="2" step="0.05" value="0.9" style="width:90px;vertical-align:middle;"/> <span id="poemEaseVal">0.90</span>s</label>
+          <label>edges <input type="range" id="poemLineSlider" min="0" max="1" step="0.02" value="0" style="width:90px;vertical-align:middle;"/> <span id="poemLineVal">0.00</span></label>
+          <label>free spin <input type="range" id="poemSpinSlider" min="0" max="20" step="0.5" value="0" style="width:80px;vertical-align:middle;"/> <span id="poemSpinVal">0</span>°/s</label>
+          <span style="font-size:11px;color:rgba(207,233,255,0.62);">a free spin overrides the turn and costs a third of the type size</span>
+          <span style="flex-basis:100%;height:0;"></span>
+          <span style="font-size:11px;color:rgba(207,233,255,0.62);">older lines keep turning and sink into the middle instead of being cut — so there is no seam between screens</span>
+          <label>trail <input type="range" id="poemGhostSlider" min="0" max="9" step="1" value="6" style="width:90px;vertical-align:middle;"/> <span id="poemGhostVal">6</span> lines</label>
+          <label>depth <input type="range" id="poemGhostZSlider" min="0.4" max="0.75" step="0.01" value="0.62" style="width:90px;vertical-align:middle;"/> <span id="poemGhostZVal">0.62</span></label>
+          <label>dim <input type="range" id="poemGhostFadeSlider" min="0.2" max="0.85" step="0.05" value="0.55" style="width:90px;vertical-align:middle;"/> <span id="poemGhostFadeVal">0.55</span></label>
+        </div>
+        <div style="display:flex;flex-wrap:wrap;gap:14px;margin:6px 0;align-items:center;">
+          <label>lines at once <input type="range" id="poemGroupSlider" min="1" max="10" step="1" value="3" style="width:110px;vertical-align:middle;"/> <span id="poemGroupVal">3</span></label>
+          <label>size <input type="range" id="poemScaleSlider" min="0.5" max="1.6" step="0.05" value="1" style="width:100px;vertical-align:middle;"/> <span id="poemScaleVal">1.00</span></label>
+          <label>speed <input type="range" id="poemCpsSlider" min="4" max="40" step="1" value="13" style="width:100px;vertical-align:middle;"/> <span id="poemCpsVal">13</span> cps</label>
+          <label>hold <input type="range" id="poemHoldSlider" min="0" max="12" step="0.2" value="3.2" style="width:90px;vertical-align:middle;"/> <span id="poemHoldVal">3.2</span>s</label>
+        </div>
+        <div style="display:flex;flex-wrap:wrap;gap:8px;margin:6px 0;align-items:center;">
+          <input type="button" id="poemPrevButton" value="&#8592; back"/>
+          <input type="button" id="poemPauseButton" value="pause"/>
+          <input type="button" id="poemNextButton" value="forward &#8594;"/>
+          <input type="button" id="poemRestartButton" value="restart"/>
+          screen height <input type="number" id="poemScreenCm" value="226" min="50" max="800" step="1" style="width:64px;"/> cm
+        </div>
+        <div style="display:flex;flex-wrap:wrap;gap:8px;margin:6px 0;align-items:center;">
+          <input type="button" id="poemTapButton" value="tap the beat"/>
+          <input type="button" id="poemFreeButton" value="drop the lock"/>
+          <label>beats a screen <input type="range" id="poemBeatsSlider" min="1" max="32" step="1" value="8" style="width:110px;vertical-align:middle;"/> <span id="poemBeatsVal">8</span></label>
+          <span id="poemTempoVal" style="font-size:11px;color:rgba(207,233,255,0.62);">free running</span>
+        </div>
+        <div style="font-size:11px;color:rgba(207,233,255,0.62);margin:2px 0 0;line-height:1.5;">
+          Tap four or more beats along to the music and every screen is then given a whole number of them,
+          however long its own lines are — the hold absorbs the difference, and the typing is only hurried
+          if the words would not otherwise land in time.
+        </div>
+        <div style="font-size:10px;color:rgba(207,233,255,0.5);margin-top:6px;line-height:1.6;">
+          Keys, here and in the poem window itself (hold shift for a bigger step). The arrows walk the poem
+          word by word, so pausing with <b>space</b> and driving it by hand keeps it with a reading:<br/>
+          <b>&#8594; &#8592;</b> a word on / back, rolling into the next or previous screen at either end ·
+          <b>space</b> pause · <b>home</b> restart ·
+          <b>r t</b> type slower / faster · <b>1&#8211;9</b> speed straight off ·
+          <b>- =</b> hold shorter / longer · <b>0</b> pace back to its defaults ·
+          <b>pgdn pgup</b> a whole screen, which is what a presenter's clicker sends ·
+          <b>b</b> tap the beat, <b>shift+b</b> drop it · <b>, .</b> fewer / more beats a screen
+        </div>
+        <div id="poemReadout" style="font-size:10px;color:rgba(207,233,255,0.62);margin-top:6px;line-height:1.4;">no poem window connected yet — open one above</div>
+    </div>
     <div class="input-group" id="audioDeckPanel" style="grid-column: 1 / -1;">
         <b>Audio deck</b>
         <span style="color:rgba(207,233,255,0.5);font-size:10px;">looped bed + interjections on a period — plays from this window; feed the PA from here</span>
@@ -2537,6 +2611,198 @@ document.getElementById('hmVideoPicker').addEventListener('change', function() {
     const v = this.value.trim();
     if (v) hmSendVideo(v);
 });
+
+// ── Poem screen: crt-terminal.html on the second projector, sharing the
+// hypermoon channel under its own message type so a terminal embedded in the
+// moon's window ignores it. The type size is not free - it is fitted to the
+// tallest and widest screen in the script - so the readout converts it into the
+// distance the back row can actually read from.
+function poemSend(set) {
+    if (hmChannel) hmChannel.postMessage({ type: 'poemConfig', set: set });
+}
+// The slider's top notch means the whole stanza however long it is, rather
+// than nine lines - one stanza runs to ten and would otherwise break in half.
+function poemGroup() {
+    const v = +document.getElementById('poemGroupSlider').value;
+    return v >= 10 ? 0 : v;
+}
+function poemQuery() {
+    const q = new URLSearchParams();
+    q.set('poem', document.getElementById('poemSrcInput').value.trim() || 'trinitypoem.txt');
+    q.set('group', String(poemGroup()));
+    q.set('cps', document.getElementById('poemCpsSlider').value);
+    q.set('hold', document.getElementById('poemHoldSlider').value);
+    q.set('beats', document.getElementById('poemBeatsSlider').value);
+    q.set('scale', document.getElementById('poemScaleSlider').value);
+    q.set('color', document.getElementById('poemColorSelect').value);
+    q.set('fx', document.getElementById('poemFxCheck').checked ? '1' : '0');
+    // Centred, middle of the frame, edges kept clear, and the width fitted just
+    // shy of the longest line so two freak lines do not shrink all 243.
+    q.set('align', 'center');
+    q.set('vcenter', '1');
+    q.set('safe', '0.06');
+    q.set('fit', '0.97');
+    q.set('live', '1');
+    const shape = document.getElementById('poemShapeSelect').value;
+    if (shape === 'triangle') {
+        q.set('layout', 'triangle');
+        q.set('trispin', document.getElementById('poemSpinSlider').value);
+        q.set('trifollow', document.getElementById('poemFollowCheck').checked ? '1' : '0');
+        q.set('triease', document.getElementById('poemEaseSlider').value);
+        q.set('triline', document.getElementById('poemLineSlider').value);
+        q.set('trighost', document.getElementById('poemGhostSlider').value);
+        q.set('trighostz', document.getElementById('poemGhostZSlider').value);
+        q.set('trighostfade', document.getElementById('poemGhostFadeSlider').value);
+    }
+    return 'crt-terminal.html?' + q.toString();
+}
+document.getElementById('poemOpenButton').addEventListener('click', function() {
+    window.open(appUrl(poemQuery()), 'poemOutput');
+    setTimeout(function() { if (hmChannel) hmChannel.postMessage({ type: 'poemRequestState' }); }, 1200);
+});
+[['poemScaleSlider', 'poemScaleVal', 'scale', 2],
+ ['poemCpsSlider', 'poemCpsVal', 'cps', 0], ['poemHoldSlider', 'poemHoldVal', 'hold', 1]
+].forEach(function(row) {
+    const el = document.getElementById(row[0]);
+    el.addEventListener('input', function() {
+        document.getElementById(row[1]).textContent = (+this.value).toFixed(row[3]);
+        const set = {};
+        set[row[2]] = +this.value;
+        poemSend(set);
+    });
+});
+document.getElementById('poemGroupSlider').addEventListener('input', function() {
+    const g = poemGroup();
+    document.getElementById('poemGroupVal').textContent = g ? String(g) : 'stanza';
+    poemSend({ group: g });
+});
+document.getElementById('poemColorSelect').addEventListener('change', function() { poemSend({ color: this.value }); });
+document.getElementById('poemShapeSelect').addEventListener('change', function() {
+    document.getElementById('poemTriRow').style.display = this.value === 'triangle' ? 'flex' : 'none';
+    poemSend({ layout: this.value });
+});
+document.getElementById('poemSpinSlider').addEventListener('input', function() {
+    document.getElementById('poemSpinVal').textContent = (+this.value).toFixed(1);
+    poemSend({ trispin: +this.value });
+});
+document.getElementById('poemLineSlider').addEventListener('input', function() {
+    document.getElementById('poemLineVal').textContent = (+this.value).toFixed(2);
+    poemSend({ triline: +this.value });
+});
+document.getElementById('poemFollowCheck').addEventListener('change', function() {
+    poemSend({ trifollow: this.checked ? 1 : 0 });
+});
+document.getElementById('poemEaseSlider').addEventListener('input', function() {
+    document.getElementById('poemEaseVal').textContent = (+this.value).toFixed(2);
+    poemSend({ triease: +this.value });
+});
+[['poemGhostSlider', 'poemGhostVal', 'trighost', 0],
+ ['poemGhostZSlider', 'poemGhostZVal', 'trighostz', 2],
+ ['poemGhostFadeSlider', 'poemGhostFadeVal', 'trighostfade', 2]
+].forEach(function(row) {
+    document.getElementById(row[0]).addEventListener('input', function() {
+        document.getElementById(row[1]).textContent = (+this.value).toFixed(row[3]);
+        const set = {};
+        set[row[2]] = +this.value;
+        poemSend(set);
+    });
+});
+document.getElementById('poemFxCheck').addEventListener('change', function() { poemSend({ fx: this.checked ? 1 : 0 }); });
+document.getElementById('poemNextButton').addEventListener('click', function() { poemSend({ step: 1 }); });
+document.getElementById('poemPrevButton').addEventListener('click', function() { poemSend({ step: -1 }); });
+document.getElementById('poemRestartButton').addEventListener('click', function() { poemSend({ restart: 1 }); });
+let poemPaused = false;
+document.getElementById('poemPauseButton').addEventListener('click', function() {
+    poemPaused = !poemPaused;
+    this.value = poemPaused ? 'resume' : 'pause';
+    poemSend({ paused: poemPaused ? 1 : 0 });
+});
+document.getElementById('poemScreenCm').addEventListener('input', function() {
+    if (hmChannel) hmChannel.postMessage({ type: 'poemRequestState' });
+});
+document.getElementById('poemTapButton').addEventListener('click', function() { poemSend({ pace: 'tap' }); });
+document.getElementById('poemFreeButton').addEventListener('click', function() { poemSend({ pace: 'free' }); });
+document.getElementById('poemBeatsSlider').addEventListener('input', function() {
+    document.getElementById('poemBeatsVal').textContent = this.value;
+    poemSend({ beats: +this.value });
+});
+
+// The same keys the poem window answers, so it does not matter which of the two
+// has focus. Anything typed into a field is left alone.
+const POEM_KEYS = {
+    ' ': function() { poemPaused = !poemPaused; return { paused: poemPaused ? 1 : 0 }; },
+    ArrowRight: function() { return { word: 1 }; },
+    ArrowLeft: function() { return { word: -1 }; },
+    PageDown: function() { return { step: 1 }; },
+    PageUp: function() { return { step: -1 }; },
+    Home: function() { return { restart: 1 }; },
+    r: 'slower',
+    t: 'faster',
+    '-': 'shorter', _: 'shorter',
+    '=': 'longer', '+': 'longer',
+    ',': 'fewer', '<': 'fewer',
+    '.': 'more', '>': 'more',
+    b: function(big) { return { pace: big ? 'free' : 'tap' }; },
+    0: function() { return { pace: 'reset' }; }
+};
+for (let i = 1; i <= 9; i++) {
+    POEM_KEYS[String(i)] = (function(n) { return function() { return { pace: 'speed', n: n }; }; })(i);
+}
+document.addEventListener('keydown', function(e) {
+    if (e.metaKey || e.ctrlKey || e.altKey) return;
+    const el = document.activeElement;
+    if (el && /^(INPUT|TEXTAREA|SELECT)$/.test(el.tagName) && el.type !== 'button') return;
+    const hit = POEM_KEYS[e.key] || POEM_KEYS[e.key.toLowerCase()];
+    if (!hit) return;
+    e.preventDefault();
+    const big = e.shiftKey ? 1 : 0;
+    poemSend(typeof hit === 'string' ? { pace: hit, big: big } : hit(big));
+    if (e.key === ' ') document.getElementById('poemPauseButton').value = poemPaused ? 'resume' : 'pause';
+});
+if (hmChannel) {
+    hmChannel.addEventListener('message', function(e) {
+        const msg = e.data;
+        if (!msg || msg.type !== 'poemState' || !msg.state) return;
+        const s = msg.state;
+        // Quoted for the 16:9 projector, not for the preview window, which is
+        // rarely 16:9 and would read a third small. Projected text is usually
+        // reckoned readable at 150x its capital height.
+        const screenCm = +document.getElementById('poemScreenCm').value || 226;
+        const capCm = (s.capFrac169 || 0) * screenCm;
+        document.getElementById('poemReadout').textContent =
+            'screen ' + (s.frame + 1) + ' of ' + s.frames +
+            ' · ' + (s.group ? s.group + ' lines at once' : 'whole stanzas') +
+            (s.layout === 'triangle'
+                ? ' · triangle' + (s.trispin ? ', free spin' : s.trifollow ? ', turning to the live line' : ', still')
+                : '') +
+            (capCm ? ' · ' + capCm.toFixed(1) + ' cm capitals on a ' + screenCm +
+                ' cm screen, reads to about ' + Math.round(capCm * 1.5) + ' m' : '') +
+            (s.paused ? ' · paused' : '');
+
+        // The keys change the window, not the panel, so the panel follows the
+        // window. A control being dragged is left alone.
+        const held = document.activeElement;
+        const follow = function(id, value, digits) {
+            const el = document.getElementById(id);
+            if (!el || el === held) return;
+            el.value = value;
+            const out = document.getElementById(id.replace('Slider', 'Val'));
+            if (out) out.textContent = digits == null ? String(value) : (+value).toFixed(digits);
+        };
+        follow('poemCpsSlider', s.cps, 0);
+        follow('poemHoldSlider', s.hold, 1);
+        follow('poemBeatsSlider', s.beats, 0);
+        poemPaused = !!s.paused;
+        document.getElementById('poemPauseButton').value = poemPaused ? 'resume' : 'pause';
+        // Typing hurried past the chosen speed means the lock is doing the work
+        // rather than the slider, which is worth saying out loud.
+        document.getElementById('poemTempoVal').textContent = s.beat
+            ? Math.round(60 / s.beat) + ' bpm · ' + s.beats + ' beats a screen = ' +
+              (s.beat * s.beats).toFixed(1) + 's' +
+              (s.pace > s.cps + 0.5 ? ' · typing hurried to ' + Math.round(s.pace) + ' cps to fit' : '')
+            : 'free running';
+    });
+}
 // ── Audio deck: looped bed + periodic interjections, playing from this
 // window (route this machine's output to the PA). Interjection slots fire
 // every N ± jitter seconds; "duck" drops the bed to 25% while one plays.
@@ -2890,6 +3156,9 @@ function hmProgRender(acts) {
     body.innerHTML = '';
     acts.forEach(function(a) { body.appendChild(hmProgRow(a)); });
     hmProgRefresh();
+}
+function hmProgAnyFisher() {
+    return !!document.querySelector('#hmProgBody .prog-fisher:checked');
 }
 function hmProgCollect() {
     return Array.prototype.map.call(document.querySelectorAll('#hmProgBody tr'), function(tr) {

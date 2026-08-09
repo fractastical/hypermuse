@@ -166,6 +166,92 @@ latest versions). Then:
   pre-baked as square videos incl. red wireframe variants — usable as window
   content or backdrops on machines without the live makers.
 
+## A second projector: the poem screen
+
+For a two-surface room, the controller's **Poem screen** panel puts the poem on
+its own projector next to the moon. It opens `crt-terminal.html` loaded with
+`trinitypoem.txt` and drives it live over the same `hypermoon` channel: look,
+pacing, forward/back, pause, restart. Put that window on the second output and
+the moon on the first — one machine with two outputs, so there is no network in
+the path and nothing to drift.
+
+A 402 × 226 cm surface is 16:9 to within a millimetre, which is what the moon
+letterboxes to, so it fills one exactly with no bars (disc about 156 cm across).
+
+The one number that matters is type size, and it is decided by how many lines
+are on screen at once, because the fit has to accommodate the tallest screen in
+the script. On a 226 cm high surface a whole nine-line stanza gives 7 cm
+capitals and dies at about 11 m; three lines at a time gives 19 cm and reads to
+about 28 m. The panel's readout states this for your screen height as you move
+the slider, so it can be set against the actual room rather than guessed. Three
+lines takes the poem to 82 screens, about 9m 45s at 13 characters a second — or
+about 13m 30s as a turning triangle, which pays 0.9s a line for the turn.
+
+The **shape** control sets the poem around an equilateral triangle instead, a
+line to each side. The poem is three words to the line, so a screen of three
+lines is nine words — three a side — and it falls into the shape without any
+reflowing.
+
+By default the triangle turns a third of a turn each time a new line starts, so
+the line being written is always the one along the bottom, upright and left to
+right; the finished ones ride up the other two sides and the shape goes round
+once a screen. It is free in size — a triangle sits in the same box whichever
+face is down, so it is full size whenever it is still. It is not free in time:
+nothing is written while it turns, since otherwise the start of every line goes
+down while its side is still swinging. **Turn takes** is therefore time added to
+each line, 0.9s by default, so a three-line screen runs 2.7s longer; take the
+same off the **hold** to get the old length back, or tap a beat and the typing is
+hurried to fit both. Uncheck **turn to the line being written** to hold the shape
+still. **Free spin** is the other thing, an unending rotation, and that one does
+cost a third of the type size.
+
+The triangle's own **edges** are off: the words carry the shape by themselves and
+drawn lines only compete with them. The slider puts them back if a room wants
+them.
+
+**Keys.** The poem window takes them directly, so the machine at the projector
+does not need the controller in front of it; the panel takes the same ones. Hold
+shift for a bigger step. Keys typed into a field in the controller are left
+alone, so this does not get in the way of the rest of the panel.
+
+`→` `←` put down the next word or take one back · `space` pauses · `home`
+restarts · `r` `t` type slower and faster · `1`–`9` are speeds straight off,
+4 to 40 characters a second · `-` `=` shorten and lengthen the hold · `0` puts
+the pace back · `pgdn` `pgup` step a whole screen · `b` taps the beat,
+`shift+b` drops it · `,` `.` change how many beats a screen gets.
+
+**The arrows are on words.** Pause with `space` and the poem stops writing
+itself, and then it only moves when you move it, a word at a time — which is how
+you walk it along with someone reading aloud. It rolls into the next or previous
+screen at either end. `pgdn`/`pgup` is what a presenter's clicker sends, so a
+clicker steps whole stanzas with nothing to set up.
+
+**Tap `b` along to the music** four or more times and the poem stops running on
+a stopwatch: each screen is then given a whole number of beats, however long its
+own lines are, so it stays in time with the room instead of drifting a second
+every long stanza. The hold soaks up the difference and the typing is only
+hurried if the words would not otherwise land in time — the speed you set is a
+floor, not a target. The panel shows the bpm and what a screen is costing.
+
+Lines are not thrown away when their screen ends. Each one keeps turning, and
+when it comes round to its side again it is drawn a step smaller and fainter,
+sinking toward the middle of the seal — so the poem spirals inward and dims out
+rather than being cut, and there is no seam between screens. **Trail** sets how
+many are kept, **depth** how fast they shrink, **dim** how fast they fade. Set
+trail to 0 for the three lines alone.
+
+Either way the shape costs about half the size of flat lines (10.5 cm capitals,
+16 m against 18.8 cm and 28 m), because an equilateral triangle in a 16:9 frame
+runs out of height long before it runs out of width.
+
+If the two projectors are instead butted into one wide wall, remember the moon
+is centred and would sit on the seam — offset it or keep the pictures separate.
+
+Fuller notes, parameters and the measuring commands (`npm run probe:poem`,
+`preview:poem`, `test:poem`) are in the main `README.md`. To see the pair before
+the room exists, `npm run demo:projectors` renders both outputs at 1920x1080 and
+a captioned side-by-side into `artifacts/demos/`.
+
 ## Putting someone else's logo on the moon
 
 The word already owns a panel on the shadowed side: the survey finds the
