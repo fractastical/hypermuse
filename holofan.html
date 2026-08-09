@@ -55,17 +55,46 @@
   // behind the picture, so there is no dark hole at the centre — footage of
   // these things shows a filled disc.
   const HUB = num("hub", 0);                    // unlit centre, as a fraction of R
+  // Three framings. push is wide enough to read 180 cm off the figure beside
+  // it, then in until the LED rings and the update seam resolve — a shot about
+  // the hardware. room stands back across the lobby, where the disc stops being
+  // a diagram of a fan and becomes a thing hanging in a space that people are
+  // walking through, which is how you actually come across one. Standing back
+  // needs the set to carry further: a ceiling, and more than one person in it.
+  // rig is the unit as it is actually hired out. What gets shipped is not a
+  // floor tripod but a box-truss tower on a ground frame - 4.3 m to the top of
+  // the disc over a 2.5 m square - which is the drawing on the spec sheet and
+  // the thing standing in the install photographs. At that height the disc is
+  // over everybody's heads, so the shot has to stand well back and look up
+  // rather than ride up level with it.
+  const SHOT = (P.get("shot") || "push").toLowerCase();
+  const RIGSHOT = SHOT === "rig";
+  const WIDE = SHOT === "room" || SHOT === "wide" || RIGSHOT;
+  const STAND = (P.get("stand") || (RIGSHOT ? "truss" : "tripod")).toLowerCase();
+  const TRUSS = STAND === "truss";
+  const RIG_H = num("righeight", 4.3);          // floor to the top of the swept disc
+  const RIG_BASE = num("rigbase", 2.5);         // the ground frame, side to side
+  // The height on a spec sheet is the overall height, so the disc centre is
+  // that less its own radius. A tripod just holds it at chest height.
+  const CENTER_H = num("height", TRUSS ? RIG_H - R : 1.5);
   // Where it is standing. The sales footage for these is always a bright
-  // panelled lobby, which is the better demonstration: the house lights and
-  // the wall behind carry straight on through the picture. dark is the venue
-  // version, where the disc is the only thing lighting anything.
-  const LOBBY = (P.get("venue") || "lobby").toLowerCase() !== "dark";
+  // panelled lobby, which is the better demonstration of the format: the house
+  // lights and the wall behind carry straight on through the picture. dark is
+  // the venue version, where the disc is the only thing lighting anything.
+  // The rig goes up over a dance floor at night, and under house lights most of
+  // what the show does — the shadowed side, the stars, the eclipse — is simply
+  // not there, so that shot is dark unless asked otherwise.
+  const LOBBY = (P.get("venue") || (RIGSHOT ? "dark" : "lobby")).toLowerCase() !== "dark";
   // 2500 nits is a great deal brighter than a lobby, which is the whole reason
   // these read at all under house lights, so the disc has to out-punch the
   // room rather than sit level with it.
-  const GAIN = num("gain", LOBBY ? 4.2 : 1.35);
+  // The rig is filmed further off than the other two shots, and across that
+  // much dark air a disc lit for a close-up is a grey coin. It gets driven
+  // harder, and the haze it is throwing into the air carries most of the sense
+  // that the thing is up there at all.
+  const GAIN = num("gain", LOBBY ? 4.2 : RIGSHOT ? 1.9 : 1.35);
   const GLOW = num("glow", LOBBY ? 0.55 : 0.4);
-  const HAZE = num("haze", LOBBY ? 0.16 : 0.38);
+  const HAZE = num("haze", LOBBY ? 0.16 : RIGSHOT ? 0.62 : 0.38);
   const ZOOM = num("zoom", 1);
   const DUTY = num("duty", 0.52);               // how much of the LED pitch lights
   const FALLOFF = num("falloff", 0.25);         // thinning of light toward the rim
@@ -76,31 +105,37 @@
   const SHUTTER = num("shutter", 0.84);
   const FLICKER = num("flicker", 0.5);
   const FRINGE = num("fringe", 0.9);
-  const CENTER_H = num("height", 1.5);          // disc centre off the floor
   const ROOM = flag("room", true);
   const PERSON = flag("person", true);
-  const DIMLINE = flag("dim", true);
   const LABEL = flag("label", true);
-  // Two framings. push is the existing shot: wide enough to read 180 cm off the
-  // figure beside it, then in until the LED rings and the update seam resolve —
-  // a shot about the hardware. room stands back across the lobby, where the
-  // disc stops being a diagram of a fan and becomes a thing hanging in a space
-  // that people are walking through, which is how you actually come across one.
-  // Standing back needs the set to carry further: a ceiling, and more than one
-  // person in it.
-  const SHOT = (P.get("shot") || "push").toLowerCase();
-  const WIDE = SHOT === "room" || SHOT === "wide";
   const ORBIT_DEG = num("orbitdeg", WIDE ? 7 : 15);
   const ORBIT_SEC = num("orbitsec", 44);
   const ORBIT = flag("orbit", true) && ORBIT_DEG > 0;
-  const DIST = num("dist", WIDE ? 11 : 5.3);
-  const DIST2 = num("dist2", WIDE ? 8.5 : 2.95); // the shot pushes in to here
+  // Far enough back that a 4.3 m rig fits in a 16:9 frame standing on the
+  // floor, and no further: the thing being sold is the size of it.
+  const DIST = num("dist", RIGSHOT ? 11 : WIDE ? 11 : 5.3);
+  const DIST2 = num("dist2", RIGSHOT ? 8.6 : WIDE ? 8.5 : 2.95); // the shot pushes in to here
   const DOLLY_SEC = num("dollysec", 30);
   const FOV = num("fov", 33);
   const PEOPLE = Math.max(0, Math.round(num("people", WIDE ? 6 : 1)));
   const CEIL = flag("ceil", WIDE);
   const EYE = num("eye", 1.46);                 // camera height at the wide end
+  // How far the camera climbs toward the disc on the push-in. Level with it is
+  // right for a tripod and wrong for a tower: nobody watches a 4.3 m rig from
+  // 3.4 m up, they stand on the floor with their head back.
+  const RISE = num("rise", RIGSHOT ? 0.1 : 1);
+  // What height the shot is centred on, as a fraction of the disc's. A tower
+  // has to keep its feet in frame or the disc reads as floating.
+  const AIM = num("aim", RIGSHOT ? 0.72 : 1);
   const NOTE_FADE = flag("notefade", !WIDE);
+  const TOWER_Z = TRUSS ? -0.55 : -0.78;        // how far behind the disc it stands
+  // On the tower the disc's own dimension lands right on the head of the stand
+  // and the two annotations fight. The spec sheet calls out the height and the
+  // footprint and leaves the diameter to the caption, so this does too.
+  const DIMLINE = flag("dim", !RIGSHOT);
+  // The two numbers off the spec sheet, called out in the shot the way the
+  // drawing calls them out, so the render doubles as the drawing.
+  const RIGDIM = flag("rigdim", TRUSS);
   const TAU = Math.PI * 2;
 
   const renderer = new THREE.WebGLRenderer({ antialias: true, powerPreference: "high-performance" });
@@ -490,54 +525,138 @@
         new THREE.MeshBasicMaterial({ map: ctex })
       );
       ceiling.rotation.x = Math.PI / 2;
-      ceiling.position.y = num("ceilh", 5);
+      // A 4.3 m rig does not go into a room with a 5 m ceiling without the
+      // clearance above it becoming the subject of the photograph.
+      ceiling.position.y = num("ceilh", TRUSS ? 7.5 : 5);
       scene.add(ceiling);
     }
 
-    // The stand in every one of these videos is a rolling floor tripod: one
-    // slim upright behind the disc, splayed legs on castors, and the power and
-    // controller sitting on the floor beside it on its own cable.
     const rig = new THREE.MeshStandardMaterial({
       color: LOBBY ? 0x15171b : 0x0a0d13, roughness: 0.6, metalness: 0.35
     });
-    const sill = CENTER_H - R;                  // where the disc bottoms out
-    // The upright is set well back and takes no light of its own: it sits in
-    // the disc's own glare, and anything that catches there prints a bar
-    // straight across the picture.
+    // The mount behind the picture takes no light and is kept as slim as it
+    // can be: whatever it hides of the room reads as a smudge through the
+    // image, which is exactly how it looks in life.
     const postMat = new THREE.MeshBasicMaterial({ color: LOBBY ? 0x191510 : 0x070a10 });
-    const post = new THREE.Mesh(new THREE.CylinderGeometry(0.042, 0.05, CENTER_H, 20), postMat);
-    post.position.set(0, CENTER_H / 2, -0.78);
-    scene.add(post);
-    // Splayed legs, each on a castor, exactly as far apart as they need to be
-    // to hold 180 cm of spinning disc up.
-    for (let i = 0; i < 4; i++) {
-      const ang = Math.PI / 4 + (i * Math.PI) / 2;
-      const leg = new THREE.Mesh(new THREE.BoxGeometry(0.055, 0.05, 0.66), rig);
-      leg.position.set(Math.sin(ang) * 0.23, 0.09, -0.78 + Math.cos(ang) * 0.23);
-      leg.rotation.y = -ang;
-      scene.add(leg);
-      const castor = new THREE.Mesh(new THREE.CylinderGeometry(0.038, 0.038, 0.028, 14), rig);
-      castor.rotation.z = Math.PI / 2;
-      castor.position.set(Math.sin(ang) * 0.46, 0.038, -0.78 + Math.cos(ang) * 0.46);
-      scene.add(castor);
+
+    if (TRUSS) {
+      // The hire rig: a square box-truss tower on a flat ground frame, with the
+      // fan bolted to the head of it. Aluminium rather than the tripod's matte
+      // black, because in the install photographs the tower catches the house
+      // light and reads as scaffolding - which is most of what tells you the
+      // thing is four metres up and not on a table.
+      const trussMat = new THREE.MeshStandardMaterial({
+        color: LOBBY ? 0x8d949e : 0x3a4048, roughness: 0.38, metalness: 0.78
+      });
+      const strut = (a, b, r, mat) => {
+        const A = new THREE.Vector3(a[0], a[1], a[2]);
+        const B = new THREE.Vector3(b[0], b[1], b[2]);
+        const len = A.distanceTo(B);
+        if (len < 1e-4) return;
+        const m = new THREE.Mesh(new THREE.CylinderGeometry(r, r, len, 8), mat || trussMat);
+        m.position.copy(A).add(B).multiplyScalar(0.5);
+        m.quaternion.setFromUnitVectors(
+          new THREE.Vector3(0, 1, 0), B.clone().sub(A).normalize()
+        );
+        scene.add(m);
+      };
+      const col = num("rigcol", 0.36);          // the truss square, chord to chord
+      const half = col / 2;
+      const chordR = 0.026, webR = 0.016;
+      // The tower stops where the picture starts. In the install photographs
+      // the disc floats clear above the head of the stand and the only thing
+      // crossing the image is the slim spine up the back of it - carry the
+      // lattice any higher and it prints straight across the moon.
+      const top = num("rigtop", CENTER_H - R + 0.1);
+      const corners = [[-half, -half], [half, -half], [half, half], [-half, half]];
+      for (const [cx, cz] of corners) strut([cx, 0, TOWER_Z + cz], [cx, top, TOWER_Z + cz], chordR);
+      // Rungs and one diagonal a panel, which is what a lattice actually is and
+      // what makes it read as a truss at a distance rather than as four poles.
+      const panel = Math.max(0.4, num("rigpanel", 0.92));
+      const rows = Math.max(2, Math.round(top / panel));
+      for (let i = 0; i <= rows; i++) {
+        const y = (top * i) / rows;
+        for (let s = 0; s < 4; s++) {
+          const a = corners[s], b = corners[(s + 1) % 4];
+          strut([a[0], y, TOWER_Z + a[1]], [b[0], y, TOWER_Z + b[1]], webR);
+          if (i < rows) {
+            const y2 = (top * (i + 1)) / rows;
+            // Alternate the lean so the bracing zig-zags up the face.
+            const up = i % 2 === 0;
+            strut([a[0], up ? y : y2, TOWER_Z + a[1]], [b[0], up ? y2 : y, TOWER_Z + b[1]], webR);
+          }
+        }
+      }
+      // The head the fan bolts to: a bar out either side of the top, which is
+      // the one part of the stand that shows against the picture.
+      strut([-col, top, TOWER_Z], [col, top, TOWER_Z], webR * 1.3);
+      // The ground frame: a square of tube lying flat with two rails under the
+      // tower, and a foot plate at each corner. It is centred forward of the
+      // tower because the fan overhangs the front and something has to be under
+      // that.
+      const b2 = RIG_BASE / 2, gy = 0.055, gr = 0.042;
+      const bz = TOWER_Z + RIG_BASE * 0.16;
+      strut([-b2, gy, bz - b2], [b2, gy, bz - b2], gr);
+      strut([-b2, gy, bz + b2], [b2, gy, bz + b2], gr);
+      strut([-b2, gy, bz - b2], [-b2, gy, bz + b2], gr);
+      strut([b2, gy, bz - b2], [b2, gy, bz + b2], gr);
+      for (const sx of [-half, half]) strut([sx, gy, bz - b2], [sx, gy, bz + b2], gr);
+      for (const sx of [-b2, b2]) for (const sz of [-b2, b2]) {
+        const foot = new THREE.Mesh(new THREE.BoxGeometry(0.2, 0.03, 0.2), rig);
+        foot.position.set(sx, 0.015, bz + sz);
+        scene.add(foot);
+      }
+      // Power and control at the foot of the tower, on the frame.
+      const brick = new THREE.Mesh(new THREE.BoxGeometry(0.36, 0.28, 0.26), rig);
+      brick.position.set(b2 - 0.5, 0.14, bz + b2 - 0.3);
+      scene.add(brick);
+      const panelLight = new THREE.Mesh(
+        new THREE.PlaneGeometry(0.2, 0.12),
+        new THREE.MeshBasicMaterial({ color: 0x8e1410 })
+      );
+      panelLight.position.set(b2 - 0.5, 0.16, bz + b2 - 0.168);
+      scene.add(panelLight);
+    } else {
+      // The stand in every one of these videos is a rolling floor tripod: one
+      // slim upright behind the disc, splayed legs on castors, and the power and
+      // controller sitting on the floor beside it on its own cable.
+      // The upright is set well back and takes no light of its own: it sits in
+      // the disc's own glare, and anything that catches there prints a bar
+      // straight across the picture.
+      const post = new THREE.Mesh(new THREE.CylinderGeometry(0.042, 0.05, CENTER_H, 20), postMat);
+      post.position.set(0, CENTER_H / 2, TOWER_Z);
+      scene.add(post);
+      // Splayed legs, each on a castor, exactly as far apart as they need to be
+      // to hold 180 cm of spinning disc up.
+      for (let i = 0; i < 4; i++) {
+        const ang = Math.PI / 4 + (i * Math.PI) / 2;
+        const leg = new THREE.Mesh(new THREE.BoxGeometry(0.055, 0.05, 0.66), rig);
+        leg.position.set(Math.sin(ang) * 0.23, 0.09, TOWER_Z + Math.cos(ang) * 0.23);
+        leg.rotation.y = -ang;
+        scene.add(leg);
+        const castor = new THREE.Mesh(new THREE.CylinderGeometry(0.038, 0.038, 0.028, 14), rig);
+        castor.rotation.z = Math.PI / 2;
+        castor.position.set(Math.sin(ang) * 0.46, 0.038, TOWER_Z + Math.cos(ang) * 0.46);
+        scene.add(castor);
+      }
+      // The controller/power brick, off to one side on the floor with its one
+      // lit panel, which is the detail that dates these installs.
+      const brick = new THREE.Mesh(new THREE.BoxGeometry(0.34, 0.26, 0.24), rig);
+      brick.position.set(-1.15, 0.13, -0.3);
+      scene.add(brick);
+      const panelLight = new THREE.Mesh(
+        new THREE.PlaneGeometry(0.2, 0.12),
+        new THREE.MeshBasicMaterial({ color: 0x8e1410 })
+      );
+      panelLight.position.set(-1.15, 0.15, -0.178);
+      scene.add(panelLight);
     }
-    // The controller/power brick, off to one side on the floor with its one
-    // lit panel, which is the detail that dates these installs.
-    const brick = new THREE.Mesh(new THREE.BoxGeometry(0.34, 0.26, 0.24), rig);
-    brick.position.set(-1.15, 0.13, -0.3);
-    scene.add(brick);
-    const panel = new THREE.Mesh(
-      new THREE.PlaneGeometry(0.2, 0.12),
-      new THREE.MeshBasicMaterial({ color: 0x8e1410 })
-    );
-    panel.position.set(-1.15, 0.15, -0.178);
-    scene.add(panel);
     // The mount behind the picture takes no light and is kept as slim as it
     // can be: whatever it hides of the room reads as a smudge through the
     // image, which is exactly how it looks in life.
     const spine = new THREE.Mesh(new THREE.BoxGeometry(0.032, R, 0.05),
       new THREE.MeshBasicMaterial({ color: LOBBY ? 0x1a1712 : 0x070a10 }));
-    spine.position.set(0, CENTER_H - R * 0.5, -0.9);
+    spine.position.set(0, CENTER_H - R * 0.5, TOWER_Z - 0.12);
     scene.add(spine);
 
     // The picture caught in the floor. Drawn over the floor rather than under
@@ -549,6 +668,14 @@
     refl.material.depthTest = false;
     refl.position.set(0, -CENTER_H, 0);
     refl.scale.y = -1;
+    // From four metres up the floor catches a shortened smear of the disc, not
+    // a second disc: the further the picture is from the floor, the flatter and
+    // fainter what lands on it. Left at full size it reads as a lit ring lying
+    // at the foot of the tower with nothing holding it there.
+    if (TRUSS) {
+      refl.scale.set(0.82, -0.3, 1);
+      refl.material.uniforms.uGain.value = GAIN * 0.42;
+    }
     refl.renderOrder = 6;
     fan.add(refl);
     fan.userData.refl = refl;
@@ -611,8 +738,12 @@
       [3.2, -2.8, 1.68]
     ];
     const people = [];
+    // Filmed from fifteen metres back, a crowd scattered for a five-metre shot
+    // bunches into one clump at the foot of the rig.
+    const SPREAD = num("spread", RIGSHOT ? 1.25 : 1);
     for (let i = 0; i < Math.min(PEOPLE, spots.length); i++) {
-      const [x, z, h] = spots[i];
+      const [sx, sz, h] = spots[i];
+      const x = i === 0 ? sx : sx * SPREAD, z = i === 0 ? sz : sz * SPREAD;
       const mat = pmat.clone();
       // Further from the disc is less of its light, which stops a row of the
       // same drawing reading as a row of the same drawing.
@@ -673,12 +804,83 @@
     fan.userData.notes = [line, label];
   }
 
+  // The height and the footprint, dimensioned against the tower the way the
+  // spec sheet dimensions them. These hang in the room rather than off the
+  // disc, so they stay put while it turns.
+  if (RIGDIM) {
+    const notes = [];
+    const swatch = (text, colour) => {
+      const c = document.createElement("canvas");
+      c.width = 512; c.height = 128;
+      const g = c.getContext("2d");
+      g.fillStyle = colour;
+      g.font = "600 74px -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif";
+      g.textAlign = "center"; g.textBaseline = "middle";
+      g.fillText(text, 256, 68);
+      const t = new THREE.CanvasTexture(c);
+      t.colorSpace = THREE.SRGBColorSpace;
+      return t;
+    };
+    // Extension lines at each end and a barbed arrow into each, which is all a
+    // dimension is.
+    const dim = (a, b, colour, text, opacity) => {
+      const A = new THREE.Vector3(a[0], a[1], a[2]);
+      const B = new THREE.Vector3(b[0], b[1], b[2]);
+      const dir = B.clone().sub(A).normalize();
+      const cross = new THREE.Vector3(0, 1, 0).cross(dir);
+      if (cross.lengthSq() < 1e-6) cross.set(1, 0, 0);
+      cross.normalize();
+      // Ticks and label go on the outside: away from the tower for the height,
+      // and toward the camera for the one lying on the floor.
+      if (cross.z < 0) cross.negate();
+      cross.multiplyScalar(0.11);
+      const head = dir.clone().multiplyScalar(0.17);
+      const pts = [
+        A.clone().sub(cross), A.clone().add(cross), A, B,
+        B.clone().sub(cross), B.clone().add(cross), B,
+        B.clone().sub(head).add(cross.clone().multiplyScalar(0.5)),
+        B.clone().sub(head).sub(cross.clone().multiplyScalar(0.5)), B, A,
+        A.clone().add(head).add(cross.clone().multiplyScalar(0.5)),
+        A.clone().add(head).sub(cross.clone().multiplyScalar(0.5)), A
+      ];
+      const line = new THREE.Line(
+        new THREE.BufferGeometry().setFromPoints(pts),
+        new THREE.LineBasicMaterial({ color: colour, transparent: true, opacity, depthTest: false })
+      );
+      line.renderOrder = 7;
+      line.userData.base = opacity;
+      scene.add(line);
+      notes.push(line);
+
+      const label = new THREE.Sprite(new THREE.SpriteMaterial({
+        map: swatch(text, "#" + colour.toString(16).padStart(6, "0")),
+        transparent: true, depthTest: false, opacity: opacity + 0.2
+      }));
+      label.scale.set(1.05, 0.26, 1);
+      label.position.copy(A).add(B).multiplyScalar(0.5).add(cross.clone().multiplyScalar(2.6));
+      label.renderOrder = 7;
+      label.userData.base = opacity + 0.2;
+      scene.add(label);
+      notes.push(label);
+    };
+    const off = RIG_BASE / 2 + 0.75;
+    dim([off, 0, TOWER_Z], [off, RIG_H, TOWER_Z], 0x86b8e8, RIG_H.toFixed(1) + " m", 0.6);
+    const bz = TOWER_Z + RIG_BASE * 0.16 + RIG_BASE / 2 + 0.28;
+    dim([-RIG_BASE / 2, 0.03, bz], [RIG_BASE / 2, 0.03, bz], 0xe0788e, RIG_BASE.toFixed(1) + " m", 0.6);
+    scene.userData.notes = notes;
+  }
+
   if (LABEL) {
     const cap = document.createElement("div");
     cap.id = "cap";
     cap.innerHTML = "hypermoon on a \u00D8" + Math.round(DIAM * 100) + " cm holographic fan" +
-      "<small>" + Math.round(LEDS) + " LEDs per arm \u00B7 " + Math.round(STEPS) +
-      " steps a turn \u00B7 " + Math.round(RPM) + " rpm \u00B7 unlit pixels are simply air</small>";
+      "<small>" + (TRUSS
+        ? RIG_H.toFixed(1) + " m truss tower on a " + RIG_BASE.toFixed(1) +
+          " m base \u00B7 " + Math.round(LEDS) + " LEDs per arm \u00B7 " + Math.round(RPM) +
+          " rpm \u00B7 unlit pixels are simply air"
+        : Math.round(LEDS) + " LEDs per arm \u00B7 " + Math.round(STEPS) +
+          " steps a turn \u00B7 " + Math.round(RPM) + " rpm \u00B7 unlit pixels are simply air") +
+      "</small>";
     document.body.appendChild(cap);
   }
 
@@ -710,14 +912,18 @@
     const k = DOLLY_SEC > 0 ? Math.min(1, t / DOLLY_SEC) : 0;
     const dist = DIST + (DIST2 - DIST) * (k * k * (3 - 2 * k));
     const ang = ORBIT ? Math.sin((t / ORBIT_SEC) * TAU) * ORBIT_DEG * Math.PI / 180 : 0;
-    camera.position.set(Math.sin(ang) * dist, EYE + (CENTER_H - EYE) * k + Math.sin(t * 0.13) * 0.05, Math.cos(ang) * dist);
-    camera.lookAt(0, CENTER_H - 0.16 * (1 - k), 0);
+    camera.position.set(
+      Math.sin(ang) * dist,
+      EYE + (CENTER_H - EYE) * k * RISE + Math.sin(t * 0.13) * 0.05,
+      Math.cos(ang) * dist
+    );
+    camera.lookAt(0, CENTER_H * AIM - 0.16 * (1 - k), 0);
     // The annotation has said its piece well before the push-in crops it. From
     // across the room there is no push-in to speak of and the disc is small in
     // frame, so the size is worth stating for the whole shot.
     const near = 1 - Math.min(1, Math.max(0, (dist - DIST2) / Math.max(0.001, DIST - DIST2)));
     const gone = NOTE_FADE ? Math.min(1, near / 0.3) : 0;
-    for (const o of fan.userData.notes || []) {
+    for (const o of (fan.userData.notes || []).concat(scene.userData.notes || [])) {
       o.material.opacity = o.userData.base * (1 - gone);
     }
 
@@ -735,7 +941,9 @@
     get playing() { return !video.paused && video.readyState >= 2; },
     get time() { return video.currentTime; },
     get duration() { return video.duration; },
-    src: SRC, diam: DIAM, leds: LEDS, steps: STEPS, rpm: RPM
+    src: SRC, diam: DIAM, leds: LEDS, steps: STEPS, rpm: RPM,
+    shot: SHOT, stand: STAND, rigHeight: TRUSS ? RIG_H : null,
+    rigBase: TRUSS ? RIG_BASE : null, centerHeight: CENTER_H
   };
 })();
 </script>

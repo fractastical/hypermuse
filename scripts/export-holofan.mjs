@@ -9,6 +9,7 @@
  *   npm run export:holofan
  *   SKIP_SOURCE=1 npm run export:holofan          # reuse the square clip
  *   SHOT=room SKIP_SOURCE=1 npm run export:holofan  # from across the lobby
+ *   SHOT=rig SKIP_SOURCE=1 npm run export:holofan   # on the 4.3 m hire tower
  *   DIAM=120 FAN_MS=20000 npm run export:holofan
  *   STILL=1 npm run export:holofan                # just a frame, to eyeball
  */
@@ -24,10 +25,13 @@ const ROOT = process.cwd();
 const FRAMES = path.join(ROOT, "artifacts", "holofan-frames");
 const SOURCE = path.resolve(ROOT, process.env.SOURCE_VIDEO || "artifacts/holofan-source.mp4");
 const SHOT = (process.env.SHOT || "push").toLowerCase();
+const RIGSHOT = SHOT === "rig";
 const WIDE = SHOT === "room" || SHOT === "wide";
-const OUT = path.resolve(ROOT, process.env.OUTPUT_VIDEO || (WIDE
-  ? "artifacts/demos/hypermoon-holofan-180cm-room.mp4"
-  : "artifacts/demos/hypermoon-holofan-180cm.mp4"));
+const OUT = path.resolve(ROOT, process.env.OUTPUT_VIDEO || (RIGSHOT
+  ? "artifacts/demos/hypermuse-rig-4m3.mp4"
+  : WIDE
+    ? "artifacts/demos/hypermoon-holofan-180cm-room.mp4"
+    : "artifacts/demos/hypermoon-holofan-180cm.mp4"));
 const STILL = process.env.STILL === "1";
 const SKIP_SOURCE = process.env.SKIP_SOURCE === "1";
 
@@ -120,6 +124,17 @@ function encode(out, count, fps) {
 async function main() {
   if (!ffmpegPath || !fs.existsSync(ffmpegPath)) throw new Error("ffmpeg-static binary missing");
   ensureDir(path.join(ROOT, "artifacts"));
+  // Said before the hour of rendering rather than after it. OUTPUT_VIDEO is an
+  // environment variable, so it can be left set in a shell from something else
+  // entirely and quietly point this run at that file - which it will overwrite.
+  if (!STILL) {
+    console.log(`[holofan] ${SHOT} -> ${path.relative(ROOT, OUT)}` +
+      (process.env.OUTPUT_VIDEO ? "  (from OUTPUT_VIDEO in the environment)" : ""));
+    if (process.env.OUTPUT_VIDEO && !/holofan|rig/i.test(path.basename(OUT))) {
+      console.warn(`[holofan] WARNING: ${path.basename(OUT)} does not look like a fan render. ` +
+        `If that is a leftover OUTPUT_VIDEO, unset it.`);
+    }
+  }
 
   let server = null;
   const probe = `http://127.0.0.1:${PORT}/holofan.html`;
@@ -204,10 +219,19 @@ async function main() {
     // across the lobby for the whole shot and barely moves, so the disc is
     // read at the distance an audience actually stands at.
     const fq = new URLSearchParams({
-      src: path.relative(ROOT, SOURCE), diam: DIAM, gain: "1.05",
-      ...(WIDE
-        ? { shot: "room", dollysec: String(Math.round(FAN_MS * 0.9 / 1000)) }
-        : { dist: "5.3", dist2: "2.6", dollysec: String(Math.round(FAN_MS * 0.72 / 1000)) }),
+      src: path.relative(ROOT, SOURCE), diam: DIAM,
+      // Under house lights the disc has to out-punch the room and the source is
+      // already bright, so it is held well below the page's lobby default. The
+      // rig is filmed at night, where the disc lights everything and the page's
+      // own dark default is the right one.
+      ...(RIGSHOT ? {} : { gain: "1.05" }),
+      ...(RIGSHOT
+        // The hire rig: the tower's own defaults frame it, so nothing is
+        // overridden here but the length of the move.
+        ? { shot: "rig", dollysec: String(Math.round(FAN_MS * 0.9 / 1000)) }
+        : WIDE
+          ? { shot: "room", dollysec: String(Math.round(FAN_MS * 0.9 / 1000)) }
+          : { dist: "5.3", dist2: "2.6", dollysec: String(Math.round(FAN_MS * 0.72 / 1000)) }),
       ...(process.env.FAN_QUERY ? Object.fromEntries(new URLSearchParams(process.env.FAN_QUERY)) : {})
     });
     await page.goto(`http://127.0.0.1:${PORT}/holofan.html?${fq}`, { waitUntil: "domcontentloaded", timeout: 45000 });
