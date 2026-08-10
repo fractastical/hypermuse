@@ -721,6 +721,7 @@ what they affect:
 | `content` | — | what plays inside: a maker key, an image, or a video path |
 | `winbright` `winsolid` | per content | brightness, and whether content is added as light (0) or painted opaque (1) |
 | `windepth` `winparallax` | `0.55` | how far the content recesses inside the shell, and its parallax as the window turns |
+| `winbox` | `1` for `crt`, `screen`, images and video; `0` otherwise | whether the window is an opening. `1` cuts a rectangle of shell away and recesses the content in it, which is what a screen or a photograph wants. `0` gives it no opening at all: the content surfaces through a soft oval and the shell gives way only under the content's own ink, so nothing reads as a panel or a border |
 | `peek` `peekgrow` `peekhold` | `16` `1.3` `4.5` | seconds between letter-dissolve peeks, growth while the letters are away, seconds held open |
 | `bleed` `apparition` | `0` `0` | target % of the disc auto-revealed, and average seconds between random reveals |
 

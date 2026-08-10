@@ -739,6 +739,12 @@
             <td style="padding:2px 8px;"><span id="hmWinParVal">–</span></td>
             <td colspan="3" style="padding:2px 8px;color:rgba(207,233,255,0.45);">how far inside the shell the content hangs — it slides against its frame as the window turns, and the opening's walls shade it</td>
           </tr>
+          <tr>
+            <td style="padding:2px 8px;color:rgba(207,233,255,0.62);">window opening</td>
+            <td><input type="range" class="hm-slider" id="hmWinBox" data-key="winbox" min="0" max="1" step="0.05" style="width:130px;"/></td>
+            <td style="padding:2px 8px;"><span id="hmWinBoxVal">–</span></td>
+            <td colspan="3" style="padding:2px 8px;color:rgba(207,233,255,0.45);">1 = a rectangle of shell is cut away and the content is recessed in it, which suits a screen or a photo; 0 = no opening, so the content surfaces through a soft oval with no panel and no border</td>
+          </tr>
         </table>
         <div style="margin-top:6px;border-top:1px solid rgba(207,233,255,0.12);padding-top:5px;">
           <b style="font-size:11px;">program editor</b>
@@ -2373,6 +2379,7 @@ const HM_FMT = {
     winscale: function(v) { return v.toFixed(2) + '×'; },
     winsolid: function(v) { return v <= 0 ? 'glow' : v >= 1 ? 'solid' : Math.round(v * 100) + '% solid'; },
     winparallax: function(v) { return v <= 0 ? 'on the surface' : v.toFixed(2) + ' deep'; },
+    winbox: function(v) { return v >= 1 ? 'framed' : v <= 0 ? 'no frame' : Math.round(v * 100) + '% framed'; },
     fisherlivesize: function(v) { return v.toFixed(2) + '\u00d7'; },
     fisherliveangle: function(v) { return Math.round(v) + '\u00b0'; },
     fisherlivedist: function(v) { return v.toFixed(2) + ' R'; },

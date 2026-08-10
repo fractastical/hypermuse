@@ -85,6 +85,12 @@
   // Offscreen render size of the content makers (512 is plenty on the moon;
   // solo bakes want 1024+).
   const TEX_SIZE = Math.max(256, Math.round(num("texsize", 512)));
+  // What the in-page generators clear to. They are composited into the moon as
+  // light, so whatever sits behind their figures is added to the surface across
+  // the whole of the window - and a flat near-black navy, faint as it is on its
+  // own, comes out as a lit rectangle on the grey terrain. Black adds nothing,
+  // which is what a background that is not there should do.
+  const GEN_BG = 0x000000;
   // Live stream (?stream=1): capture this canvas and broadcast it over the
   // LAN via the signaling server (npm run stream:server). Other devices
   // watch at http://<this-machine's-ip>:8080/stream-view.html.
@@ -102,6 +108,12 @@
     || k === "harmonics" || k === "cymatics" || /^fold/.test(k);
   // Figures painted on the surface rather than glowing through it.
   const drawnKey = (k) => k === "mumins" || k === "fisher";
+  // Content that is a screen and should read as one: a rectangular opening
+  // recessed into the shell, with the panel lit inside it. Everything the page
+  // generates itself is a pattern or a figure with no edges of its own, and
+  // giving it an opening turns it into a picture hung on the moon rather than
+  // something the moon is doing.
+  const screenKey = (k) => k === "crt" || k === "screen";
   let WORDLESS_WIN = WIN && (wordlessKey(CONTENT_KEY) || MOSAIC_OFF);
   const useMosaic = !TEXT_PARAM && (!CONTENT_SRC || WIN);
   // Window/reveal behavior (all live-adjustable from the controller):
@@ -1116,7 +1128,7 @@
     const rnd = new THREE.WebGLRenderer({ antialias: true });
     rnd.setSize(SIZE, SIZE);
     const scene = new THREE.Scene();
-    scene.background = new THREE.Color(0x020411);
+    scene.background = new THREE.Color(GEN_BG);
     const cam = new THREE.PerspectiveCamera(38, 1, 0.1, 50);
     cam.position.set(0, 1.7, 3.6);
     cam.lookAt(0, 0.35, 0);
@@ -1226,7 +1238,7 @@
     const rnd = new THREE.WebGLRenderer({ antialias: true, alpha: true });
     rnd.setSize(SIZE, SIZE);
     const scene = new THREE.Scene();
-    scene.background = new THREE.Color(0x020411);
+    scene.background = new THREE.Color(GEN_BG);
     const cam = new THREE.PerspectiveCamera(38, 1, 0.1, 50);
     cam.position.set(0, 1.15, 4.6);
     cam.lookAt(0, 0, 0);
@@ -1395,9 +1407,13 @@
           const v = Math.abs(f((i + 0.5) / FN, (j + 0.5) / FN));
           const g = Math.exp(-v * 5.5);       // tight glow around the zeros
           const o = (j * FN + i) * 4;
+          // No floor under the glow. A constant few counts of blue everywhere
+          // is nothing on its own screen and a lit square once this is added
+          // to the moon, which is the whole of the plate rather than the lines
+          // that are the point of it.
           img.data[o] = 90 * g;
-          img.data[o + 1] = 150 * g + 10;
-          img.data[o + 2] = 210 * g + 24;
+          img.data[o + 1] = 150 * g;
+          img.data[o + 2] = 210 * g;
           img.data[o + 3] = 255;
         }
       }
@@ -1437,21 +1453,20 @@
         g.x = Math.min(0.998, Math.max(0.002, g.x));
         g.y = Math.min(0.998, Math.max(0.002, g.y));
       }
-      ctx.fillStyle = "#04060f";
+      // Black, and nothing drawn on it but the plate: the edge of the plate
+      // and the mode it is ringing in are things you would label on a diagram
+      // of one, and a diagram is what they made this look like once it was on
+      // the moon - a panel with a border and a caption. The sand and the lines
+      // it settles onto say which mode it is anyway.
+      ctx.fillStyle = "#000";
       ctx.fillRect(0, 0, W, H);
       const px = W * 0.04, pw = W * 0.92;
       ctx.imageSmoothingEnabled = true;
       ctx.drawImage(field, px, px, pw, pw);
-      ctx.strokeStyle = "rgba(207,233,255,0.22)";
-      ctx.lineWidth = 3;
-      ctx.strokeRect(px, px, pw, pw);
       ctx.fillStyle = "#fff3d4";
       for (const g of grains) {
         ctx.fillRect(px + g.x * pw, px + g.y * pw, g.s * 2.6, g.s * 2.6);
       }
-      ctx.fillStyle = "rgba(207,233,255,0.5)";
-      ctx.font = "500 26px ui-monospace, Menlo, monospace";
-      ctx.fillText(n + " \u00d7 " + m, W * 0.06, H * 0.985 - 12);
       tex.needsUpdate = true;
     }
     draw(0, 0.016);
@@ -1468,7 +1483,7 @@
     const rnd = new THREE.WebGLRenderer({ antialias: true });
     rnd.setSize(SIZE, SIZE);
     const scene = new THREE.Scene();
-    scene.background = new THREE.Color(0x020411);
+    scene.background = new THREE.Color(GEN_BG);
     const cam = new THREE.PerspectiveCamera(38, 1, 0.01, 50);
     cam.position.set(0, 0.75, 2.9);
     cam.lookAt(0, 0.1, 0);
@@ -1602,7 +1617,7 @@
     const rnd = new THREE.WebGLRenderer({ antialias: true });
     rnd.setSize(SIZE, SIZE);
     const scene = new THREE.Scene();
-    scene.background = new THREE.Color(0x020411);
+    scene.background = new THREE.Color(GEN_BG);
     const cam = new THREE.PerspectiveCamera(38, 1, 0.1, 50);
     cam.position.set(0, 0.9, 4.3);
     cam.lookAt(0, 0, 0);
@@ -1735,7 +1750,7 @@
     const rnd = new THREE.WebGLRenderer({ antialias: true });
     rnd.setSize(SIZE, SIZE);
     const scene = new THREE.Scene();
-    scene.background = new THREE.Color(0x020411);
+    scene.background = new THREE.Color(GEN_BG);
     const cam = new THREE.PerspectiveCamera(38, 1, 0.1, 50);
     cam.position.set(0, 0.6, 3.9);
     cam.lookAt(0, 0, 0);
@@ -1837,7 +1852,7 @@
     const rnd = new THREE.WebGLRenderer({ antialias: true });
     rnd.setSize(SIZE, SIZE);
     const scene = new THREE.Scene();
-    scene.background = new THREE.Color(0x020411);
+    scene.background = new THREE.Color(GEN_BG);
     const cam = new THREE.PerspectiveCamera(38, 1, 0.1, 50);
     cam.position.set(0, 1.1, 3.6);
     cam.lookAt(0, 0, 0);
@@ -2396,6 +2411,15 @@
     // 0 = window content added as light (glowing screens, wireframes),
     // 1 = painted opaque over the surface (drawn figures like the mumins).
     uWinSolid: { value: num("winsolid", drawnKey(CONTENT_KEY) ? 1 : 0) },
+    // 1 = the window is an opening: a rectangle of shell is cut away and the
+    // content sits in it, which is right for a screen or a photograph. 0 = no
+    // opening at all. The content surfaces through a soft oval with no border,
+    // and the shell gives way only under the content's own ink rather than
+    // across the whole box - the recess is what was drawing the rectangle.
+    uWinBox: {
+      value: num("winbox",
+        screenKey(CONTENT_KEY) || isImageContent || contentVideo ? 1 : 0)
+    },
     // How much the content sits *inside* the shell rather than on it: the
     // parallax shift as the window turns, plus the shading its walls cast.
     uWinPar: { value: num("winparallax", drawnKey(CONTENT_KEY) ? 0.15 : 0.5) },
@@ -2480,6 +2504,7 @@
   const WINBRIGHT_PARAM = params.get("winbright");
   const WINSOLID_PARAM = params.get("winsolid");
   const WINPAR_PARAM = params.get("winparallax");
+  const WINBOX_PARAM = params.get("winbox");
   const PEEK_PARAM = params.get("peek");
   function stopWindowContent() {
     if (cave) cave.videos.forEach((v) => { v.pause(); v.removeAttribute("src"); });
@@ -2565,6 +2590,7 @@
     if (WINBRIGHT_PARAM == null) { uniforms.uWinBright.value = bright; winBrightBase = bright; }
     if (WINSOLID_PARAM == null) uniforms.uWinSolid.value = drawnKey(key) ? 1 : 0;
     if (WINPAR_PARAM == null) uniforms.uWinPar.value = drawnKey(key) ? 0.15 : 0.5;
+    if (WINBOX_PARAM == null) uniforms.uWinBox.value = screenKey(key) ? 1 : 0;
     uniforms.uWordOn.value = WORDLESS_WIN ? 0 : 1;
     // Sensible cycle defaults unless the URL pinned them explicitly.
     if (PEEK_PARAM == null) PEEK = WIN && !WORDLESS_WIN ? 16 : 0;
@@ -2612,7 +2638,7 @@
       uniform sampler2D uMoon, uContent, uWinTex;
       uniform float uThresh, uFeather, uBright, uFlicker, uScroll, uTime, uIsVideoContent, uTint, uLift, uSphere, uRot;
       uniform float uWin, uWinDepth, uWinGrow, uWinAspect, uWinBright, uWordOn, uGate, uAlpha;
-      uniform float uWinSolid, uWinPar;
+      uniform float uWinSolid, uWinPar, uWinBox;
       uniform float uIris, uIrisR, uIrisFeather, uBloodAmt;
       uniform float uEclOn, uEclDeep;
       uniform vec4 uEcl;
@@ -2669,9 +2695,13 @@
             vec2 wuv = vec2(dlon / wAng.x, dlat / wAng.y) + 0.5;
             vec2 e = abs(wuv - 0.5) * 2.0;
             float box = (1.0 - smoothstep(0.86, 1.0, e.x)) * (1.0 - smoothstep(0.86, 1.0, e.y));
+            // A screen has edges and an opening to sit in. A pattern welling up
+            // out of the terrain has neither, and the box is what was giving it
+            // both: an oval that is already faint well before it ends leaves
+            // nothing straight for the eye to catch.
+            float oval = 1.0 - smoothstep(0.35, 1.0, length(e));
             float shadowGate = mix(0.05, 1.0, lumaMask);
-            winMask = box * limbFade * body * shadowGate * uGate;
-            caveDim = winMask * uWinDepth;
+            winMask = mix(oval, box, uWinBox) * limbFade * body * shadowGate * uGate;
             // Cover-crop the content so it fills the window without squash.
             vec2 fuv = wuv - 0.5;
             float boxAspect = (wAng.x / wAng.y) * 0.72; // lat rads are taller on screen
@@ -2692,6 +2722,19 @@
             // rim and its corners are cut. Dark-background generators lose
             // nothing; full-bleed content stops reading as a pasted rectangle.
             wraw.rgb *= 1.0 - (0.55 + 0.4 * uWinPar) * smoothstep(0.4, 1.05, length(e));
+            // How much of the content is actually here, from whichever of the
+            // two the maker uses to say so: the drawn figures key on alpha, the
+            // generators clear to black and key on their own light.
+            float ink = clamp(max(max(wraw.r, wraw.g), wraw.b) * wraw.a, 0.0, 1.0);
+            // The recess, which the figure needs: light added over lit grey
+            // terrain is a ghost, and the surface has to give way under it for
+            // the glow to read at all. What made it a panel was the shape of
+            // the giving way, not the fact of it - so with no opening it
+            // follows the oval into a soft pool with no edge anywhere, and
+            // deepens under the content's own ink so the darkest part of it
+            // hugs the figure rather than sitting in a patch around it.
+            caveDim = winMask * uWinDepth
+              * mix(mix(0.5, 1.0, smoothstep(0.0, 0.3, ink)), 1.0, uWinBox);
             winGlow = wraw.rgb * wraw.a * winMask;
             // Solid-paint path (uWinSolid): drawn figures need to occlude the
             // surface, not add light to it. Additive content over a lit grey
@@ -4110,6 +4153,7 @@
       winscale: WIN_SCALE,
       winsolid: +uniforms.uWinSolid.value,
       winparallax: +uniforms.uWinPar.value,
+      winbox: +uniforms.uWinBox.value,
       lon: LON_OFF * 180 / Math.PI,
       lat: LAT_OFF * 180 / Math.PI,
       vajras: VAJRA_COUNT,
@@ -4212,6 +4256,7 @@
         case "winscale": WIN_SCALE = Math.max(0.3, v); break;
         case "winsolid": uniforms.uWinSolid.value = Math.max(0, Math.min(1, v)); break;
         case "winparallax": uniforms.uWinPar.value = Math.max(0, Math.min(1, v)); break;
+        case "winbox": uniforms.uWinBox.value = Math.max(0, Math.min(1, v)); break;
         case "winbright": winBrightBase = Math.max(0, v); uniforms.uWinBright.value = winBrightBase; break;
         case "lon": LON_OFF = v * (Math.PI / 180); pickAnchor(); break;
         case "lat": LAT_OFF = v * (Math.PI / 180); pickAnchor(); break;

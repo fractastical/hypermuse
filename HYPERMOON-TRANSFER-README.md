@@ -155,6 +155,15 @@ latest versions). Then:
   turns drawn figures into ghosts. At 1 the content is painted opaque onto
   the surface instead. Defaults to solid for the mumins, glow for everything
   else, and is not carried across a content switch.
+- **Window opening** slider (`?winbox=0..1`): whether the window is a hole.
+  At 1 a rectangle of shell is cut away and the content is recessed in it,
+  which is what a screen or a photograph wants and what the CRT keeps. At 0
+  there is no opening: the content wells up through a soft oval, and the
+  surface gives way only under the content's own ink instead of across the
+  whole of its bounding box. That box was what made the cymatics plate and
+  the sonic sphere read as dark panels with borders pasted onto the terrain
+  rather than as something the moon was doing. Defaults to 1 for `crt`,
+  `screen`, images and video, and 0 for everything the page draws itself.
 - **Unattended-show survival** (macOS): `npm run show:mac` holds a power
   assertion and launches the kiosk with occlusion/throttling disabled;
   `npm run show:mac:status` reports what the machine will do, and
