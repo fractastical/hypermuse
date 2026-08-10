@@ -56,18 +56,20 @@ stills, `npm run press` re-cuts the clips and the page from whatever masters are
 
 ## Booking the installation
 
-HyperMuse can be hired as a single-day install. What arrives is the fan, a 4.3 m box-truss
-tower and its ground frame; what it needs from the venue is a ladder, a laptop with an HDMI
-port, and somewhere 2.5 m square to stand.
+HyperMuse can be hired as a single-day install. What arrives is the fan, a box-truss tower
+and its ground frame; what it needs from the venue is a ladder, a laptop with an HDMI port,
+and somewhere 2.5 m square to stand. The tower is built from truss sections, so 4.3 m is
+the usual height rather than a fixed one — it can come down for a low ceiling or go up over
+a taller booth.
 
 | | |
 |---|---|
-| Height | 4.3 m to the top of the disc |
+| Height | 4.3 m to the top of the disc, adjustable |
 | Footprint | 2.5 m square ground frame |
 | Install | 2 people, 2.5 hours |
 | Breakdown | 2 people, 1 hour |
 | Needs | a ladder, and a laptop with an HDMI port |
-| Cost | 750 EUR, single-day install |
+| Cost | negotiable — 750 EUR is the usual single-day install |
 | Debut | Burning Man PlayAlchemist, 2023 |
 
 It ships with an equalizer that can be preconfigured for the night's music, and it will
@@ -76,8 +78,10 @@ room. The render above is that rig, dimensioned: `SHOT=rig npm run export:holofa
 it, and `holofan.html?shot=rig` is it in a browser.
 
 The booking sheet as sent is [`docs/press/hypermuse-one-pager.pdf`](docs/press/hypermuse-one-pager.pdf).
+It quotes one height and one price; the table above is the current answer where the two differ.
 
-**Joel Dietz** · [@fractastical](https://t.me/fractastical) · +1 (628) 333-1011
+**Joel Dietz** · [@fractastical](https://t.me/fractastical) on Telegram ·
+[+1 (628) 333-1011](https://wa.me/16283331011) on WhatsApp
 
 [![The HyperMuse booking sheet](docs/press/one-pager.jpg)](docs/press/hypermuse-one-pager.pdf)
 

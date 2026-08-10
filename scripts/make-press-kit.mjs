@@ -111,17 +111,19 @@ const SPEC = {
     "reacting to the room.",
   debut: "Debuted at Burning Man PlayAlchemist, 2023.",
   rows: [
-    ["Height", "4.3 m to the top of the disc"],
+    ["Height", "4.3 m to the top of the disc, adjustable"],
     ["Footprint", "2.5 m square ground frame"],
     ["Install", "2 people, 2.5 hours"],
     ["Breakdown", "2 people, 1 hour"],
     ["Needs", "a ladder, and a laptop with an HDMI port"],
-    ["Cost", "750 EUR, single-day install"]
+    ["Cost", "negotiable - 750 EUR is the usual single-day install"]
   ],
+  // wa.me rather than tel:, since the number is reached on WhatsApp and a tel:
+  // link on a desktop browser opens nothing anybody has.
   contact: [
-    ["Joel Dietz", null],
-    ["@fractastical", "https://t.me/fractastical"],
-    ["+1 (628) 333-1011", "tel:+16283331011"]
+    ["Joel Dietz", null, null],
+    ["@fractastical", "https://t.me/fractastical", "Telegram"],
+    ["+1 (628) 333-1011", "https://wa.me/16283331011", "WhatsApp"]
   ]
 };
 
@@ -254,6 +256,7 @@ fs.writeFileSync(path.join(PRESS, "index.html"), `<!DOCTYPE html>
   .sheet img { display:block; width:100%; }
   .contact { margin:16px 0 0; padding:0; list-style:none; }
   .contact li { padding:3px 0; }
+  .contact em { font-style:normal; color:rgba(207,233,255,0.4); font-size:12px; margin-left:6px; }
 </style>
 </head>
 <body><main>
@@ -274,8 +277,9 @@ fs.writeFileSync(path.join(PRESS, "index.html"), `<!DOCTYPE html>
 ${SPEC.rows.map(([k, v]) => `        <tr><th>${esc(k)}</th><td>${esc(v)}</td></tr>`).join("\n")}
       </table>
       <ul class="contact">
-${SPEC.contact.map(([label, href]) =>
-  `        <li>${href ? `<a href="${href}">${esc(label)}</a>` : `<b>${esc(label)}</b>`}</li>`).join("\n")}
+${SPEC.contact.map(([label, href, via]) =>
+  `        <li>${href ? `<a href="${href}">${esc(label)}</a>` : `<b>${esc(label)}</b>`}` +
+  `${via ? ` <em>${esc(via)}</em>` : ""}</li>`).join("\n")}
       </ul>
     </div>
     <a class="sheet" href="hypermuse-one-pager.pdf">
@@ -283,7 +287,8 @@ ${SPEC.contact.map(([label, href]) =>
     </a>
   </div>
   <p class="lede" style="margin-top:14px">The sheet as sent:
-  <a href="hypermuse-one-pager.pdf">hypermuse-one-pager.pdf</a>. The clip below is the rig
+  <a href="hypermuse-one-pager.pdf">hypermuse-one-pager.pdf</a>. It quotes one height and one
+  price; the table above is the current answer where the two differ. The clip below is the rig
   itself, rendered to the same dimensions.</p>
 
   <h2>Motion</h2>
