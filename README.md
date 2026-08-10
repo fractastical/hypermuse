@@ -473,12 +473,20 @@ about 13% for the time that takes. Turn it off with `?trifollow=0`.
 It does cost time. **Nothing is written while it turns** — otherwise the opening
 characters of every line go down while the side they belong to is still swinging
 into place, which is the one thing the turn exists to prevent, and the slower and
-more legible you make the turn the more of the line it spoils. So `?triease=0.9`
+more legible you make the turn the more of the line it spoils. So `?triease=1.2`
 is time added to each line rather than overlapped with it: a three-line screen
-costs 2.7 s more than it used to. Take the same off the hold (`?hold=1.6` in
+costs 3.6 s more than it used to. Take the same off the hold (`?hold=1.6` in
 place of 2.2, or the slider in the panel) to get the old length back. Under a
 beat lock this is handled for you — the typing is hurried enough to fit both the
 words and the turns into the bar.
+
+The turn is a smoothstep, not a cubic ease. A cubic in-out looks gentle written
+down and is not: it sits still at both ends and pays for that by running three
+times its own average speed through the middle, which on a whole triangle of
+words reads as a whip and made the turn feel fast however long it was given.
+Smoothstep peaks at half again its average, so the same 120° in the same time
+glides. `node scripts/probe-poem-turn.mjs` prints the peak in degrees a second
+if you change either.
 
 **Nothing is cut.** A line is not finished with when its screen ends: it keeps
 its place in the turn, so three lines later it comes round to the same side
@@ -513,7 +521,7 @@ Parameters, beyond the ones the terminal already had: `?poem=file.txt` (blank
 lines separate stanzas), `?group=3` (split every screen into even runs, never
 spanning a stanza), `?align=center`, `?vcenter=1`, `?scale=1`, `?fit=1`,
 `?start=0` (open partway through), `?layout=triangle`, `?trifollow=1`,
-`?triease=0.9`, `?trighost=6`, `?trighostz=0.62`, `?trighostfade=0.55`,
+`?triease=1.2`, `?trighost=6`, `?trighostz=0.62`, `?trighostfade=0.55`,
 `?trispin=0`, `?triline=0`, `?tripad=0.86`, `?beat=0`, `?beats=8`, `?live=1`.
 
 ### Rendering the pair

@@ -410,7 +410,13 @@ console.log("\nthe triangle");
     `${square} rests, none off the base`);
   ok("and it got there by turning a third", turning > 0 && sweep > 60,
     `swept ${sweep.toFixed(0)}deg`);
-  ok("and spends most of its time at rest", square > turning * 2, `${square} still, ${turning} turning`);
+  // Still for more of the time than it moves. Not much more: at cps=13 a line
+  // of this poem types in about 1.1 s and the turn after it is given 1.2 s, so
+  // a screen is roughly 3.5 s of writing and 2 s of hold against 3.6 s of
+  // turning, and the turn is meant to be a legible part of the piece rather
+  // than a transition to be got over. What this catches is the turn growing
+  // until the triangle is never still.
+  ok("and spends most of its time at rest", square > turning, `${square} still, ${turning} turning`);
   ok("never touches the frame edge while turning", worstEdge < 0,
     `${(-worstEdge).toFixed(0)}px of clearance at the tightest`);
   // Same fit as a triangle that never moves: the three resting orientations of
@@ -426,7 +432,7 @@ console.log("\nthe triangle");
   // legible the turn, the more of the line it spoils.
   const p = await context.newPage();
   await p.goto(`${BASE}/crt-terminal.html?poem=trinitypoem.txt&group=3&color=white&fx=0` +
-    `&cps=13&hold=1.5&safe=0.06&fit=0.97&layout=triangle&triease=0.9`,
+    `&cps=13&hold=1.5&safe=0.06&fit=0.97&layout=triangle&triease=1.2`,
     { waitUntil: "domcontentloaded" });
   await p.waitForFunction(() => window.__hyperstitionStats.frames > 50, { timeout: 15000 });
   await p.waitForTimeout(500);
@@ -532,7 +538,18 @@ console.log("\nthe triangle");
     const p = await context.newPage();
     await p.goto(`${BASE}/crt-terminal.html?${q}${extra}`, { waitUntil: "domcontentloaded" });
     await p.waitForFunction(() => window.__hyperstitionStats.frames > 50, { timeout: 15000 });
-    await p.waitForTimeout(11000); // several screens, so the tail is full
+    // Wait for the state being measured rather than for a number of seconds.
+    // The two pages are compared against each other, so they have to be caught
+    // at the same moment of the poem: a fixed sleep put them on different
+    // screens as soon as the turn was given more time, and compared a short
+    // line against a long one. A finished fourth screen, standing still, is
+    // the same picture on both - by then the tail is also full, and mid-turn
+    // the tail is legitimately swung out past the resting shape it is being
+    // measured against.
+    await p.waitForFunction(() => {
+      const s = window.__hyperstitionStats;
+      return s.frame >= 3 && s.triSettled && s.written === s.lines.split(" / ").join(" ");
+    }, { timeout: 60000 });
     const r = await p.evaluate(() => {
       const c = document.getElementById("c");
       const d = c.getContext("2d").getImageData(0, 0, c.width, c.height).data;

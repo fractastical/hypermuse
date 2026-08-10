@@ -68,7 +68,7 @@
   //                           of its three faces is down, so it is only during
   //                           the turn itself that it needs more room, and it
   //                           gives back a little size for that moment.
-  //   ?triease=0.9            seconds each third of a turn takes. Nothing is
+  //   ?triease=1.2            seconds each third of a turn takes. Nothing is
   //                           written while it turns - otherwise the opening
   //                           characters of every line go down while their side
   //                           is still swinging - so this is time added to each
@@ -150,7 +150,7 @@
   let TRI = (params.get("layout") || "").toLowerCase() === "triangle";
   let TRISPIN = num("trispin", 0);
   let TRIFOLLOW = params.get("trifollow") !== "0";
-  let TRIEASE = Math.max(0, num("triease", 0.9));
+  let TRIEASE = Math.max(0, num("triease", 1.2));
   let TRILINE = Math.max(0, Math.min(1, num("triline", 0)));
   let TRIGHOST = Math.max(0, Math.min(9, Math.round(num("trighost", 6))));
   let TRIGHOSTZ = Math.max(0.2, Math.min(2, num("trighostz", 0.62)));
@@ -380,7 +380,12 @@
     }
 
     const k = TRIEASE > 0 ? Math.min(1, (t - triAt) / TRIEASE) : 1;
-    triProg = k < 0.5 ? 4 * k * k * k : 1 - Math.pow(2 - 2 * k, 3) / 2;
+    // Smoothstep rather than a cubic ease. A cubic in-out sits still at both
+    // ends and pays for it by running three times its own average speed through
+    // the middle, and on a whole triangle of words that middle is a whip - the
+    // turn reads as fast however long it is given. Smoothstep peaks at half
+    // again its average, so the same 120 degrees in the same time is a glide.
+    triProg = k * k * (3 - 2 * k);
     if (TRISPIN !== 0) return (triAngle = (TRISPIN * t * Math.PI) / 180);
     // Held still, the shape never moves and the lines take the three sides in
     // turn instead - which is the same drawing with the turn cancelled out.

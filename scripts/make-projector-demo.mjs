@@ -51,7 +51,7 @@ render("poem", POEM, {
   // What the controller's own "open poem output" sends, plus the turn that
   // keeps the line being written along the bottom.
   HYPERSTITION_EXTRA_QUERY: "poem=trinitypoem.txt&group=3&layout=triangle&trifollow=1" +
-    "&triease=0.9&trighost=6&color=white&fx=0&cps=13&hold=1.6" +
+    "&triease=1.2&trighost=6&color=white&fx=0&cps=13&hold=1.6" +
     "&safe=0.06&fit=0.97&align=center&vcenter=1"
 });
 
