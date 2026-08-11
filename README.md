@@ -697,9 +697,34 @@ what they affect:
 | `video` | `loops/3d moon/web/moon-rotating-6s-alpha.webm` | the moon clip itself; the only change that reloads the page |
 | `speed` | `0.333` | rotation playback rate |
 | `moonscale` | `1` | disc size in frame; backdrop and vajra orbits track it |
+| `moonx` `moony` | `0` | nudge the moon off centre by hand, in disc radii; positive is right and up |
 | `alpha` | `1` | opacity of the whole moon render, revealing the backdrop behind |
 | `cx` `cy` `cr` | `0.5` `0.5` `0.38` | disc centre and radius in the source video, so content clips to the sphere |
 | `rotper` `rotdir` | `0` `1` | seconds per revolution (0 = one video loop) and spin direction |
+
+**Where the moon sits.** It centres itself. The disc is measured off the video's
+alpha channel over the first revolution — coverage-weighted, so it is accurate
+to well under a pixel — and the whole render is slid so that disc lands in the
+middle of the window. `node scripts/probe-moon-framing.mjs` checks it from the
+outside and reports it as a percentage of the radius; the stock loops come out
+between 0.1% and 0.5%, at every aspect ratio.
+
+It can still look off, and the reason is worth knowing before you go looking for
+a bug. The moon is lit from one side, so part of the limb is in shadow and
+cannot be told from a black background at all. The disc can be dead centre while
+the shape you can *see* is clipped on one side: on the default six-second loop
+that visible shape sits about 10% of a radius to the left, and on the thirty it
+is about 16% to the right. The probe measures this too, and prints the `?moonx=`
+that cancels it.
+
+Whether to cancel it is a judgement about what the moon is inside. On a black
+screen the eye has nothing to go on but the moon, so centring what can be seen
+may read better. On the holographic fan the rim of the fan is a hard circular
+reference and the true disc should be concentric with it, so leave it alone.
+Beware the obvious shortcut of centring on a brightness-weighted centroid: that
+lands twice as far over, because it reads the maria as half-absent when they are
+dark and perfectly visible, and it measures where the maria are rather than
+where the moon is.
 
 **The word (letter mosaic)**
 

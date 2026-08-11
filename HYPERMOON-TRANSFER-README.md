@@ -24,6 +24,15 @@ latest versions). Then:
   (`?backspeed=`, needs Chrome for ImageDecoder — kiosk Chrome is fine).
 - **Moon size** slider (`?moonscale=`): shrinks/grows the whole moon while it
   stays pinned to the screen centre.
+- **Nudge X / Y** sliders (`?moonx=`, `?moony=`): shift the moon off centre by
+  hand, in disc radii, positive right and up. The disc centres itself and does
+  it well — it is measured off the video's alpha and lands within half a percent
+  of a radius — so this is for squaring the moon up to a fan hub or a projected
+  frame by eye, not for fixing the centring. If it looks off-centre and the
+  measurement says it is not, that is the shadowed limb: part of the moon cannot
+  be told from a black background, so what you see is clipped on one side.
+  `node scripts/probe-moon-framing.mjs` prints both numbers and the nudge that
+  cancels the difference (about `moonx=0.10` on the default loop).
 - **Guest logos** (`guest logo` field, or `?logo=`): someone else's mark takes
   the word's place on the shadowed panel. See below.
 - **A program never stops.** The output walks the schedule one entry per

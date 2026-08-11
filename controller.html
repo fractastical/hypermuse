@@ -587,6 +587,16 @@
             <td colspan="3" style="padding:2px 8px;color:rgba(207,233,255,0.45);">shrinks/grows the whole moon on screen — backdrop and vajra orbits follow</td>
           </tr>
           <tr>
+            <td style="padding:2px 8px;color:rgba(207,233,255,0.62);">nudge X / Y</td>
+            <td colspan="5" style="padding:2px 8px;">
+              X <input type="range" class="hm-slider" id="hmMoonX" data-key="moonx" min="-0.5" max="0.5" step="0.005" style="width:110px;vertical-align:middle;"/>
+              <span id="hmMoonXVal">–</span>
+              Y <input type="range" class="hm-slider" id="hmMoonY" data-key="moony" min="-0.5" max="0.5" step="0.005" style="width:110px;vertical-align:middle;"/>
+              <span id="hmMoonYVal">–</span>
+              <span style="color:rgba(207,233,255,0.45);">in disc radii, so it means the same at any size — the disc centres itself, this is for squaring it up to a fan hub or a projected frame by eye</span>
+            </td>
+          </tr>
+          <tr>
             <td style="padding:2px 8px;color:rgba(207,233,255,0.62);">moon opacity</td>
             <td><input type="range" class="hm-slider" id="hmAlpha" data-key="alpha" min="0" max="1" step="0.01" style="width:130px;"/></td>
             <td style="padding:2px 8px;"><span id="hmAlphaVal">–</span></td>
@@ -2380,6 +2390,8 @@ const HM_FMT = {
     winsolid: function(v) { return v <= 0 ? 'glow' : v >= 1 ? 'solid' : Math.round(v * 100) + '% solid'; },
     winparallax: function(v) { return v <= 0 ? 'on the surface' : v.toFixed(2) + ' deep'; },
     winbox: function(v) { return v >= 1 ? 'framed' : v <= 0 ? 'no frame' : Math.round(v * 100) + '% framed'; },
+    moonx: function(v) { return v === 0 ? '0' : (v > 0 ? '+' : '') + v.toFixed(3) + 'r'; },
+    moony: function(v) { return v === 0 ? '0' : (v > 0 ? '+' : '') + v.toFixed(3) + 'r'; },
     fisherlivesize: function(v) { return v.toFixed(2) + '\u00d7'; },
     fisherliveangle: function(v) { return Math.round(v) + '\u00b0'; },
     fisherlivedist: function(v) { return v.toFixed(2) + ' R'; },

@@ -193,6 +193,13 @@
   // - the disc, its backdrop and the vajra orbits all track it, since they
   // are positioned off the quad scale.
   let MOON_SCALE = Math.max(0.1, Math.min(2, num("moonscale", 1)));
+  // Nudge the moon off centre by hand (?moonx=, ?moony=), in disc radii so it
+  // means the same thing at any size and on any display - for squaring the
+  // moon up to a fan hub or a projected frame by eye. The disc itself is
+  // centred automatically and measured off the video's alpha; scripts/
+  // probe-moon-framing.mjs reports how well, if it is ever in doubt.
+  let MOON_DX = num("moonx", 0);
+  let MOON_DY = num("moony", 0);
   // Iris reveal (?iris=0..1): opens a fully transparent circular hole in the
   // centre of the disc so the backdrop shows through while the moon's limb
   // stays as a rim. irisr = hole radius as a fraction of the disc radius
@@ -3000,13 +3007,34 @@
       }, BACK_SEC * 1000);
     }
   }
-  // Keep the moon disc pinned to the window centre: the auto-measured disc
-  // can sit slightly off the video-frame centre, and shrinking the quad
-  // (moonscale) would otherwise drag the disc toward wherever the frame
-  // centre is. Runs every frame (the disc estimate refines after load).
+  // Keep the moon pinned to the window centre: the auto-measured disc can sit
+  // slightly off the video-frame centre, and shrinking the quad (moonscale)
+  // would otherwise drag it toward wherever the frame centre is. Runs every
+  // frame (the disc estimate refines after load).
+  //
+  // The hand nudge is in disc radii, so it means the same thing at any size or
+  // on any display. One frame-height is 9/16 of the frame across, which is the
+  // space the disc radius is measured in.
+  const centred = { x: null, y: null };
   function centerQuad() {
-    quad.position.x = -(disc.x * 2 - 1) * quad.scale.x;
-    quad.position.y = -(disc.y * 2 - 1) * quad.scale.y;
+    // Negated because this is the point being put in the middle, not the place
+    // the moon is being put: asking for a centre further left slides the moon
+    // right. Positive x is right and positive y is up, as they read.
+    const tx = disc.x - MOON_DX * disc.r * (9 / 16);
+    const ty = disc.y - MOON_DY * disc.r;
+    // Eased, because the disc estimate refines over the survey's first
+    // revolution: unfollowed, that is the moon stepping sideways a fraction of
+    // a pixel at a time while the average settles. The first frame has nothing
+    // to ease from and simply lands.
+    if (centred.x === null) {
+      centred.x = tx;
+      centred.y = ty;
+    } else {
+      centred.x += (tx - centred.x) * 0.08;
+      centred.y += (ty - centred.y) * 0.08;
+    }
+    quad.position.x = -(centred.x * 2 - 1) * quad.scale.x;
+    quad.position.y = -(centred.y * 2 - 1) * quad.scale.y;
   }
   // Follows the disc every frame (the disc is auto-measured from the video
   // alpha, so it can shift after load); style writes only happen on change.
@@ -3195,6 +3223,17 @@
       const inSet = ((k % FISHER_HEART) + FISHER_HEART) % FISHER_HEART;
       return { catch: k, phase: +p.toFixed(3), finale: inSet === FISHER_HEART - 1, heart: inSet === FISHER_HEART - 1 && p > 0.8 };
     },
+    // Where the moon was measured to be, in video UV, and whether that
+    // measurement is finished. The survey runs for a revolution of playback
+    // and then pins it, which at the default third speed is a good half
+    // minute for the six second loop.
+    get centre() {
+      return {
+        disc: { x: +disc.x.toFixed(4), y: +disc.y.toFixed(4), r: +disc.r.toFixed(4) },
+        surveyed: anchorLocked,
+        nudge: { x: MOON_DX, y: MOON_DY }
+      };
+    },
     get program() { return progName; },
     get programRot() { return progApplied; },
     get iris() { return +uniforms.uIris.value; },
@@ -3259,7 +3298,7 @@
 
     // Pass 1: measure the moon disc from the alpha channel (covers the full
     // sphere, lit and dark alike).
-    if (AUTO_DISC) {
+    {
       // Coverage, not a hard mask. Drawing the video down to the sample grid
       // averages the alpha, so an edge cell's alpha IS the fraction of it that
       // lies inside the disc. The window opens above the video's faint glow
@@ -3276,7 +3315,7 @@
           sumV += v * c;
         }
       }
-      if (cov > 20) {
+      if (AUTO_DISC && cov > 20) {
         // Centre from the coverage centroid, not the bbox midpoint: the bbox
         // quantises to the coarse sample grid (~2px on screen and worse on
         // big displays), while the centroid of a solid disc is sub-pixel
@@ -3428,17 +3467,25 @@
     return ROT_PER > 0 ? ROT_PER : (moon.video.duration || 6);
   }
 
-  function updateMosaicAnchor(t) {
+  // The survey. Two things come out of it: where the disc is, which every
+  // layout needs in order to be centred, and the darkest patch of terrain,
+  // which only the word mosaic does. It used to run only when there was a
+  // mosaic, so a moon carrying no word was placed on the unmeasured defaults -
+  // fine for the loops whose disc happens to sit at the middle of the frame,
+  // and 6% of a radius out on the neon one, which does not.
+  function surveyMoon(t) {
     const per = rotationPeriod();
     const rot = ROT_DIR * 2 * Math.PI * ((moon.video.currentTime % per) / per);
     uniforms.uRot.value = rot;
-    if (!anchorLocked && t - lastSampleT >= 0.2) {
-      lastSampleT = t;
-      sampleSurface(rot);
-      pickAnchor();
-      // One full revolution surveyed: the darkest terrain has won, pin it.
-      if (t >= (per / SPEED) * 1.05 + 1) anchorLocked = true;
-    }
+    if (anchorLocked || t - lastSampleT < 0.2) return;
+    lastSampleT = t;
+    sampleSurface(rot);
+    if (mosaic) pickAnchor();
+    // One full revolution surveyed: the darkest terrain has won, pin it.
+    if (t >= (per / SPEED) * 1.05 + 1) anchorLocked = true;
+  }
+
+  function updateMosaicAnchor(t) {
     if (haveAnchor) {
       const a = uniforms.uAnchor.value;
       a.x += wrapPi(anchorTarget.lon - a.x) * 0.1;
@@ -3864,6 +3911,7 @@
     uniforms.uLift.value = liftBase + REACT * audio.bass * 0.055;
     uniforms.uWinBright.value = winBrightBase * (1 + REACT * (audio.high * 0.55 + audio.beatEnv * 0.3));
     uniforms.uBright.value = brightBase * (1 + REACT * audio.level * 0.3);
+    surveyMoon(t);
     if (mosaic) {
       updateMosaicAnchor(t);
       // Shimmer the tiles by reshuffling cube images a few times a second;
@@ -4033,6 +4081,8 @@
     if (IRIS_FEATHER !== 0.22) q.set("irisfeather", IRIS_FEATHER.toFixed(2));
     if (IRIS_ZOOM !== 2.5) q.set("iriszoom", IRIS_ZOOM.toFixed(2));
     if (MOON_SCALE !== 1) q.set("moonscale", MOON_SCALE.toFixed(2));
+    if (MOON_DX !== 0) q.set("moonx", MOON_DX.toFixed(3));
+    if (MOON_DY !== 0) q.set("moony", MOON_DY.toFixed(3));
     if (BLOOD_AMT > 0) {
       q.set("bloodmoon", BLOOD_AMT.toFixed(2));
       if (BLOOD_TINT !== "ff2c12") q.set("bloodtint", BLOOD_TINT);
@@ -4120,6 +4170,8 @@
       irisfeather: IRIS_FEATHER,
       iriszoom: IRIS_ZOOM,
       moonscale: MOON_SCALE,
+      moonx: MOON_DX,
+      moony: MOON_DY,
       bloodmoon: BLOOD_AMT,
       bloodtint: BLOOD_TINT,
       bloodtarget: BLOOD_TARGET,
@@ -4248,6 +4300,8 @@
         case "stardrift": SKY_DRIFT = Math.max(0, v); break;
         case "iriszoom": IRIS_ZOOM = Math.max(1, v); break;
         case "moonscale": MOON_SCALE = Math.max(0.1, Math.min(2, v)); fitQuad(); break;
+        case "moonx": MOON_DX = v; break;
+        case "moony": MOON_DY = v; break;
         case "react": REACT = Math.max(0, v); break;
         case "mic": setMic(!!v && v !== "0"); break;
         case "flicker": uniforms.uFlicker.value = v; break;
