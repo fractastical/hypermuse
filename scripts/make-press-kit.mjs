@@ -22,6 +22,7 @@
 // play a repo-relative video in a markdown page, only an image.
 import fs from "node:fs";
 import path from "node:path";
+import crypto from "node:crypto";
 import { execFileSync } from "node:child_process";
 import ffmpeg from "ffmpeg-static";
 
@@ -38,6 +39,24 @@ const FORCE = process.env.FORCE === "1";
 const only = String(process.env.ONLY || "").trim();
 const wanted = only ? new Set(only.split(",").map((s) => s.trim())) : null;
 const pick = (id) => !wanted || wanted.has(id);
+
+// Re-rendering a clip keeps its name, and Pages serves it with
+// cache-control: max-age=600, so anyone who has already opened the page goes on
+// being shown the previous cut for ten minutes after a push - which looks
+// exactly like the change not having deployed. A content hash in the query
+// makes a file that changed into a URL that changed, and leaves everything else
+// cached as it should be.
+const hashes = new Map();
+const ver = (file) => {
+  if (!fs.existsSync(file)) return "";
+  if (!hashes.has(file)) {
+    hashes.set(file, crypto.createHash("sha1").update(fs.readFileSync(file)).digest("hex").slice(0, 8));
+  }
+  return `?v=${hashes.get(file)}`;
+};
+// The pages sit at different depths and refer to the same files by different
+// relative paths, but everything they point at lives under docs/.
+const docFile = (rel) => path.join(ROOT, "docs", rel);
 
 // Cut points are chosen past each render's settling-in: the moon fades up, the
 // fan spins up, the poem has to turn before it writes anything.
@@ -254,7 +273,7 @@ const BRAND = [
 
 const brandStrip = (prefix) => `  <div class="brand">
 ${BRAND.map(([img, title, note]) =>
-  `    <figure><img loading="lazy" src="${prefix}${img}" alt="${esc(title)}"/>` +
+  `    <figure><img loading="lazy" src="${prefix}${img}${ver(docFile(img))}" alt="${esc(title)}"/>` +
   `<figcaption><b>${esc(title)}</b><span>${esc(note)}</span></figcaption></figure>`).join("\n")}
   </div>`;
 
@@ -272,7 +291,7 @@ const rider = () => `  <div class="rider">
   </div>`;
 
 const sellCards = (prefix) => DJ.sells.map(([k, img, v]) =>
-  `    <article><img loading="lazy" src="${prefix}${img}" alt="${esc(k)}"/>` +
+  `    <article><img loading="lazy" src="${prefix}${img}${ver(docFile(img))}" alt="${esc(k)}"/>` +
   `<div class="say"><b>${esc(k)}</b><p>${esc(v)}</p></div></article>`).join("\n");
 
 // The call to action, above the fold on both pages. Someone scanning this on a
@@ -421,9 +440,12 @@ const esc = (s) => s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, 
 const clipCard = (c) => {
   const f = path.join(CLIPDIR, `${c.id}.mp4`);
   if (!fs.existsSync(f)) return "";
+  // The download link is deliberately left unstamped: a browser names the saved
+  // file after the URL, and nobody wants hero.mp4?v=1a2b3c4d on their desktop.
   return `      <figure>
         <video controls loop muted playsinline preload="none"
-               poster="posters/${c.id}.jpg" src="clips/${c.id}.mp4"></video>
+               poster="posters/${c.id}.jpg${ver(path.join(POSTER, `${c.id}.jpg`))}"
+               src="clips/${c.id}.mp4${ver(f)}"></video>
         <figcaption><b>${esc(c.title)}</b><span>${esc(c.note)}</span>
           <a href="clips/${c.id}.mp4" download>download &middot; ${size(f)}</a></figcaption>
       </figure>`;
@@ -432,7 +454,7 @@ const stillCard = ([id, title, note]) => {
   const f = path.join(GALLERY, `${id}.jpg`);
   if (!fs.existsSync(f)) return "";
   return `      <figure>
-        <a href="../gallery/${id}.jpg"><img loading="lazy" src="../gallery/${id}.jpg" alt="${esc(title)}"/></a>
+        <a href="../gallery/${id}.jpg"><img loading="lazy" src="../gallery/${id}.jpg${ver(f)}" alt="${esc(title)}"/></a>
         <figcaption><b>${esc(title)}</b><span>${esc(note)}</span></figcaption>
       </figure>`;
 };
@@ -502,7 +524,7 @@ ${SPEC.contact.map(([label, href, via]) =>
       </ul>
     </div>
     <a class="sheet" href="hypermuse-one-pager.pdf">
-      <img loading="lazy" src="one-pager.jpg" alt="The HyperMuse booking sheet: specifications, requirements and cost"/>
+      <img loading="lazy" src="one-pager.jpg${ver(path.join(PRESS, "one-pager.jpg"))}" alt="The HyperMuse booking sheet: specifications, requirements and cost"/>
     </a>
   </div>
   <p class="lede" style="margin-top:14px">The sheet as sent:
@@ -613,8 +635,9 @@ ${SHARED_CSS}
 </head>
 <body>
   <section class="hero">
-    <video autoplay muted loop playsinline preload="auto" poster="${p}press/posters/hero.jpg">
-      <source src="${p}press/clips/hero.mp4" type="video/mp4"/>
+    <video autoplay muted loop playsinline preload="auto"
+           poster="${p}press/posters/hero.jpg${ver(path.join(POSTER, "hero.jpg"))}">
+      <source src="${p}press/clips/hero.mp4${ver(path.join(CLIPDIR, "hero.mp4"))}" type="video/mp4"/>
     </video>
     <div class="veil"></div>
     <div class="badge"><b>HyperMuse</b> &nbsp;&middot;&nbsp;
