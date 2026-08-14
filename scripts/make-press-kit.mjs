@@ -119,6 +119,9 @@ const SPEC = {
     "it will play VJ loops or 3D visuals supplied as mp4 - or run this show, live and " +
     "reacting to the room.",
   debut: "Debuted at Burning Man PlayAlchemist, 2023.",
+  // The offer rather than the product name, because the person reading it is
+  // deciding whether their mark goes on the thing, not learning a brand.
+  slogan: "Be seen on the dark side of the moon",
   rows: [
     ["Height", "4.3 m to the top of the disc, adjustable"],
     ["Footprint", "2.5 m square ground frame"],
@@ -152,17 +155,19 @@ const SPEC = {
 // than guessed at, because a rider with a wrong number in it is worse than a
 // rider with a gap.
 const DJ = {
+  // Image paths are relative to docs/, so the press kit one directory down
+  // prefixes them with ../ and both pages read from one set of files.
   sells: [
-    ["Your mark on it, not ours",
+    ["Your mark on it, not ours", "gallery/word.jpg",
       "A guest logo sits on the moon's shadowed side the same way the word does - either as clean artwork or rebuilt out of moon footage so it looks like terrain. It is shot and checked at full size beforehand, so nobody discovers on stage that a wordmark is unreadable at forty feet."],
-    ["It listens to the room, not to our laptop",
+    ["It listens to the room, not to our laptop", "gallery/harmonics.jpg",
       "The machine driving the fan opens its own microphone, so the geometry answers whatever the PA is actually doing. Bass swells the sphere, beats flare the orbiting pieces, loud passages shake the lettering. Nothing has to be routed through us and nothing needs timecode."],
-    ["It will play your visuals",
+    ["It will play your visuals", "gallery/holofan-room.jpg",
       "Any loop supplied as mp4 goes into the rotation beside the generated show, so the night can be your content, ours, or a cut of the two. The equalizer can be set for the kind of music before doors."],
-    ["It runs the set without a VJ",
+    ["It runs the set without a VJ", "gallery/eclipse.jpg",
       "The programme is an hour of scheduled acts that loops for as long as the night does - a different effect each revolution, words, eclipses, orbits, geometry. The speed control stretches it, so half speed is a two-hour arc. It takes direction live if you want it, and needs nobody if you do not."],
-    ["The fan is not the only output",
-      "The same show drives projection - 402 x 226 cm is its native shape, two surfaces if you have them - and LED walls at 1920 x 1080 for a bar screen or 1872 x 1296 for a DJ screen."]
+    ["The fan is not the only output", "gallery/poem.jpg",
+      "The same show drives projection - 402 x 226 cm is its native shape, two surfaces if you have them - and LED walls at 1920 x 1080 for a bar screen or 1872 x 1296 for a DJ screen. The poem screen above is what the second projector carries."]
   ],
   // Split so the production manager can read their own column and stop.
   bring: [
@@ -194,8 +199,15 @@ const SHARED_CSS = `  :root { color-scheme: dark; }
   .cta .go { background:#7fd3ff; color:#04121c; }
   .cta .alt { border:1px solid rgba(127,211,255,0.32); color:#7fd3ff; font-weight:500; }
   .terms { color:rgba(207,233,255,0.5); font-size:13px; max-width:70ch; margin:0; }
-  .sells { display:grid; gap:20px; grid-template-columns:repeat(auto-fill,minmax(300px,1fr)); margin:0 0 34px; }
-  .sells div { background:#0a0e14; border:1px solid rgba(127,211,255,0.13); border-radius:10px; padding:16px 18px 18px; }
+  p.tag { font-size:19px; color:rgba(207,233,255,0.9); margin:0 0 14px; letter-spacing:-0.01em; }
+  .sells { display:grid; gap:20px; grid-template-columns:repeat(auto-fill,minmax(290px,1fr)); margin:0 0 40px; }
+  .sells article { background:#0a0e14; border:1px solid rgba(127,211,255,0.13); border-radius:12px;
+                   overflow:hidden; display:flex; flex-direction:column; }
+  /* 4:3 against 16:9 sources, so cover crops the sides and enlarges the subject.
+     These renders are a small bright disc in a large black frame, and at card
+     width the uncropped version reads as an empty rectangle. */
+  .sells img { display:block; width:100%; aspect-ratio:4/3; object-fit:cover; background:#000; }
+  .sells .say { padding:15px 17px 18px; }
   .sells b { display:block; margin:0 0 6px; }
   .sells p { margin:0; color:rgba(207,233,255,0.62); font-size:13.5px; }
   .rider { display:grid; gap:26px; grid-template-columns:repeat(auto-fit,minmax(280px,1fr)); }
@@ -204,6 +216,23 @@ const SHARED_CSS = `  :root { color-scheme: dark; }
   .rider ul { margin:0; padding:0; list-style:none; }
   .rider li { padding:6px 0; border-bottom:1px solid rgba(127,211,255,0.1); font-size:13.5px;
               color:rgba(207,233,255,0.72); }`;
+
+const rider = () => `  <div class="rider">
+    <div>
+      <h3>What arrives</h3>
+      <ul>${DJ.bring.map((x) => `\n        <li>${esc(x)}</li>`).join("")}
+      </ul>
+    </div>
+    <div>
+      <h3>What the room provides</h3>
+      <ul>${DJ.venue.map((x) => `\n        <li>${esc(x)}</li>`).join("")}
+      </ul>
+    </div>
+  </div>`;
+
+const sellCards = (prefix) => DJ.sells.map(([k, img, v]) =>
+  `    <article><img loading="lazy" src="${prefix}${img}" alt="${esc(k)}"/>` +
+  `<div class="say"><b>${esc(k)}</b><p>${esc(v)}</p></div></article>`).join("\n");
 
 // The call to action, above the fold on both pages. Someone scanning this on a
 // phone between panels has about one screenful of patience: what it is, what it
@@ -259,6 +288,28 @@ for (const c of CLIPS) {
   run(["-ss", String(mid), "-i", out, "-frames:v", "1", "-q:v", "4", poster]);
   console.log(`  ${c.id.padEnd(15)} ${size(out)}  poster ${size(poster)}`);
   made.push(c);
+}
+
+// The landing page's hero, cut from the close fan render. Two differences from
+// the press-kit copy of the same footage: the caption bar is cropped off the
+// bottom, being useful in a press kit and clutter beneath a title, and the crop
+// lands it on 2.06:1, which is a better shape for a banner than 16:9 and means
+// the browser has less to throw away when it covers a wide box.
+const HERO = { id: "hero", src: "artifacts/demos/hypermoon-holofan-180cm.mp4", start: 8, len: 14, width: 1280 };
+if (pick(HERO.id)) {
+  const src = path.join(ROOT, HERO.src);
+  const out = path.join(CLIPDIR, "hero.mp4");
+  const poster = path.join(POSTER, "hero.jpg");
+  if (!fs.existsSync(src)) missing.push(`hero - no ${HERO.src}`);
+  else if (fs.existsSync(out) && !FORCE) console.log(`  hero            kept  ${size(out)}`);
+  else {
+    run(["-ss", String(HERO.start), "-t", String(HERO.len), "-i", src, "-an",
+      "-vf", `crop=iw:trunc(ih*0.864/2)*2:0:0,scale=${HERO.width}:-2:flags=lanczos`,
+      "-c:v", "libx264", "-crf", "30", "-preset", "slow",
+      "-pix_fmt", "yuv420p", "-movflags", "+faststart", out]);
+    run(["-ss", String(HERO.len / 2), "-i", out, "-frames:v", "1", "-q:v", "4", poster]);
+    console.log(`  hero            ${size(out)}  poster ${size(poster)}`);
+  }
 }
 
 for (const l of LOOPS) {
@@ -344,6 +395,7 @@ ${SHARED_CSS}
 </head>
 <body><main>
   <h1>HyperMuse</h1>
+  <p class="tag">${esc(SPEC.slogan)}</p>
   <p class="lede">An audio-reactive holographic fan on a 4.3 m tower, and the browser-based show
   that drives it: a moon carrying words, geometry and weather on its dark side, with a poem
   screen beside it. ${esc(SPEC.debut)}</p>
@@ -351,20 +403,9 @@ ${bookNow("")}
 
   <h2 id="for-djs">If you are the one playing</h2>
   <div class="sells">
-${DJ.sells.map(([k, v]) => `    <div><b>${esc(k)}</b><p>${esc(v)}</p></div>`).join("\n")}
+${sellCards("../")}
   </div>
-  <div class="rider">
-    <div>
-      <h3>What arrives</h3>
-      <ul>${DJ.bring.map((x) => `\n        <li>${esc(x)}</li>`).join("")}
-      </ul>
-    </div>
-    <div>
-      <h3>What the room provides</h3>
-      <ul>${DJ.venue.map((x) => `\n        <li>${esc(x)}</li>`).join("")}
-      </ul>
-    </div>
-  </div>
+${rider()}
 
   <h2 id="the-installation">The installation</h2>
   <div class="book">
@@ -423,16 +464,37 @@ fs.writeFileSync(path.join(ROOT, "docs", "index.html"), `<!DOCTYPE html>
 <meta name="viewport" content="width=device-width,initial-scale=1"/>
 <title>HyperMuse &middot; a holographic fan you can book</title>
 <meta name="description" content="${esc(SPEC.about)}"/>
-<meta property="og:title" content="HyperMuse"/>
-<meta property="og:description" content="An audio-reactive holographic fan on a 4.3 m tower. Your mark on it, reacting to your set, running the night on its own."/>
-<meta property="og:image" content="${SITE}/docs/gallery/rig.jpg"/>
+<meta property="og:title" content="HyperMuse &middot; ${esc(SPEC.slogan)}"/>
+<meta property="og:description" content="A 180 cm holographic fan on a 4.3 m tower. Your mark on it, reacting to your set, running the night on its own."/>
+<meta property="og:image" content="${SITE}/docs/press/posters/hero.jpg"/>
 <meta property="og:url" content="${SITE}/docs/"/>
 <meta name="twitter:card" content="summary_large_image"/>
 <style>
 ${SHARED_CSS}
-  main { max-width:900px; margin:0 auto; }
-  .hero { margin:26px 0 0; border:1px solid rgba(127,211,255,0.13); border-radius:12px; overflow:hidden; }
-  .hero video { display:block; width:100%; background:#000; }
+  body { padding:0; }
+  main { max-width:1020px; margin:0 auto; padding:0 32px 96px; }
+  /* The hero is the whole first screen and the video is the page's background
+     for the height of it, so the first thing anyone sees is the thing moving
+     rather than a paragraph about it. object-fit:cover means the clip fills
+     whatever shape the window is, portrait phone included. */
+  .hero { position:relative; height:min(88vh,780px); min-height:440px; overflow:hidden; background:#000; }
+  .hero video { position:absolute; inset:0; width:100%; height:100%; object-fit:cover; }
+  /* Dark at the top so the eye starts on the title, dark at the bottom so the
+     text and buttons stay legible over whatever the clip happens to be doing. */
+  .hero .veil { position:absolute; inset:0; background:
+    linear-gradient(180deg,rgba(5,7,10,0.72) 0%,rgba(5,7,10,0.12) 30%,rgba(5,7,10,0.55) 66%,#05070a 100%); }
+  .hero .inner { position:absolute; left:0; right:0; bottom:0; max-width:1020px; margin:0 auto;
+                 padding:0 32px 42px; }
+  /* Capped in ch as well as px so the slogan breaks into two or three stacked
+     lines rather than one thin ribbon across a wide window. */
+  .hero h1 { font-size:clamp(33px,5.6vw,62px); line-height:1.06; letter-spacing:-0.025em;
+             margin:0 0 16px; max-width:19ch; text-wrap:balance; }
+  .hero p.lede { font-size:clamp(15px,2.1vw,18px); max-width:52ch; color:rgba(207,233,255,0.82); }
+  .hero .cta { margin:24px 0 12px; }
+  .badge { position:absolute; top:26px; left:0; right:0; max-width:1020px; margin:0 auto;
+           padding:0 32px; font-size:12px; letter-spacing:0.16em; text-transform:uppercase;
+           color:rgba(207,233,255,0.62); }
+  .badge b { color:rgba(207,233,255,0.9); letter-spacing:0.2em; }
   ul.more { list-style:none; padding:0; margin:14px 0 0; }
   ul.more li { border-top:1px solid rgba(127,211,255,0.13); }
   ul.more li:last-child { border-bottom:1px solid rgba(127,211,255,0.13); }
@@ -445,35 +507,28 @@ ${SHARED_CSS}
   table.spec th { color:rgba(207,233,255,0.5); width:38%; font-size:12.5px; letter-spacing:0.03em; }
 </style>
 </head>
-<body><main>
-  <h1>HyperMuse</h1>
-  <p class="lede">An audio-reactive holographic fan on a 4.3 m tower. Your mark goes on it, it
-  reacts to whatever the PA is doing, and it runs the night without anyone standing over it.</p>
-${bookNow("press/")}
-  <div class="hero">
-    <video autoplay muted loop playsinline preload="metadata" poster="press/posters/rig.jpg">
-      <source src="press/clips/rig.mp4" type="video/mp4"/>
+<body>
+  <section class="hero">
+    <video autoplay muted loop playsinline preload="auto" poster="press/posters/hero.jpg">
+      <source src="press/clips/hero.mp4" type="video/mp4"/>
     </video>
-  </div>
-  <p class="terms" style="margin-top:10px">The rig, dimensioned, carrying the show it ships with.
-  ${esc(SPEC.debut)}</p>
+    <div class="veil"></div>
+    <div class="badge"><b>HyperMuse</b> &nbsp;&middot;&nbsp;
+      ${esc(SPEC.debut.replace(/^Debuted at /, "").replace(/\.$/, ""))}</div>
+    <div class="inner">
+      <h1>${esc(SPEC.slogan)}</h1>
+      <p class="lede">A 180 cm holographic fan on a 4.3 m tower. Your mark goes on it, it reacts
+      to whatever the PA is doing, and it runs the night without anyone standing over it.</p>
+${bookNow("press/")}
+    </div>
+  </section>
+<main>
 
   <h2>If you are the one playing</h2>
   <div class="sells">
-${DJ.sells.map(([k, v]) => `    <div><b>${esc(k)}</b><p>${esc(v)}</p></div>`).join("\n")}
+${sellCards("")}
   </div>
-  <div class="rider">
-    <div>
-      <h3>What arrives</h3>
-      <ul>${DJ.bring.map((x) => `\n        <li>${esc(x)}</li>`).join("")}
-      </ul>
-    </div>
-    <div>
-      <h3>What the room provides</h3>
-      <ul>${DJ.venue.map((x) => `\n        <li>${esc(x)}</li>`).join("")}
-      </ul>
-    </div>
-  </div>
+${rider()}
 
   <h2>The numbers</h2>
   <table class="spec">

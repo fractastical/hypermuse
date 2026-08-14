@@ -5,9 +5,9 @@
 <meta name="viewport" content="width=device-width,initial-scale=1"/>
 <title>HyperMuse &middot; a holographic fan you can book</title>
 <meta name="description" content="An audio-reactive holographic fan, rigged above a DJ booth or standing on its own tower. It ships with an equalizer that can be preconfigured for the night's music, and it will play VJ loops or 3D visuals supplied as mp4 - or run this show, live and reacting to the room."/>
-<meta property="og:title" content="HyperMuse"/>
-<meta property="og:description" content="An audio-reactive holographic fan on a 4.3 m tower. Your mark on it, reacting to your set, running the night on its own."/>
-<meta property="og:image" content="https://fractastical.github.io/hypermuse/docs/gallery/rig.jpg"/>
+<meta property="og:title" content="HyperMuse &middot; Be seen on the dark side of the moon"/>
+<meta property="og:description" content="A 180 cm holographic fan on a 4.3 m tower. Your mark on it, reacting to your set, running the night on its own."/>
+<meta property="og:image" content="https://fractastical.github.io/hypermuse/docs/press/posters/hero.jpg"/>
 <meta property="og:url" content="https://fractastical.github.io/hypermuse/docs/"/>
 <meta name="twitter:card" content="summary_large_image"/>
 <style>
@@ -25,8 +25,15 @@
   .cta .go { background:#7fd3ff; color:#04121c; }
   .cta .alt { border:1px solid rgba(127,211,255,0.32); color:#7fd3ff; font-weight:500; }
   .terms { color:rgba(207,233,255,0.5); font-size:13px; max-width:70ch; margin:0; }
-  .sells { display:grid; gap:20px; grid-template-columns:repeat(auto-fill,minmax(300px,1fr)); margin:0 0 34px; }
-  .sells div { background:#0a0e14; border:1px solid rgba(127,211,255,0.13); border-radius:10px; padding:16px 18px 18px; }
+  p.tag { font-size:19px; color:rgba(207,233,255,0.9); margin:0 0 14px; letter-spacing:-0.01em; }
+  .sells { display:grid; gap:20px; grid-template-columns:repeat(auto-fill,minmax(290px,1fr)); margin:0 0 40px; }
+  .sells article { background:#0a0e14; border:1px solid rgba(127,211,255,0.13); border-radius:12px;
+                   overflow:hidden; display:flex; flex-direction:column; }
+  /* 4:3 against 16:9 sources, so cover crops the sides and enlarges the subject.
+     These renders are a small bright disc in a large black frame, and at card
+     width the uncropped version reads as an empty rectangle. */
+  .sells img { display:block; width:100%; aspect-ratio:4/3; object-fit:cover; background:#000; }
+  .sells .say { padding:15px 17px 18px; }
   .sells b { display:block; margin:0 0 6px; }
   .sells p { margin:0; color:rgba(207,233,255,0.62); font-size:13.5px; }
   .rider { display:grid; gap:26px; grid-template-columns:repeat(auto-fit,minmax(280px,1fr)); }
@@ -35,9 +42,30 @@
   .rider ul { margin:0; padding:0; list-style:none; }
   .rider li { padding:6px 0; border-bottom:1px solid rgba(127,211,255,0.1); font-size:13.5px;
               color:rgba(207,233,255,0.72); }
-  main { max-width:900px; margin:0 auto; }
-  .hero { margin:26px 0 0; border:1px solid rgba(127,211,255,0.13); border-radius:12px; overflow:hidden; }
-  .hero video { display:block; width:100%; background:#000; }
+  body { padding:0; }
+  main { max-width:1020px; margin:0 auto; padding:0 32px 96px; }
+  /* The hero is the whole first screen and the video is the page's background
+     for the height of it, so the first thing anyone sees is the thing moving
+     rather than a paragraph about it. object-fit:cover means the clip fills
+     whatever shape the window is, portrait phone included. */
+  .hero { position:relative; height:min(88vh,780px); min-height:440px; overflow:hidden; background:#000; }
+  .hero video { position:absolute; inset:0; width:100%; height:100%; object-fit:cover; }
+  /* Dark at the top so the eye starts on the title, dark at the bottom so the
+     text and buttons stay legible over whatever the clip happens to be doing. */
+  .hero .veil { position:absolute; inset:0; background:
+    linear-gradient(180deg,rgba(5,7,10,0.72) 0%,rgba(5,7,10,0.12) 30%,rgba(5,7,10,0.55) 66%,#05070a 100%); }
+  .hero .inner { position:absolute; left:0; right:0; bottom:0; max-width:1020px; margin:0 auto;
+                 padding:0 32px 42px; }
+  /* Capped in ch as well as px so the slogan breaks into two or three stacked
+     lines rather than one thin ribbon across a wide window. */
+  .hero h1 { font-size:clamp(33px,5.6vw,62px); line-height:1.06; letter-spacing:-0.025em;
+             margin:0 0 16px; max-width:19ch; text-wrap:balance; }
+  .hero p.lede { font-size:clamp(15px,2.1vw,18px); max-width:52ch; color:rgba(207,233,255,0.82); }
+  .hero .cta { margin:24px 0 12px; }
+  .badge { position:absolute; top:26px; left:0; right:0; max-width:1020px; margin:0 auto;
+           padding:0 32px; font-size:12px; letter-spacing:0.16em; text-transform:uppercase;
+           color:rgba(207,233,255,0.62); }
+  .badge b { color:rgba(207,233,255,0.9); letter-spacing:0.2em; }
   ul.more { list-style:none; padding:0; margin:14px 0 0; }
   ul.more li { border-top:1px solid rgba(127,211,255,0.13); }
   ul.more li:last-child { border-bottom:1px solid rgba(127,211,255,0.13); }
@@ -50,31 +78,35 @@
   table.spec th { color:rgba(207,233,255,0.5); width:38%; font-size:12.5px; letter-spacing:0.03em; }
 </style>
 </head>
-<body><main>
-  <h1>HyperMuse</h1>
-  <p class="lede">An audio-reactive holographic fan on a 4.3 m tower. Your mark goes on it, it
-  reacts to whatever the PA is doing, and it runs the night without anyone standing over it.</p>
+<body>
+  <section class="hero">
+    <video autoplay muted loop playsinline preload="auto" poster="press/posters/hero.jpg">
+      <source src="press/clips/hero.mp4" type="video/mp4"/>
+    </video>
+    <div class="veil"></div>
+    <div class="badge"><b>HyperMuse</b> &nbsp;&middot;&nbsp;
+      Burning Man PlayAlchemist, 2023</div>
+    <div class="inner">
+      <h1>Be seen on the dark side of the moon</h1>
+      <p class="lede">A 180 cm holographic fan on a 4.3 m tower. Your mark goes on it, it reacts
+      to whatever the PA is doing, and it runs the night without anyone standing over it.</p>
   <div class="cta">
     <a class="go" href="https://wa.me/16283331011">Book it &middot; WhatsApp</a>
     <a class="alt" href="https://t.me/fractastical">Telegram</a>
     <a class="alt" href="press/hypermuse-one-pager.pdf">Booking sheet, PDF</a>
   </div>
   <p class="terms">4.3 m to the top of the disc, adjustable · 2.5 m square base · two people and 2.5 hours to build · cost negotiable, 750 EUR is the usual single-day install</p>
-  <div class="hero">
-    <video autoplay muted loop playsinline preload="metadata" poster="press/posters/rig.jpg">
-      <source src="press/clips/rig.mp4" type="video/mp4"/>
-    </video>
-  </div>
-  <p class="terms" style="margin-top:10px">The rig, dimensioned, carrying the show it ships with.
-  Debuted at Burning Man PlayAlchemist, 2023.</p>
+    </div>
+  </section>
+<main>
 
   <h2>If you are the one playing</h2>
   <div class="sells">
-    <div><b>Your mark on it, not ours</b><p>A guest logo sits on the moon's shadowed side the same way the word does - either as clean artwork or rebuilt out of moon footage so it looks like terrain. It is shot and checked at full size beforehand, so nobody discovers on stage that a wordmark is unreadable at forty feet.</p></div>
-    <div><b>It listens to the room, not to our laptop</b><p>The machine driving the fan opens its own microphone, so the geometry answers whatever the PA is actually doing. Bass swells the sphere, beats flare the orbiting pieces, loud passages shake the lettering. Nothing has to be routed through us and nothing needs timecode.</p></div>
-    <div><b>It will play your visuals</b><p>Any loop supplied as mp4 goes into the rotation beside the generated show, so the night can be your content, ours, or a cut of the two. The equalizer can be set for the kind of music before doors.</p></div>
-    <div><b>It runs the set without a VJ</b><p>The programme is an hour of scheduled acts that loops for as long as the night does - a different effect each revolution, words, eclipses, orbits, geometry. The speed control stretches it, so half speed is a two-hour arc. It takes direction live if you want it, and needs nobody if you do not.</p></div>
-    <div><b>The fan is not the only output</b><p>The same show drives projection - 402 x 226 cm is its native shape, two surfaces if you have them - and LED walls at 1920 x 1080 for a bar screen or 1872 x 1296 for a DJ screen.</p></div>
+    <article><img loading="lazy" src="gallery/word.jpg" alt="Your mark on it, not ours"/><div class="say"><b>Your mark on it, not ours</b><p>A guest logo sits on the moon's shadowed side the same way the word does - either as clean artwork or rebuilt out of moon footage so it looks like terrain. It is shot and checked at full size beforehand, so nobody discovers on stage that a wordmark is unreadable at forty feet.</p></div></article>
+    <article><img loading="lazy" src="gallery/harmonics.jpg" alt="It listens to the room, not to our laptop"/><div class="say"><b>It listens to the room, not to our laptop</b><p>The machine driving the fan opens its own microphone, so the geometry answers whatever the PA is actually doing. Bass swells the sphere, beats flare the orbiting pieces, loud passages shake the lettering. Nothing has to be routed through us and nothing needs timecode.</p></div></article>
+    <article><img loading="lazy" src="gallery/holofan-room.jpg" alt="It will play your visuals"/><div class="say"><b>It will play your visuals</b><p>Any loop supplied as mp4 goes into the rotation beside the generated show, so the night can be your content, ours, or a cut of the two. The equalizer can be set for the kind of music before doors.</p></div></article>
+    <article><img loading="lazy" src="gallery/eclipse.jpg" alt="It runs the set without a VJ"/><div class="say"><b>It runs the set without a VJ</b><p>The programme is an hour of scheduled acts that loops for as long as the night does - a different effect each revolution, words, eclipses, orbits, geometry. The speed control stretches it, so half speed is a two-hour arc. It takes direction live if you want it, and needs nobody if you do not.</p></div></article>
+    <article><img loading="lazy" src="gallery/poem.jpg" alt="The fan is not the only output"/><div class="say"><b>The fan is not the only output</b><p>The same show drives projection - 402 x 226 cm is its native shape, two surfaces if you have them - and LED walls at 1920 x 1080 for a bar screen or 1872 x 1296 for a DJ screen. The poem screen above is what the second projector carries.</p></div></article>
   </div>
   <div class="rider">
     <div>

@@ -1,5 +1,7 @@
 # Hypermuse
 
+**Be seen on the dark side of the moon.**
+
 HyperMuse is an audio-reactive holographic fan: a spinning LED arm on a 4.3 m tower,
 rigged above a DJ booth or standing on its own, on which black is not black but
 transparent — so the picture hangs in the air with the room visible straight through it.
