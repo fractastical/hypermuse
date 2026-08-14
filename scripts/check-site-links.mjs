@@ -1,7 +1,7 @@
 // Every link on the published pages, checked.
 //
-//   npm run check:links          against the files in docs/
-//   LIVE=1 npm run check:links   against https://fractastical.github.io/hypermuse/docs/
+//   npm run check:links          against the committed files
+//   LIVE=1 npm run check:links   against https://fractastical.github.io/hypermuse/
 //
 // Two failures this catches, which look identical from a browser and have
 // opposite fixes. A file referenced by a page but never committed is broken
@@ -17,8 +17,11 @@ import { execFileSync } from "node:child_process";
 
 const ROOT = process.cwd();
 const LIVE = process.env.LIVE === "1";
-const BASE = process.env.SITE || "https://fractastical.github.io/hypermuse/docs/";
-const PAGES = ["index.html", "press/index.html"];
+const BASE = process.env.SITE || "https://fractastical.github.io/hypermuse/";
+// Paths from the repository root, which is also the site root: Pages builds
+// this repo from its root, so the landing page exists twice and both copies
+// need checking - they resolve their assets from different depths.
+const PAGES = ["index.html", "docs/index.html", "docs/press/index.html"];
 
 const refsIn = (html) => [...new Set([...html.matchAll(/(?:src|href)="([^"]+)"/g)].map((m) => m[1]))]
   .filter((r) => !/^(https?:|mailto:|tel:|#|data:)/.test(r));
@@ -45,7 +48,7 @@ if (LIVE) {
   // pointing at something that works here and does not exist for anyone else.
   const tracked = new Set(execFileSync("git", ["ls-files"], { encoding: "utf8" }).split("\n"));
   for (const page of PAGES) {
-    const file = path.join(ROOT, "docs", page);
+    const file = path.join(ROOT, page);
     const dir = path.dirname(file);
     for (const r of refsIn(fs.readFileSync(file, "utf8"))) {
       const target = path.normalize(path.join(dir, r.split(/[?#]/)[0]));
@@ -65,7 +68,7 @@ if (LIVE) {
   }
 }
 
-console.log(`checked ${checked} links ${LIVE ? `on ${BASE}` : "in docs/"}`);
+console.log(`checked ${checked} links ${LIVE ? `on ${BASE}` : "in the committed tree"}`);
 for (const [page, ref, why] of bad) console.log(`  BROKEN  ${page}  ${ref}  ${why}`);
 if (bad.length) {
   console.log(`\n${bad.length} broken.` + (LIVE ? " If the local pass is clean, this is probably a deploy still in flight." : ""));

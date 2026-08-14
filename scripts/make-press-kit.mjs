@@ -530,17 +530,25 @@ ${STILLS.map(stillCard).filter(Boolean).join("\n")}
 // a conference, so it opens with the offer rather than with a list of links.
 // Generated from the same SPEC and DJ as the press kit for the same reason the
 // booking sheet is: two hand-kept copies of a price disagree eventually.
-fs.writeFileSync(path.join(ROOT, "docs", "index.html"), `<!DOCTYPE html>
+//
+// Written twice, because Pages builds this repo from its root: without a root
+// index.html the bare fractastical.github.io/hypermuse renders README.md in
+// Jekyll's stock white theme, which is the first thing anyone who types the
+// short URL sees. The copies differ only in how deep they sit, so the whole
+// page takes a prefix rather than being kept by hand in two places, and both
+// point their canonical at the root.
+const landing = (p) => `<!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="utf-8"/>
 <meta name="viewport" content="width=device-width,initial-scale=1"/>
 <title>HyperMuse &middot; a holographic fan you can book</title>
 <meta name="description" content="${esc(SPEC.about)}"/>
+<link rel="canonical" href="${SITE}/"/>
 <meta property="og:title" content="HyperMuse &middot; ${esc(SPEC.slogan)}"/>
 <meta property="og:description" content="A 180 cm holographic fan on a 4.3 m tower. Your mark on it, reacting to your set, running the night on its own."/>
 <meta property="og:image" content="${SITE}/docs/press/posters/hero.jpg"/>
-<meta property="og:url" content="${SITE}/docs/"/>
+<meta property="og:url" content="${SITE}/"/>
 <meta name="twitter:card" content="summary_large_image"/>
 <style>
 ${SHARED_CSS}
@@ -591,8 +599,8 @@ ${SHARED_CSS}
 </head>
 <body>
   <section class="hero">
-    <video autoplay muted loop playsinline preload="auto" poster="press/posters/hero.jpg">
-      <source src="press/clips/hero.mp4" type="video/mp4"/>
+    <video autoplay muted loop playsinline preload="auto" poster="${p}press/posters/hero.jpg">
+      <source src="${p}press/clips/hero.mp4" type="video/mp4"/>
     </video>
     <div class="veil"></div>
     <div class="badge"><b>HyperMuse</b> &nbsp;&middot;&nbsp;
@@ -601,7 +609,7 @@ ${SHARED_CSS}
       <h1>${esc(SPEC.slogan)}</h1>
       <p class="lede">A 180 cm holographic fan on a 4.3 m tower. Your mark goes on it, it reacts
       to whatever the PA is doing, and it runs the night without anyone standing over it.</p>
-${bookNow("press/")}
+${bookNow(`${p}press/`)}
     </div>
   </section>
 <main>
@@ -610,11 +618,11 @@ ${bookNow("press/")}
   <p class="lede" style="margin-bottom:22px">Send a logo and it goes on the shadowed side of the
   disc, riding the terrain as it turns. It is shot at full size and checked weeks before the night,
   so nobody finds out on stage that a mark is unreadable at forty feet.</p>
-${brandStrip("")}
+${brandStrip(p)}
 
   <h2>If you are the one playing</h2>
   <div class="sells">
-${sellCards("")}
+${sellCards(p)}
   </div>
 ${rider()}
 
@@ -625,31 +633,39 @@ ${SPEC.rows.map(([k, v]) => `    <tr><th>${esc(k)}</th><td>${esc(v)}</td></tr>`)
 
   <h2>See more of it</h2>
   <ul class="more">
-    <li><a class="row" href="press/">Press kit
-      <span>Ten clips and thirteen stills, all downloadable &mdash; including the rig at night,
+    <li><a class="row" href="${p}press/">Press kit
+      <span>Eleven clips and fourteen stills, all downloadable &mdash; including the rig at night,
       the fan up close, and an hour of the show cut to a reel</span></a></li>
-    <li><a class="row" href="hyperstition/">Hyperstition &middot; moon halo
+    <li><a class="row" href="${p}hyperstition/">Hyperstition &middot; moon halo
       <span>Two full-length renders, playing in the page</span></a></li>
-    <li><a class="row" href="../">How it is built
+    <!-- Not the site's own root any more: that is this page. GitHub renders the
+         README with its image grid intact, which is the point of linking it. -->
+    <li><a class="row" href="https://github.com/fractastical/hypermuse#readme">How it is built
       <span>The README: every mode, every parameter, and how to run it yourself</span></a></li>
     <li><a class="row" href="https://github.com/fractastical/hypermuse">Source on GitHub
       <span>github.com/fractastical/hypermuse</span></a></li>
   </ul>
 
   <h2>Book it</h2>
-${bookNow("press/")}
+${bookNow(`${p}press/`)}
   <p class="terms" style="margin-top:12px">Joel Dietz &middot;
   <a href="https://t.me/fractastical">@fractastical</a> on Telegram &middot;
   <a href="https://wa.me/16283331011">+1 (628) 333-1011</a> on WhatsApp</p>
 </main></body>
 </html>
-`);
+`;
+
+// The short URL people are given, and the deep one anyone who was given a link
+// before this existed already has.
+fs.writeFileSync(path.join(ROOT, "index.html"), landing("docs/"));
+fs.writeFileSync(path.join(ROOT, "docs", "index.html"), landing(""));
 
 const total = [CLIPDIR, LOOPDIR, POSTER, PRESS]
   .flatMap((d) => fs.readdirSync(d).map((f) => path.join(d, f)))
   .filter((f) => fs.statSync(f).isFile())
   .reduce((n, f) => n + fs.statSync(f).size, 0);
-console.log(`\n  page  docs/index.html`);
+console.log(`\n  page  index.html  (the short URL)`);
+console.log(`  page  docs/index.html`);
 console.log(`  page  docs/press/index.html`);
 console.log(`  ${(total / 1024 / 1024).toFixed(1)} MB in docs/press`);
 if (missing.length) {
