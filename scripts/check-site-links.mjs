@@ -56,11 +56,11 @@ if (LIVE) {
       checked++;
       if (!fs.existsSync(target)) { bad.push([page, r, "missing"]); continue; }
       if (fs.statSync(target).isDirectory()) {
-        // A README counts: Pages runs Jekyll, which renders README.md as the
-        // index of a directory that has no index.html of its own. That is what
-        // serves the repository root, which the landing page links back to.
-        const served = ["index.html", "README.md"].some((f) => fs.existsSync(path.join(target, f)));
-        if (!served) bad.push([page, r, "nothing to serve"]);
+        // index.html and nothing else. A README used to count, because Jekyll
+        // renders one as the index of a directory that has none - but .nojekyll
+        // turns that off, and a directory whose only index was a README now
+        // gives a listing or a 404 rather than a page.
+        if (!fs.existsSync(path.join(target, "index.html"))) bad.push([page, r, "no index.html"]);
       } else if (!tracked.has(rel)) {
         bad.push([page, r, "not committed"]);
       }

@@ -537,6 +537,12 @@ ${STILLS.map(stillCard).filter(Boolean).join("\n")}
 // short URL sees. The copies differ only in how deep they sit, so the whole
 // page takes a prefix rather than being kept by hand in two places, and both
 // point their canonical at the root.
+//
+// The root copy only publishes because of .nojekyll. Adding an index.html to a
+// Jekyll-built root made the build succeed while emitting that one page and
+// dropping the rest of the tree, docs/ included; .nojekyll skips Jekyll and
+// serves the repository verbatim. Do not delete it to get README rendering
+// back without checking that everything under docs/ still answers.
 const landing = (p) => `<!DOCTYPE html>
 <html lang="en">
 <head>
