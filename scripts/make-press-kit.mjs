@@ -7,10 +7,15 @@
 //
 // Why this exists: artifacts/ is gitignored, so every render in there is
 // invisible to anyone who clones or browses the repo - which is everything
-// worth showing. Pages serves this repo from its root, so anything committed
-// under docs/press is live at
+// worth showing. Pages serves this repo from its root, so the docs/ prefix is
+// part of the public URL and anything committed under docs/ is live at
 //
-//   https://fractastical.github.io/hypermuse/docs/press/
+//   docs/index.html        https://fractastical.github.io/hypermuse/docs/
+//   docs/press/index.html  https://fractastical.github.io/hypermuse/docs/press/
+//
+// Do not be talked out of the docs/ by a 404: for a minute or two after a push
+// Pages serves the old tree, and a URL that is about to work looks exactly like
+// one that never will. Check again once the deployment has finished.
 //
 // The masters stay in artifacts/ at full size; these are viewing copies. The
 // README's own animated strip is GIF rather than MP4 because GitHub will not

@@ -63,6 +63,7 @@
     "export:holofan:still": "STILL=1 node scripts/export-holofan.mjs",
     "export:rig": "SKIP_SOURCE=1 SHOT=rig node scripts/export-holofan.mjs",
     "export:rig:stills": "SKIP_SOURCE=1 STILL=1 SHOT=rig OUTPUT_STILL=artifacts/holofan-rig-night.png node scripts/export-holofan.mjs && SKIP_SOURCE=1 STILL=1 SHOT=rig FAN_QUERY='venue=lobby&gain=1.05' OUTPUT_STILL=artifacts/holofan-rig-lit.png node scripts/export-holofan.mjs",
+    "check:links": "node scripts/check-site-links.mjs",
     "preview:logo": "node scripts/preview-logo.mjs",
     "probe:center": "node scripts/probe-center.mjs",
     "preview:poem": "node scripts/preview-poem-screens.mjs",
