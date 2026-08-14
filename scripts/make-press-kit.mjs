@@ -335,20 +335,28 @@ for (const c of CLIPS) {
 // The landing page's hero: the mumins, because the slogan is about being seen
 // on the dark side and they are the one thing in the set that is literally
 // somebody being seen there. Its source is a purpose-made cut rather than one
-// of the stock ones, for two reasons. The window is anchored to the shadowed
-// terrain, so at the art cut's speed the whole troupe has rotated out of frame
-// well before a banner-length clip is up - hence SLOW_SPEED. And 5 s is too
-// short to sit under a title without feeling like a nervous tic.
+// of the stock ones, because 5 s is too short to sit under a title without
+// feeling like a nervous tic:
 //
-//   CUTS=mumins CUT_MS=16000 MONTAGE=0 SLOW_SPEED=0.05 \
+//   CUTS=mumins CUT_MS=12500 MONTAGE=0 SLOW_SPEED=0.09 Q="muminbpm=116" \
 //     OUT_DIR=artifacts/hero-mumins npm run export:art
+//
+// The rotation is the whole tuning problem. The window is anchored to the
+// shadowed terrain, so the troupe crosses the disc as the moon turns and then
+// smears up the limb and is gone: at 0.2 they are off by eleven seconds, at
+// 0.12 the outermost dancer is stretching on the edge by ten. Slow enough to
+// last, though, and the disc stops reading as moving at all - the first pass
+// at this sat at 0.05 and looked like a still photograph with a wiggle in it.
+// 0.09 keeps all three clear of the limb for the eleven seconds used here
+// while the moon still visibly turns, and the dancers carry the rest of the
+// motion, which is why the tempo is up from the art cut's 104.
 //
 // The crop is centred and lands on 2.06:1, a better shape for a banner than
 // 16:9, and means the browser throws less away when it covers a wide box. The
 // moon clears that crop at this framing, so nothing of the disc is lost.
 const HERO = {
   id: "hero", src: "artifacts/hero-mumins/mumins.mp4",
-  start: 0, len: 16, width: 1280, fade: 1.5
+  start: 0, len: 11, width: 1280, fade: 1.6
 };
 if (pick(HERO.id)) {
   const src = path.join(ROOT, HERO.src);
@@ -357,7 +365,7 @@ if (pick(HERO.id)) {
   if (!fs.existsSync(src)) missing.push(`hero - no ${HERO.src}`);
   else if (fs.existsSync(out) && !FORCE) console.log(`  hero            kept  ${size(out)}`);
   else {
-    // Even slowed right down the disc drifts over sixteen seconds, so cutting
+    // Even slowed right down the disc drifts over eleven seconds, so cutting
     // the end back to the start would snap the dancers across the moon on every
     // loop. Instead the clip keeps its first L = len - fade seconds and the
     // leftover tail is laid over the opening, fading from opaque to nothing.

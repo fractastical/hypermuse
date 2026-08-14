@@ -144,8 +144,16 @@ async function serverUp(url, timeoutMs) {
   }
 }
 
+// Q= appends query parameters to whichever cuts are being rendered, for pulling
+// a one-off version of a shot - a longer, livelier mumins for the landing page,
+// say - without editing the cut everything else already uses.
+//
+//   Q="muminbpm=118&winbright=0.6" CUTS=mumins npm run export:art
+//
+const QEXTRA = Object.fromEntries(new URLSearchParams(process.env.Q || ""));
+
 function cutUrl(cut) {
-  const q = new URLSearchParams({ speed: "1", nosound: "1", ...cut.q });
+  const q = new URLSearchParams({ speed: "1", nosound: "1", ...cut.q, ...QEXTRA });
   return `http://127.0.0.1:${PORT}/hypermoon.html?${q.toString()}`;
 }
 
