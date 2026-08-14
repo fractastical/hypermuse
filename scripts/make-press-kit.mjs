@@ -91,6 +91,16 @@ const CLIPS = [
     note: "LED persistence, rolling shutter and blade artifacts as a camera sees them"
   },
   {
+    // From the art cut rather than the effects reel: the reel's take predates
+    // the window work, so it paints the troupe onto a visible dark panel and at
+    // the stock zoom they are a smudge a few pixels across. This one is the
+    // combination that reads.
+    id: "mumins", title: "Dancing mumins",
+    src: "artifacts/art-cuts/mumins.mp4",
+    start: 0, len: 5, width: 1152, crf: 30,
+    note: "three little trolls dancing across the shadowed terrain, painted solid on the surface"
+  },
+  {
     id: "art-selects", title: "Art selects",
     src: "artifacts/art-cuts/hypermoon-art-selects-loop.mp4",
     start: 0, len: 27, width: 1152, crf: 31,
@@ -113,7 +123,10 @@ const LOOPS = [
   { id: "rig", src: "artifacts/demos/hypermuse-rig-4m3.mp4", start: 6, len: 6, width: 380, fps: 10 },
   { id: "moon", src: "artifacts/demos/moon-1920x1080.mp4", start: 8, len: 6, width: 380, fps: 10 },
   { id: "poem", src: "artifacts/demos/poem-triangle-1920x1080.mp4", start: 8, len: 7, width: 420, fps: 10 },
-  { id: "holofan", src: "artifacts/demos/hypermoon-holofan-180cm-room.mp4", start: 8, len: 6, width: 380, fps: 10 }
+  { id: "holofan", src: "artifacts/demos/hypermoon-holofan-180cm-room.mp4", start: 8, len: 6, width: 380, fps: 10 },
+  // Flat pastel shapes on grey, which is the best case for a small palette, so
+  // this one can afford more frames a second than the starfields can.
+  { id: "mumins", src: "artifacts/art-cuts/mumins.mp4", start: 0.5, len: 4, width: 380, fps: 12 }
 ];
 
 // The booking sheet, kept here rather than typed into the page so the page and
@@ -281,6 +294,7 @@ const STILLS = [
   ["blood", "Blood moon", "a luminance-preserving eclipse grade, fadeable over a two-hour set"],
   ["eclipse", "Earth's shadow", "the umbra crosses the disc, totality lit by refracted sunlight"],
   ["vajras", "Orbiting vajras", "dorje sprites on tilted lanes that pass behind the disc"],
+  ["mumins", "Dancing mumins", "a troupe of little trolls dancing across the shadowed terrain"],
   ["fisher", "The star fisher", "hooks a star, cups it, lets it go - and the freed stars make a heart"],
   ["harmonics", "Sonic sphere", "the real normal modes of a vibrating sphere, driven by the room"],
   ["fold", "Synergetics fold", "Fuller 100.41 - a triangle folding itself into a tetrahedron"],

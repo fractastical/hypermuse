@@ -61,7 +61,18 @@ const SHOTS = [
     note: "the real normal modes of a vibrating sphere, driven by the room" },
   { id: "fold", title: "Synergetics fold", facing: true, wait: 3000,
     q: { ...WIN, content: "fold", winbright: "0.9" },
-    note: "Fuller 100.41 - a triangle folding itself into a tetrahedron" }
+    note: "Fuller 100.41 - a triangle folding itself into a tetrahedron" },
+  // Three dancers rather than a crowd, and zoomed: the troupe is drawn to fill
+  // a square canvas that the window then cover-crops, so at the stock zoom the
+  // frame is one enormous leg. The wider footprint and winscale are what make
+  // it read as a line of dancers instead of a smudge. The hold decides which
+  // half of a step they are caught on and a huddle is as likely as a line, so
+  // this is a lucky number rather than a meaningful one - reshoot with WAIT=
+  // until the three of them are separate.
+  { id: "mumins", title: "Dancing mumins", facing: true, wait: 3500,
+    q: { ...WIN, content: "mumins", mumins: "3", muminzoom: "0.9", muminbpm: "104",
+         winbright: "0.55", angw: "1.7", angh: "1.1", winscale: "1.4", threshold: "0.4" },
+    note: "a troupe of little trolls dancing across the shadowed terrain" }
 ];
 
 // Not the moon: the poem screen, from the terminal.
@@ -128,7 +139,11 @@ async function shootMoon(s) {
       new BroadcastChannel("hypermoon").postMessage({ type: "moonConfig", set: { speed: 0.05 } });
     });
   }
-  if (s.wait) await page.waitForTimeout(s.wait);
+  // WAIT= overrides the hold, for the shots whose subject is moving and where
+  // the difference between a good frame and a bad one is which half of a step
+  // it lands on. WAIT=3000 ONLY=mumins npm run gallery, and try a few.
+  const hold = Number(process.env.WAIT || s.wait || 0);
+  if (hold) await page.waitForTimeout(hold);
   const raw = path.join(OUT, `${s.id}.raw.png`);
   await page.screenshot({ path: raw });
   await page.close();

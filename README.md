@@ -36,15 +36,15 @@ link and a line saying what it is.
 | ![The word HYPERSTITION in image cubes across the moon's shadowed side](docs/gallery/word.jpg)<br>**The word on the dark side**<br><sub>letter cubes cut from moon footage, pinned to the shadowed terrain</sub> | ![An engraved eye seal turning behind a hole opened in the moon](docs/gallery/eye.jpg)<br>**Eye seal iris reveal**<br><sub>the disc opens to a clear hole onto the seal turning behind it</sub> | ![The moon graded deep red against stars](docs/gallery/blood.jpg)<br>**Blood moon**<br><sub>a luminance-preserving grade, fadeable over a two-hour set</sub> |
 | ![The moon in totality, a dim copper disc](docs/gallery/eclipse.jpg)<br>**Earth's shadow**<br><sub>the umbra crosses the disc, totality lit by refracted sunlight</sub> | ![Gold dorje sprites orbiting the moon on tilted lanes](docs/gallery/vajras.jpg)<br>**Orbiting vajras**<br><sub>dorje sprites on tilted lanes that pass behind the disc</sub> | ![A small figure fishing for stars on the moon's dark side](docs/gallery/fisher.jpg)<br>**The star fisher**<br><sub>hooks a star, cups it, lets it go — the freed stars make a heart</sub> |
 | ![A vibrating-sphere mode pattern glowing inside the moon's dark side](docs/gallery/harmonics.jpg)<br>**Sonic sphere**<br><sub>the real normal modes of a vibrating sphere, driven by the room</sub> | ![A triangle folding into a tetrahedron inside the moon's dark side](docs/gallery/fold.jpg)<br>**Synergetics fold**<br><sub>Fuller 100.41 — a triangle folding itself into a tetrahedron</sub> | ![Nine words of a poem set around an equilateral triangle](docs/gallery/poem.jpg)<br>**The poem screen**<br><sub>nine words a screen, a line to each side of the triangle</sub> |
-| ![The moon rendered close up on a spinning LED fan](docs/gallery/holofan-close.jpg)<br>**The fan up close**<br><sub>persistence of vision, sampled the way the blade sweeps it</sub> | | |
+| ![The moon rendered close up on a spinning LED fan](docs/gallery/holofan-close.jpg)<br>**The fan up close**<br><sub>persistence of vision, sampled the way the blade sweeps it</sub> | ![Three small pastel trolls dancing across the moon's shadowed side](docs/gallery/mumins.jpg)<br>**Dancing mumins**<br><sub>a troupe of little trolls dancing across the shadowed terrain</sub> | |
 
 ### Where the assets are
 
 | | |
 |---|---|
 | [`docs/gallery/`](docs/gallery/) | the stills above, 720 px wide, ~15 KB each |
-| [`docs/press/clips/`](docs/press/clips/) | eight clips, 16–64 s, ~1 MB each, no audio |
-| [`docs/press/loops/`](docs/press/loops/) | the three GIFs above, for pasting into a page that will not play video |
+| [`docs/press/clips/`](docs/press/clips/) | twelve clips, 5 s to the full poem, ~1 MB each bar the poem, no audio |
+| [`docs/press/loops/`](docs/press/loops/) | GIFs, including the three above, for pasting into a page that will not play video |
 | [`docs/press/posters/`](docs/press/posters/) | a frame from the middle of each clip, for thumbnails |
 | [`docs/press/contact-sheet.jpg`](docs/press/contact-sheet.jpg) | every still on one image, which is what a promoter asks for first |
 | [`docs/press/hypermuse-one-pager.pdf`](docs/press/hypermuse-one-pager.pdf) | the booking sheet — specs, requirements, cost, contact |
