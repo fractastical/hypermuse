@@ -636,6 +636,9 @@
     get paused() { return PAUSED; },
     get frame() { return frameIdx % frames.length; },
     get frames() { return frames.length; },
+    // How many times the poem has wrapped. An exporter waiting for one full
+    // pass stops on the first increment rather than on a guessed duration.
+    get pass() { return Math.floor(frameIdx / Math.max(1, frames.length)); },
     get fontPx() { return lastFs; },
     get lines() { return (frames[frameIdx % frames.length] || []).join(" / "); },
     // What is actually down on the screen at this moment, as against the whole

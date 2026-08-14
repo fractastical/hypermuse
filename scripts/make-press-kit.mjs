@@ -59,6 +59,12 @@ const CLIPS = [
     note: "the triangle turns a third a line so the words being written are always along the base"
   },
   {
+    id: "poem-full", title: "The poem, the whole of it",
+    src: "artifacts/demos/poem-triangle-full-1920x1080.mp4",
+    start: 0, len: 0, width: 1280, crf: 26,
+    note: "trinitypoem.txt end to end, 82 screens, one pass of the turning triangle"
+  },
+  {
     id: "dual-projector", title: "Both projectors together",
     src: "artifacts/demos/dual-projector-preview.mp4",
     start: 6, len: 20, width: 1280, crf: 32,
@@ -160,13 +166,15 @@ for (const c of CLIPS) {
   const poster = path.join(POSTER, `${c.id}.jpg`);
   if (!fs.existsSync(src)) { missing.push(`${c.id} - no ${c.src}`); continue; }
   if (fs.existsSync(out) && !FORCE) { console.log(`  ${c.id.padEnd(15)} kept  ${size(out)}`); made.push(c); continue; }
-  run(["-ss", String(c.start), "-t", String(c.len), "-i", src, "-an",
+  const cut = c.len > 0 ? ["-ss", String(c.start), "-t", String(c.len)] : (c.start ? ["-ss", String(c.start)] : []);
+  run([...cut, "-i", src, "-an",
     "-vf", `scale=${c.width}:-2:flags=lanczos`,
     "-c:v", "libx264", "-crf", String(c.crf), "-preset", "slow",
     "-pix_fmt", "yuv420p", "-movflags", "+faststart", out]);
   // A poster from the middle rather than the first frame, which on a fade-up
   // is black and makes the whole page look broken before anything is played.
-  run(["-ss", String(c.len / 2), "-i", out, "-frames:v", "1", "-q:v", "4", poster]);
+  const mid = c.len > 0 ? c.len / 2 : 40;
+  run(["-ss", String(mid), "-i", out, "-frames:v", "1", "-q:v", "4", poster]);
   console.log(`  ${c.id.padEnd(15)} ${size(out)}  poster ${size(poster)}`);
   made.push(c);
 }

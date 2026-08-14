@@ -69,6 +69,7 @@
     "probe:poem": "node scripts/probe-poem-type.mjs",
     "test:poem": "node scripts/test-poem-screen.mjs",
     "demo:projectors": "node scripts/make-projector-demo.mjs",
+    "export:poem": "node scripts/export-trinity-poem.mjs",
     "gallery": "node scripts/make-gallery.mjs",
     "press": "node scripts/make-press-kit.mjs"
   },

@@ -400,8 +400,10 @@ npm run test:poem             # the panel drives the window, old uses unbroken
 ```
 
 Three lines at a time takes `trinitypoem.txt` (27 stanzas, 243 lines) to 82
-screens, about **9m 45s** at 13 characters a second with a 3.2s hold — so it
-sits inside the moon's hour with room to spare, or loops six times across it.
+screens, about **12m 27s** at 13 characters a second with a 1.6s hold and a
+1.2s turn after each line — so it sits inside the moon's hour with room to
+spare, or loops five times across it. The whole pass as a file is
+`npm run export:poem`.
 
 ### Pace, from the keyboard and from the room
 
@@ -540,6 +542,18 @@ Writes into `artifacts/demos/`:
 
 Each render is kept if it already exists — the moon takes a couple of minutes —
 so pass `FORCE=1` to redo them, and `SECONDS=60` to change the length.
+
+The 60-second poem file is a sample of the triangle, not the poem. The whole of
+`trinitypoem.txt` — 82 screens, about twelve minutes at the current pace — is:
+
+```bash
+npm run export:poem           # one full pass, 1920x1080
+```
+
+That writes `artifacts/demos/poem-triangle-full-1920x1080.mp4` and stops when
+the poem wraps, so the length is the poem's rather than a timer. A viewing copy
+lands in the [press kit](https://fractastical.github.io/hypermuse/docs/press/)
+after `ONLY=poem-full npm run press`.
 
 **A note on geometry.** A 402 × 226 cm surface is 16:9 to within a millimetre,
 which is exactly what `hypermoon.html` letterboxes to — so the moon fills one of
