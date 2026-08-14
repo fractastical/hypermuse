@@ -56,6 +56,9 @@ stills, `npm run press` re-cuts the clips and the page from whatever masters are
 
 ## Booking the installation
 
+The page to send someone is **[hypermuse &rarr;](https://fractastical.github.io/hypermuse/docs/)**,
+which is this section with the pictures moving and a button that opens WhatsApp.
+
 HyperMuse can be hired as a single-day install. What arrives is the fan, a box-truss tower
 and its ground frame; what it needs from the venue is a ladder, a laptop with an HDMI port,
 and somewhere 2.5 m square to stand. The tower is built from truss sections, so 4.3 m is

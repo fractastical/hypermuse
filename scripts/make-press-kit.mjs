@@ -26,6 +26,9 @@ const CLIPDIR = path.join(PRESS, "clips");
 const LOOPDIR = path.join(PRESS, "loops");
 const POSTER = path.join(PRESS, "posters");
 const GALLERY = path.join(ROOT, "docs", "gallery");
+// Absolute, because a share card's image cannot be a relative path: the crawler
+// that renders the preview in WhatsApp or Telegram is not on this origin.
+const SITE = "https://fractastical.github.io/hypermuse";
 const FORCE = process.env.FORCE === "1";
 const only = String(process.env.ONLY || "").trim();
 const wanted = only ? new Set(only.split(",").map((s) => s.trim())) : null;
@@ -124,6 +127,10 @@ const SPEC = {
     ["Needs", "a ladder, and a laptop with an HDMI port"],
     ["Cost", "negotiable - 750 EUR is the usual single-day install"]
   ],
+  // The whole offer on one line, for the top of both pages, where nobody has
+  // committed to reading a table yet.
+  line: "4.3 m to the top of the disc, adjustable \u00b7 2.5 m square base \u00b7 two people and " +
+    "2.5 hours to build \u00b7 cost negotiable, 750 EUR is the usual single-day install",
   // wa.me rather than tel:, since the number is reached on WhatsApp and a tel:
   // link on a desktop browser opens nothing anybody has.
   contact: [
@@ -170,6 +177,43 @@ const DJ = {
     "Two people and 2.5 hours to build it, one hour to strike it"
   ]
 };
+
+// Styling shared by the landing page and the press kit, so the two cannot drift
+// into looking like different projects.
+const SHARED_CSS = `  :root { color-scheme: dark; }
+  body { margin:0; padding:48px 32px 96px; background:#05070a; color:#cfe9ff;
+         font:15px/1.65 -apple-system,BlinkMacSystemFont,"Segoe UI",Helvetica,Arial,sans-serif; }
+  h1 { font-size:34px; margin:0 0 10px; letter-spacing:0.01em; }
+  h2 { font-size:13px; text-transform:uppercase; letter-spacing:0.16em;
+       color:rgba(207,233,255,0.5); margin:56px 0 18px; font-weight:600; }
+  p.lede { color:rgba(207,233,255,0.72); max-width:64ch; margin:0 0 8px; }
+  a { color:#7fd3ff; }
+  .cta { display:flex; flex-wrap:wrap; gap:10px; margin:22px 0 10px; }
+  .cta a { display:inline-block; padding:11px 20px; border-radius:999px; text-decoration:none;
+           font-size:14px; font-weight:600; }
+  .cta .go { background:#7fd3ff; color:#04121c; }
+  .cta .alt { border:1px solid rgba(127,211,255,0.32); color:#7fd3ff; font-weight:500; }
+  .terms { color:rgba(207,233,255,0.5); font-size:13px; max-width:70ch; margin:0; }
+  .sells { display:grid; gap:20px; grid-template-columns:repeat(auto-fill,minmax(300px,1fr)); margin:0 0 34px; }
+  .sells div { background:#0a0e14; border:1px solid rgba(127,211,255,0.13); border-radius:10px; padding:16px 18px 18px; }
+  .sells b { display:block; margin:0 0 6px; }
+  .sells p { margin:0; color:rgba(207,233,255,0.62); font-size:13.5px; }
+  .rider { display:grid; gap:26px; grid-template-columns:repeat(auto-fit,minmax(280px,1fr)); }
+  .rider h3 { font-size:12.5px; text-transform:uppercase; letter-spacing:0.13em; font-weight:600;
+              color:rgba(207,233,255,0.5); margin:0 0 10px; }
+  .rider ul { margin:0; padding:0; list-style:none; }
+  .rider li { padding:6px 0; border-bottom:1px solid rgba(127,211,255,0.1); font-size:13.5px;
+              color:rgba(207,233,255,0.72); }`;
+
+// The call to action, above the fold on both pages. Someone scanning this on a
+// phone between panels has about one screenful of patience: what it is, what it
+// costs, and a button that opens a conversation rather than a contact form.
+const bookNow = (prefix) => `  <div class="cta">
+    <a class="go" href="https://wa.me/16283331011">Book it &middot; WhatsApp</a>
+    <a class="alt" href="https://t.me/fractastical">Telegram</a>
+    <a class="alt" href="${prefix}hypermuse-one-pager.pdf">Booking sheet, PDF</a>
+  </div>
+  <p class="terms">${esc(SPEC.line)}</p>`;
 
 // The stills, in the order they should be read rather than alphabetically.
 const STILLS = [
@@ -274,15 +318,8 @@ fs.writeFileSync(path.join(PRESS, "index.html"), `<!DOCTYPE html>
 <meta name="viewport" content="width=device-width,initial-scale=1"/>
 <title>Hypermuse &middot; press kit</title>
 <style>
-  :root { color-scheme: dark; }
-  body { margin:0; padding:48px 32px 96px; background:#05070a; color:#cfe9ff;
-         font:15px/1.65 -apple-system,BlinkMacSystemFont,"Segoe UI",Helvetica,Arial,sans-serif; }
+${SHARED_CSS}
   main { max-width:1200px; margin:0 auto; }
-  h1 { font-size:30px; margin:0 0 6px; letter-spacing:0.01em; }
-  h2 { font-size:13px; text-transform:uppercase; letter-spacing:0.16em;
-       color:rgba(207,233,255,0.5); margin:56px 0 18px; font-weight:600; }
-  p.lede { color:rgba(207,233,255,0.72); max-width:64ch; margin:0 0 8px; }
-  a { color:#7fd3ff; }
   .grid { display:grid; gap:22px; grid-template-columns:repeat(auto-fill,minmax(330px,1fr)); }
   figure { margin:0; background:#0a0e14; border:1px solid rgba(127,211,255,0.13); border-radius:10px; overflow:hidden; }
   video, img { display:block; width:100%; background:#000; }
@@ -303,50 +340,14 @@ fs.writeFileSync(path.join(PRESS, "index.html"), `<!DOCTYPE html>
   .contact { margin:16px 0 0; padding:0; list-style:none; }
   .contact li { padding:3px 0; }
   .contact em { font-style:normal; color:rgba(207,233,255,0.4); font-size:12px; margin-left:6px; }
-  .sells { display:grid; gap:20px; grid-template-columns:repeat(auto-fill,minmax(300px,1fr)); margin:0 0 34px; }
-  .sells div { background:#0a0e14; border:1px solid rgba(127,211,255,0.13); border-radius:10px; padding:16px 18px 18px; }
-  .sells b { display:block; margin:0 0 6px; }
-  .sells p { margin:0; color:rgba(207,233,255,0.62); font-size:13.5px; }
-  .rider { display:grid; gap:26px; grid-template-columns:repeat(auto-fit,minmax(280px,1fr)); }
-  .rider h3 { font-size:12.5px; text-transform:uppercase; letter-spacing:0.13em; font-weight:600;
-              color:rgba(207,233,255,0.5); margin:0 0 10px; }
-  .rider ul { margin:0; padding:0; list-style:none; }
-  .rider li { padding:6px 0; border-bottom:1px solid rgba(127,211,255,0.1); font-size:13.5px;
-              color:rgba(207,233,255,0.72); }
 </style>
 </head>
 <body><main>
-  <h1>HyperMuse &middot; press kit</h1>
+  <h1>HyperMuse</h1>
   <p class="lede">An audio-reactive holographic fan on a 4.3 m tower, and the browser-based show
   that drives it: a moon carrying words, geometry and weather on its dark side, with a poem
-  screen beside it. Everything here was rendered from the pages in this repository &mdash;
-  nothing is concept art.</p>
-  <p class="lede">Clips are viewing copies. Full-resolution masters are rebuilt from source with
-  the commands at the foot of this page. If you are booking it for a set rather than writing
-  about it, <a href="#for-djs">start here</a>.</p>
-
-  <h2 id="the-installation">The installation</h2>
-  <div class="book">
-    <div>
-      <p class="lede">${esc(SPEC.about)}</p>
-      <p class="lede">${esc(SPEC.debut)}</p>
-      <table>
-${SPEC.rows.map(([k, v]) => `        <tr><th>${esc(k)}</th><td>${esc(v)}</td></tr>`).join("\n")}
-      </table>
-      <ul class="contact">
-${SPEC.contact.map(([label, href, via]) =>
-  `        <li>${href ? `<a href="${href}">${esc(label)}</a>` : `<b>${esc(label)}</b>`}` +
-  `${via ? ` <em>${esc(via)}</em>` : ""}</li>`).join("\n")}
-      </ul>
-    </div>
-    <a class="sheet" href="hypermuse-one-pager.pdf">
-      <img loading="lazy" src="one-pager.jpg" alt="The HyperMuse booking sheet: specifications, requirements and cost"/>
-    </a>
-  </div>
-  <p class="lede" style="margin-top:14px">The sheet as sent:
-  <a href="hypermuse-one-pager.pdf">hypermuse-one-pager.pdf</a>. It quotes one height and one
-  price; the table above is the current answer where the two differ. The clip below is the rig
-  itself, rendered to the same dimensions.</p>
+  screen beside it. ${esc(SPEC.debut)}</p>
+${bookNow("")}
 
   <h2 id="for-djs">If you are the one playing</h2>
   <div class="sells">
@@ -365,7 +366,31 @@ ${DJ.sells.map(([k, v]) => `    <div><b>${esc(k)}</b><p>${esc(v)}</p></div>`).jo
     </div>
   </div>
 
+  <h2 id="the-installation">The installation</h2>
+  <div class="book">
+    <div>
+      <p class="lede">${esc(SPEC.about)}</p>
+      <table>
+${SPEC.rows.map(([k, v]) => `        <tr><th>${esc(k)}</th><td>${esc(v)}</td></tr>`).join("\n")}
+      </table>
+      <ul class="contact">
+${SPEC.contact.map(([label, href, via]) =>
+  `        <li>${href ? `<a href="${href}">${esc(label)}</a>` : `<b>${esc(label)}</b>`}` +
+  `${via ? ` <em>${esc(via)}</em>` : ""}</li>`).join("\n")}
+      </ul>
+    </div>
+    <a class="sheet" href="hypermuse-one-pager.pdf">
+      <img loading="lazy" src="one-pager.jpg" alt="The HyperMuse booking sheet: specifications, requirements and cost"/>
+    </a>
+  </div>
+  <p class="lede" style="margin-top:14px">The sheet as sent:
+  <a href="hypermuse-one-pager.pdf">hypermuse-one-pager.pdf</a>. It quotes one height and one
+  price; the table above is the current answer where the two differ.</p>
+
   <h2>Motion</h2>
+  <p class="lede" style="margin-bottom:18px">Everything below was rendered from the pages in this
+  repository &mdash; nothing is concept art. Clips are viewing copies; full-resolution masters are
+  rebuilt from source with the commands at the foot of this page.</p>
   <div class="grid">
 ${CLIPS.map(clipCard).filter(Boolean).join("\n")}
   </div>
@@ -387,11 +412,102 @@ ${STILLS.map(stillCard).filter(Boolean).join("\n")}
 </html>
 `);
 
+// The landing page, which is the URL that gets pasted into a WhatsApp thread at
+// a conference, so it opens with the offer rather than with a list of links.
+// Generated from the same SPEC and DJ as the press kit for the same reason the
+// booking sheet is: two hand-kept copies of a price disagree eventually.
+fs.writeFileSync(path.join(ROOT, "docs", "index.html"), `<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>HyperMuse &middot; a holographic fan you can book</title>
+<meta name="description" content="${esc(SPEC.about)}"/>
+<meta property="og:title" content="HyperMuse"/>
+<meta property="og:description" content="An audio-reactive holographic fan on a 4.3 m tower. Your mark on it, reacting to your set, running the night on its own."/>
+<meta property="og:image" content="${SITE}/docs/gallery/rig.jpg"/>
+<meta property="og:url" content="${SITE}/docs/"/>
+<meta name="twitter:card" content="summary_large_image"/>
+<style>
+${SHARED_CSS}
+  main { max-width:900px; margin:0 auto; }
+  .hero { margin:26px 0 0; border:1px solid rgba(127,211,255,0.13); border-radius:12px; overflow:hidden; }
+  .hero video { display:block; width:100%; background:#000; }
+  ul.more { list-style:none; padding:0; margin:14px 0 0; }
+  ul.more li { border-top:1px solid rgba(127,211,255,0.13); }
+  ul.more li:last-child { border-bottom:1px solid rgba(127,211,255,0.13); }
+  a.row { display:block; padding:15px 2px; text-decoration:none; color:#7fd3ff; }
+  a.row span { display:block; color:rgba(207,233,255,0.55); font-size:13.5px; }
+  a.row:hover { background:rgba(127,211,255,0.05); }
+  table.spec { border-collapse:collapse; width:100%; max-width:620px; margin:0; }
+  table.spec th, table.spec td { text-align:left; padding:7px 0; font-weight:400;
+                                 border-bottom:1px solid rgba(127,211,255,0.1); vertical-align:top; }
+  table.spec th { color:rgba(207,233,255,0.5); width:38%; font-size:12.5px; letter-spacing:0.03em; }
+</style>
+</head>
+<body><main>
+  <h1>HyperMuse</h1>
+  <p class="lede">An audio-reactive holographic fan on a 4.3 m tower. Your mark goes on it, it
+  reacts to whatever the PA is doing, and it runs the night without anyone standing over it.</p>
+${bookNow("press/")}
+  <div class="hero">
+    <video autoplay muted loop playsinline preload="metadata" poster="press/posters/rig.jpg">
+      <source src="press/clips/rig.mp4" type="video/mp4"/>
+    </video>
+  </div>
+  <p class="terms" style="margin-top:10px">The rig, dimensioned, carrying the show it ships with.
+  ${esc(SPEC.debut)}</p>
+
+  <h2>If you are the one playing</h2>
+  <div class="sells">
+${DJ.sells.map(([k, v]) => `    <div><b>${esc(k)}</b><p>${esc(v)}</p></div>`).join("\n")}
+  </div>
+  <div class="rider">
+    <div>
+      <h3>What arrives</h3>
+      <ul>${DJ.bring.map((x) => `\n        <li>${esc(x)}</li>`).join("")}
+      </ul>
+    </div>
+    <div>
+      <h3>What the room provides</h3>
+      <ul>${DJ.venue.map((x) => `\n        <li>${esc(x)}</li>`).join("")}
+      </ul>
+    </div>
+  </div>
+
+  <h2>The numbers</h2>
+  <table class="spec">
+${SPEC.rows.map(([k, v]) => `    <tr><th>${esc(k)}</th><td>${esc(v)}</td></tr>`).join("\n")}
+  </table>
+
+  <h2>See more of it</h2>
+  <ul class="more">
+    <li><a class="row" href="press/">Press kit
+      <span>Ten clips and thirteen stills, all downloadable &mdash; including the rig at night,
+      the fan up close, and an hour of the show cut to a reel</span></a></li>
+    <li><a class="row" href="hyperstition/">Hyperstition &middot; moon halo
+      <span>Two full-length renders, playing in the page</span></a></li>
+    <li><a class="row" href="../">How it is built
+      <span>The README: every mode, every parameter, and how to run it yourself</span></a></li>
+    <li><a class="row" href="https://github.com/fractastical/hypermuse">Source on GitHub
+      <span>github.com/fractastical/hypermuse</span></a></li>
+  </ul>
+
+  <h2>Book it</h2>
+${bookNow("press/")}
+  <p class="terms" style="margin-top:12px">Joel Dietz &middot;
+  <a href="https://t.me/fractastical">@fractastical</a> on Telegram &middot;
+  <a href="https://wa.me/16283331011">+1 (628) 333-1011</a> on WhatsApp</p>
+</main></body>
+</html>
+`);
+
 const total = [CLIPDIR, LOOPDIR, POSTER, PRESS]
   .flatMap((d) => fs.readdirSync(d).map((f) => path.join(d, f)))
   .filter((f) => fs.statSync(f).isFile())
   .reduce((n, f) => n + fs.statSync(f).size, 0);
-console.log(`\n  page  docs/press/index.html`);
+console.log(`\n  page  docs/index.html`);
+console.log(`  page  docs/press/index.html`);
 console.log(`  ${(total / 1024 / 1024).toFixed(1)} MB in docs/press`);
 if (missing.length) {
   console.log(`\n  not built, source missing:`);

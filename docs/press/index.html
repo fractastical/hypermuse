@@ -8,12 +8,28 @@
   :root { color-scheme: dark; }
   body { margin:0; padding:48px 32px 96px; background:#05070a; color:#cfe9ff;
          font:15px/1.65 -apple-system,BlinkMacSystemFont,"Segoe UI",Helvetica,Arial,sans-serif; }
-  main { max-width:1200px; margin:0 auto; }
-  h1 { font-size:30px; margin:0 0 6px; letter-spacing:0.01em; }
+  h1 { font-size:34px; margin:0 0 10px; letter-spacing:0.01em; }
   h2 { font-size:13px; text-transform:uppercase; letter-spacing:0.16em;
        color:rgba(207,233,255,0.5); margin:56px 0 18px; font-weight:600; }
   p.lede { color:rgba(207,233,255,0.72); max-width:64ch; margin:0 0 8px; }
   a { color:#7fd3ff; }
+  .cta { display:flex; flex-wrap:wrap; gap:10px; margin:22px 0 10px; }
+  .cta a { display:inline-block; padding:11px 20px; border-radius:999px; text-decoration:none;
+           font-size:14px; font-weight:600; }
+  .cta .go { background:#7fd3ff; color:#04121c; }
+  .cta .alt { border:1px solid rgba(127,211,255,0.32); color:#7fd3ff; font-weight:500; }
+  .terms { color:rgba(207,233,255,0.5); font-size:13px; max-width:70ch; margin:0; }
+  .sells { display:grid; gap:20px; grid-template-columns:repeat(auto-fill,minmax(300px,1fr)); margin:0 0 34px; }
+  .sells div { background:#0a0e14; border:1px solid rgba(127,211,255,0.13); border-radius:10px; padding:16px 18px 18px; }
+  .sells b { display:block; margin:0 0 6px; }
+  .sells p { margin:0; color:rgba(207,233,255,0.62); font-size:13.5px; }
+  .rider { display:grid; gap:26px; grid-template-columns:repeat(auto-fit,minmax(280px,1fr)); }
+  .rider h3 { font-size:12.5px; text-transform:uppercase; letter-spacing:0.13em; font-weight:600;
+              color:rgba(207,233,255,0.5); margin:0 0 10px; }
+  .rider ul { margin:0; padding:0; list-style:none; }
+  .rider li { padding:6px 0; border-bottom:1px solid rgba(127,211,255,0.1); font-size:13.5px;
+              color:rgba(207,233,255,0.72); }
+  main { max-width:1200px; margin:0 auto; }
   .grid { display:grid; gap:22px; grid-template-columns:repeat(auto-fill,minmax(330px,1fr)); }
   figure { margin:0; background:#0a0e14; border:1px solid rgba(127,211,255,0.13); border-radius:10px; overflow:hidden; }
   video, img { display:block; width:100%; background:#000; }
@@ -34,55 +50,19 @@
   .contact { margin:16px 0 0; padding:0; list-style:none; }
   .contact li { padding:3px 0; }
   .contact em { font-style:normal; color:rgba(207,233,255,0.4); font-size:12px; margin-left:6px; }
-  .sells { display:grid; gap:20px; grid-template-columns:repeat(auto-fill,minmax(300px,1fr)); margin:0 0 34px; }
-  .sells div { background:#0a0e14; border:1px solid rgba(127,211,255,0.13); border-radius:10px; padding:16px 18px 18px; }
-  .sells b { display:block; margin:0 0 6px; }
-  .sells p { margin:0; color:rgba(207,233,255,0.62); font-size:13.5px; }
-  .rider { display:grid; gap:26px; grid-template-columns:repeat(auto-fit,minmax(280px,1fr)); }
-  .rider h3 { font-size:12.5px; text-transform:uppercase; letter-spacing:0.13em; font-weight:600;
-              color:rgba(207,233,255,0.5); margin:0 0 10px; }
-  .rider ul { margin:0; padding:0; list-style:none; }
-  .rider li { padding:6px 0; border-bottom:1px solid rgba(127,211,255,0.1); font-size:13.5px;
-              color:rgba(207,233,255,0.72); }
 </style>
 </head>
 <body><main>
-  <h1>HyperMuse &middot; press kit</h1>
+  <h1>HyperMuse</h1>
   <p class="lede">An audio-reactive holographic fan on a 4.3 m tower, and the browser-based show
   that drives it: a moon carrying words, geometry and weather on its dark side, with a poem
-  screen beside it. Everything here was rendered from the pages in this repository &mdash;
-  nothing is concept art.</p>
-  <p class="lede">Clips are viewing copies. Full-resolution masters are rebuilt from source with
-  the commands at the foot of this page. If you are booking it for a set rather than writing
-  about it, <a href="#for-djs">start here</a>.</p>
-
-  <h2 id="the-installation">The installation</h2>
-  <div class="book">
-    <div>
-      <p class="lede">An audio-reactive holographic fan, rigged above a DJ booth or standing on its own tower. It ships with an equalizer that can be preconfigured for the night's music, and it will play VJ loops or 3D visuals supplied as mp4 - or run this show, live and reacting to the room.</p>
-      <p class="lede">Debuted at Burning Man PlayAlchemist, 2023.</p>
-      <table>
-        <tr><th>Height</th><td>4.3 m to the top of the disc, adjustable</td></tr>
-        <tr><th>Footprint</th><td>2.5 m square ground frame</td></tr>
-        <tr><th>Install</th><td>2 people, 2.5 hours</td></tr>
-        <tr><th>Breakdown</th><td>2 people, 1 hour</td></tr>
-        <tr><th>Needs</th><td>a ladder, and a laptop with an HDMI port</td></tr>
-        <tr><th>Cost</th><td>negotiable - 750 EUR is the usual single-day install</td></tr>
-      </table>
-      <ul class="contact">
-        <li><b>Joel Dietz</b></li>
-        <li><a href="https://t.me/fractastical">@fractastical</a> <em>Telegram</em></li>
-        <li><a href="https://wa.me/16283331011">+1 (628) 333-1011</a> <em>WhatsApp</em></li>
-      </ul>
-    </div>
-    <a class="sheet" href="hypermuse-one-pager.pdf">
-      <img loading="lazy" src="one-pager.jpg" alt="The HyperMuse booking sheet: specifications, requirements and cost"/>
-    </a>
+  screen beside it. Debuted at Burning Man PlayAlchemist, 2023.</p>
+  <div class="cta">
+    <a class="go" href="https://wa.me/16283331011">Book it &middot; WhatsApp</a>
+    <a class="alt" href="https://t.me/fractastical">Telegram</a>
+    <a class="alt" href="hypermuse-one-pager.pdf">Booking sheet, PDF</a>
   </div>
-  <p class="lede" style="margin-top:14px">The sheet as sent:
-  <a href="hypermuse-one-pager.pdf">hypermuse-one-pager.pdf</a>. It quotes one height and one
-  price; the table above is the current answer where the two differ. The clip below is the rig
-  itself, rendered to the same dimensions.</p>
+  <p class="terms">4.3 m to the top of the disc, adjustable · 2.5 m square base · two people and 2.5 hours to build · cost negotiable, 750 EUR is the usual single-day install</p>
 
   <h2 id="for-djs">If you are the one playing</h2>
   <div class="sells">
@@ -112,7 +92,36 @@
     </div>
   </div>
 
+  <h2 id="the-installation">The installation</h2>
+  <div class="book">
+    <div>
+      <p class="lede">An audio-reactive holographic fan, rigged above a DJ booth or standing on its own tower. It ships with an equalizer that can be preconfigured for the night's music, and it will play VJ loops or 3D visuals supplied as mp4 - or run this show, live and reacting to the room.</p>
+      <table>
+        <tr><th>Height</th><td>4.3 m to the top of the disc, adjustable</td></tr>
+        <tr><th>Footprint</th><td>2.5 m square ground frame</td></tr>
+        <tr><th>Install</th><td>2 people, 2.5 hours</td></tr>
+        <tr><th>Breakdown</th><td>2 people, 1 hour</td></tr>
+        <tr><th>Needs</th><td>a ladder, and a laptop with an HDMI port</td></tr>
+        <tr><th>Cost</th><td>negotiable - 750 EUR is the usual single-day install</td></tr>
+      </table>
+      <ul class="contact">
+        <li><b>Joel Dietz</b></li>
+        <li><a href="https://t.me/fractastical">@fractastical</a> <em>Telegram</em></li>
+        <li><a href="https://wa.me/16283331011">+1 (628) 333-1011</a> <em>WhatsApp</em></li>
+      </ul>
+    </div>
+    <a class="sheet" href="hypermuse-one-pager.pdf">
+      <img loading="lazy" src="one-pager.jpg" alt="The HyperMuse booking sheet: specifications, requirements and cost"/>
+    </a>
+  </div>
+  <p class="lede" style="margin-top:14px">The sheet as sent:
+  <a href="hypermuse-one-pager.pdf">hypermuse-one-pager.pdf</a>. It quotes one height and one
+  price; the table above is the current answer where the two differ.</p>
+
   <h2>Motion</h2>
+  <p class="lede" style="margin-bottom:18px">Everything below was rendered from the pages in this
+  repository &mdash; nothing is concept art. Clips are viewing copies; full-resolution masters are
+  rebuilt from source with the commands at the foot of this page.</p>
   <div class="grid">
       <figure>
         <video controls loop muted playsinline preload="none"
