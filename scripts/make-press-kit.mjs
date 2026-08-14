@@ -332,12 +332,24 @@ for (const c of CLIPS) {
   made.push(c);
 }
 
-// The landing page's hero, cut from the close fan render. Two differences from
-// the press-kit copy of the same footage: the caption bar is cropped off the
-// bottom, being useful in a press kit and clutter beneath a title, and the crop
-// lands it on 2.06:1, which is a better shape for a banner than 16:9 and means
-// the browser has less to throw away when it covers a wide box.
-const HERO = { id: "hero", src: "artifacts/demos/hypermoon-holofan-180cm.mp4", start: 8, len: 14, width: 1280 };
+// The landing page's hero: the mumins, because the slogan is about being seen
+// on the dark side and they are the one thing in the set that is literally
+// somebody being seen there. Its source is a purpose-made cut rather than one
+// of the stock ones, for two reasons. The window is anchored to the shadowed
+// terrain, so at the art cut's speed the whole troupe has rotated out of frame
+// well before a banner-length clip is up - hence SLOW_SPEED. And 5 s is too
+// short to sit under a title without feeling like a nervous tic.
+//
+//   CUTS=mumins CUT_MS=16000 MONTAGE=0 SLOW_SPEED=0.05 \
+//     OUT_DIR=artifacts/hero-mumins npm run export:art
+//
+// The crop is centred and lands on 2.06:1, a better shape for a banner than
+// 16:9, and means the browser throws less away when it covers a wide box. The
+// moon clears that crop at this framing, so nothing of the disc is lost.
+const HERO = {
+  id: "hero", src: "artifacts/hero-mumins/mumins.mp4",
+  start: 0, len: 16, width: 1280, fade: 1.5
+};
 if (pick(HERO.id)) {
   const src = path.join(ROOT, HERO.src);
   const out = path.join(CLIPDIR, "hero.mp4");
@@ -345,11 +357,24 @@ if (pick(HERO.id)) {
   if (!fs.existsSync(src)) missing.push(`hero - no ${HERO.src}`);
   else if (fs.existsSync(out) && !FORCE) console.log(`  hero            kept  ${size(out)}`);
   else {
-    run(["-ss", String(HERO.start), "-t", String(HERO.len), "-i", src, "-an",
-      "-vf", `crop=iw:trunc(ih*0.864/2)*2:0:0,scale=${HERO.width}:-2:flags=lanczos`,
+    // Even slowed right down the disc drifts over sixteen seconds, so cutting
+    // the end back to the start would snap the dancers across the moon on every
+    // loop. Instead the clip keeps its first L = len - fade seconds and the
+    // leftover tail is laid over the opening, fading from opaque to nothing.
+    // The result opens on the frame it ends on, so it meets itself exactly, and
+    // the fade covers the drift between the two. Comes out `fade` s shorter.
+    const crop = "crop=iw:trunc(ih*0.864/2)*2:0:(ih-trunc(ih*0.864/2)*2)/2";
+    const body = HERO.len - HERO.fade;
+    run(["-t", String(HERO.len), "-i", src, "-an", "-filter_complex",
+      `[0:v]${crop},scale=${HERO.width}:-2:flags=lanczos,split[a][b];` +
+      `[a]trim=0:${body},setpts=PTS-STARTPTS[main];` +
+      `[b]trim=${body}:${HERO.len},setpts=PTS-STARTPTS,format=yuva420p,` +
+      `fade=out:st=0:d=${HERO.fade}:alpha=1[tail];` +
+      `[main][tail]overlay=format=auto,format=yuv420p[v]`,
+      "-map", "[v]",
       "-c:v", "libx264", "-crf", "30", "-preset", "slow",
       "-pix_fmt", "yuv420p", "-movflags", "+faststart", out]);
-    run(["-ss", String(HERO.len / 2), "-i", out, "-frames:v", "1", "-q:v", "4", poster]);
+    run(["-ss", String(body / 2), "-i", out, "-frames:v", "1", "-q:v", "4", poster]);
     console.log(`  hero            ${size(out)}  poster ${size(poster)}`);
   }
 }
@@ -527,6 +552,15 @@ ${SHARED_CSS}
      whatever shape the window is, portrait phone included. */
   .hero { position:relative; height:min(88vh,780px); min-height:440px; overflow:hidden; background:#000; }
   .hero video { position:absolute; inset:0; width:100%; height:100%; object-fit:cover; }
+  /* A phone's hero is about twice as tall as it is wide and the clip is twice
+     as wide as it is tall, so covering it magnifies the disc until there is no
+     disc left - just grey terrain and one enormous dancer. Contain instead, and
+     scale back up until the moon is a reasonable size: the clip is black around
+     the moon and so is the hero, so there is nothing to letterbox. Sitting it
+     above centre keeps it clear of the headline, which is anchored bottom. */
+  @media (max-aspect-ratio: 4/5) {
+    .hero video { object-fit:contain; transform:scale(1.85) translateY(-13%); }
+  }
   /* Dark at the top so the eye starts on the title, dark at the bottom so the
      text and buttons stay legible over whatever the clip happens to be doing. */
   .hero .veil { position:absolute; inset:0; background:

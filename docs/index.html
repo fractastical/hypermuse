@@ -56,6 +56,15 @@
      whatever shape the window is, portrait phone included. */
   .hero { position:relative; height:min(88vh,780px); min-height:440px; overflow:hidden; background:#000; }
   .hero video { position:absolute; inset:0; width:100%; height:100%; object-fit:cover; }
+  /* A phone's hero is about twice as tall as it is wide and the clip is twice
+     as wide as it is tall, so covering it magnifies the disc until there is no
+     disc left - just grey terrain and one enormous dancer. Contain instead, and
+     scale back up until the moon is a reasonable size: the clip is black around
+     the moon and so is the hero, so there is nothing to letterbox. Sitting it
+     above centre keeps it clear of the headline, which is anchored bottom. */
+  @media (max-aspect-ratio: 4/5) {
+    .hero video { object-fit:contain; transform:scale(1.85) translateY(-13%); }
+  }
   /* Dark at the top so the eye starts on the title, dark at the bottom so the
      text and buttons stay legible over whatever the clip happens to be doing. */
   .hero .veil { position:absolute; inset:0; background:
