@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 600" width="600" height="600">
+  <!-- The other kind of guest mark: a bold geometric monogram with no fine
+       detail, which is what survives cubes mode. Everything here is a heavy
+       stroke or a solid, since the rebuild samples the artwork on a grid about
+       forty cells across and anything thinner than a cell falls between them. -->
+  <g fill="none" stroke="#ffffff" stroke-width="26" stroke-linejoin="round">
+    <circle cx="300" cy="300" r="250"/>
+    <path d="M300 132 L462 420 H138 Z"/>
+    <path d="M300 262 L360 366 H240 Z" fill="#ffffff"/>
+  </g>
+  <rect x="150" y="452" width="300" height="24" fill="#ffffff"/>
+</svg>

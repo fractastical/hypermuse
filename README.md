@@ -91,6 +91,9 @@ this repository rather than promises:
   the hyperstition word does — either as clean artwork, or rebuilt out of moon footage
   so it reads as terrain. `npm run preview:logo -- your-mark.png` shoots it at full size
   beforehand, so nobody finds out on stage that a wordmark shreds.
+
+![A wordmark on the shadowed side of the moon](docs/gallery/brand-wordmark.jpg)
+
 - **It listens to the room, not to our laptop.** The machine driving the fan opens its
   own microphone (`hypermoon.html?mic=1`), so the geometry answers whatever the PA is
   doing. Bass swells the sphere, beats flare the orbits, loud passages shake the
@@ -838,6 +841,11 @@ where the moon is.
 | --- | --- | --- |
 | `logo` | — | image path |
 | `logomode` `logoink` `logoscale` `logosec` | `plain` `0.42` `1.7` `24` | plain or cubes rendering, ink darkness, size, and seconds shown |
+
+Two example marks ship in `assets/marks/` for showing a booker what theirs will
+look like: `yourname.svg`, a heavy wide-tracked wordmark, and `monogram.svg`,
+bold geometry with no detail finer than a cube. The stills on the site were shot
+from them with `OUT=/tmp MODES=plain node scripts/preview-logo.mjs assets/marks/monogram.svg`.
 
 Preview a mark before anyone sees it on stage with
 `npm run preview:logo -- assets/your-logo.png`, which writes a still per mode —

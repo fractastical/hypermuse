@@ -19,6 +19,10 @@ loops/VAJRA DORJE ANIMATIONS/*
 
 assets/*
 !assets/esoteric-geometries-circles-warp.gif
+# Guest-mark examples: a few hundred bytes of SVG each, and the site's branding
+# stills are shot from them, so they are source rather than media.
+!assets/marks/
+!assets/marks/*
 
 # Generated exports, caches, datasets, PDFs, and media (videos, wav, LED samples, DJ cache, …)
 artifacts/*

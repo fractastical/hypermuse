@@ -158,7 +158,7 @@ const DJ = {
   // Image paths are relative to docs/, so the press kit one directory down
   // prefixes them with ../ and both pages read from one set of files.
   sells: [
-    ["Your mark on it, not ours", "gallery/word.jpg",
+    ["Your mark on it, not ours", "gallery/brand-wordmark.jpg",
       "A guest logo sits on the moon's shadowed side the same way the word does - either as clean artwork or rebuilt out of moon footage so it looks like terrain. It is shot and checked at full size beforehand, so nobody discovers on stage that a wordmark is unreadable at forty feet."],
     ["It listens to the room, not to our laptop", "gallery/harmonics.jpg",
       "The machine driving the fan opens its own microphone, so the geometry answers whatever the PA is actually doing. Bass swells the sphere, beats flare the orbiting pieces, loud passages shake the lettering. Nothing has to be routed through us and nothing needs timecode."],
@@ -215,7 +215,30 @@ const SHARED_CSS = `  :root { color-scheme: dark; }
               color:rgba(207,233,255,0.5); margin:0 0 10px; }
   .rider ul { margin:0; padding:0; list-style:none; }
   .rider li { padding:6px 0; border-bottom:1px solid rgba(127,211,255,0.1); font-size:13.5px;
-              color:rgba(207,233,255,0.72); }`;
+              color:rgba(207,233,255,0.72); }
+  .brand { display:grid; gap:22px; grid-template-columns:repeat(auto-fit,minmax(330px,1fr)); margin:0 0 12px; }
+  .brand figure { margin:0; }
+  .brand img { display:block; width:100%; border-radius:12px; background:#000; }
+  .brand figcaption { padding:11px 2px 0; font-size:13px; }
+  .brand figcaption b { display:block; }
+  .brand figcaption span { display:block; color:rgba(207,233,255,0.5); }`;
+
+// The branding strip, which is the thing being sold and so gets the room to be
+// looked at rather than a card. Both stills are the real feature rather than a
+// mockup - `npm run preview:logo -- assets/marks/monogram.svg` shoots them - so
+// what a booker sees here is what their own artwork does.
+const BRAND = [
+  ["gallery/brand-wordmark.jpg", "A wordmark, drawn as supplied",
+    "Heavy and wide-tracked, because fine type does not survive the size the panel gives it"],
+  ["gallery/brand-monogram.jpg", "A monogram, glowing off the terrain",
+    "Bold geometry reads from the back of a room, and holds while the disc turns under it"]
+];
+
+const brandStrip = (prefix) => `  <div class="brand">
+${BRAND.map(([img, title, note]) =>
+  `    <figure><img loading="lazy" src="${prefix}${img}" alt="${esc(title)}"/>` +
+  `<figcaption><b>${esc(title)}</b><span>${esc(note)}</span></figcaption></figure>`).join("\n")}
+  </div>`;
 
 const rider = () => `  <div class="rider">
     <div>
@@ -401,6 +424,12 @@ ${SHARED_CSS}
   screen beside it. ${esc(SPEC.debut)}</p>
 ${bookNow("")}
 
+  <h2 id="brand">Brand the moon</h2>
+  <p class="lede" style="margin-bottom:22px">Send a logo and it goes on the shadowed side of the
+  disc, riding the terrain as it turns. It is shot at full size and checked weeks before the night,
+  so nobody finds out on stage that a mark is unreadable at forty feet.</p>
+${brandStrip("../")}
+
   <h2 id="for-djs">If you are the one playing</h2>
   <div class="sells">
 ${sellCards("../")}
@@ -523,6 +552,12 @@ ${bookNow("press/")}
     </div>
   </section>
 <main>
+
+  <h2>Brand the moon</h2>
+  <p class="lede" style="margin-bottom:22px">Send a logo and it goes on the shadowed side of the
+  disc, riding the terrain as it turns. It is shot at full size and checked weeks before the night,
+  so nobody finds out on stage that a mark is unreadable at forty feet.</p>
+${brandStrip("")}
 
   <h2>If you are the one playing</h2>
   <div class="sells">

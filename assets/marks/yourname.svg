@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1400 320" width="1400" height="320">
+  <!-- A stand-in guest mark, for showing a booker what their own wordmark will
+       look like on the shadowed panel. Wide-tracked and heavy on purpose: fine
+       type disappears at the size the panel gives you, and this is the weight
+       that still reads across a room. White on transparent, because the loader
+       treats a dark mark as a silhouette and a light one as moonlight. -->
+  <g fill="#ffffff" font-family="Helvetica Neue, Helvetica, Arial, sans-serif"
+     text-anchor="middle">
+    <text x="700" y="150" font-size="132" font-weight="700" letter-spacing="34">YOUR NAME</text>
+    <text x="700" y="248" font-size="52" font-weight="400" letter-spacing="26"
+          fill-opacity="0.72">ON THE MOON</text>
+  </g>
+</svg>
