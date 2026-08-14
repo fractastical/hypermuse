@@ -72,6 +72,7 @@
     "demo:projectors": "node scripts/make-projector-demo.mjs",
     "export:poem": "node scripts/export-trinity-poem.mjs",
     "gallery": "node scripts/make-gallery.mjs",
+    "poster": "node scripts/make-poster.mjs",
     "press": "node scripts/make-press-kit.mjs"
   },
   "devDependencies": {

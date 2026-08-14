@@ -1,0 +1,115 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<title>hypermoon poster</title>
+<!--
+  A poster is the one place in this repository where something is laid over a
+  render rather than made by one. Everything above the type is a frame out of
+  holofan.html - the tower, the disc, the mark on it, the person standing next
+  to it for scale - and this page only sets the headline underneath it, the way
+  a printer would.
+
+  It takes the plate and the words as query parameters so a poster for a guest
+  is a command rather than an edit:
+
+    ?plate=artifacts/poster/plate.png
+    &kicker=HYPERMOON
+    &head=I'M PUTTING MY NAME ON THE *DARK SIDE OF THE MOON*.
+    &sub=Ø180 cm holographic fan · 4.3 m tower · your mark, all night
+
+  Asterisks in the headline mark the part that takes the accent colour, which
+  is how the poster this is modelled on splits its claim across two colours.
+-->
+<style>
+  :root {
+    --accent: #6fd3ff;
+    --pad: 5.6%;
+  }
+  html, body { margin: 0; height: 100%; background: #000; }
+  body {
+    font-family: "Helvetica Neue", Inter, "Segoe UI", Arial, sans-serif;
+    color: #fff;
+    -webkit-font-smoothing: antialiased;
+  }
+  #sheet { position: relative; width: 100vw; height: 100vh; overflow: hidden; }
+  /* The render fills the sheet. It is shot at the poster's own aspect so this
+     is a placement, not a crop. */
+  #plate { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+  /* The rig throws a pool of light onto the floor right where the type goes.
+     A scrim under the words rather than a wash over the whole picture keeps
+     the disc and the haze at full strength. */
+  #scrim {
+    position: absolute; left: 0; right: 0; bottom: 0; height: 38%;
+    background: linear-gradient(to bottom, rgba(0,0,0,0) 0%, rgba(0,0,0,0.5) 46%, rgba(0,0,0,0.9) 100%);
+  }
+  #type { position: absolute; left: var(--pad); right: var(--pad); bottom: var(--pad); }
+  #kicker {
+    display: flex; align-items: baseline; gap: 0.5em;
+    font-size: 1.95vh; font-weight: 700; letter-spacing: 0.22em;
+    margin-bottom: 1.15em;
+  }
+  #kicker b { font-weight: 800; }
+  #kicker span { color: var(--accent); font-weight: 600; letter-spacing: 0.18em; }
+  /* Three lines at this size sit in the bottom fifth, which is where the sheet
+     this copies keeps its claim: the picture is still the poster. */
+  h1 {
+    margin: 0; max-width: 13em;
+    font-size: 5.1vh; line-height: 0.96; font-weight: 800;
+    letter-spacing: -0.018em; text-transform: uppercase;
+  }
+  h1 em { font-style: normal; color: var(--accent); }
+  #sub {
+    margin: 0.95em 0 0; max-width: 34em;
+    font-size: 1.9vh; line-height: 1.45; font-weight: 400; color: #cfd6dc;
+  }
+</style>
+</head>
+<body>
+<div id="sheet">
+  <img id="plate" alt=""/>
+  <div id="scrim"></div>
+  <div id="type">
+    <div id="kicker"></div>
+    <h1></h1>
+    <p id="sub"></p>
+  </div>
+</div>
+<script>
+  const P = new URLSearchParams(location.search);
+  const val = (k, d) => { const v = P.get(k); return v === null || v === "" ? d : v; };
+
+  document.getElementById("plate").src = val("plate", "artifacts/poster/plate.png");
+  document.documentElement.style.setProperty("--accent", val("accent", "#6fd3ff"));
+
+  const kicker = document.getElementById("kicker");
+  kicker.innerHTML = "";
+  const mark = document.createElement("b");
+  mark.textContent = val("kicker", "HYPERMOON");
+  kicker.append(mark);
+  const tag = val("tag", "ON A Ø180 CM FAN");
+  if (tag) { const s = document.createElement("span"); s.textContent = tag; kicker.append(s); }
+
+  // Asterisk pairs switch to the accent colour, so the headline stays a single
+  // readable string in the URL instead of a pile of markup.
+  const head = val("head", "I'm putting my name on the *dark side of the moon*.");
+  document.querySelector("h1").innerHTML = head
+    .split("*")
+    .map((part, i) => {
+      const safe = part.replace(/[&<>]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;" }[c]));
+      return i % 2 ? `<em>${safe}</em>` : safe;
+    })
+    .join("");
+
+  document.getElementById("sub").textContent =
+    val("sub", "Your mark on the dark side of the moon, all night, on a 4.3 m tower.");
+
+  // The exporter waits on this rather than on a timer: a poster missing its
+  // plate is a black sheet with words on it, and it would save happily.
+  const plate = document.getElementById("plate");
+  const done = () => { window.__posterReady = true; };
+  if (plate.complete && plate.naturalWidth) done();
+  else { plate.addEventListener("load", done); plate.addEventListener("error", done); }
+</script>
+</body>
+</html>

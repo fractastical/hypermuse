@@ -1175,6 +1175,27 @@ Results land in `artifacts/demos/` as `hypermoon-holofan-180cm.mp4`,
 `-180cm-room.mp4` and `hypermuse-rig-4m3.mp4`. Use `STILL=1` (or the `:still`
 alias) while framing — it skips the whole encode.
 
+### A poster for a guest
+
+```bash
+npm run poster                                            # the placeholder mark
+MARK=assets/marks/monogram.svg npm run poster             # somebody else's
+HEAD="Be seen on the *dark side of the moon*." npm run poster
+REPLATE=1 npm run poster                                  # reshoot, not just retype
+```
+
+The rig shot again, in portrait, with the dimension arrows and the caption off
+and one figure left in for scale, carrying whatever mark was asked for on the
+dark side. `poster.html` then sets the headline under it and the sheet is
+written to `artifacts/poster/` at 2160 × 2700, which prints. Asterisks in `HEAD`
+mark the words that take the accent colour; `KICKER`, `TAG`, `SUB` and `ACCENT`
+are the rest of the type. The render is the slow half and is kept on disk, so
+changing only the words costs a second.
+
+Two flags on the exporter make the frame repeatable rather than lucky: `FACE=1`
+holds the source pass until the mark has turned square to the camera, and
+`STILL_MS` picks how far into the clip the frame is taken from.
+
 ### Three shots
 
 `shot=push` opens wide enough to read 180 cm against a figure, then goes in until

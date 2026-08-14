@@ -53,6 +53,13 @@ const CUES = [
 ];
 const MOON_SPEED = process.env.MOON_SPEED || "2";
 const ANCHOR_MS = Number.parseInt(process.env.ANCHOR_MS || "12000", 10);
+// Whether to hold the source pass until whatever is anchored to the dark side
+// has come round square to the camera. Where the terrain happens to be when
+// the anchor settles is luck, and for a still that luck is the whole picture.
+const FACE = process.env.FACE === "1";
+// How long the fan page runs before a still is taken, which is also how far
+// into the source clip the frame comes from.
+const STILL_MS = Number.parseInt(process.env.STILL_MS || "1200", 10);
 
 const WIDTH = Number.parseInt(process.env.EXPORT_WIDTH || "1920", 10);
 const HEIGHT = Number.parseInt(process.env.EXPORT_HEIGHT || "1080", 10);
@@ -171,6 +178,13 @@ async function main() {
       // The anchor estimator needs a turn at full speed before the window can
       // open on the dark patch; only then is it safe to wind the moon up.
       await page.waitForTimeout(ANCHOR_MS);
+      if (FACE) {
+        await page.waitForFunction(() => {
+          const a = (window.__hyperstitionStats || {}).facingAngle;
+          return typeof a === "number" && a > -0.5 && a < -0.12;
+        }, undefined, { timeout: 40000 })
+          .catch(() => console.warn("[holofan]   never came round front, filming anyway"));
+      }
       // A broadcast channel never echoes to the page that posted it, so the
       // cues have to come from a second page on the same origin.
       const cuePage = await ctx.newPage();
@@ -236,7 +250,7 @@ async function main() {
     });
     await page.goto(`http://127.0.0.1:${PORT}/holofan.html?${fq}`, { waitUntil: "domcontentloaded", timeout: 45000 });
     await page.waitForFunction(() => window.__holofanReady === true, undefined, { timeout: 60000 });
-    await page.waitForTimeout(1200);
+    await page.waitForTimeout(STILL ? STILL_MS : 1200);
 
     if (STILL) {
       const still = path.resolve(ROOT, process.env.OUTPUT_STILL || "artifacts/holofan-still.png");
