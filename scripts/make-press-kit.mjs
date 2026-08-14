@@ -29,6 +29,7 @@ import ffmpeg from "ffmpeg-static";
 const ROOT = process.cwd();
 const PRESS = path.join(ROOT, "docs", "press");
 const CLIPDIR = path.join(PRESS, "clips");
+const CARDDIR = path.join(PRESS, "cards");
 const LOOPDIR = path.join(PRESS, "loops");
 const POSTER = path.join(PRESS, "posters");
 const GALLERY = path.join(ROOT, "docs", "gallery");
@@ -243,7 +244,9 @@ const SHARED_CSS = `  :root { color-scheme: dark; }
   /* 4:3 against 16:9 sources, so cover crops the sides and enlarges the subject.
      These renders are a small bright disc in a large black frame, and at card
      width the uncropped version reads as an empty rectangle. */
-  .sells img { display:block; width:100%; aspect-ratio:4/3; object-fit:cover; background:#000; }
+  /* Both, because a card carries a clip where one was rendered and the still
+     everywhere else, and the two have to sit in the layout identically. */
+  .sells img, .sells video { display:block; width:100%; aspect-ratio:4/3; object-fit:cover; background:#000; }
   .sells .say { padding:15px 17px 18px; }
   .sells b { display:block; margin:0 0 6px; }
   .sells p { margin:0; color:rgba(207,233,255,0.62); font-size:13.5px; }
@@ -255,7 +258,7 @@ const SHARED_CSS = `  :root { color-scheme: dark; }
               color:rgba(207,233,255,0.72); }
   .brand { display:grid; gap:22px; grid-template-columns:repeat(auto-fit,minmax(330px,1fr)); margin:0 0 12px; }
   .brand figure { margin:0; }
-  .brand img { display:block; width:100%; border-radius:12px; background:#000; }
+  .brand img, .brand video { display:block; width:100%; border-radius:12px; background:#000; }
   .brand figcaption { padding:11px 2px 0; font-size:13px; }
   .brand figcaption b { display:block; }
   .brand figcaption span { display:block; color:rgba(207,233,255,0.5); }`;
@@ -271,9 +274,44 @@ const BRAND = [
     "Bold geometry reads from the back of a room, and holds while the disc turns under it"]
 ];
 
+// Every card on the landing page moves. A page selling a thing that turns and
+// glows should not be a grid of photographs of it, and the hero being the only
+// thing playing made the rest read as stills of a video that had stopped. Each
+// card keeps its gallery frame as the poster, so it looks right before the clip
+// arrives and if it never does, and the clip itself is a few hundred kilobytes.
+// The three under card-cuts are rendered for this, with:
+//
+//   CUTS=logo CUT_MS=6000 MONTAGE=0 SLOW_SPEED=0.09 OUT_DIR=artifacts/card-cuts \
+//     Q="logo=assets/marks/yourname.svg&logomode=plain" npm run export:art
+//
+// Harmonics is among them rather than reused from art-cuts because that cut was
+// taken before the window work and still paints the sphere onto a hard blue
+// rectangle, which is the panel look this page should be the last place to show.
+const CARD_CLIP = {
+  "gallery/brand-wordmark.jpg": "artifacts/card-cuts/wordmark.mp4",
+  "gallery/brand-monogram.jpg": "artifacts/card-cuts/monogram.mp4",
+  "gallery/harmonics.jpg": "artifacts/card-cuts/harmonics.mp4",
+  "gallery/holofan-room.jpg": "artifacts/demos/hypermoon-holofan-180cm-room.mp4",
+  "gallery/eclipse.jpg": "artifacts/art-cuts/eclipse.mp4",
+  // Padded rather than cropped: a moon has room to lose off the sides of a 4:3
+  // card and the triangle does not - cropping it takes the corners off the
+  // shape and the ends off the lines. The bars are black on a black card.
+  "gallery/poem.jpg": ["docs/press/clips/poem.mp4", "contain"]
+};
+const cardId = (img) => path.basename(img, ".jpg");
+// Falls back to the still whenever the clip was never built, which is what
+// happens in a fresh clone: the sources are all under artifacts/.
+const cardMedia = (prefix, img, alt) => {
+  const clip = path.join(CARDDIR, `${cardId(img)}.mp4`);
+  const still = `${prefix}${img}${ver(docFile(img))}`;
+  if (!fs.existsSync(clip)) return `<img loading="lazy" src="${still}" alt="${esc(alt)}"/>`;
+  return `<video autoplay muted loop playsinline preload="metadata" poster="${still}"` +
+    ` src="${prefix}press/cards/${cardId(img)}.mp4${ver(clip)}" aria-label="${esc(alt)}"></video>`;
+};
+
 const brandStrip = (prefix) => `  <div class="brand">
 ${BRAND.map(([img, title, note]) =>
-  `    <figure><img loading="lazy" src="${prefix}${img}${ver(docFile(img))}" alt="${esc(title)}"/>` +
+  `    <figure>${cardMedia(prefix, img, title)}` +
   `<figcaption><b>${esc(title)}</b><span>${esc(note)}</span></figcaption></figure>`).join("\n")}
   </div>`;
 
@@ -291,7 +329,7 @@ const rider = () => `  <div class="rider">
   </div>`;
 
 const sellCards = (prefix) => DJ.sells.map(([k, img, v]) =>
-  `    <article><img loading="lazy" src="${prefix}${img}${ver(docFile(img))}" alt="${esc(k)}"/>` +
+  `    <article>${cardMedia(prefix, img, k)}` +
   `<div class="say"><b>${esc(k)}</b><p>${esc(v)}</p></div></article>`).join("\n");
 
 // The call to action, above the fold on both pages. Someone scanning this on a
@@ -326,7 +364,7 @@ const run = (args) => execFileSync(ffmpeg, ["-y", "-hide_banner", "-loglevel", "
 const kb = (f) => fs.statSync(f).size / 1024;
 const size = (f) => (kb(f) > 1024 ? (kb(f) / 1024).toFixed(1) + "M" : kb(f).toFixed(0) + "K");
 
-for (const d of [CLIPDIR, LOOPDIR, POSTER]) fs.mkdirSync(d, { recursive: true });
+for (const d of [CLIPDIR, CARDDIR, LOOPDIR, POSTER]) fs.mkdirSync(d, { recursive: true });
 
 const missing = [];
 const made = [];
@@ -404,6 +442,28 @@ if (pick(HERO.id)) {
     run(["-ss", String(body / 2), "-i", out, "-frames:v", "1", "-q:v", "4", poster]);
     console.log(`  hero            ${size(out)}  poster ${size(poster)}`);
   }
+}
+
+// The card clips. Small on purpose: seven of them play at once on the landing
+// page, so each is 720 px wide, five seconds, and cropped to the 4:3 the cards
+// already crop their stills to - the framing does not change when the clip
+// takes over from the poster. Together they come to about what one press-kit
+// clip costs.
+for (const [img, spec] of Object.entries(CARD_CLIP)) {
+  const [src, fit = "cover"] = Array.isArray(spec) ? spec : [spec];
+  const id = cardId(img);
+  if (!pick(`card-${id}`) && !pick("cards")) continue;
+  const from = path.join(ROOT, src);
+  const out = path.join(CARDDIR, `${id}.mp4`);
+  if (!fs.existsSync(from)) { missing.push(`card ${id} - no ${src}`); continue; }
+  if (fs.existsSync(out) && !FORCE) { console.log(`  card ${id.padEnd(15)} kept  ${size(out)}`); continue; }
+  run(["-ss", "0.5", "-t", "5", "-i", from, "-an",
+    "-vf", fit === "contain"
+      ? "scale=720:-2:flags=lanczos,pad=720:540:(ow-iw)/2:(oh-ih)/2:black"
+      : "crop=trunc(ih*4/3/2)*2:ih,scale=720:-2:flags=lanczos",
+    "-c:v", "libx264", "-crf", "32", "-preset", "slow",
+    "-pix_fmt", "yuv420p", "-movflags", "+faststart", out]);
+  console.log(`  card ${id.padEnd(15)} ${size(out)}`);
 }
 
 for (const l of LOOPS) {

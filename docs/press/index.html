@@ -26,7 +26,9 @@
   /* 4:3 against 16:9 sources, so cover crops the sides and enlarges the subject.
      These renders are a small bright disc in a large black frame, and at card
      width the uncropped version reads as an empty rectangle. */
-  .sells img { display:block; width:100%; aspect-ratio:4/3; object-fit:cover; background:#000; }
+  /* Both, because a card carries a clip where one was rendered and the still
+     everywhere else, and the two have to sit in the layout identically. */
+  .sells img, .sells video { display:block; width:100%; aspect-ratio:4/3; object-fit:cover; background:#000; }
   .sells .say { padding:15px 17px 18px; }
   .sells b { display:block; margin:0 0 6px; }
   .sells p { margin:0; color:rgba(207,233,255,0.62); font-size:13.5px; }
@@ -38,7 +40,7 @@
               color:rgba(207,233,255,0.72); }
   .brand { display:grid; gap:22px; grid-template-columns:repeat(auto-fit,minmax(330px,1fr)); margin:0 0 12px; }
   .brand figure { margin:0; }
-  .brand img { display:block; width:100%; border-radius:12px; background:#000; }
+  .brand img, .brand video { display:block; width:100%; border-radius:12px; background:#000; }
   .brand figcaption { padding:11px 2px 0; font-size:13px; }
   .brand figcaption b { display:block; }
   .brand figcaption span { display:block; color:rgba(207,233,255,0.5); }
@@ -83,17 +85,17 @@
   disc, riding the terrain as it turns. It is shot at full size and checked weeks before the night,
   so nobody finds out on stage that a mark is unreadable at forty feet.</p>
   <div class="brand">
-    <figure><img loading="lazy" src="../gallery/brand-wordmark.jpg?v=2546e2d3" alt="A wordmark, drawn as supplied"/><figcaption><b>A wordmark, drawn as supplied</b><span>Heavy and wide-tracked, because fine type does not survive the size the panel gives it</span></figcaption></figure>
-    <figure><img loading="lazy" src="../gallery/brand-monogram.jpg?v=73f3a74d" alt="A monogram, glowing off the terrain"/><figcaption><b>A monogram, glowing off the terrain</b><span>Bold geometry reads from the back of a room, and holds while the disc turns under it</span></figcaption></figure>
+    <figure><video autoplay muted loop playsinline preload="metadata" poster="../gallery/brand-wordmark.jpg?v=2546e2d3" src="../press/cards/brand-wordmark.mp4?v=64b7862a" aria-label="A wordmark, drawn as supplied"></video><figcaption><b>A wordmark, drawn as supplied</b><span>Heavy and wide-tracked, because fine type does not survive the size the panel gives it</span></figcaption></figure>
+    <figure><video autoplay muted loop playsinline preload="metadata" poster="../gallery/brand-monogram.jpg?v=73f3a74d" src="../press/cards/brand-monogram.mp4?v=6d440190" aria-label="A monogram, glowing off the terrain"></video><figcaption><b>A monogram, glowing off the terrain</b><span>Bold geometry reads from the back of a room, and holds while the disc turns under it</span></figcaption></figure>
   </div>
 
   <h2 id="for-djs">If you are the one playing</h2>
   <div class="sells">
-    <article><img loading="lazy" src="../gallery/brand-wordmark.jpg?v=2546e2d3" alt="Your mark on it, not ours"/><div class="say"><b>Your mark on it, not ours</b><p>A guest logo sits on the moon's shadowed side the same way the word does - either as clean artwork or rebuilt out of moon footage so it looks like terrain. It is shot and checked at full size beforehand, so nobody discovers on stage that a wordmark is unreadable at forty feet.</p></div></article>
-    <article><img loading="lazy" src="../gallery/harmonics.jpg?v=c7c77324" alt="It listens to the room, not to our laptop"/><div class="say"><b>It listens to the room, not to our laptop</b><p>The machine driving the fan opens its own microphone, so the geometry answers whatever the PA is actually doing. Bass swells the sphere, beats flare the orbiting pieces, loud passages shake the lettering. Nothing has to be routed through us and nothing needs timecode.</p></div></article>
-    <article><img loading="lazy" src="../gallery/holofan-room.jpg?v=3d250a0c" alt="It will play your visuals"/><div class="say"><b>It will play your visuals</b><p>Any loop supplied as mp4 goes into the rotation beside the generated show, so the night can be your content, ours, or a cut of the two. The equalizer can be set for the kind of music before doors.</p></div></article>
-    <article><img loading="lazy" src="../gallery/eclipse.jpg?v=217e0ba4" alt="It runs the set without a VJ"/><div class="say"><b>It runs the set without a VJ</b><p>The programme is an hour of scheduled acts that loops for as long as the night does - a different effect each revolution, words, eclipses, orbits, geometry. The speed control stretches it, so half speed is a two-hour arc. It takes direction live if you want it, and needs nobody if you do not.</p></div></article>
-    <article><img loading="lazy" src="../gallery/poem.jpg?v=70da9083" alt="The fan is not the only output"/><div class="say"><b>The fan is not the only output</b><p>The same show drives projection - 402 x 226 cm is its native shape, two surfaces if you have them - and LED walls at 1920 x 1080 for a bar screen or 1872 x 1296 for a DJ screen. The poem screen above is what the second projector carries.</p></div></article>
+    <article><video autoplay muted loop playsinline preload="metadata" poster="../gallery/brand-wordmark.jpg?v=2546e2d3" src="../press/cards/brand-wordmark.mp4?v=64b7862a" aria-label="Your mark on it, not ours"></video><div class="say"><b>Your mark on it, not ours</b><p>A guest logo sits on the moon's shadowed side the same way the word does - either as clean artwork or rebuilt out of moon footage so it looks like terrain. It is shot and checked at full size beforehand, so nobody discovers on stage that a wordmark is unreadable at forty feet.</p></div></article>
+    <article><video autoplay muted loop playsinline preload="metadata" poster="../gallery/harmonics.jpg?v=c7c77324" src="../press/cards/harmonics.mp4?v=09d9427a" aria-label="It listens to the room, not to our laptop"></video><div class="say"><b>It listens to the room, not to our laptop</b><p>The machine driving the fan opens its own microphone, so the geometry answers whatever the PA is actually doing. Bass swells the sphere, beats flare the orbiting pieces, loud passages shake the lettering. Nothing has to be routed through us and nothing needs timecode.</p></div></article>
+    <article><video autoplay muted loop playsinline preload="metadata" poster="../gallery/holofan-room.jpg?v=3d250a0c" src="../press/cards/holofan-room.mp4?v=ebda1a30" aria-label="It will play your visuals"></video><div class="say"><b>It will play your visuals</b><p>Any loop supplied as mp4 goes into the rotation beside the generated show, so the night can be your content, ours, or a cut of the two. The equalizer can be set for the kind of music before doors.</p></div></article>
+    <article><video autoplay muted loop playsinline preload="metadata" poster="../gallery/eclipse.jpg?v=217e0ba4" src="../press/cards/eclipse.mp4?v=79c023ef" aria-label="It runs the set without a VJ"></video><div class="say"><b>It runs the set without a VJ</b><p>The programme is an hour of scheduled acts that loops for as long as the night does - a different effect each revolution, words, eclipses, orbits, geometry. The speed control stretches it, so half speed is a two-hour arc. It takes direction live if you want it, and needs nobody if you do not.</p></div></article>
+    <article><video autoplay muted loop playsinline preload="metadata" poster="../gallery/poem.jpg?v=70da9083" src="../press/cards/poem.mp4?v=50e5380c" aria-label="The fan is not the only output"></video><div class="say"><b>The fan is not the only output</b><p>The same show drives projection - 402 x 226 cm is its native shape, two surfaces if you have them - and LED walls at 1920 x 1080 for a bar screen or 1872 x 1296 for a DJ screen. The poem screen above is what the second projector carries.</p></div></article>
   </div>
   <div class="rider">
     <div>

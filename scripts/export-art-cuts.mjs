@@ -88,6 +88,15 @@ const CUTS = [
     note: "letter cubes anchored to the dark terrain"
   },
   {
+    id: "logo", title: "a guest mark", facing: true,
+    // The same anchoring as the word, carrying somebody else's mark instead.
+    // Which mark and which mode is left to Q=, so showing a second one is a
+    // flag rather than another entry here:
+    //   Q="logo=assets/marks/monogram.svg&logomode=cubes" CUTS=logo
+    q: { logo: "assets/marks/yourname.svg", logomode: "plain", peek: "0" },
+    note: "a guest logo riding the shadowed terrain as the disc turns"
+  },
+  {
     id: "fisher", title: "the star fisher",
     // fisherlive keeps him on his own layer so the whole cast fits the cut.
     q: { fisherlive: "1", fishersec: "5", fisherheart: "1", stars: "700", meteors: "10", vajras: "2" },
