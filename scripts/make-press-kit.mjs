@@ -133,6 +133,44 @@ const SPEC = {
   ]
 };
 
+// What a DJ, or a promoter's production manager, asks - which is not what a
+// magazine asks. A magazine wants to know what it looks like; these people want
+// to know whose name is on it, what it needs from the building, and who has to
+// stand next to it all night.
+//
+// Every claim below is a feature in this repository rather than a promise: the
+// mark goes on with ?logo=, the microphone with ?mic=1, the unattended hour with
+// ?program=hour, and the screen sizes are the export profiles that already
+// exist. Anything we cannot answer from the code is left off the page rather
+// than guessed at, because a rider with a wrong number in it is worse than a
+// rider with a gap.
+const DJ = {
+  sells: [
+    ["Your mark on it, not ours",
+      "A guest logo sits on the moon's shadowed side the same way the word does - either as clean artwork or rebuilt out of moon footage so it looks like terrain. It is shot and checked at full size beforehand, so nobody discovers on stage that a wordmark is unreadable at forty feet."],
+    ["It listens to the room, not to our laptop",
+      "The machine driving the fan opens its own microphone, so the geometry answers whatever the PA is actually doing. Bass swells the sphere, beats flare the orbiting pieces, loud passages shake the lettering. Nothing has to be routed through us and nothing needs timecode."],
+    ["It will play your visuals",
+      "Any loop supplied as mp4 goes into the rotation beside the generated show, so the night can be your content, ours, or a cut of the two. The equalizer can be set for the kind of music before doors."],
+    ["It runs the set without a VJ",
+      "The programme is an hour of scheduled acts that loops for as long as the night does - a different effect each revolution, words, eclipses, orbits, geometry. The speed control stretches it, so half speed is a two-hour arc. It takes direction live if you want it, and needs nobody if you do not."],
+    ["The fan is not the only output",
+      "The same show drives projection - 402 x 226 cm is its native shape, two surfaces if you have them - and LED walls at 1920 x 1080 for a bar screen or 1872 x 1296 for a DJ screen."]
+  ],
+  // Split so the production manager can read their own column and stop.
+  bring: [
+    "The fan itself, 180 cm of spinning LED",
+    "A box-truss tower and its 2.5 m square ground frame",
+    "The show, configured for your night, with your mark already tested on it"
+  ],
+  venue: [
+    "2.5 m square of floor, and the height to use it",
+    "A ladder",
+    "A laptop with an HDMI port, if you would rather run it yourself",
+    "Two people and 2.5 hours to build it, one hour to strike it"
+  ]
+};
+
 // The stills, in the order they should be read rather than alphabetically.
 const STILLS = [
   ["rig", "The installation, at night", "4.3 m to the top of the disc, over a 2.5 m square base"],
@@ -265,6 +303,16 @@ fs.writeFileSync(path.join(PRESS, "index.html"), `<!DOCTYPE html>
   .contact { margin:16px 0 0; padding:0; list-style:none; }
   .contact li { padding:3px 0; }
   .contact em { font-style:normal; color:rgba(207,233,255,0.4); font-size:12px; margin-left:6px; }
+  .sells { display:grid; gap:20px; grid-template-columns:repeat(auto-fill,minmax(300px,1fr)); margin:0 0 34px; }
+  .sells div { background:#0a0e14; border:1px solid rgba(127,211,255,0.13); border-radius:10px; padding:16px 18px 18px; }
+  .sells b { display:block; margin:0 0 6px; }
+  .sells p { margin:0; color:rgba(207,233,255,0.62); font-size:13.5px; }
+  .rider { display:grid; gap:26px; grid-template-columns:repeat(auto-fit,minmax(280px,1fr)); }
+  .rider h3 { font-size:12.5px; text-transform:uppercase; letter-spacing:0.13em; font-weight:600;
+              color:rgba(207,233,255,0.5); margin:0 0 10px; }
+  .rider ul { margin:0; padding:0; list-style:none; }
+  .rider li { padding:6px 0; border-bottom:1px solid rgba(127,211,255,0.1); font-size:13.5px;
+              color:rgba(207,233,255,0.72); }
 </style>
 </head>
 <body><main>
@@ -274,7 +322,8 @@ fs.writeFileSync(path.join(PRESS, "index.html"), `<!DOCTYPE html>
   screen beside it. Everything here was rendered from the pages in this repository &mdash;
   nothing is concept art.</p>
   <p class="lede">Clips are viewing copies. Full-resolution masters are rebuilt from source with
-  the commands at the foot of this page.</p>
+  the commands at the foot of this page. If you are booking it for a set rather than writing
+  about it, <a href="#for-djs">start here</a>.</p>
 
   <h2 id="the-installation">The installation</h2>
   <div class="book">
@@ -298,6 +347,23 @@ ${SPEC.contact.map(([label, href, via]) =>
   <a href="hypermuse-one-pager.pdf">hypermuse-one-pager.pdf</a>. It quotes one height and one
   price; the table above is the current answer where the two differ. The clip below is the rig
   itself, rendered to the same dimensions.</p>
+
+  <h2 id="for-djs">If you are the one playing</h2>
+  <div class="sells">
+${DJ.sells.map(([k, v]) => `    <div><b>${esc(k)}</b><p>${esc(v)}</p></div>`).join("\n")}
+  </div>
+  <div class="rider">
+    <div>
+      <h3>What arrives</h3>
+      <ul>${DJ.bring.map((x) => `\n        <li>${esc(x)}</li>`).join("")}
+      </ul>
+    </div>
+    <div>
+      <h3>What the room provides</h3>
+      <ul>${DJ.venue.map((x) => `\n        <li>${esc(x)}</li>`).join("")}
+      </ul>
+    </div>
+  </div>
 
   <h2>Motion</h2>
   <div class="grid">

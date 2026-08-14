@@ -77,6 +77,27 @@ play VJ loops or 3D visuals supplied as mp4 — or run this show, live and react
 room. The render above is that rig, dimensioned: `SHOT=rig npm run export:holofan` builds
 it, and `holofan.html?shot=rig` is it in a browser.
 
+### If you are the one playing
+
+Four things a DJ tends to ask before anything about the art, all of them features in
+this repository rather than promises:
+
+- **Your mark goes on it.** A guest logo sits on the moon's shadowed side the same way
+  the hyperstition word does — either as clean artwork, or rebuilt out of moon footage
+  so it reads as terrain. `npm run preview:logo -- your-mark.png` shoots it at full size
+  beforehand, so nobody finds out on stage that a wordmark shreds.
+- **It listens to the room, not to our laptop.** The machine driving the fan opens its
+  own microphone (`hypermoon.html?mic=1`), so the geometry answers whatever the PA is
+  doing. Bass swells the sphere, beats flare the orbits, loud passages shake the
+  lettering. Nothing is routed through us and nothing needs timecode.
+- **It runs the set without a VJ.** `?program=hour` is an hour of scheduled acts —
+  a different effect each revolution — that loops for as long as the night does, and the
+  speed control stretches it, so half speed is a two-hour arc. It takes direction live
+  if you want it and needs nobody if you don't.
+- **The fan is not the only output.** The same show drives projection (402 × 226 cm is
+  its native shape, two surfaces if you have them) and LED walls, at 1920 × 1080 for a
+  bar screen or 1872 × 1296 for a DJ screen.
+
 The booking sheet as sent is [`docs/press/hypermuse-one-pager.pdf`](docs/press/hypermuse-one-pager.pdf).
 It quotes one height and one price; the table above is the current answer where the two differ.
 
