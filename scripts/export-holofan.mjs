@@ -260,9 +260,9 @@ async function main() {
     } else {
       console.log(`[holofan] filming the fan, ${(FAN_MS / 1000).toFixed(0)}s at ${WIDTH}x${HEIGHT}, ${60 / FAN_NTH}fps`);
       // Every other compositor frame, so the fan is filmed at 30 like the
-      // phone footage it is imitating. At 500 rpm on four blades that is just
-      // over one arm pass per frame, and the near-miss is what sets the
-      // shutter wedge crawling instead of strobing.
+      // phone footage it is imitating. At 350 rpm on eight blades that is about
+      // one and a half arm passes per frame, and missing the whole number is
+      // what sets the shutter wedges crawling instead of strobing.
       const r = await record(ctx, page, FAN_MS, { width: WIDTH, height: HEIGHT }, FAN_NTH);
       encode(OUT, r.frame, r.fps);
       console.log(JSON.stringify({

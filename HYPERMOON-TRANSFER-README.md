@@ -430,13 +430,17 @@ writes both.
 spinning LED "3D hologram" fans, at a size worth having: a 180 cm disc with a
 figure beside it for scale.
 
-The numbers are a real unit rather than invented ones. A 180 cm four-blade fan
-of the HD-F180 class carries 2512 LEDs, which is 628 down each arm, and turns
-at 500 rpm — 33 image refreshes a second. It is filmed at 30 fps, like the
-phone footage it is imitating, and that is worth knowing because it is where
-the look comes from: 33 passes a second against 30 frames lands just past one
-arm pass per frame, and that near-miss is what sets the shutter wedge crawling
-slowly round the disc instead of strobing. Change the rpm and it will strobe.
+The numbers are a real unit rather than invented ones. A 180 cm fan carries 2512
+LEDs across eight blades, which is 314 down each arm at 2.87 mm pitch, and turns
+at 350 rpm — about 47 image refreshes a second. It is filmed at 30 fps, like the
+phone footage it is imitating, and that is worth knowing because it is where the
+look comes from: 47 passes a second against 30 frames lands near one and a half
+passes per frame, and missing the whole number is what sets the shutter wedges
+crawling round the disc instead of strobing. Change the rpm and it will strobe.
+
+That 2.87 mm pitch is the number to remember when sizing a guest's mark. It is
+the real limit on how fine a logo can be before the arm cannot resolve it, and
+it is coarser than it sounds at 180 cm.
 
 It runs in two passes. First it films the moon square, the way a clip would be
 loaded onto the fan's own controller, cueing a short sequence by hand — the

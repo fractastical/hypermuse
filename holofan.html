@@ -42,15 +42,15 @@
   const SRC = P.get("src") || "artifacts/holofan-source.mp4";
   const DIAM = num("diam", 180) / 100;          // metres across the swept disc
   const R = DIAM / 2;
-  // Defaults are a real 180 cm four-blade unit (HD-F180 class): 2512 LEDs over
-  // four arms is 628 down each one, and they turn at 500 rpm, which is 33 image
-  // refreshes a second. Filmed at 30 fps that lands just past one arm pass per
-  // frame, and that near-miss is what makes the shutter wedge crawl in every
-  // phone video of these things.
-  const LEDS = Math.max(24, num("leds", 628));  // LEDs down one arm (~1.4 mm pitch)
+  // Defaults are a real 180 cm eight-blade unit: 2512 LEDs spread over eight arms
+  // is 314 down each one, which is the 2.87 mm pitch the spec sheets quote, and
+  // they turn at 350 rpm for about 47 image refreshes a second. Filmed at 30 fps
+  // that is close to one and a half arm passes per frame, and missing the whole
+  // number is what makes the shutter wedges crawl in phone videos of these things.
+  const LEDS = Math.max(24, num("leds", 314));  // LEDs down one arm (2.87 mm pitch)
   const STEPS = Math.max(60, num("steps", 960));// angular samples a revolution
-  const RPM = num("rpm", 500);
-  const BLADES = Math.max(1, Math.round(num("blades", 4)));
+  const RPM = num("rpm", 350);
+  const BLADES = Math.max(1, Math.round(num("blades", 8)));
   // The LEDs run in almost to the middle and the motor is small and hidden
   // behind the picture, so there is no dark hole at the centre — footage of
   // these things shows a filled disc.
