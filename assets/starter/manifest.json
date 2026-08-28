@@ -1,5 +1,5 @@
 {
-  "built": "2026-08-28T22:11:45.981Z",
+  "built": "2026-08-28T23:07:12.626Z",
   "note": "Low-bandwidth media tracked in git so a fresh clone runs the show. The page prefers the full media and falls back to these, so having the masters locally costs nothing. npm run gifs / clips / clips:cut fetch the real thing.",
   "excerptSeconds": 60,
   "clipSize": 360,
@@ -41,7 +41,8 @@
     "coral",
     "starfish",
     "condom",
-    "dildo"
+    "dildo",
+    "boobs"
   ],
-  "gifs": 122
+  "gifs": 130
 }
