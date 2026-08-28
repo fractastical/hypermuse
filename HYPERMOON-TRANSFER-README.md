@@ -250,6 +250,25 @@ latest versions). Then:
   good gifs to its name is worth pairing with another, or eight lanes will be
   showing three gifs between them.
 
+  Nothing orbits without a transparent background. GeoCities gifs are a mixed
+  bag: some carry a transparent index, plenty were pasted onto a flat white or
+  black rectangle, and against a moon and a starfield the flat ones read as
+  floating postage stamps rather than as things. So the loader reads the
+  background colour off the corners, knocks it out and crops to what is left —
+  and if that cannot be done, because the corners disagree or because knocking
+  the colour out takes the subject with it, the gif is dropped at decode time
+  instead of flown. The test is how much of its own bounding box the shape holds
+  back, not whether a clear pixel exists somewhere: a white card in a wide
+  transparent margin, or a bevelled plaque that loses only its frame line to the
+  key, is still a card and still a plaque.
+
+  `npm run gifs:pool` reports what each act of the show's sequence actually
+  flies — curated, tried, and how many were dropped as tiles — and writes a
+  sheet of the survivors over a checkerboard to `artifacts/gifpool/`, so a thin
+  act shows up before a show rather than during one. `THEMES="coral,starfish"`
+  reports one act, `RAW=1` adds a sheet of every gif a theme scraped, curation
+  and keying both ignored, which is the sheet to mark up after a fresh pull.
+
   `npm exec -- node scripts/check-gifswarm.mjs` shoots a few approaches, moon
   and bare canvas side by side, and prints how gathered and how synchronised
   the swarm was in each — `WORDS=` and `PASSES=` to taste.
@@ -279,8 +298,12 @@ latest versions). Then:
 
   Tiles show each GIF the way the swarm will draw it — background keyed out,
   cropped, animating — over a checkerboard, so an opaque backing plate the trim
-  could not key is obvious at a glance. Only the tiles near the viewport are
-  live, so a library of thousands still scrolls.
+  could not key is obvious at a glance. Those are dropped by the loader anyway,
+  which leaves the curator for the thing no rule can judge: the wrong subject
+  rather than the wrong shape, and a rectangular subject on a transparent
+  background — a product shot, a wide text card — which passes the loader and
+  still reads as a tile in the air. Only the tiles near the viewport are live,
+  so a library of thousands still scrolls.
 
   Marks are held in `localStorage`, which the moon shares because it is served
   from the same origin, so rejecting something removes it from a moon running

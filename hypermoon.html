@@ -1076,12 +1076,20 @@
     return frames.length ? frames : null;
   }
 
+  // Trimmed frames are canvases, untrimmed ones are bitmaps that hold memory
+  // until closed — and a sequence builds a fresh pool every act, so a leak
+  // here is a leak once every couple of minutes for the length of the show.
+  const closeFrames = (f) => f.forEach((fr) => { if (fr.bmp.close) fr.bmp.close(); });
+
   // GeoCities GIFs are a mixed bag: some carry a transparent index, plenty are
   // just pasted onto a flat white or black rectangle by whoever made them. Left
   // alone the flat ones read as solid tiles rather than shapes, and a swarm of
-  // tiles is a mosaic, not a swarm. So the background colour is read off the
-  // corners, knocked out of every frame, and what survives is cropped to fit.
-  // If the corners disagree the GIF is left exactly as it is.
+  // tiles is a mosaic, not a swarm. So a GIF that holds back none of its own
+  // frame has its background colour read off the corners, knocked out of every
+  // frame, and what survives cropped to fit. If that cannot be done — the
+  // corners disagree, or knocking the colour out takes the subject with it —
+  // null goes back and the pool skips the GIF. There are always more GIFs than
+  // orbit slots, so a rectangle is never worth flying.
   async function trimGifFrames(frames) {
     const w = frames[0].bmp.width, h = frames[0].bmp.height;
     if (!w || !h) return frames;
@@ -1094,13 +1102,35 @@
     const at = (x, y) => { const i = (y * w + x) * 4; return [first[i], first[i + 1], first[i + 2], first[i + 3]]; };
     const corners = [at(0, 0), at(w - 1, 0), at(0, h - 1), at(w - 1, h - 1)];
     const near = (a, b) => Math.abs(a[0] - b[0]) < 22 && Math.abs(a[1] - b[1]) < 22 && Math.abs(a[2] - b[2]) < 22;
-    // Three corners of the same colour is a background; two is a coincidence.
-    let key = null;
-    for (const cand of corners) {
-      if (cand[3] < 8) return frames;                 // already transparent
-      if (corners.filter((o) => near(cand, o)).length >= 3) { key = cand; break; }
+    const drop = () => { closeFrames(frames); return null; };
+    // A cut-out holds back a real share of the box it occupies. Measured
+    // against the box and not the whole frame, because a white card sitting in
+    // a wide transparent margin has plenty of clear pixels and is still a card.
+    const CLEAR = 0.12;
+    let ax0 = w, ay0 = h, ax1 = -1, ay1 = -1, on = 0;
+    for (let y = 0; y < h; y++) {
+      for (let x = 0; x < w; x++) {
+        if (first[(y * w + x) * 4 + 3] <= 8) continue;
+        on++;
+        if (x < ax0) ax0 = x;
+        if (y < ay0) ay0 = y;
+        if (x > ax1) ax1 = x;
+        if (y > ay1) ay1 = y;
+      }
     }
-    if (!key) return frames;
+    // Already a shape in its own right: leave it exactly as it is.
+    if (ax1 >= ax0 && on <= (ax1 - ax0 + 1) * (ay1 - ay0 + 1) * (1 - CLEAR)) return frames;
+
+    // Three corners of the same colour is a background; two is a coincidence.
+    // Only opaque corners can be a background colour: a transparent corner
+    // carries whatever RGB the encoder left under it, usually black, and
+    // keying on that would knock the line art out of the middle of the gif.
+    const solid = corners.filter((o) => o[3] >= 8);
+    let key = null;
+    for (const cand of solid) {
+      if (solid.filter((o) => near(cand, o)).length >= 3) { key = cand; break; }
+    }
+    if (!key) return drop();
 
     const keyed = [];
     let x0 = w, y0 = h, x1 = -1, y1 = -1, kept = 0;
@@ -1126,13 +1156,18 @@
       keyed.push(img);
     }
     // Knocking out almost everything means the corners were the subject, not
-    // the background — a solid heart filling its own frame, say.
-    if (x1 < x0 || kept < w * h * frames.length * 0.04) return frames;
+    // the background — a solid heart filling its own frame, say. Which is a
+    // rectangle too, so it goes the same way.
+    if (x1 < x0 || kept < w * h * frames.length * 0.04) return drop();
 
     // Cropped canvases rather than bitmaps: drawImage takes either, and
     // createImageBitmap is an async round trip per frame that adds up over a
     // few dozen gifs. putImageData with a negative offset does the crop.
     const bw = x1 - x0 + 1, bh = y1 - y0 + 1;
+    // The crop throws the cleared margin away, so the question is whether what
+    // is left holds back part of its own box. A bevelled plaque loses its frame
+    // line to the key and keeps the whole interior: still a tile, so drop it.
+    if (kept > bw * bh * frames.length * (1 - CLEAR)) return drop();
     const out = keyed.map((img, i) => {
       const fc = document.createElement("canvas");
       fc.width = bw; fc.height = bh;
@@ -1156,6 +1191,7 @@
     tex.minFilter = THREE.LinearFilter;
 
     const sources = [];            // decoded GIFs, shared between sprites
+    const srcs = [];               // where each came from, for curation passes
     const sprites = [];
     let dead = false, phrase = -1, cells = [];
 
@@ -1299,6 +1335,7 @@
         seqAct = (seqAct + 1) % ORBIT_SEQ.length;
         sources.forEach(closeFrames);
         sources.length = 0;
+        srcs.length = 0;
         // An empty pool makes drawOrbiters give up early, so the lanes are put
         // out by hand here — otherwise they would sit through the decode wearing
         // the last frame of the act that just ended.
@@ -1390,11 +1427,6 @@
       }
     }
 
-    // Trimmed frames are canvases, untrimmed ones are bitmaps that hold memory
-    // until closed — and a sequence builds a fresh pool every act, so a leak
-    // here is a leak once every couple of minutes for the length of the show.
-    const closeFrames = (f) => f.forEach((fr) => { if (fr.bmp.close) fr.bmp.close(); });
-
     // The library index, fetched once and kept: an act change rebuilds the pool
     // out of it and there is no sense asking for it again every act.
     let library = null;
@@ -1468,6 +1500,7 @@
           // draw it, so give the memory back rather than growing the pool.
           if (dead || gen !== poolGen) { closeFrames(frames); continue; }
           sources.push(frames);
+          srcs.push(src);
           sprites.forEach((s, i) => { s.src = i % sources.length; });
           // Spread the orbiters across the far end of the pool, so the handful
           // going round the moon are not the same handful filling the window.
@@ -1664,6 +1697,7 @@
       orbiters.length = 0;
       sources.forEach(closeFrames);
       sources.length = 0;
+      srcs.length = 0;
     }
 
     // No draw here: the boot path builds the swarm before the letter mosaic's
@@ -1679,6 +1713,10 @@
       // Which gif each orbiter is holding, so the hand-overs round the back of
       // the moon can be watched from a check rather than taken on trust.
       orbitSources: () => orbiters.map((o) => o.src),
+      // The pool as it will actually fly — keyed and cropped, named by file —
+      // so a curation pass can look at what survives rather than at the raw
+      // gif, and reject by name.
+      pool: () => sources.map((f, i) => ({ src: srcs[i], bmp: f[0].bmp })),
       // Which act of the sequence is up and how far through the hand-over it
       // is, so a check can watch the acts turn over without waiting on the eye.
       act: () => ({

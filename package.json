@@ -15,6 +15,7 @@
     "stream:server": "node scripts/stream-server.mjs",
     "manifest:videos": "node scripts/build-video-manifest.mjs",
     "gifs": "node scripts/scrape-gifcities.mjs",
+    "gifs:pool": "node scripts/check-gifpool.mjs",
     "clips": "node scripts/fetch-xfeeefeee.mjs",
     "tracks": "node scripts/extract-xfeeefeee-audio.mjs",
     "clips:cut": "node scripts/cut-xfeeefeee-segments.mjs",
