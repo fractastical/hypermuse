@@ -5,7 +5,7 @@
   "scripts": {
     "start": "npx http-server -c-1 -p 8080 .",
     "kiosk:hypermoon": "open -na \"Google Chrome\" --args --kiosk --user-data-dir=/tmp/hypermoon-kiosk --autoplay-policy=no-user-gesture-required \"http://localhost:8080/hypermoon.html?kiosk=1\"",
-    "kiosk:show": "open -na \"Google Chrome\" --args --kiosk --user-data-dir=/tmp/hypermoon-show --autoplay-policy=no-user-gesture-required --use-fake-ui-for-media-stream \"http://localhost:8080/hypermoon.html?kiosk=1&mic=1&react=1.5&content=orbit&orbitseq=ankh|seahorse,jellyfish,seaweed|coral,starfish&orbitact=150&giforbit=8&flash=hermes/logo.png&flashsec=60&flashhold=1\"",
+    "kiosk:show": "open -na \"Google Chrome\" --args --kiosk --user-data-dir=/tmp/hypermoon-show --autoplay-policy=no-user-gesture-required --use-fake-ui-for-media-stream \"http://localhost:8080/hypermoon.html?kiosk=1&mic=1&react=1.5&content=orbit&orbitseq=ankh|seahorse,jellyfish,seaweed|coral,starfish&orbitact=150&giforbit=8&flash=hermes/logo.png&flashsec=60&flashhold=1&pixels=1\"",
     "export:reel": "node scripts/export-effects-reel.mjs",
     "export:clips": "CLIPS=1 REEL=0 node scripts/export-effects-reel.mjs",
     "build:vajra:proxies": "node scripts/build-vajra-proxies.mjs",
