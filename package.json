@@ -18,6 +18,7 @@
     "clips": "node scripts/fetch-xfeeefeee.mjs",
     "tracks": "node scripts/extract-xfeeefeee-audio.mjs",
     "clips:cut": "node scripts/cut-xfeeefeee-segments.mjs",
+    "starter": "node scripts/build-starter-kit.mjs",
     "pixels": "node scripts/pixel-bridge.mjs",
     "pixels:map": "node scripts/make-pixel-map.mjs",
     "guide:stills": "node scripts/capture-guide-stills.mjs",

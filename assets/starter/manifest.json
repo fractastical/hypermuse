@@ -1,0 +1,45 @@
+{
+  "built": "2026-08-28T21:14:14.797Z",
+  "note": "Low-bandwidth media tracked in git so a fresh clone runs the show. The page prefers the full media and falls back to these, so having the masters locally costs nothing. npm run gifs / clips / clips:cut fetch the real thing.",
+  "excerptSeconds": 60,
+  "clipSize": 360,
+  "clips": [
+    {
+      "src": "assets/starter/clips/kaleidoscope.mp4",
+      "from": "assets/xfeeefeee/circle/kaleidoscope.mp4"
+    },
+    {
+      "src": "assets/starter/clips/rhythm.mp4",
+      "from": "assets/xfeeefeee/circle/rhythm.mp4"
+    },
+    {
+      "src": "assets/starter/clips/shadow-blooms.mp4",
+      "from": "assets/xfeeefeee/segments/shadow-blooms.mp4"
+    },
+    {
+      "src": "assets/starter/clips/psychedelic_v2.mp4",
+      "from": "assets/xfeeefeee/circle/psychedelic_v2.mp4"
+    },
+    {
+      "src": "assets/starter/clips/in-my-dreamz.mp4",
+      "from": "assets/xfeeefeee/circle/in-my-dreamz.mp4"
+    },
+    {
+      "src": "assets/starter/clips/the-shadow-of-you.mp4",
+      "from": "assets/xfeeefeee/circle/the-shadow-of-you.mp4"
+    },
+    {
+      "src": "assets/starter/clips/body-and-mind_loop.mp4",
+      "from": "assets/xfeeefeee/circle/body-and-mind_loop.mp4"
+    }
+  ],
+  "gifThemes": [
+    "ankh",
+    "seahorse",
+    "jellyfish",
+    "seaweed",
+    "coral",
+    "starfish"
+  ],
+  "gifs": 93
+}

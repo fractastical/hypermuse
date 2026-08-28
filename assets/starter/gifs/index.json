@@ -1,0 +1,874 @@
+{
+  "built": "2026-08-28T21:14:14.796Z",
+  "base": "assets/starter/gifs/",
+  "note": "Starter subset, pre-curated. npm run gifs fetches the full library.",
+  "themes": {
+    "ankh": {
+      "query": "ankh",
+      "gifs": [
+        {
+          "file": "athens-thebes-1658-ankh-spin-P2QVWD.gif",
+          "w": 25,
+          "h": 50,
+          "frames": 15,
+          "weight": 57,
+          "source": "https://web.archive.org/web/20091022213808/http://geocities.com/Athens/Thebes/1658/fuck.html",
+          "checksum": "P2QVWDCOOVB4L6WL4TDHB6D3LPZF2W7M"
+        },
+        {
+          "file": "mad-vampire-sheep-man-ankh-spin-O2IQD4.gif",
+          "w": 25,
+          "h": 50,
+          "frames": 15,
+          "weight": 24,
+          "source": "https://web.archive.org/web/20091025090716/http://geocities.com/mad_vampire_sheepman/main2.html",
+          "checksum": "O2IQD4U3Y5N3COI5JZ5634NCB446YJMP"
+        },
+        {
+          "file": "college-park-dorm-7945-ankh-gold-3DJS5A.gif",
+          "w": 26,
+          "h": 50,
+          "frames": 8,
+          "weight": 17,
+          "source": "https://web.archive.org/web/20090829234126/http://geocities.com/CollegePark/Dorm/7945/indexden.htm",
+          "checksum": "3DJS5AYXUMO77CCNCGHURYQD6SUCEJCG"
+        },
+        {
+          "file": "soho-courtyard-4813-ankh-3MNNC6.gif",
+          "w": 25,
+          "h": 50,
+          "frames": 15,
+          "weight": 14,
+          "source": "https://web.archive.org/web/20090830221345/http://geocities.com/SoHo/Courtyard/4813/lillith.htm",
+          "checksum": "3MNNC66SWTTNLJHRQR2OLOUHFDU6BZUP"
+        },
+        {
+          "file": "television-city-set-1789-ankh-PFAH3C.gif",
+          "w": 26,
+          "h": 50,
+          "frames": 8,
+          "weight": 13,
+          "source": "https://web.archive.org/web/20090804171156/http://geocities.com/TelevisionCity/Set/1789/salubri.html",
+          "checksum": "PFAH3CSANYUQ2VKUAB77GSAP6KLFO5MX"
+        },
+        {
+          "file": "brujahs2002-ani-ankh-IZDY2N.gif",
+          "w": 26,
+          "h": 50,
+          "frames": 8,
+          "weight": 10,
+          "source": "https://web.archive.org/web/20091026205345/http://br.geocities.com/brujahs2002/9.htm",
+          "checksum": "IZDY2N3NCHFZKKX7KETJRREM6C4DTR23"
+        },
+        {
+          "file": "a-ten-nz-turn-ankh-7G4A3R.gif",
+          "w": 100,
+          "h": 150,
+          "frames": 35,
+          "weight": 10,
+          "source": "https://web.archive.org/web/20090723053640/http://au.geocities.com/aten_nz/AmunHymn.htm",
+          "checksum": "7G4A3RV23WWIU36LMRRAV672ZI6YOBRU"
+        },
+        {
+          "file": "a-nba-george-images-an-ankh-YCQG44.gif",
+          "w": 104,
+          "h": 166,
+          "frames": 4,
+          "weight": 9,
+          "source": "https://web.archive.org/web/20090806000403/http://geocities.com/anbageorge/index.html",
+          "checksum": "YCQG44O5SADSX2Q44SDF6YIUKISXF7OO"
+        },
+        {
+          "file": "xxladylovexx2001-ankh-E6J4UI.gif",
+          "w": 26,
+          "h": 50,
+          "frames": 8,
+          "weight": 9,
+          "source": "https://web.archive.org/web/20091026042257/http://geocities.com/xxlady_lovexx2001/US.html",
+          "checksum": "E6J4UIEFAMH7Y56DL5ELUFG67HENOZZF"
+        },
+        {
+          "file": "blue-topaz-362000-ankh-RRURUZ.gif",
+          "w": 26,
+          "h": 50,
+          "frames": 8,
+          "weight": 8,
+          "source": "https://web.archive.org/web/20091021074740/http://geocities.com/bluetopaz36_2000/Wicca.html",
+          "checksum": "RRURUZLNNJLTEPE5CX4AHOASPRFL2LCO"
+        },
+        {
+          "file": "daliflor-2001-ankh-jewel-ani-ZD4XKB.gif",
+          "w": 64,
+          "h": 75,
+          "frames": 10,
+          "weight": 8,
+          "source": "https://web.archive.org/web/20091024115338/http://geocities.com/daliflor2001/index2.html",
+          "checksum": "ZD4XKBN2LMF67375IJGJAK2SEQEMAVS2"
+        },
+        {
+          "file": "wellesley-garden-7437-spin-ankh-ZHX5GY.gif",
+          "w": 27,
+          "h": 27,
+          "frames": 8,
+          "weight": 7,
+          "source": "https://web.archive.org/web/20090805142832/http://geocities.com/Wellesley/Garden/7437/ammipics.html",
+          "checksum": "ZHX5GYEQBO7ADANZ5O2CV72URWHJG62R"
+        },
+        {
+          "file": "athens-aegean-9510-ankh-37NDPD.gif",
+          "w": 25,
+          "h": 50,
+          "frames": 15,
+          "weight": 7,
+          "source": "https://web.archive.org/web/20090830031523/http://geocities.com/Athens/Aegean/9510/history.html",
+          "checksum": "37NDPDSCJBZAA4OZCZILNMXWBZWVTQ7L"
+        },
+        {
+          "file": "the-croft-kids-animated-ankh-RYZP2R.gif",
+          "w": 26,
+          "h": 50,
+          "frames": 8,
+          "weight": 6,
+          "source": "https://web.archive.org/web/20091026000228/http://geocities.com/thecroftkids/thecroftkidsfanpage.html",
+          "checksum": "RYZP2RRZR33WG3MAR5A2AZAO6XS5T43Q"
+        },
+        {
+          "file": "darker-boy99-ankh-appear-LIPB3G.gif",
+          "w": 26,
+          "h": 50,
+          "frames": 11,
+          "weight": 6,
+          "source": "https://web.archive.org/web/20090807150005/http://geocities.com/darkerboy_99/Honor.html",
+          "checksum": "LIPB3GHU6HL43LVHPWVMPZMHOY6QNEY6"
+        },
+        {
+          "file": "bourbon-street-bayou-7103-images-ani-ankh-QFL5FR.gif",
+          "w": 26,
+          "h": 50,
+          "frames": 8,
+          "weight": 5,
+          "source": "https://web.archive.org/web/20090730140122/http://geocities.com/BourbonStreet/Bayou/7103/index.html",
+          "checksum": "QFL5FRJD3RU2KZBM4LSDQXZJEURCGDRI"
+        },
+        {
+          "file": "times-square-maze-9959-ankh-K53LFH.gif",
+          "w": 26,
+          "h": 50,
+          "frames": 8,
+          "weight": 5,
+          "source": "https://web.archive.org/web/20090805055758/http://geocities.com/TimesSquare/Maze/9959/avs2.html",
+          "checksum": "K53LFHCHM4SB4I4VWPZN3M5YXPPUJS4M"
+        },
+        {
+          "file": "maria-gina-bai-za-ani-ankh-Y7ADLQ.gif",
+          "w": 26,
+          "h": 50,
+          "frames": 8,
+          "weight": 5,
+          "source": "https://web.archive.org/web/20090728090647/http://geocities.com/mariaginabaiza/",
+          "checksum": "Y7ADLQLT47CVH5FJPMFL77STEKH3PJU6"
+        },
+        {
+          "file": "pandemia2-ankh-HQQENI.gif",
+          "w": 25,
+          "h": 50,
+          "frames": 15,
+          "weight": 5,
+          "source": "https://web.archive.org/web/20090723032751/http://ar.geocities.com/pandemia2/",
+          "checksum": "HQQENI35BVTDKP6VVROQPCIDAKLWMFJD"
+        },
+        {
+          "file": "times-square-alley-1939-ankh-VSZO7Y.gif",
+          "w": 60,
+          "h": 60,
+          "frames": 20,
+          "weight": 4,
+          "source": "https://web.archive.org/web/20090805020605/http://geocities.com/TimesSquare/Alley/1939/index.html",
+          "checksum": "VSZO7YGWZZ7IJ7CQYRJICBDJOEQBWBTE"
+        },
+        {
+          "file": "bet-in-as-of-her-ui-ankh-jewel-ani-OOXDD7.gif",
+          "w": 64,
+          "h": 75,
+          "frames": 10,
+          "weight": 4,
+          "source": "https://web.archive.org/web/20090725222023/http://geocities.com/betinas_of_herui/",
+          "checksum": "OOXDD7TU5AUQTCHFA3QHEFRRNWIOESVO"
+        },
+        {
+          "file": "west-hollywood-village-1161-ankh-EPX5TS.gif",
+          "w": 26,
+          "h": 50,
+          "frames": 8,
+          "weight": 4,
+          "source": "https://web.archive.org/web/20090805160545/http://geocities.com/WestHollywood/Village/1161/poetry.htm",
+          "checksum": "EPX5TSD7VVCPTZHLVQQTPRQVFL3M67OD"
+        },
+        {
+          "file": "templo-salo-mao-ankh-PG2CKK.gif",
+          "w": 80,
+          "h": 100,
+          "frames": 30,
+          "weight": 4,
+          "source": "https://web.archive.org/web/20090729074421/http://geocities.com/templosalomao/",
+          "checksum": "PG2CKKWJT5KOQIHXMPKNPG4SAIN2R4PV"
+        },
+        {
+          "file": "celestial-lady-lavender-egy-tp-ankh-EVVVH5.gif",
+          "w": 80,
+          "h": 100,
+          "frames": 10,
+          "weight": 4,
+          "source": "https://web.archive.org/web/20091026234511/http://geocities.com/celestial_lady_lavender/page6",
+          "checksum": "EVVVH5UR6QMOKC6WGWI6JRG3I4DBQZDD"
+        },
+        {
+          "file": "greater-druids-ankh-R7QWN2.gif",
+          "w": 40,
+          "h": 75,
+          "frames": 12,
+          "weight": 4,
+          "source": "https://web.archive.org/web/20091025044522/http://geocities.com/greaterdruids/index.html",
+          "checksum": "R7QWN2IGZZTDDLWLQGUYU6PCLZ2PJBSD"
+        },
+        {
+          "file": "gdafi37-ankh-ZPI4MN.gif",
+          "w": 60,
+          "h": 60,
+          "frames": 24,
+          "weight": 4,
+          "source": "https://web.archive.org/web/20090723105153/http://au.geocities.com/gdafi37/GDafi",
+          "checksum": "ZPI4MNYN4EJU446YMDPSLDBCKOMXZFRY"
+        },
+        {
+          "file": "he-ize-kenichi-fire-ankh-YGCIZQ.gif",
+          "w": 80,
+          "h": 100,
+          "frames": 10,
+          "weight": 4,
+          "source": "https://web.archive.org/web/20091027024434/http://geocities.com/heizekenichi/",
+          "checksum": "YGCIZQJPVDTF5IWXJDPAXIINUFMTUSU6"
+        },
+        {
+          "file": "murdasquad2001-images-ani-gold-ankh-JFNO2U.gif",
+          "w": 80,
+          "h": 100,
+          "frames": 10,
+          "weight": 3,
+          "source": "https://web.archive.org/web/20091027054522/http://www.geocities.com/murdasquad2001/Members",
+          "checksum": "JFNO2UHHYRSC3UIBI72OSQ5XIE3JZFZO"
+        },
+        {
+          "file": "sunset-strip-arena-1883-ankh-6TJGQN.gif",
+          "w": 80,
+          "h": 100,
+          "frames": 30,
+          "weight": 3,
+          "source": "https://web.archive.org/web/20091027021852/http://geocities.com/SunsetStrip/Arena/1883/",
+          "checksum": "6TJGQNK6WQMTGGVI2IW5PBIZT7UEEM7I"
+        },
+        {
+          "file": "magickal-julianna-spa-kling-ankh-LTIMZA.gif",
+          "w": 80,
+          "h": 100,
+          "frames": 10,
+          "weight": 3,
+          "source": "https://web.archive.org/web/20091027121348/http://www.geocities.com/magickaljulianna/FanatasyClipart.html",
+          "checksum": "LTIMZAM6L45OGFTVJXYAT2CJUVELRBYA"
+        },
+        {
+          "file": "dest-y-rocks-ankh-RFRXPR.gif",
+          "w": 98,
+          "h": 124,
+          "frames": 5,
+          "weight": 3,
+          "source": "https://web.archive.org/web/20091027123225/http://www.geocities.com/desty_rocks/anita2.html",
+          "checksum": "RFRXPRES3GMTLR4OXT7FWQLRCTEIY7LO"
+        }
+      ]
+    },
+    "seahorse": {
+      "query": "seahorse",
+      "gifs": [
+        {
+          "file": "aussie-outrigger-seahorse-I7T72R.gif",
+          "w": 106,
+          "h": 179,
+          "frames": 10,
+          "weight": 52,
+          "source": "https://web.archive.org/web/20090723054956/http://au.geocities.com/aussieoutrigger/italy.html",
+          "checksum": "I7T72ROR7KANHYMQWXSEKX23UZ4YTVQO"
+        },
+        {
+          "file": "sinz-world-images-fish-seahorse-6ZM74V.gif",
+          "w": 80,
+          "h": 125,
+          "frames": 5,
+          "weight": 16,
+          "source": "https://web.archive.org/web/20091026001415/http://geocities.com/sinzworld/fish/fish_killifish/moonfish.htm",
+          "checksum": "6ZM74VWQUCU3E6HP4WLLD4WNUTTRQRE4"
+        },
+        {
+          "file": "pj28geo-seahorse-EKP57E.gif",
+          "w": 50,
+          "h": 85,
+          "frames": 3,
+          "weight": 8,
+          "source": "https://web.archive.org/web/20090724133812/http://geocities.com/Nashville/9955/",
+          "checksum": "EKP57EMNFNARIAUABC3BDRH7A7XWFL7Q"
+        },
+        {
+          "file": "mums-divers-seahorse-swimming-UAOMTX.gif",
+          "w": 80,
+          "h": 125,
+          "frames": 14,
+          "weight": 6,
+          "source": "https://web.archive.org/web/20090903022631/http://geocities.com/mumsdivers/price_list.htm",
+          "checksum": "UAOMTXQNE2SPVQJB3VUPZA7WJSURVJQD"
+        },
+        {
+          "file": "a-we-kg-ebu-seahorse-3-NEZ5XB.gif",
+          "w": 87,
+          "h": 144,
+          "frames": 2,
+          "weight": 5,
+          "source": "https://web.archive.org/web/20090829124800/http://geocities.com/awekgebu/melaka.html",
+          "checksum": "NEZ5XBLQVAC5F6CU4L2GMLNF7PU6QRZ3"
+        },
+        {
+          "file": "darth-dusan-seahorse-swimming-WL6WQL.gif",
+          "w": 80,
+          "h": 125,
+          "frames": 14,
+          "weight": 5,
+          "source": "https://web.archive.org/web/20091028015753/http://www.geocities.com/darthdusan/favorite.htm",
+          "checksum": "WL6WQLAUEJEFHICTHF5L63AATB2LD3GZ"
+        },
+        {
+          "file": "teach-angels-1-seahorse-NMRBUE.gif",
+          "w": 50,
+          "h": 85,
+          "frames": 3,
+          "weight": 4,
+          "source": "https://web.archive.org/web/20091028084210/http://www.geocities.com/teachangels1/May.html",
+          "checksum": "NMRBUE3CBQUXDKPU7VQUYB2VJ5O5ECUJ"
+        },
+        {
+          "file": "di-urn-ef-photo-seahorse-g-EFNQEA.gif",
+          "w": 50,
+          "h": 85,
+          "frames": 3,
+          "weight": 4,
+          "source": "https://web.archive.org/web/20091027000231/http://cf.geocities.com/diurnef/page10b.html",
+          "checksum": "EFNQEASOJ4NYNZM3HUIYFWSZMOBG7VXR"
+        },
+        {
+          "file": "cerulean-angel-87-seahorse-1-4EBHZA.gif",
+          "w": 127,
+          "h": 165,
+          "frames": 4,
+          "weight": 3,
+          "source": "https://web.archive.org/web/20091026234544/http://geocities.com/cerulean_angel87/",
+          "checksum": "4EBHZAVCWZ3JYNBI2VI7BOHZUB4LANEB"
+        },
+        {
+          "file": "rodeo-drive-boutique-6804-seahorse-2MIHRH.gif",
+          "w": 142,
+          "h": 174,
+          "frames": 7,
+          "weight": 3,
+          "source": "https://web.archive.org/web/20091024023826/http://geocities.com/RodeoDrive/Boutique/6804/index5.html",
+          "checksum": "2MIHRHTVSZUQQ6II37YFHTBBM6FYEM7W"
+        },
+        {
+          "file": "oriol-idr-seahorse-ani-turq-6NNAOU.gif",
+          "w": 225,
+          "h": 300,
+          "frames": 14,
+          "weight": 3,
+          "source": "https://web.archive.org/web/20091022033220/http://geocities.com/orioli_dr/SEA.html",
+          "checksum": "6NNAOU4B5VDTMTHFCJ2XXVZ45N2265QN"
+        },
+        {
+          "file": "jacqueline-uk2001-seahorse-RSHM7X.gif",
+          "w": 72,
+          "h": 52,
+          "frames": 17,
+          "weight": 3,
+          "source": "https://web.archive.org/web/20091026233403/http://geocities.com/jacqueline_uk2001/graphics_4.htm",
+          "checksum": "RSHM7XTYHWYZ7SDO3RU5RSBNXLB4UQOC"
+        },
+        {
+          "file": "sk-andale-gifs-b-seahorse-OKZPUP.gif",
+          "w": 118,
+          "h": 230,
+          "frames": 6,
+          "weight": 3,
+          "source": "https://web.archive.org/web/20090730085858/http://de.geocities.com/skandalegifs/fische.html",
+          "checksum": "OKZPUPKXX4CI2SKISC2SIAHZPWAXSM63"
+        },
+        {
+          "file": "jackbong2002-sp-seahorse-V3JLRJ.gif",
+          "w": 95,
+          "h": 63,
+          "frames": 11,
+          "weight": 3,
+          "source": "https://web.archive.org/web/20090728064400/http://hk.geocities.com/jackbong2002/Untitled-27.htm",
+          "checksum": "V3JLRJTYUOBUT3HLRH4D7BNRRXOUTUTO"
+        },
+        {
+          "file": "slocum-gen-seahorse-orig-anim-JMUQPL.gif",
+          "w": 88,
+          "h": 106,
+          "frames": 15,
+          "weight": 3,
+          "source": "https://web.archive.org/web/20091026140747/http://geocities.com/slocumgen/index.html",
+          "checksum": "JMUQPLDMTH4T7VVBZOY4QIBFCV76RAXW"
+        },
+        {
+          "file": "semi-deity-seahorse-swims-mclr-UZ4XPC.gif",
+          "w": 70,
+          "h": 70,
+          "frames": 6,
+          "weight": 3,
+          "source": "https://web.archive.org/web/20091022205644/http://geocities.com/semideity/ocean.html",
+          "checksum": "UZ4XPC3I2EYCGOBDTWTQWYSR2QRF2QUS"
+        },
+        {
+          "file": "college-park-1801-seahorse-5P27JO.gif",
+          "w": 80,
+          "h": 125,
+          "frames": 14,
+          "weight": 2,
+          "source": "https://web.archive.org/web/20091020044732/http://geocities.com/CollegePark/1801/junk26.html",
+          "checksum": "5P27JO4A4IU2AHHYPJ5ENCVAA5DFM5GW"
+        },
+        {
+          "file": "heartland-5558-g-seahorse-FZOIO6.gif",
+          "w": 86,
+          "h": 77,
+          "frames": 7,
+          "weight": 2,
+          "source": "https://web.archive.org/web/20090723102106/http://us.geocities.com/Heartland/5558/sea.htm",
+          "checksum": "FZOIO6EAB36VLC2OP7U2PX4ZHUUUNNKE"
+        },
+        {
+          "file": "megaman-x-pops-toxic-seahorse-74KT3O.gif",
+          "w": 101,
+          "h": 72,
+          "frames": 9,
+          "weight": 2,
+          "source": "https://web.archive.org/web/20091025182451/http://geocities.com/megamanx_pops/Animation.html",
+          "checksum": "74KT3O7XMXAWFQRAO6JZZUQ3JFDYRSPZ"
+        },
+        {
+          "file": "mh-rowell-seahorse-2-T756LJ.gif",
+          "w": 33,
+          "h": 54,
+          "frames": 24,
+          "weight": 2,
+          "source": "https://web.archive.org/web/20091022145607/http://geocities.com/~mhrowell/poesiaeimagem4.html",
+          "checksum": "T756LJ2CX3SVPG57I2TVQDT7AOLBR6KU"
+        },
+        {
+          "file": "yoselo2001-seahorse-swimming-ZPB3SC.gif",
+          "w": 56,
+          "h": 88,
+          "frames": 14,
+          "weight": 2,
+          "source": "https://web.archive.org/web/20091023205854/http://www.geocities.com/yoselo2001/Muacks.html",
+          "checksum": "ZPB3SCYI7WXYSUB6ASJG6PAMSTPCDQKC"
+        },
+        {
+          "file": "kkids253-seahorse-1-JERO5V.gif",
+          "w": 80,
+          "h": 100,
+          "frames": 3,
+          "weight": 2,
+          "source": "https://web.archive.org/web/20090809185705/http://geocities.com/kkids253/Ocean.html",
+          "checksum": "JERO5VNBV3WAWQMBS2PNUEDGCLM65IWL"
+        },
+        {
+          "file": "patches-place-6-seahorse-ani-V4OP7K.gif",
+          "w": 34,
+          "h": 65,
+          "frames": 15,
+          "weight": 2,
+          "source": "https://web.archive.org/web/20091022111404/http://geocities.com/patchesplace6/Memories_In_The_Sand.html",
+          "checksum": "V4OP7KBKFAX6NC4HABJIHF324D6A5LU3"
+        },
+        {
+          "file": "patches-place-6-seahorse-ani2-6G3KG3.gif",
+          "w": 34,
+          "h": 65,
+          "frames": 15,
+          "weight": 2,
+          "source": "https://web.archive.org/web/20091022111404/http://geocities.com/patchesplace6/Memories_In_The_Sand.html",
+          "checksum": "6G3KG3OLXSSH5EMVOY54WFTRG7WVPPXB"
+        },
+        {
+          "file": "paris-rue-1514-loisirs-seahorse-V44LDO.gif",
+          "w": 86,
+          "h": 77,
+          "frames": 7,
+          "weight": 2,
+          "source": "https://web.archive.org/web/20091024024925/http://geocities.com/Paris/Rue/1514/Loisirs/zPlage.html",
+          "checksum": "V44LDOHL5GZFBRI4YXAE35VXXTB47K4P"
+        },
+        {
+          "file": "yoselo2001-seahorse-swimming-smwht10285-OI7TIZ.gif",
+          "w": 56,
+          "h": 88,
+          "frames": 14,
+          "weight": 2,
+          "source": "https://web.archive.org/web/20090831020849/http://www.geocities.com/yoselo2001/Muacks.html",
+          "checksum": "OI7TIZTMPFJEYAIB34FYYI7VPUSGPUAF"
+        },
+        {
+          "file": "sonshine-company-seahorse-JESSAC.gif",
+          "w": 53,
+          "h": 91,
+          "frames": 10,
+          "weight": 2,
+          "source": "https://web.archive.org/web/20091022103913/http://geocities.com/sonshinecompany/ice.html",
+          "checksum": "JESSAC4FQFKFXNVF2IVLEZZGIGJOIZU7"
+        }
+      ]
+    },
+    "jellyfish": {
+      "query": "jellyfish",
+      "gifs": [
+        {
+          "file": "sunset-strip-mezzanine-6781-jellyfish-GSQJCN.gif",
+          "w": 100,
+          "h": 75,
+          "frames": 4,
+          "weight": 4,
+          "source": "https://web.archive.org/web/20091023161619/http://geocities.com/SunsetStrip/Mezzanine/6781/",
+          "checksum": "GSQJCNQAVRVYDPZMXWC5NYEXLWDLNTDX"
+        },
+        {
+          "file": "oriol-idr-jellyfish-up-blue-4NJGWS.gif",
+          "w": 28,
+          "h": 47,
+          "frames": 8,
+          "weight": 3,
+          "source": "https://web.archive.org/web/20091022033220/http://geocities.com/orioli_dr/SEA.html",
+          "checksum": "4NJGWSJYXU7PMOB7LUN3IQQMSNDYRFW4"
+        },
+        {
+          "file": "deep6-graphics-j-jellyfish-01ani-HHK4U4.gif",
+          "w": 200,
+          "h": 145,
+          "frames": 4,
+          "weight": 3,
+          "source": "https://web.archive.org/web/20091027084434/http://www.geocities.com/deep6graphics/JELLYFISH.html",
+          "checksum": "HHK4U4DKVWSUZVDNLIZYL7XSWOZC2HTX"
+        },
+        {
+          "file": "west-hollywood-3313-jellyfish-RF4MT4.gif",
+          "w": 100,
+          "h": 75,
+          "frames": 4,
+          "weight": 2,
+          "source": "https://web.archive.org/web/20091021123944/http://geocities.com/WestHollywood/3313/page2.html",
+          "checksum": "RF4MT4QZW4BLEFVWUW4WUJHXX4QBW6ND"
+        },
+        {
+          "file": "soho-gallery-6159-jellyfish-33XLAV.gif",
+          "w": 100,
+          "h": 95,
+          "frames": 31,
+          "weight": 2,
+          "source": "https://web.archive.org/web/20091023162618/http://geocities.com/SoHo/Gallery/6159/fishtank.html",
+          "checksum": "33XLAV46SW64F5CDLCJKIBOKVI5NSLM3"
+        },
+        {
+          "file": "poker-room-friends-jellyfish-NVTYH3.gif",
+          "w": 100,
+          "h": 100,
+          "frames": 31,
+          "weight": 2,
+          "source": "https://web.archive.org/web/20091027123402/http://geocities.com/pokerroomfriends/p4.html",
+          "checksum": "NVTYH346DYXPHVKO6P4H6EL3CH2C564S"
+        },
+        {
+          "file": "enchanted-forest-tower-7737-jellyfish-JM32CA.gif",
+          "w": 100,
+          "h": 75,
+          "frames": 4,
+          "weight": 2,
+          "source": "https://web.archive.org/web/20091020085518/http://geocities.com/EnchantedForest/Tower/7737/missginger.htm",
+          "checksum": "JM32CAUMIE7ICBUN2TYHN3MHQTQSEL2X"
+        },
+        {
+          "file": "anime-pics-4u-jellyfish-MYD36Y.gif",
+          "w": 30,
+          "h": 30,
+          "frames": 2,
+          "weight": 1,
+          "source": "https://web.archive.org/",
+          "checksum": "MYD36Y4C5ZEY4XHN5LGIRAV4RU3ZS3M3"
+        },
+        {
+          "file": "nanshan2003-index-h2b-deep-sea-all-jellyfish-tb-LXGLKV.gif",
+          "w": 300,
+          "h": 225,
+          "frames": 14,
+          "weight": 1,
+          "source": "https://web.archive.org/",
+          "checksum": "LXGLKVEQVTVTS7KJE7SZ7DLJ4J4QZZT2"
+        },
+        {
+          "file": "ngc-hay-ee-jellyfish-OJC5JX.gif",
+          "w": 30,
+          "h": 30,
+          "frames": 2,
+          "weight": 1,
+          "source": "https://web.archive.org/web/20091027084713/http://hk.geocities.com/ngchayee/cutie.htm",
+          "checksum": "OJC5JXBH3ZRLADPNDICPDOMV27QAUTYY"
+        },
+        {
+          "file": "s-imtiaz-ali-jellyfish-IYRDY6.gif",
+          "w": 179,
+          "h": 85,
+          "frames": 4,
+          "weight": 1,
+          "source": "https://web.archive.org/web/20091026230107/http://us.geocities.com/simtiazali/coelenterate.html",
+          "checksum": "IYRDY6LFD3QNKXCIEFYSDCU66Q2SKEPK"
+        },
+        {
+          "file": "ken2525hk-friend-girl-jellyfish-JHMQNQ.gif",
+          "w": 32,
+          "h": 37,
+          "frames": 4,
+          "weight": 1,
+          "source": "https://web.archive.org/web/20091027091103/http://hk.geocities.com/ken_2525hk/friend/girl/index.htm",
+          "checksum": "JHMQNQ74WINGPHSEMBS3BLSF5FU5CW4N"
+        },
+        {
+          "file": "tokyo-1591-jellyfish-SR2O4A.gif",
+          "w": 170,
+          "h": 148,
+          "frames": 5,
+          "weight": 1,
+          "source": "https://web.archive.org/",
+          "checksum": "SR2O4AL26HJJH7W6ZNBMLLLCH74F2A6S"
+        },
+        {
+          "file": "imbabywolf2-jellyfish-cartoon-WQSDCB.gif",
+          "w": 100,
+          "h": 75,
+          "frames": 4,
+          "weight": 1,
+          "source": "https://web.archive.org/",
+          "checksum": "WQSDCBPX2BDVQLOMBIIHCIRWCZSDD4AZ"
+        },
+        {
+          "file": "jellyfish-ball-n-JY2BRQ.gif",
+          "w": 30,
+          "h": 30,
+          "frames": 14,
+          "weight": 1,
+          "source": "https://web.archive.org/web/20091026021300/http://geocities.com/jellyfishball/hotprofile.html",
+          "checksum": "JY2BRQ3WFQUYW6TFZPUP4EOZ7UPGI3HT"
+        }
+      ]
+    },
+    "seaweed": {
+      "query": "seaweed",
+      "gifs": [
+        {
+          "file": "mrs-jo-guest-files-seaweed-N6FT7L.gif",
+          "w": 48,
+          "h": 48,
+          "frames": 6,
+          "weight": 9,
+          "source": "https://web.archive.org/web/20090902002053/http://geocities.com/mrsjoguest/CancerNutrition.html",
+          "checksum": "N6FT7LC4FJGOVPXKU4ZFTTCN4DY3KHGO"
+        },
+        {
+          "file": "deep6-graphics-pl-seaweed-ani-ZLYWE2.gif",
+          "w": 85,
+          "h": 82,
+          "frames": 12,
+          "weight": 3,
+          "source": "https://web.archive.org/web/20091021134718/http://geocities.com/deep6graphics/PLANTS.html",
+          "checksum": "ZLYWE2SE6EFNQHL2VTP2XLV2JHTMRSFS"
+        },
+        {
+          "file": "dreaming-bones-seaweed-2-IFY5AL.gif",
+          "w": 85,
+          "h": 82,
+          "frames": 12,
+          "weight": 2,
+          "source": "https://web.archive.org/web/20091027080500/http://www.geocities.com/dreamingbones/poetry2.html",
+          "checksum": "IFY5AL65DC4OMGSFU75CSJCPQDZ6WHON"
+        },
+        {
+          "file": "pat-lawrence-2000-seaweed-wave1-XFNEMT.gif",
+          "w": 65,
+          "h": 82,
+          "frames": 8,
+          "weight": 2,
+          "source": "https://web.archive.org/web/20090829025840/http://geocities.com/patlawrence2000/myanchor.html",
+          "checksum": "XFNEMTOJX2OBXZYFEZUD7YMCS4PGBVOP"
+        },
+        {
+          "file": "pick-a-fish-seaweed-2-2WUFAO.gif",
+          "w": 95,
+          "h": 105,
+          "frames": 9,
+          "weight": 2,
+          "source": "https://web.archive.org/web/20091025154932/http://geocities.com/pickafish/plant1.html",
+          "checksum": "2WUFAOAS3ISH5Q6V6ARM2YJR55APXZNK"
+        },
+        {
+          "file": "enchanted-forest-cottage-1157-aquarium-seaweed-h48w48c3-OUDENL.gif",
+          "w": 48,
+          "h": 48,
+          "frames": 6,
+          "weight": 2,
+          "source": "https://web.archive.org/web/20091020135825/http://geocities.com/EnchantedForest/Cottage/1157/aquarium_sharks.html",
+          "checksum": "OUDENLPEKT4WPRSCGTOOOXEDDN3ZT2ZA"
+        },
+        {
+          "file": "hollywood-heights-1808-images-seaweed-S4XPRB.gif",
+          "w": 48,
+          "h": 48,
+          "frames": 6,
+          "weight": 2,
+          "source": "https://web.archive.org/web/20090830025640/http://geocities.com/Hollywood/Heights/1808/aquarium.html",
+          "checksum": "S4XPRBVKBBTSWBZ7U76ASTWMIIFIIJFS"
+        },
+        {
+          "file": "athens-troy-8477-seaweed-7-FIRZGX.gif",
+          "w": 48,
+          "h": 48,
+          "frames": 6,
+          "weight": 1,
+          "source": "https://web.archive.org/web/20090730110550/http://geocities.com/Athens/Troy/8477/Paulapoetry.html",
+          "checksum": "FIRZGX56YK2JCTLUXKCDVLK4DE7MXPF4"
+        },
+        {
+          "file": "tstewart181-public-html-gif-seaweed-4-4Q2C26.gif",
+          "w": 128,
+          "h": 307,
+          "frames": 4,
+          "weight": 1,
+          "source": "https://web.archive.org/",
+          "checksum": "4Q2C26L4OAR5TCRYJ7TV7XB4EYYU3LHT"
+        },
+        {
+          "file": "times-square-frontier-3712-poems-poem-pics-seaweed-ZULRDD.gif",
+          "w": 85,
+          "h": 82,
+          "frames": 12,
+          "weight": 1,
+          "source": "https://web.archive.org/web/20090805045046/http://geocities.com/TimesSquare/Frontier/3712/poems/water.htm",
+          "checksum": "ZULRDDNMKHYSDAUGTTRVT7YXRCDCIHEB"
+        },
+        {
+          "file": "paris-bistro-2269-seaweed-2-U3RXZG.gif",
+          "w": 95,
+          "h": 105,
+          "frames": 9,
+          "weight": 1,
+          "source": "https://web.archive.org/",
+          "checksum": "U3RXZG4K4H4KRZTI7PH2PZEBSKQFT67X"
+        }
+      ]
+    },
+    "coral": {
+      "query": "coral",
+      "gifs": [
+        {
+          "file": "su-kasem-bungalows-coral-bo-XB4AYL.gif",
+          "w": 49,
+          "h": 40,
+          "frames": 9,
+          "weight": 7,
+          "source": "https://web.archive.org/web/20090902131225/http://geocities.com/sukasembungalows/room.htm",
+          "checksum": "XB4AYLE7ZVFDSSC6PLYY63MCTKYFWA5N"
+        },
+        {
+          "file": "mukul-g-coral-CLPGUZ.gif",
+          "w": 240,
+          "h": 130,
+          "frames": 23,
+          "weight": 3,
+          "source": "https://web.archive.org/web/20090831185146/http://geocities.com/mukul_g/",
+          "checksum": "CLPGUZC36BXG57NTQOLEP33YJKE4PHQ2"
+        }
+      ]
+    },
+    "starfish": {
+      "query": "starfish",
+      "gifs": [
+        {
+          "file": "7eolelo-shelties-g-starfish-63GLFG.gif",
+          "w": 99,
+          "h": 46,
+          "frames": 5,
+          "weight": 161,
+          "source": "https://web.archive.org/web/20090829203440/http://geocities.com/~olelo/shelties/emergencydoglinks.html",
+          "checksum": "63GLFGNUHCC4BCJQI7KUNH3CJYMVKBBQ"
+        },
+        {
+          "file": "x-freespirit-x-a-starfish-ani-DG3DLC.gif",
+          "w": 149,
+          "h": 70,
+          "frames": 5,
+          "weight": 5,
+          "source": "https://web.archive.org/web/20090903074001/http://geocities.com/xfreespiritx_a/ILOVEYOUTHISMUCH.html?983987428160",
+          "checksum": "DG3DLC2CMPRNZTXRDR4PNJQGM7WRCC2R"
+        },
+        {
+          "file": "stephen-cork-pics-starfish-R3X3P4.gif",
+          "w": 24,
+          "h": 24,
+          "frames": 4,
+          "weight": 4,
+          "source": "https://web.archive.org/web/20091022220448/http://geocities.com/stephencork/default2.html",
+          "checksum": "R3X3P435W6YASFHYPL3DXW6F7OMJDCDA"
+        },
+        {
+          "file": "the-tropics-harbor-1966-starfish-4-TDFJUV.gif",
+          "w": 64,
+          "h": 63,
+          "frames": 9,
+          "weight": 3,
+          "source": "https://web.archive.org/web/20090805003713/http://geocities.com/TheTropics/Harbor/1966/poems.html",
+          "checksum": "TDFJUVH3BOQ2YQFXHFCH77M7WXEPAF5H"
+        },
+        {
+          "file": "bonacker2002-florida-1-starfish-yellow-TMJCMI.gif",
+          "w": 76,
+          "h": 68,
+          "frames": 2,
+          "weight": 3,
+          "source": "https://web.archive.org/web/20091021162846/http://geocities.com/bonacker2002/BarefootBayFlorida.html",
+          "checksum": "TMJCMID7WVL3265T2VFHXUXKLNOGYSBR"
+        },
+        {
+          "file": "the-tropics-shores-9419-gif-starfish-ZQIC6O.gif",
+          "w": 24,
+          "h": 24,
+          "frames": 4,
+          "weight": 2,
+          "source": "https://web.archive.org/web/20090805014344/http://geocities.com/TheTropics/Shores/9419/links.html",
+          "checksum": "ZQIC6OEJS65CMWMG5FLLXO6ZUYV6YVOT"
+        },
+        {
+          "file": "colosseum-rink-7021-euphoria-buffett-midi-starfish-GOZRKO.gif",
+          "w": 135,
+          "h": 94,
+          "frames": 10,
+          "weight": 2,
+          "source": "https://web.archive.org/web/20090731074728/http://geocities.com/Colosseum/Rink/7021/euphoria/buffett_midi/midis.htm",
+          "checksum": "GOZRKOLC5PKVQMTOD7ZU3T6U62W2HS2O"
+        }
+      ]
+    }
+  }
+}

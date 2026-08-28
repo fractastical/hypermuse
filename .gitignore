@@ -32,6 +32,11 @@ assets/gifcities/*
 !assets/xfeeefeee/
 assets/xfeeefeee/*
 !assets/xfeeefeee/segments.json
+# The starter kit: low-bandwidth copies of the two libraries that are otherwise
+# fetched by script, so a fresh clone runs the show instead of orbiting nothing
+# in front of a black iris. About 10MB, rebuilt by npm run starter.
+!assets/starter/
+!assets/starter/**
 # Guest-mark examples: a few hundred bytes of SVG each, and the site's branding
 # stills are shot from them, so they are source rather than media.
 !assets/marks/

@@ -44,6 +44,19 @@ latest versions). Then:
   `ffmpeg -i clip.mp4 -vf "fps=1/3,scale=192:192,tile=10x8" sheet.png` and read
   the timestamps off the tile positions. The one flower run across the current
   six is `the-shadow-of-you` at 192.5–208s, cut as `shadow-blooms`.
+- **Starter kit** (`npm run starter`): the moon discs, vajra proxies and eye
+  backdrop have always been small enough to ship in git, but the scraped gif
+  library and the downloaded clips are not — so a fresh clone ran the show with
+  an empty orbit and an iris opening onto black. The kit bakes low-bandwidth
+  copies of both into `assets/starter/`: a 60s excerpt of each backdrop clip at
+  360px (one slot's worth, so it is swapped out about when it would have looped)
+  and the gif themes the orbit asks for, minus everything already marked reject.
+  About 10MB for the pair. What goes in is read off the `kiosk:show` URL rather
+  than listed in the script, so changing the rotation or the orbit themes
+  changes the kit on the next build. Nothing needs configuring to use it: the
+  page asks for the real media first and falls back per file, so a machine
+  holding the masters never touches a proxy. Verified both ways by 404ing
+  exactly the paths `.gitignore` excludes.
 - **LED pixel output** (`npm run pixels`): drives an Advatek PixLite — the
   E16-S Mk3 takes 16 outputs of up to 1,020 RGB pixels, 96 universes, over
   sACN or Art-Net. A browser cannot open a UDP socket, so the page cannot

@@ -18,6 +18,19 @@
     return Number.isFinite(v) ? v : fallback;
   };
 
+  // Starter kit: the moon discs, vajra proxies and eye backdrop are small
+  // enough to live in git, but the scraped gif library and the downloaded clips
+  // are not, so a fresh clone would run with an empty orbit and a black iris.
+  // npm run starter bakes low-bandwidth copies of both into assets/starter, and
+  // the two loaders below reach for them only when the real media is absent.
+  const STARTER = "assets/starter";
+  // Matched on the file name alone: the kit is flat, and a clip named in the
+  // launch URL as assets/xfeeefeee/circle/x.mp4 is assets/starter/clips/x.mp4.
+  function starterCopy(src) {
+    const name = String(src).split("?")[0].split("/").pop();
+    return name ? STARTER + "/clips/" + name : "";
+  }
+
   const MOON_SRC = params.get("video") || "loops/3d moon/web/moon-rotating-6s-alpha.webm";
   // Optional content revealed in the dark side: a video, an image, a
   // comma-separated slideshow of images (imagesec = seconds per image), or a
@@ -979,6 +992,7 @@
   // onto the lit cells of a word, holds it, and scatters. The sync is emergent
   // rather than keyframed, so the moment it locks lands somewhere new each pass.
   const GIF_INDEX = "assets/gifcities/index.json";
+  const GIF_STARTER_INDEX = STARTER + "/gifs/index.json";
   const GIF_THEME = (params.get("giftheme") || "").trim().toLowerCase();
   // Enough to fill the lit cells of a short word with a little overlap, and
   // few enough that while they are scattered you can still see that each one
@@ -1390,12 +1404,18 @@
     async function loadPool(themeSpec) {
       const gen = ++poolGen;
       if (!library) {
-        try { library = await fetch(GIF_INDEX).then((r) => r.ok ? r.json() : null); } catch { /* offline */ }
+        const get = async (u) => {
+          try { return await fetch(u).then((r) => r.ok ? r.json() : null); } catch { return null; }
+        };
+        // The scraped library first, then the pre-curated subset that ships in
+        // git. Either answers with the same shape; only its base differs.
+        library = await get(GIF_INDEX) || await get(GIF_STARTER_INDEX);
       }
       if (!library) {
         console.warn("[gifswarm] no " + GIF_INDEX + " — run: npm run gifs");
         return;
       }
+      const libBase = library.base || "assets/gifcities/";
       const marks = await loadGifMarks();
       if (dead || gen !== poolGen) return;
       const theme = String(themeSpec || "");
@@ -1408,7 +1428,7 @@
         for (const [slug, t] of themes) {
           if (only.size && !only.has(slug)) continue;
           for (const g of t.gifs) {
-            const p = "assets/gifcities/" + slug + "/" + g.file;
+            const p = libBase + slug + "/" + g.file;
             if (marks[p] !== "reject") out.push(p);
           }
         }
@@ -3779,7 +3799,22 @@
       v.preload = "auto";
       v.style.cssText = base.replace("object-fit:contain", "object-fit:cover");
       v.addEventListener("loadedmetadata", () => { v.playbackRate = BACK_SPEED; });
-      v.addEventListener("error", () => console.warn("hypermoon: backdrop video failed " + src));
+      // The clips are fetched by script and stay out of git, so a fresh clone
+      // has none of them and would open the iris onto black. Fall back to the
+      // low-bandwidth copy that does ship (npm run starter), the same way a
+      // vajra sprite falls back when its proxy is missing. Tried in this
+      // direction rather than the other so a machine holding the masters plays
+      // the masters and never touches the proxy.
+      v.addEventListener("error", () => {
+        const alt = starterCopy(src);
+        if (!alt || v.dataset.starter) {
+          console.warn("hypermoon: backdrop video failed " + v.src);
+          return;
+        }
+        v.dataset.starter = "1";
+        v.src = alt;
+        v.play().catch(() => {});
+      });
       v.play().catch(() => {});
       layer.node = v;
       layer.video = v;
