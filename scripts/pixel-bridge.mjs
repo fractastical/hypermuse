@@ -1,0 +1,212 @@
+// Drives an Advatek PixLite (E16-S Mk3 and siblings) from the moon.
+//
+// A browser cannot open a UDP socket, so the page cannot talk to the
+// controller itself. hypermoon.html?pixels=1 samples its own canvas at the
+// points named in a pixel map and pushes the resulting RGB bytes over a
+// WebSocket; this process packs them into sACN (E1.31) or Art-Net and sends
+// them on. That is the whole trick — the page stays a page, and everything
+// that knows about lighting protocol lives here.
+//
+//   npm run pixels                                  # sACN multicast
+//   PIXLITE=192.168.0.50 npm run pixels             # sACN unicast (show nets)
+//   PROTOCOL=artnet PIXLITE=192.168.0.50 npm run pixels
+//   MAP=maps/moon-halo.json npm run pixels
+//
+// Without a browser attached it can still light the rig, which is how you
+// prove wiring and patch before the show has anything to show:
+//
+//   TEST=chase npm run pixels        # one lit pixel walks each output
+//   TEST=rgb npm run pixels          # whole rig cycles red/green/blue
+//   TEST=white LEVEL=0.2 npm run pixels
+import fs from "node:fs";
+import dgram from "node:dgram";
+import os from "node:os";
+import crypto from "node:crypto";
+import { WebSocketServer } from "ws";
+
+const PORT = Number(process.env.PIXEL_PORT || 8082);
+const MAP_PATH = process.env.MAP || "maps/moon-halo.json";
+const PROTOCOL = (process.env.PROTOCOL || "sacn").toLowerCase();
+const HOST = process.env.PIXLITE || "";      // empty = sACN multicast
+const FPS = Number(process.env.FPS || 40);
+const PRIORITY = Number(process.env.PRIORITY || 100);
+const TEST = (process.env.TEST || "").toLowerCase();
+const LEVEL = Number(process.env.LEVEL || 1);
+const SOURCE = "hypermoon";
+
+const PIX_PER_UNIVERSE = 170;
+const SACN_PORT = 5568;
+const ARTNET_PORT = 6454;
+
+if (!fs.existsSync(MAP_PATH)) {
+  console.error(`[pixels] no map at ${MAP_PATH} — make one:\n` +
+    `  node scripts/make-pixel-map.mjs halo --leds 240 --name moon-halo`);
+  process.exit(1);
+}
+const map = JSON.parse(fs.readFileSync(MAP_PATH, "utf8"));
+
+// Flattened once: the wire order of every pixel, and where each output's slice
+// of that order begins. The browser sends one buffer in exactly this order, so
+// neither side has to send indices with the data.
+const runs = map.outputs.map((o) => ({
+  output: o.output, universe: o.universe, count: o.pixels.length
+}));
+let at = 0;
+for (const r of runs) { r.offset = at; at += r.count; }
+const TOTAL = at;
+
+// Every universe this map touches, with the slice of the frame buffer that
+// fills it. Built once so the per-frame path is only copies.
+const universes = [];
+for (const r of runs) {
+  for (let u = 0; u * PIX_PER_UNIVERSE < r.count; u++) {
+    const from = u * PIX_PER_UNIVERSE;
+    const n = Math.min(PIX_PER_UNIVERSE, r.count - from);
+    universes.push({
+      universe: r.universe + u,
+      byteFrom: (r.offset + from) * 3,
+      channels: n * 3,
+      seq: 0
+    });
+  }
+}
+
+const sock = dgram.createSocket({ type: "udp4", reuseAddr: true });
+const CID = crypto.randomBytes(16);
+
+// --- sACN (E1.31) --------------------------------------------------------
+// Layout per ANSI E1.31-2018: a 38-byte root layer, a 77-byte framing layer
+// and a 10-byte DMP header before the start code and the slots themselves.
+function sacnPacket(universe, channels) {
+  const len = 126 + channels;
+  const b = Buffer.alloc(len);
+  b.writeUInt16BE(0x0010, 0);                     // preamble size
+  b.writeUInt16BE(0x0000, 2);                     // post-amble size
+  b.write("ASC-E1.17\0\0\0", 4, 12, "latin1");    // ACN packet identifier
+  b.writeUInt16BE(0x7000 | (len - 16), 16);       // root flags & length
+  b.writeUInt32BE(0x00000004, 18);                // VECTOR_ROOT_E131_DATA
+  CID.copy(b, 22);
+  b.writeUInt16BE(0x7000 | (len - 38), 38);       // framing flags & length
+  b.writeUInt32BE(0x00000002, 40);                // VECTOR_E131_DATA_PACKET
+  b.write(SOURCE, 44, 63, "utf8");                // source name, 64 incl. null
+  b.writeUInt8(PRIORITY, 108);
+  b.writeUInt16BE(0, 109);                        // synchronisation address
+  // 111 sequence, written per frame
+  b.writeUInt8(0, 112);                           // options
+  b.writeUInt16BE(universe, 113);
+  b.writeUInt16BE(0x7000 | (len - 115), 115);     // DMP flags & length
+  b.writeUInt8(0x02, 117);                        // VECTOR_DMP_SET_PROPERTY
+  b.writeUInt8(0xa1, 118);                        // address & data type
+  b.writeUInt16BE(0x0000, 119);                   // first property address
+  b.writeUInt16BE(0x0001, 121);                   // address increment
+  b.writeUInt16BE(channels + 1, 123);             // count, incl. start code
+  b.writeUInt8(0x00, 125);                        // DMX start code
+  return b;
+}
+// Universe N is multicast to 239.255.<high>.<low>, per E1.31.
+const sacnGroup = (u) => `239.255.${(u >> 8) & 0xff}.${u & 0xff}`;
+
+// --- Art-Net -------------------------------------------------------------
+function artnetPacket(universe, channels) {
+  const b = Buffer.alloc(18 + channels);
+  b.write("Art-Net\0", 0, 8, "latin1");
+  b.writeUInt16LE(0x5000, 8);                     // OpDmx
+  b.writeUInt16BE(14, 10);                        // protocol version
+  // 12 sequence, 13 physical
+  b.writeUInt16LE(universe, 14);                  // sub-uni + net
+  b.writeUInt16BE(channels, 16);
+  return b;
+}
+
+for (const u of universes) {
+  u.packet = PROTOCOL === "artnet"
+    ? artnetPacket(u.universe, u.channels)
+    : sacnPacket(u.universe, u.channels);
+  u.dataAt = PROTOCOL === "artnet" ? 18 : 126;
+  u.seqAt = PROTOCOL === "artnet" ? 12 : 111;
+  u.dest = HOST || (PROTOCOL === "artnet" ? "255.255.255.255" : sacnGroup(u.universe));
+  u.port = PROTOCOL === "artnet" ? ARTNET_PORT : SACN_PORT;
+}
+
+const frame = Buffer.alloc(TOTAL * 3);
+let sent = 0, framesIn = 0, dirty = false;
+
+function blast() {
+  for (const u of universes) {
+    frame.copy(u.packet, u.dataAt, u.byteFrom, u.byteFrom + u.channels);
+    u.packet.writeUInt8(u.seq, u.seqAt);
+    u.seq = (u.seq + 1) & 0xff;
+    sock.send(u.packet, u.port, u.dest);
+  }
+  sent++;
+}
+
+// --- test patterns -------------------------------------------------------
+// Deliberately independent of the browser: if the rig does not light under
+// these, the problem is the patch, the wiring or the network, and no amount of
+// looking at the moon will show it.
+let tick = 0;
+function testFrame() {
+  frame.fill(0);
+  const v = Math.max(0, Math.min(255, Math.round(255 * LEVEL)));
+  if (TEST === "white") frame.fill(v);
+  else if (TEST === "rgb") {
+    const ch = Math.floor(tick / FPS) % 3;   // a second each
+    for (let i = 0; i < TOTAL; i++) frame[i * 3 + ch] = v;
+  } else if (TEST === "chase") {
+    // One lit pixel per output, so a mis-patched or reversed run is obvious
+    // and you can count the runs against the outputs that light.
+    for (const r of runs) {
+      const i = r.offset + (tick % Math.max(1, r.count));
+      frame[i * 3] = v; frame[i * 3 + 1] = v; frame[i * 3 + 2] = v;
+    }
+  }
+  tick++;
+}
+
+// --- browser feed --------------------------------------------------------
+const wss = new WebSocketServer({ port: PORT, host: "0.0.0.0" });
+wss.on("connection", (ws, req) => {
+  console.log(`[pixels] moon connected (${req.socket.remoteAddress})`);
+  // The page needs to know what to sample before it can send anything.
+  ws.send(JSON.stringify({ type: "map", map, total: TOTAL }));
+  ws.on("message", (data, isBinary) => {
+    if (!isBinary) return;
+    // Short frames are padded rather than dropped: a map edited under a running
+    // page should dim the tail, not stop the show.
+    data.copy(frame, 0, 0, Math.min(data.length, frame.length));
+    if (data.length < frame.length) frame.fill(0, data.length);
+    framesIn++;
+    dirty = true;
+  });
+  ws.on("close", () => console.log("[pixels] moon disconnected"));
+});
+
+setInterval(() => {
+  if (TEST) testFrame();
+  else if (!dirty && !framesIn) return;   // nothing has ever arrived; stay dark
+  blast();
+  dirty = false;
+}, 1000 / FPS);
+
+const STAT_SEC = 5;
+let lastIn = 0, lastOut = 0;
+setInterval(() => {
+  const fin = framesIn - lastIn, fout = sent - lastOut;
+  lastIn = framesIn; lastOut = sent;
+  if (!fin && !fout) return;
+  console.log(`[pixels] in ${(fin / STAT_SEC).toFixed(0)}fps  out ${(fout / STAT_SEC).toFixed(0)}fps` +
+    ` (${(fout / STAT_SEC * universes.length).toFixed(0)} packets/s over ${universes.length} universes)`);
+}, STAT_SEC * 1000);
+
+const lan = Object.values(os.networkInterfaces()).flat()
+  .filter((i) => i && i.family === "IPv4" && !i.internal).map((i) => i.address);
+console.log(`[pixels] map ${MAP_PATH}: ${TOTAL} pixels, ${runs.length} output(s), ` +
+  `${universes.length} universes (${universes[0].universe}-${universes[universes.length - 1].universe})`);
+console.log(`[pixels] ${PROTOCOL} -> ${HOST || (PROTOCOL === "artnet" ? "broadcast" : "multicast")}` +
+  ` at ${FPS}fps${TEST ? `, test pattern "${TEST}"` : ""}`);
+if (!HOST && PROTOCOL === "sacn") {
+  console.log("[pixels] multicast: fine on a quiet bench, but set PIXLITE=<ip> for a show net");
+}
+console.log(`[pixels] listening on ws://0.0.0.0:${PORT}`);
+for (const ip of lan) console.log(`[pixels] moon: http://${ip}:8080/hypermoon.html?pixels=1`);
