@@ -262,6 +262,15 @@ latest versions). Then:
   transparent margin, or a bevelled plaque that loses only its frame line to the
   key, is still a card and still a plaque.
 
+  `vajra` is a reserved act name rather than a theme. The dorje loops that
+  garnish the other acts get one of their own: all six clips instead of the
+  three the show otherwise runs, grown to `?vajraactscale=` (1.7) of their
+  ornament size on the way in and back down on the way out, with the gif layer
+  simply staying out for the act's length. Nothing is decoded for it, so the
+  hand-over into it is instant, and it is the one act that is spinning brass on
+  a black sky rather than a swarm — worth putting between two turns of
+  GeoCities rather than next to the ankhs.
+
   `npm run gifs:pool` reports what each act of the show's sequence actually
   flies — curated, tried, and how many were dropped as tiles — and writes a
   sheet of the survivors over a checkerboard to `artifacts/gifpool/`, so a thin

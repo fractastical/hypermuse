@@ -51,6 +51,12 @@ try {
   const browser = await chromium.launch();
 
   for (const spec of ACTS) {
+    // "vajra" is a reserved act name: it flies the dorje loops rather than the
+    // library, so there is no pool to report on.
+    if (/^vajras?$/.test(spec)) {
+      console.log(`${spec.padEnd(30)} the vajras' own act — no gifs`);
+      continue;
+    }
     const page = await browser.newPage({ viewport: { width: 900, height: 900 } });
     await page.goto(`http://127.0.0.1:${PORT}/hypermoon.html?content=orbit` +
       `&orbitseq=${encodeURIComponent(spec)}&giforbit=8&nosound=1&stars=0&meteors=0&vajras=0`,

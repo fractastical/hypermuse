@@ -397,7 +397,17 @@
   // face; the default keeps every lane's turn well inside the disc.
   let VAJRA_TILT = Math.max(0.05, Math.min(1, num("vajratilt", num("vajraTilt", 0.75))));
   const VAJRA_SCALE = num("vajrascale", 0.17); // sprite height in frame-height units
+  // Garnishing a gif act, a vajra is an ornament and is sized like one. Holding
+  // an act of its own it is the whole picture, and six ornaments do not fill a
+  // sky, so the act grows them on the way in and shrinks them on the way out.
+  const VAJRA_ACT_SCALE = Math.max(1, num("vajraactscale", 1.7));
   const vajraSprites = [];
+  // What the show runs at between acts. An orbit act named "vajra" brings every
+  // clip up for its turn and then comes back to this, so the three that garnish
+  // the gif acts and the six that hold an act of their own are the same layer.
+  let VAJRA_BASE = VAJRA_COUNT;
+  let vajraAim = 0;    // 1 while the vajras have the sky to themselves
+  let vajraLevel = 0;  // eased; gates only the sprites the act added
 
   function makeVajraSprite(i) {
     const v = document.createElement("video");
@@ -483,8 +493,11 @@
     return sprite;
   }
 
-  function setVajraCount(n) {
+  // forAct is the sequencer borrowing the layer for an act; anything else —
+  // the launch URL, the controller's slider — is setting the baseline itself.
+  function setVajraCount(n, forAct) {
     VAJRA_COUNT = Math.max(0, Math.min(VAJRA_CLIPS.length, Math.round(n) || 0));
+    if (!forAct) VAJRA_BASE = VAJRA_COUNT;
     while (vajraSprites.length < VAJRA_COUNT) {
       vajraSprites.push(makeVajraSprite(vajraSprites.length));
     }
@@ -496,6 +509,14 @@
     });
   }
   setVajraCount(VAJRA_COUNT);
+
+  // The vajras' own act, called by the orbit sequencer. Coming up they are
+  // created at once so their videos have the dissolve to start playing; going
+  // down the count waits for the fade, or three of them would vanish mid-lane.
+  function setVajraAct(on) {
+    vajraAim = on ? 1 : 0;
+    if (on) setVajraCount(VAJRA_CLIPS.length, true);
+  }
 
   const smooth01 = (x, a, b) => {
     const t = Math.max(0, Math.min(1, (x - a) / (b - a)));
@@ -573,7 +594,16 @@
     feedAudio(bass, mid, high, (bass + mid + high) / 3, beat);
   }
 
-  function updateVajras(t) {
+  function updateVajras(t, dt) {
+    // The level has to keep easing after the act has handed on, which is why
+    // the count comes down here rather than when the act ends.
+    if (vajraLevel !== vajraAim) {
+      const step = dt / ORBIT_FADE;
+      vajraLevel = vajraAim > vajraLevel
+        ? Math.min(vajraAim, vajraLevel + step)
+        : Math.max(vajraAim, vajraLevel - step);
+      if (vajraLevel === 0 && VAJRA_COUNT !== VAJRA_BASE) setVajraCount(VAJRA_BASE, true);
+    }
     if (VAJRA_COUNT === 0) return;
     // Frame-height units -> world units (quad is letterboxed to 16:9).
     const fhX = 2 * quad.scale.x * (9 / 16);
@@ -598,12 +628,16 @@
       // Bass flare: the beat envelope swells each vajra (staggered per lane
       // so they don't pop in lockstep) and the sustained bass adds glow.
       const flare = REACT * (audio.beatEnv * (0.75 + 0.25 * Math.sin(s.phase * 3.7)) + audio.bass * 0.35);
-      const scl = VAJRA_SCALE * (0.68 + 0.32 * (depth * 0.5 + 0.5)) * (1 + flare * 0.22);
+      const scl = VAJRA_SCALE * (1 + (VAJRA_ACT_SCALE - 1) * vajraLevel) *
+        (0.68 + 0.32 * (depth * 0.5 + 0.5)) * (1 + flare * 0.22);
       s.mesh.position.set(cx + px * fhX, cy + py * fhY, 0);
       s.mesh.scale.set(scl * s.aspect * fhX, scl * fhY, 1);
       const op = 0.5 + 0.5 * (depth * 0.5 + 0.5);
       const u = s.mat.uniforms;
-      u.uOpacity.value = Math.min(1, op * (1 + flare * 0.9));
+      // The baseline vajras are always at full strength; the ones an act adds
+      // ride the fade in and out with it.
+      const gate = i < VAJRA_BASE ? 1 : vajraLevel;
+      u.uOpacity.value = Math.min(1, op * (1 + flare * 0.9)) * gate;
       // The far half is clipped by the disc in the fragment shader, which
       // needs the disc in world space plus the letterbox scale to undo.
       u.uBehind.value = depth < 0 ? 1 : 0;
@@ -1036,6 +1070,11 @@
     .split("|").map((s) => s.trim().toLowerCase()).filter(Boolean);
   const ORBIT_ACT = Math.max(4, num("orbitact", 150));
   const ORBIT_FADE = Math.max(0.1, num("orbitfade", 1.2));
+  // "vajra" is a reserved act name rather than a theme: the sky goes to the
+  // dorje loops that garnish the other acts, all six of them and nothing else,
+  // so the sequence can put a turn of the spinning brass between two turns of
+  // GeoCities. Nothing is decoded for it and the gif layer simply stays out.
+  const isVajraAct = (spec) => /^vajras?$/.test(String(spec || "").trim());
 
   // Rejections and favourites made in gif-curator.html. curation.json is the
   // copy that travels with the library; localStorage is what the curator writes
@@ -1345,9 +1384,23 @@
           o.mat.uniforms.uOpacity.value = 0;
         });
         orbitCursor = GIF_ORBIT;
-        loadPool(ORBIT_SEQ[seqAct]);
-        seqPhase = "wait";
-        seqWaitAt = t;
+        if (isVajraAct(ORBIT_SEQ[seqAct])) {
+          setVajraAct(true);
+          seqPhase = "vajras";
+          seqAt = t;
+        } else {
+          loadPool(ORBIT_SEQ[seqAct]);
+          seqPhase = "wait";
+          seqWaitAt = t;
+        }
+      } else if (seqPhase === "vajras") {
+        // Nothing to decode and nothing to bring back up: the act is the
+        // vajras alone, and it hands on like any other. seqLevel is already at
+        // the bottom, so "out" passes straight through on the next frame.
+        if (t - seqAt >= ORBIT_ACT) {
+          setVajraAct(false);
+          seqPhase = "out";
+        }
       } else if (seqPhase === "wait") {
         // Enough of the act landed that the orbit comes back inhabited rather
         // than as one gif in every lane. The timeout is for the act that cannot
@@ -1511,7 +1564,15 @@
       };
       await Promise.all(Array.from({ length: 6 }, loader));
     }
-    loadPool(theme);
+    // A sequence can open on the vajras, in which case there is nothing to
+    // decode and the layer starts at the bottom rather than dissolving there.
+    if (isVajraAct(theme)) {
+      seqPhase = "vajras";
+      seqLevel = 0;
+      setVajraAct(true);
+    } else {
+      loadPool(theme);
+    }
 
     // Lit cells of a word, straight off the 5x7 bitmap glyphs the letter mosaic
     // already uses, mapped into canvas space.
@@ -4172,6 +4233,9 @@
     get wordOn() { return +uniforms.uWordOn.value; },
     // 0 while the flashed mark is dark, 1 at full strength.
     get flash() { return flashMark ? +flashMark.mat.uniforms.uOpacity.value : 0; },
+    // How many vajras are up, the count between acts, and how far through its
+    // fade the vajras' own act is — so a check can watch it take the sky.
+    get vajras() { return { on: VAJRA_COUNT, base: VAJRA_BASE, level: +vajraLevel.toFixed(3) }; },
     get bleedThresh() { return +uniforms.uThresh.value; },
     get facing() {
       const f = wrapPi(uniforms.uAnchor.value.x + uniforms.uRot.value);
@@ -5044,7 +5108,7 @@
     updateApparition(t, dt);
     updatePeek(t, dt);
     adaptBleed(t);
-    updateVajras(t);
+    updateVajras(t, dt);
     updateFlash(t);
     updateFisherLive(t);
     // Ease the iris toward its target over ~IRIS_SEC with a smooth ramp.
@@ -5260,8 +5324,10 @@
     // would paint the next clip opaque.
     q.set("lonoff", (LON_OFF * 180 / Math.PI).toFixed(0));
     q.set("latoff", (LAT_OFF * 180 / Math.PI).toFixed(0));
-    if (VAJRA_COUNT > 0) {
-      q.set("vajras", String(VAJRA_COUNT));
+    // The baseline, not the count: copying the URL during the vajras' own act
+    // should not bake its six into the show as the number to start with.
+    if (VAJRA_BASE > 0) {
+      q.set("vajras", String(VAJRA_BASE));
       q.set("vajraradius", VAJRA_RADIUS.toFixed(2));
       q.set("vajratilt", VAJRA_TILT.toFixed(2));
     }
@@ -5337,7 +5403,8 @@
       winbox: +uniforms.uWinBox.value,
       lon: LON_OFF * 180 / Math.PI,
       lat: LAT_OFF * 180 / Math.PI,
-      vajras: VAJRA_COUNT,
+      // The slider's own value, so an act borrowing the layer does not move it.
+      vajras: VAJRA_BASE,
       vajraRadius: VAJRA_RADIUS,
       vajraTilt: VAJRA_TILT,
       fisherlive: FISHER_LIVE ? 1 : 0,
