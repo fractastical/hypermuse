@@ -19,6 +19,13 @@ loops/VAJRA DORJE ANIMATIONS/*
 
 assets/*
 !assets/esoteric-geometries-circles-warp.gif
+# Hand triage of the scraped GifCities library: a few hundred bytes of
+# judgement that would otherwise have to be made by eye again after every
+# scrape. The gifs themselves stay ignored — npm run gifs fetches them back,
+# and their names are checksummed, so the marks still match.
+!assets/gifcities/
+assets/gifcities/*
+!assets/gifcities/curation.json
 # Guest-mark examples: a few hundred bytes of SVG each, and the site's branding
 # stills are shot from them, so they are source rather than media.
 !assets/marks/

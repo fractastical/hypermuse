@@ -1,0 +1,414 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>GifCities curator</title>
+<style>
+:root {
+    --bg0: #060813;
+    --bg1: #0d1230;
+    --panel: rgba(10, 18, 44, 0.86);
+    --panel-border: rgba(86, 214, 255, 0.35);
+    --text: #cfe9ff;
+    --accent: #58f6ff;
+    --star: #ffd166;
+    --reject: #ff5c7a;
+}
+* { box-sizing: border-box; }
+html { background: #04060c; }
+body {
+    margin: 0;
+    min-height: 100vh;
+    color: var(--text);
+    font-family: "JetBrains Mono", "SF Mono", "Menlo", "Consolas", monospace;
+    font-size: 13px;
+    background:
+        radial-gradient(circle at 20% 0%, rgba(88, 246, 255, 0.14), transparent 40%),
+        radial-gradient(circle at 80% 0%, rgba(193, 125, 255, 0.16), transparent 45%),
+        linear-gradient(170deg, var(--bg0), var(--bg1));
+    background-attachment: fixed;
+}
+header {
+    position: sticky;
+    top: 0;
+    z-index: 5;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px 14px;
+    align-items: center;
+    padding: 12px 16px;
+    background: var(--panel);
+    border-bottom: 1px solid var(--panel-border);
+    backdrop-filter: blur(8px);
+}
+h1 { font-size: 14px; margin: 0 8px 0 0; letter-spacing: 0.08em; color: var(--accent); }
+select, input[type=search], button {
+    font: inherit;
+    color: var(--text);
+    background: rgba(6, 12, 30, 0.9);
+    border: 1px solid var(--panel-border);
+    border-radius: 5px;
+    padding: 5px 8px;
+}
+button { cursor: pointer; }
+button:hover { border-color: var(--accent); color: #fff; }
+button.warn:hover { border-color: var(--reject); color: var(--reject); }
+#stats { margin-left: auto; opacity: 0.85; }
+#stats b { color: var(--accent); font-weight: 600; }
+#hint { padding: 8px 16px; opacity: 0.6; font-size: 12px; border-bottom: 1px solid rgba(86,214,255,0.12); }
+main {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(132px, 1fr));
+    gap: 10px;
+    padding: 14px 16px 60px;
+}
+.tile {
+    position: relative;
+    border: 1px solid rgba(86, 214, 255, 0.2);
+    border-radius: 7px;
+    overflow: hidden;
+    background: rgba(4, 8, 20, 0.6);
+    cursor: pointer;
+    transition: border-color 0.12s, opacity 0.12s;
+}
+.tile:hover { border-color: var(--accent); }
+.tile .art {
+    height: 116px;
+    display: grid;
+    place-items: center;
+    /* Checkerboard, so an opaque white or black backing plate is obvious at a
+       glance — that being the main thing that makes a gif useless to a swarm. */
+    background-image:
+        linear-gradient(45deg, #1b2233 25%, transparent 25%, transparent 75%, #1b2233 75%),
+        linear-gradient(45deg, #1b2233 25%, #10141f 25%, #10141f 75%, #1b2233 75%);
+    background-size: 16px 16px;
+    background-position: 0 0, 8px 8px;
+}
+.tile .art > * { max-width: 100%; max-height: 116px; image-rendering: auto; }
+.tile figcaption {
+    padding: 4px 6px 5px;
+    font-size: 10px;
+    line-height: 1.3;
+    opacity: 0.7;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+.tile .theme { color: var(--accent); opacity: 0.9; }
+.tile[data-mark=star] { border-color: var(--star); box-shadow: 0 0 0 1px var(--star) inset; }
+.tile[data-mark=reject] { border-color: var(--reject); opacity: 0.34; }
+.tile[data-mark=reject] .art { filter: grayscale(1); }
+.badge {
+    position: absolute;
+    top: 5px;
+    right: 5px;
+    font-size: 11px;
+    padding: 1px 5px;
+    border-radius: 4px;
+    background: rgba(0, 0, 0, 0.65);
+}
+.tile[data-mark=star] .badge { color: var(--star); }
+.tile[data-mark=reject] .badge { color: var(--reject); }
+.tile:not([data-mark]) .badge { display: none; }
+#empty { padding: 40px 16px; opacity: 0.6; }
+</style>
+</head>
+<body>
+<header>
+    <h1>GIFCITIES CURATOR</h1>
+    <select id="theme"><option value="">all themes</option></select>
+    <select id="state">
+        <option value="">everything</option>
+        <option value="keep">unmarked + starred</option>
+        <option value="neutral">unmarked only</option>
+        <option value="star">starred</option>
+        <option value="reject">rejected</option>
+    </select>
+    <select id="view">
+        <option value="swarm">as the swarm sees it</option>
+        <option value="raw">raw source</option>
+    </select>
+    <input type="search" id="find" placeholder="filename…" size="14">
+    <button id="save">download curation.json</button>
+    <button id="clear" class="warn">clear all marks</button>
+    <span id="stats"></span>
+</header>
+<div id="hint">
+    click a gif to reject it &middot; shift-click to star it &middot; hover and press
+    <b>x</b> reject, <b>s</b> star, <b>u</b> unmark &middot; marks save as you go and a
+    hypermoon on this machine picks them up straight away
+</div>
+<main id="grid"></main>
+<div id="empty" hidden>Nothing here. Run <b>npm run gifs</b> to scrape some.</div>
+
+<script>
+/*
+ * Triage for the scraped GifCities library. GifCities searches on the gif's old
+ * URL rather than the picture, so a themed pull always lands some passengers —
+ * a mailbox answering to "heart" — and a swarm of a thousand wants a human to
+ * throw those out quickly rather than perfectly.
+ *
+ * Marks live in localStorage, which hypermoon.html shares because it is served
+ * from the same origin, so rejecting something here removes it from a running
+ * moon on this machine immediately. "download curation.json" writes the same
+ * thing out as a file to drop in assets/gifcities/ and carry to the show
+ * machine, where it becomes the starting point.
+ */
+const MARKS_KEY = "hypermoon.gifcities.marks";
+const INDEX = "assets/gifcities/index.json";
+const CURATION = "assets/gifcities/curation.json";
+
+const $ = (id) => document.getElementById(id);
+let marks = {};
+let items = [];
+let hovered = null;
+
+function saveMarks() {
+    localStorage.setItem(MARKS_KEY, JSON.stringify(marks));
+    // A moon already running picks this up without a reload.
+    try { new BroadcastChannel("hypermoon").postMessage({ type: "gifCuration" }); } catch { /* no channel */ }
+    renderStats();
+}
+
+function setMark(item, mark) {
+    if (mark) marks[item.path] = mark; else delete marks[item.path];
+    if (item.el) {
+        if (mark) item.el.dataset.mark = mark; else delete item.el.dataset.mark;
+        item.el.querySelector(".badge").textContent = mark === "star" ? "\u2605" : "\u2715";
+    }
+    saveMarks();
+    if ($("state").value) apply();          // it may no longer belong in this view
+}
+
+function renderStats() {
+    const vals = items.map((i) => marks[i.path]);
+    const star = vals.filter((v) => v === "star").length;
+    const rej = vals.filter((v) => v === "reject").length;
+    $("stats").innerHTML =
+        `<b>${items.length - rej}</b> in play &middot; <b>${star}</b> starred &middot; ` +
+        `<b>${rej}</b> rejected &middot; ${items.length} total`;
+}
+
+/*
+ * The same corner-key trim hypermoon does before it draws a sprite, so this
+ * page shows what the moon will show rather than the raw file. Plenty of these
+ * gifs were pasted onto a flat white or black rectangle in 1998; the colour is
+ * read off the corners, knocked out, and what is left is cropped to fit. If the
+ * corners disagree the gif is left alone.
+ */
+async function decodeTrimmed(src) {
+    const resp = await fetch(src);
+    const dec = new ImageDecoder({
+        data: await resp.arrayBuffer(),
+        type: resp.headers.get("content-type") || "image/gif"
+    });
+    await dec.tracks.ready;
+    const n = dec.tracks.selectedTrack.frameCount || 1;
+    const raw = [];
+    for (let f = 0; f < n; f++) {
+        const { image } = await dec.decode({ frameIndex: f });
+        raw.push({ bmp: await createImageBitmap(image), dur: (image.duration || 100000) / 1000 });
+        image.close();
+    }
+    const w = raw[0].bmp.width, h = raw[0].bmp.height;
+    const c = document.createElement("canvas");
+    c.width = w; c.height = h;
+    const cx = c.getContext("2d", { willReadFrequently: true });
+    cx.drawImage(raw[0].bmp, 0, 0);
+    const d0 = cx.getImageData(0, 0, w, h).data;
+    const at = (x, y) => { const i = (y * w + x) * 4; return [d0[i], d0[i + 1], d0[i + 2], d0[i + 3]]; };
+    const corners = [at(0, 0), at(w - 1, 0), at(0, h - 1), at(w - 1, h - 1)];
+    const near = (a, b) => Math.abs(a[0] - b[0]) < 22 && Math.abs(a[1] - b[1]) < 22 && Math.abs(a[2] - b[2]) < 22;
+    let key = null;
+    for (const cand of corners) {
+        if (cand[3] < 8) return raw;
+        if (corners.filter((o) => near(cand, o)).length >= 3) { key = cand; break; }
+    }
+    if (!key) return raw;
+
+    const keyed = [];
+    let x0 = w, y0 = h, x1 = -1, y1 = -1, kept = 0;
+    for (const f of raw) {
+        cx.clearRect(0, 0, w, h);
+        cx.drawImage(f.bmp, 0, 0);
+        const img = cx.getImageData(0, 0, w, h);
+        const d = img.data;
+        for (let y = 0; y < h; y++) {
+            for (let x = 0; x < w; x++) {
+                const i = (y * w + x) * 4;
+                if (d[i + 3] > 8 && !near([d[i], d[i + 1], d[i + 2]], key)) {
+                    kept++;
+                    if (x < x0) x0 = x;
+                    if (y < y0) y0 = y;
+                    if (x > x1) x1 = x;
+                    if (y > y1) y1 = y;
+                } else { d[i + 3] = 0; }
+            }
+        }
+        keyed.push(img);
+    }
+    if (x1 < x0 || kept < w * h * raw.length * 0.04) return raw;
+    const out = [];
+    for (let i = 0; i < keyed.length; i++) {
+        out.push({ bmp: await createImageBitmap(keyed[i], x0, y0, x1 - x0 + 1, y1 - y0 + 1), dur: raw[i].dur });
+    }
+    raw.forEach((f) => f.bmp.close());
+    return out;
+}
+
+// A library this size cannot all be live at once, so tiles only load their
+// picture while they are near the viewport and let go of it afterwards.
+const io = new IntersectionObserver((entries) => {
+    for (const e of entries) {
+        const item = e.target._item;
+        if (e.isIntersecting) mount(item); else unmount(item);
+    }
+}, { rootMargin: "400px 0px" });
+
+async function mount(item) {
+    if (item.mounted) return;
+    item.mounted = true;
+    const art = item.el.querySelector(".art");
+    if ($("view").value === "raw" || !("ImageDecoder" in window)) {
+        const img = document.createElement("img");
+        img.src = item.path;
+        img.loading = "lazy";
+        art.replaceChildren(img);
+        return;
+    }
+    let frames;
+    try { frames = await decodeTrimmed(item.path); } catch { frames = null; }
+    if (!item.mounted) { if (frames) frames.forEach((f) => f.bmp.close()); return; }
+    if (!frames) {
+        art.replaceChildren(Object.assign(document.createElement("img"), { src: item.path }));
+        return;
+    }
+    const cv = document.createElement("canvas");
+    cv.width = frames[0].bmp.width;
+    cv.height = frames[0].bmp.height;
+    const cx = cv.getContext("2d");
+    art.replaceChildren(cv);
+    let i = 0, acc = 0, last = performance.now();
+    const loop = (now) => {
+        if (!item.mounted) { frames.forEach((f) => f.bmp.close()); return; }
+        acc += now - last;
+        last = now;
+        let guard = 0;
+        while (acc >= (frames[i].dur || 100) && guard++ < 64) {
+            acc -= (frames[i].dur || 100);
+            i = (i + 1) % frames.length;
+        }
+        cx.clearRect(0, 0, cv.width, cv.height);
+        cx.drawImage(frames[i].bmp, 0, 0);
+        item.raf = requestAnimationFrame(loop);
+    };
+    item.raf = requestAnimationFrame(loop);
+}
+
+function unmount(item) {
+    if (!item.mounted) return;
+    item.mounted = false;
+    cancelAnimationFrame(item.raf);
+    if (item.el) item.el.querySelector(".art").replaceChildren();
+}
+
+function tile(item) {
+    const el = document.createElement("figure");
+    el.className = "tile";
+    el.style.margin = "0";
+    const mark = marks[item.path];
+    if (mark) el.dataset.mark = mark;
+    el.innerHTML = '<div class="art"></div><span class="badge">' +
+        (mark === "star" ? "\u2605" : "\u2715") + '</span>' +
+        '<figcaption><span class="theme"></span> <span class="name"></span></figcaption>';
+    el.querySelector(".theme").textContent = item.theme;
+    el.querySelector(".name").textContent = item.file.replace(/-\w{6}\.gif$/, "");
+    el.title = `${item.file}\n${item.w}\u00d7${item.h}, ${item.frames} frames\n${item.source || ""}`;
+    el.addEventListener("click", (ev) => {
+        const want = ev.shiftKey ? "star" : "reject";
+        setMark(item, marks[item.path] === want ? null : want);
+    });
+    el.addEventListener("mouseenter", () => { hovered = item; });
+    el.addEventListener("mouseleave", () => { if (hovered === item) hovered = null; });
+    el._item = item;
+    item.el = el;
+    return el;
+}
+
+function apply() {
+    const theme = $("theme").value;
+    const state = $("state").value;
+    const find = $("find").value.trim().toLowerCase();
+    items.forEach(unmount);
+    io.disconnect();
+    const grid = $("grid");
+    grid.replaceChildren();
+    const shown = items.filter((i) => {
+        if (theme && i.theme !== theme) return false;
+        if (find && !i.file.toLowerCase().includes(find)) return false;
+        const m = marks[i.path];
+        if (state === "keep") return m !== "reject";
+        if (state === "neutral") return !m;
+        if (state === "star") return m === "star";
+        if (state === "reject") return m === "reject";
+        return true;
+    });
+    for (const i of shown) { grid.appendChild(tile(i)); io.observe(i.el); }
+    $("empty").hidden = shown.length > 0;
+    renderStats();
+}
+
+addEventListener("keydown", (e) => {
+    if (!hovered || e.metaKey || e.ctrlKey || /^(INPUT|SELECT|TEXTAREA)$/.test(document.activeElement.tagName)) return;
+    const k = e.key.toLowerCase();
+    if (k === "x" || k === "r") setMark(hovered, "reject");
+    else if (k === "s") setMark(hovered, "star");
+    else if (k === "u") setMark(hovered, null);
+    else return;
+    e.preventDefault();
+});
+
+$("save").addEventListener("click", () => {
+    const blob = new Blob([JSON.stringify(marks, null, 1)], { type: "application/json" });
+    const a = document.createElement("a");
+    a.href = URL.createObjectURL(blob);
+    a.download = "curation.json";
+    a.click();
+    URL.revokeObjectURL(a.href);
+});
+$("clear").addEventListener("click", () => {
+    if (!confirm("Forget every mark?")) return;
+    marks = {};
+    saveMarks();
+    apply();
+});
+for (const id of ["theme", "state", "view"]) $(id).addEventListener("change", apply);
+$("find").addEventListener("input", apply);
+
+(async () => {
+    let index;
+    try { index = await fetch(INDEX).then((r) => r.json()); } catch {
+        $("empty").hidden = false;
+        return;
+    }
+    // localStorage is the live copy; a curation.json shipped with the library
+    // seeds it the first time this machine opens the page.
+    try { marks = JSON.parse(localStorage.getItem(MARKS_KEY) || "null") || null; } catch { marks = null; }
+    if (!marks) {
+        try { marks = await fetch(CURATION).then((r) => r.ok ? r.json() : {}); } catch { marks = {}; }
+    }
+    for (const [theme, t] of Object.entries(index.themes || {})) {
+        for (const g of t.gifs) {
+            items.push({ ...g, theme, path: `assets/gifcities/${theme}/${g.file}` });
+        }
+    }
+    items.sort((a, b) => a.theme.localeCompare(b.theme) || b.weight - a.weight);
+    const sel = $("theme");
+    for (const theme of Object.keys(index.themes || {}).sort()) {
+        sel.appendChild(Object.assign(document.createElement("option"), { value: theme, textContent: theme }));
+    }
+    apply();
+})();
+</script>
+</body>
+</html>
