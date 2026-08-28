@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>pixel preview</title>
+<!--
+  What the rig is being told, on screen, so a map can be checked without a
+  controller on the bench. It attaches to the bridge as a monitor and is sent
+  the same frame the rig gets - gamma and gain already applied by the page - so
+  this is the wire, not a re-render of it. The test patterns come through the
+  same buffer, so TEST=chase can be watched here with no moon running at all.
+
+    npm start                                   # serves this page
+    MAP=maps/car-sides.json TEST=chase npm run pixels
+    open http://localhost:8080/pixel-preview.html
+
+  Two views, because the two questions are different. The runs are what each
+  fixture will show, in wire order, so a strip that is wired back to front is
+  obvious. The sample view is where every LED reads from, drawn against the
+  moon or the frame, so a map that is pointing into empty space is obvious
+  before it is wired to anything.
+-->
+<style>
+:root {
+    --bg0: #060813;
+    --bg1: #0d1230;
+    --panel: rgba(10, 18, 44, 0.86);
+    --panel-border: rgba(86, 214, 255, 0.35);
+    --text: #cfe9ff;
+    --dim: rgba(207, 233, 255, 0.55);
+    --accent: #58f6ff;
+    --warn: #ffd166;
+    --bad: #ff5c7a;
+}
+* { box-sizing: border-box; }
+body {
+    margin: 0;
+    min-height: 100vh;
+    background: radial-gradient(circle at 50% 0%, var(--bg1), var(--bg0) 70%);
+    color: var(--text);
+    font: 13px/1.5 ui-monospace, SFMono-Regular, Menlo, monospace;
+    padding: 18px;
+}
+h1 { font-size: 15px; font-weight: 600; margin: 0 0 2px; letter-spacing: 0.04em; }
+.sub { color: var(--dim); margin-bottom: 16px; }
+.wrap { display: flex; gap: 16px; align-items: flex-start; flex-wrap: wrap; }
+.panel {
+    background: var(--panel);
+    border: 1px solid var(--panel-border);
+    border-radius: 10px;
+    padding: 12px 14px;
+}
+.panel h2 {
+    font-size: 12px; font-weight: 600; margin: 0 0 10px;
+    color: var(--accent); letter-spacing: 0.08em; text-transform: uppercase;
+}
+.runs { flex: 1 1 520px; min-width: 340px; }
+.run { margin-bottom: 12px; }
+.run-label { color: var(--dim); margin-bottom: 4px; display: flex; justify-content: space-between; }
+canvas { display: block; width: 100%; border-radius: 4px; background: #000; image-rendering: pixelated; }
+#sampleWrap canvas { width: 300px; height: 300px; }
+table { border-collapse: collapse; }
+td { padding: 1px 10px 1px 0; }
+td.k { color: var(--dim); }
+.state { font-weight: 600; }
+.ok { color: var(--accent); } .waiting { color: var(--warn); } .off { color: var(--bad); }
+.hint { color: var(--dim); margin-top: 10px; max-width: 300px; }
+code { color: var(--accent); }
+</style>
+</head>
+<body>
+<h1>pixel preview</h1>
+<div class="sub">the frame the bridge is sending to the controller</div>
+<div class="wrap">
+  <div class="panel runs">
+    <h2>runs, in wire order</h2>
+    <div id="runs"></div>
+  </div>
+  <div class="panel">
+    <h2>where each led samples</h2>
+    <div id="sampleWrap"><canvas id="sample" width="600" height="600"></canvas></div>
+    <table>
+      <tr><td class="k">bridge</td><td class="state" id="stState">connecting…</td></tr>
+      <tr><td class="k">map</td><td id="stMap">–</td></tr>
+      <tr><td class="k">pixels</td><td id="stPixels">–</td></tr>
+      <tr><td class="k">space</td><td id="stSpace">–</td></tr>
+      <tr><td class="k">frames</td><td id="stFrames">0</td></tr>
+      <tr><td class="k">lit</td><td id="stLit">–</td></tr>
+    </table>
+    <div class="hint" id="hint"></div>
+  </div>
+</div>
+<script>
+(function () {
+  const params = new URLSearchParams(location.search);
+  const PORT = params.get("port") || "8082";
+  const URL_WS = params.get("host") || ("ws://" + (location.hostname || "127.0.0.1") + ":" + PORT);
+
+  const el = (id) => document.getElementById(id);
+  let map = null, runs = [], frame = null, frames = 0;
+
+  function setState(text, cls) {
+    const s = el("stState");
+    s.textContent = text;
+    s.className = "state " + cls;
+  }
+
+  // One canvas per output, each pixel of the run one column, so what is drawn is
+  // the strip itself rather than an interpretation of it.
+  function buildRuns() {
+    const host = el("runs");
+    host.innerHTML = "";
+    runs = [];
+    let at = 0;
+    for (const o of map.outputs) {
+      const n = o.pixels.length;
+      const wrap = document.createElement("div");
+      wrap.className = "run";
+      const label = document.createElement("div");
+      label.className = "run-label";
+      const uni = Math.ceil(n / 170);
+      label.innerHTML = "<span>output " + o.output + "</span><span>" + n +
+        " px &middot; universe " + o.universe + (uni > 1 ? "–" + (o.universe + uni - 1) : "") + "</span>";
+      const cv = document.createElement("canvas");
+      cv.width = n;
+      cv.height = 1;
+      cv.style.height = "26px";
+      wrap.appendChild(label);
+      wrap.appendChild(cv);
+      host.appendChild(wrap);
+      runs.push({ cv, ctx: cv.getContext("2d"), n, from: at, img: cv.getContext("2d").createImageData(n, 1) });
+      at += n;
+    }
+  }
+
+  function drawRuns() {
+    for (const r of runs) {
+      const d = r.img.data;
+      for (let i = 0; i < r.n; i++) {
+        const o = (r.from + i) * 3;
+        d[i * 4] = frame[o];
+        d[i * 4 + 1] = frame[o + 1];
+        d[i * 4 + 2] = frame[o + 2];
+        d[i * 4 + 3] = 255;
+      }
+      r.ctx.putImageData(r.img, 0, 0);
+    }
+  }
+
+  // Disc-space points are in radii from the moon's centre, so 1.0 is drawn as
+  // the limb; frame-space points are drawn against the rendered frame. Either
+  // way the dots take the colour they are currently reading, which is what makes
+  // a run pointing into empty space obvious.
+  function drawSample() {
+    const cv = el("sample"), g = cv.getContext("2d");
+    const W = cv.width, H = cv.height;
+    g.clearRect(0, 0, W, H);
+    g.fillStyle = "#05070f";
+    g.fillRect(0, 0, W, H);
+    const disc = map.outputs[0].space === "disc";
+    const cx = W / 2, cy = H / 2;
+    const R = W * 0.30;   // the limb, leaving room for anything orbiting outside it
+    g.strokeStyle = "rgba(86,214,255,0.35)";
+    g.lineWidth = 1.5;
+    if (disc) {
+      g.beginPath();
+      g.arc(cx, cy, R, 0, Math.PI * 2);
+      g.stroke();
+      g.strokeStyle = "rgba(86,214,255,0.13)";
+      g.beginPath();
+      g.arc(cx, cy, R * 1.2, 0, Math.PI * 2);   // where the gifs orbit
+      g.stroke();
+    } else {
+      g.strokeRect(W * 0.08, H * 0.08, W * 0.84, H * 0.84);
+    }
+    let at = 0, lit = 0;
+    for (const o of map.outputs) {
+      for (const p of o.pixels) {
+        const x = disc ? cx + p[0] * R : W * 0.08 + p[0] * W * 0.84;
+        const y = disc ? cy + p[1] * R : H * 0.08 + p[1] * H * 0.84;
+        const off = at * 3;
+        const r = frame ? frame[off] : 0, gg = frame ? frame[off + 1] : 0, b = frame ? frame[off + 2] : 0;
+        if (Math.max(r, gg, b) > 20) lit++;
+        g.fillStyle = frame ? `rgb(${r},${gg},${b})` : "rgba(207,233,255,0.35)";
+        g.beginPath();
+        g.arc(x, y, 3, 0, Math.PI * 2);
+        g.fill();
+        at++;
+      }
+    }
+    if (frame) {
+      el("stLit").textContent = lit + " of " + at + " (" + Math.round(100 * lit / at) + "%)";
+    }
+  }
+
+  function connect() {
+    let ws;
+    try { ws = new WebSocket(URL_WS); } catch (e) { setState("no bridge", "off"); return; }
+    ws.binaryType = "arraybuffer";
+    ws.addEventListener("open", () => {
+      setState("attached, waiting for a frame", "waiting");
+      ws.send(JSON.stringify({ type: "monitor" }));
+    });
+    ws.addEventListener("message", (e) => {
+      if (typeof e.data === "string") {
+        let msg; try { msg = JSON.parse(e.data); } catch (err) { return; }
+        if (msg.type !== "map" || !msg.map) return;
+        map = msg.map;
+        buildRuns();
+        drawSample();
+        el("stMap").textContent = map.name + " (" + map.shape + ")";
+        el("stPixels").textContent = msg.total + " over " + map.outputs.length + " output(s)";
+        el("stSpace").textContent = map.outputs[0].space === "disc"
+          ? "disc radii — follows the measured moon" : "frame — fixed to the screen";
+        el("hint").innerHTML = frames ? "" :
+          "Nothing lit yet. The moon has to be open with <code>?pixels=1</code>, " +
+          "or run the bridge with <code>TEST=chase</code> to check the map on its own.";
+        return;
+      }
+      frame = new Uint8Array(e.data);
+      frames++;
+      if (frames === 1) { setState("live", "ok"); el("hint").innerHTML = ""; }
+      el("stFrames").textContent = frames;
+      if (runs.length) drawRuns();
+      drawSample();
+    });
+    const bye = () => {
+      setState("bridge gone — retrying", "off");
+      frame = null;
+      setTimeout(connect, 2000);
+    };
+    ws.addEventListener("close", bye);
+    ws.addEventListener("error", () => { try { ws.close(); } catch (e) { /* gone */ } });
+  }
+  connect();
+  window.__pixelPreview = () => ({ frames, pixels: frame ? frame.length / 3 : 0, map: map && map.name });
+})();
+</script>
+</body>
+</html>

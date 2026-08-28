@@ -573,6 +573,22 @@ separates a wiring or patch fault from a content one:
     TEST=rgb npm run pixels          # whole rig cycles red, green, blue
     TEST=white LEVEL=0.2 npm run pixels
 
+`pixel-preview.html` shows what the rig is being told, so a map can be looked at
+rather than inferred from packet counts. It attaches to the bridge as a monitor
+and is sent the same frame the controller gets, gamma and gain already applied,
+in two views: the runs in wire order, where a strip wired back to front is
+obvious, and where every LED samples from, drawn against the moon, where a run
+pointing into empty space is obvious. The test patterns come through the same
+buffer, so a map can be checked with no moon and no controller anywhere:
+
+    MAP=maps/car-sides.json TEST=chase npm run pixels
+    open http://localhost:8080/pixel-preview.html
+
+Give it a minute before judging a disc-space map. The page surveys where the
+disc actually is over a revolution of playback before pinning it, so for the
+first half minute the sample points are working off an estimate and the run will
+light less of itself than it eventually will.
+
 `node scripts/check-pixels.mjs` proves the whole chain with no hardware at all:
 it stands a fake controller on the loopback, runs a headless moon against it,
 and validates the E1.31 framing, the universes that arrived, the frame rate and

@@ -194,12 +194,28 @@ function testFrame() {
 
 // --- browser feed --------------------------------------------------------
 const wss = new WebSocketServer({ port: PORT, host: "0.0.0.0" });
+// pixel-preview.html says hello and is then sent the frames rather than asked
+// for them. It watches the same bytes the rig is given, gamma and gain already
+// applied, so what it shows is what the controller is being told - and because
+// the test patterns run through the same buffer, a map can be checked on screen
+// with no moon and no rig attached at all.
+const monitors = new Set();
 wss.on("connection", (ws, req) => {
-  console.log(`[pixels] moon connected (${req.socket.remoteAddress})`);
-  // The page needs to know what to sample before it can send anything.
+  const who = req.socket.remoteAddress;
+  // Whoever it is needs the map: the moon to know what to sample, the preview to
+  // know what it is looking at.
   ws.send(JSON.stringify({ type: "map", map, total: TOTAL }));
   ws.on("message", (data, isBinary) => {
-    if (!isBinary) return;
+    if (!isBinary) {
+      let msg = null;
+      try { msg = JSON.parse(data.toString()); } catch { /* not for us */ }
+      if (msg && msg.type === "monitor") {
+        monitors.add(ws);
+        console.log(`[pixels] preview attached (${who})`);
+      }
+      return;
+    }
+    if (!framesIn) console.log(`[pixels] moon connected (${who})`);
     // Short frames are padded rather than dropped: a map edited under a running
     // page should dim the tail, not stop the show.
     data.copy(frame, 0, 0, Math.min(data.length, frame.length));
@@ -207,8 +223,20 @@ wss.on("connection", (ws, req) => {
     framesIn++;
     dirty = true;
   });
-  ws.on("close", () => console.log("[pixels] moon disconnected"));
+  ws.on("close", () => {
+    if (monitors.delete(ws)) console.log("[pixels] preview detached");
+    else console.log("[pixels] moon disconnected");
+  });
 });
+
+// The preview only has to look right to an eye, so it is fed at about 20fps
+// however fast the rig is being driven.
+let monTick = 0;
+const MON_EVERY = Math.max(1, Math.round(FPS / 20));
+function relayToPreviews() {
+  if (!monitors.size || monTick++ % MON_EVERY) return;
+  for (const m of monitors) if (m.readyState === 1) m.send(frame);
+}
 
 // Broadcast has to be asked for — a send to a broadcast address is refused
 // outright without it — and neither it nor the multicast interface can be set on
@@ -228,6 +256,7 @@ sock.bind(() => {
     if (TEST) testFrame();
     else if (!dirty && !framesIn) return;   // nothing has ever arrived; stay dark
     blast();
+    relayToPreviews();
     dirty = false;
   }, 1000 / FPS);
 });
