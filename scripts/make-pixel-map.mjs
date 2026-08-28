@@ -22,6 +22,7 @@
 //   node scripts/make-pixel-map.mjs disc --rings 12 --output 1 --name moon-disc
 //   node scripts/make-pixel-map.mjs grid --w 32 --h 32 --outputs 4
 //   node scripts/make-pixel-map.mjs strips --count 8 --leds 144
+//   node scripts/make-pixel-map.mjs sweep --runs 4 --leds 120 --name car-sides
 //
 // Writes maps/<name>.json. Feed one to the bridge with MAP=maps/<name>.json.
 import fs from "node:fs";
@@ -111,13 +112,48 @@ function strips() {
   return { space: "frame", runs };
 }
 
-const SHAPES = { halo, disc, grid, strips };
+function sweep() {
+  // Long runs laid along something that is not the screen — strips down the
+  // sides of a car, a batten along a bar - each carrying a horizontal slice of
+  // the moon, so anything crossing the disc travels the length of the fixture.
+  //
+  // The slice is taken in disc radii rather than across the frame. A line across
+  // the frame is mostly empty space with the moon in the middle of it, so a
+  // frame-space strip lights its centre third and leaves the ends dark; spanning
+  // the diameter instead puts the moon along the whole run. The default span
+  // reaches past the limb, because the gifs orbit outside it (giforbitradius
+  // 1.2) and passing one should reach the ends of the run.
+  const runs = Math.round(num("runs", 2));
+  const leds = Math.round(num("leds", 120));
+  const span = num("span", 1.3);            // in disc radii, each way from centre
+  const y = num("y", 0);                    // 0 = the centre line, where it is brightest
+  const spread = num("spread", 0);          // fan the runs either side of y
+  // Strip on the far side of a car is usually run the other way round, so its
+  // first LED is at the back. Reversing alternate runs puts the sweep the same
+  // way along the vehicle on both sides.
+  const mirror = arg("mirror", "0") !== "0";
+  const out = [];
+  for (let s = 0; s < runs; s++) {
+    const yy = runs === 1 || !spread ? y : y + spread * ((s / (runs - 1)) - 0.5) * 2;
+    const pts = [];
+    for (let i = 0; i < leds; i++) {
+      const t = leds === 1 ? 0.5 : i / (leds - 1);
+      pts.push([-span + 2 * span * t, yy]);
+    }
+    if (mirror && s % 2) pts.reverse();
+    out.push(pts);
+  }
+  return { space: "disc", runs: out };
+}
+
+const SHAPES = { halo, disc, grid, strips, sweep };
 if (!SHAPES[shape]) {
   console.log("usage: node scripts/make-pixel-map.mjs <halo|disc|grid|strips> [options]\n");
   console.log("  halo    --leds 240 --radius 0.92 --start -90 --dir cw   (radius in disc radii)");
   console.log("  disc    --rings 12 --per 12 --radius 0.95");
   console.log("  grid    --w 32 --h 32 --serp 1");
-  console.log("  strips  --count 8 --leds 144 --top 0.05 --bottom 0.95\n");
+  console.log("  strips  --count 8 --leds 144 --top 0.05 --bottom 0.95");
+  console.log("  sweep   --runs 2 --leds 120 --span 1.3 --y 0 --spread 0 --mirror 0\n");
   console.log("  common  --name <file> --output <first output no> --universe <first universe>");
   process.exit(1);
 }

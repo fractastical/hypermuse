@@ -518,6 +518,27 @@ way you would patch it in Advatek Assistant — so a patch change on one output
 never shifts the ones after it. The generator warns if a map exceeds 16
 outputs, 1,020 pixels on an output, or 96 universes.
 
+**Fixtures that are not around the moon.** `sweep` is for a long run laid along
+something else — strips down the sides of a car, a batten along a bar. Each run
+carries a horizontal slice of the moon taken in disc radii, not across the
+frame: a frame-space line is mostly empty space with the moon in the middle of
+it, so it lights its centre third and leaves the ends dark, where spanning the
+diameter puts the moon along the whole run.
+
+    node scripts/make-pixel-map.mjs sweep --runs 4 --leds 120 --name car-sides
+
+Recorded off a running show, that keeps 99% of the run lit, with the terrain
+drifting slowly along it as the moon turns and colour arriving at the ends as
+orbiting gifs cross. The obvious-looking alternative — unrolling the orbit path
+along the strip, `halo --radius 1.2` — sweeps much further (the brightest point
+travels 88% of the run against 55%) but only ever lights half of it, because
+orbiters are small sprites against empty sky. It reads as an unlit strip with
+occasional darts in it. Worth knowing before wiring a car for the wrong one.
+
+Note that a bare moon is grey, so a fixture carrying a slice of it is close to
+white. Colour along the run comes from whatever else is on screen: a `backdrop=`
+behind the disc, the window content, the orbiting gifs at the ends.
+
 **Sending.** sACN multicast by default, which is fine on a bench; name the
 controller for a show network. Art-Net if you prefer it.
 
