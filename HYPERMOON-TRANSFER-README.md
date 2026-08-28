@@ -13,7 +13,31 @@ latest versions). Then:
 ## What's new in this build
 
 - **Backdrop layer**: gifs/images pinned exactly behind the moon disc
-  (`backdrop` field in the controller, or `?backdrop=` URL param).
+  (`backdrop` field in the controller, or `?backdrop=` URL param). `.mp4`,
+  `.webm`, `.mov` and `.m4v` play there too — the clip loops muted (browsers
+  only autoplay silent video), is cropped to fill the circle rather than
+  letterboxed into it, and `backspeed` sets its playback rate. Pair it with
+  `iris` to open the disc onto the clip. Several comma-separated sources
+  crossfade on the `backsec` timer as before; with video only the shown clip
+  decodes, so a playlist costs about what one clip costs.
+- **Circle clips** (`npm run clips`): xfeeefeee.net streams through a Bunny
+  player but publishes its finished files under `/releases/`, linked from its
+  own pages. `scripts/fetch-xfeeefeee.mjs` enumerates those (`--list`),
+  downloads the ones you name (or a default six), and centre-crops each 1440p
+  master to a small square loop in `assets/xfeeefeee/circle/` — the circle
+  discards the sides regardless, and a 113MB master becomes about 8MB. Masters
+  are kept so a re-cut is free; both directories are outside git like the rest
+  of the media. The controller's **circle clip** picker reads the manifest the
+  script writes, so a new cut shows up on reload, and **◉ reveal clip** loads
+  it (or the whole set, crossfading) and irises the disc open onto it.
+  Note the square crop lands on whatever is mid-frame, which in this source is
+  usually a face or torso — worth previewing before projecting one.
+- **LED pixel output** (`npm run pixels`): drives an Advatek PixLite — the
+  E16-S Mk3 takes 16 outputs of up to 1,020 RGB pixels, 96 universes, over
+  sACN or Art-Net. A browser cannot open a UDP socket, so the page cannot
+  address the controller itself: `scripts/pixel-bridge.mjs` holds a WebSocket
+  open, hands the moon a pixel map, and turns the sampled bytes it gets back
+  into lighting protocol. See "Driving an LED rig" below.
 - **Moon opacity** slider: fades the whole moon to reveal the backdrop.
 - **Iris reveal**: `◉ reveal eye seal` / `● seal moon` buttons + `iris reveal`,
   `iris size` sliders — opens a fully transparent hole (inner 70% of the disc
@@ -53,6 +77,9 @@ latest versions). Then:
   `carousel` (the same library with no word-only rotation between the acts, so
   every single rotation is a different effect — 15 rotations ≈ 4.5 min a lap,
   the one to run when the moon is the centrepiece rather than the wallpaper),
+  `gifcities` (the GifCities swarm alone, a different scraped theme each act —
+  a couple of minutes of lava lamps finding each other and spelling something
+  before the hearts take over, ≈ 12 min a lap; needs `npm run gifs` first),
   `eye10` (word-only moon, the eye seal irises open every 10th rotation),
   `folds` (the bucky fold repertoire every 3rd rotation), `eyefolds` (folds +
   the eye every 10th), plus the original `hour`. In the custom program editor,
@@ -145,6 +172,108 @@ latest versions). Then:
   places that are still. The mode changes every `?cymsec=` seconds (default 7)
   and the grains scatter and re-gather; how violently they are thrown about
   follows the music. `?cymgrains=` sets the amount of sand (default 4200).
+- **GifCities swarm** (`?content=gifswarm`, or "gifcities swarm"): a few dozen
+  animated GIFs off GeoCities pages, rescued by the Internet Archive, running
+  as coupled oscillators on the dark side. Each one circles its own small orbit
+  and the point it sits at is its Kuramoto phase, so while the phases are
+  scattered the field is noise; as the coupling passes critical they pull each
+  other into step and — being all at the same point of their own orbits — the
+  whole swarm starts breathing as one thing. Then it collapses onto the lit
+  cells of a word, holds it, and scatters. The lock is emergent rather than
+  keyframed, so it happens somewhere new every pass.
+
+  The word is timed off the rotation rather than off a clock of its own. The
+  swarm gathers as the anchored panel swings towards the viewer, is fully formed
+  as it passes square on, and disperses as it leaves; each approach takes the
+  next entry in `gifwords`, so `gifwords=hermes,-` says HERMES to your face
+  every other turn instead of spelling it at the back of the moon and resting
+  through the near side. An entry with no letters in it is that rest.
+
+  Long words wrap: six letters across the opening on one line is a thin strip
+  no one can read, and HER over MES is twice the size. The block is fitted to
+  whatever part of the panel survives its cover-crop, so the swarm always fills
+  the opening it has rather than a square it imagines it has.
+
+  Unlike the other generators, the swarm keeps its window most of the way open
+  over sunlit terrain (`?wingate=`, 0.7 here against 0.05 elsewhere) and paints
+  opaque rather than adding light. A glow welling out of the surface has to be
+  sealed in daylight or it is a ghost; keyed cut-outs do not, and sealing them
+  meant that on a clip with no dark side the only place the swarm ever appeared
+  was squashed flat against the limb, which is no place to read a word.
+
+  A few of them leave the window altogether and take the vajras' tilted lanes
+  around the disc, passing in front on the near half and eaten by the limb on
+  the way behind — the window is a patch of texture on a sphere and can never
+  cross the silhouette, so orbiting is the only way a gif gets out there.
+  `?giforbit=` sets how many (5 by default, 0 turns them off), with
+  `?giforbitradius=` and `?giforbitscale=`.
+
+  `?content=orbit[:theme]` is that orbit layer on its own: nothing is drawn on
+  the surface at all, no window and no word, just gifs going round a moon that
+  stays a moon. Each orbiter takes another gif out of the pool every lap
+  (`?giforbitswap=`, in laps; 0 keeps the one it was dealt), and it changes at
+  the deepest point behind the disc where the sprite is clipped away, so nobody
+  ever watches one gif cut to another.
+
+  `?orbitseq=` gives the orbit acts, `|` between them, each act a list of themes
+  to draw from — `?orbitseq=ankh|seahorse,jellyfish,seaweed|coral,starfish` runs
+  ankhs, then a reef, then starfish, and comes back round. `?orbitact=` is the
+  seconds each act holds (150) and `?orbitfade=` the dissolve between them
+  (1.2s). An act change is a moment in the show and is allowed to be seen, but
+  the pool is only ever torn down and rebuilt with the layer already faded to
+  nothing, so it is a dissolve rather than a cut — and a theme with only a few
+  good gifs to its name is worth pairing with another, or eight lanes will be
+  showing three gifs between them.
+
+  `npm exec -- node scripts/check-gifswarm.mjs` shoots a few approaches, moon
+  and bare canvas side by side, and prints how gathered and how synchronised
+  the swarm was in each — `WORDS=` and `PASSES=` to taste.
+
+  Run `npm run gifs` first or the window stays empty: that scrapes GifCities
+  into `assets/gifcities/`, which is gitignored like the rest of the media. The
+  default pull is about forty each of moon, spaceship, ufo, alien, rocket,
+  planet, saturn, galaxy, astronaut, comet, satellite, telescope, earth, sun,
+  star, lava lamp, rainbow, peace, smiley, mushroom, spiral, yin yang, skull,
+  pentagram, candle, pyramid, ankh, dragon, wizard, crystal, heart, butterfly,
+  flower, angel, fairy, cat, flame and eye. `THEMES="ufo,dragon" npm run gifs`
+  adds just those, `PER=60` changes the depth. Runs are cumulative — the index
+  is read back in first, a theme that is already full is skipped rather than
+  re-fetched, and deleting a file is how you ask for a different one next time.
+
+  Queries are single words wherever possible, because the filter insists the
+  *last* word of the query appears in the filename: "space ship" goes looking
+  for ships and finds pirates, where "spaceship" finds ships in space.
+
+- **Curating the gif library** (`gif-curator.html`, or "curate gifs…" in the
+  hypermoon panel): search there matches the GIF's old URL rather than the
+  picture, so a themed pull always lands passengers — an E-Mail banner filed
+  under butterfly, a Click Here button under eye. The curator is a contact
+  sheet of the whole library for throwing those out quickly. Click to reject,
+  shift-click to star, or hover and press `x`, `s`, `u`. Filter by theme or by
+  what is already marked, and search filenames.
+
+  Tiles show each GIF the way the swarm will draw it — background keyed out,
+  cropped, animating — over a checkerboard, so an opaque backing plate the trim
+  could not key is obvious at a glance. Only the tiles near the viewport are
+  live, so a library of thousands still scrolls.
+
+  Marks are held in `localStorage`, which the moon shares because it is served
+  from the same origin, so rejecting something removes it from a moon running
+  on that machine within a second or two. Starred GIFs go to the front of the
+  pool, so a picked-over library leads with the good ones. "download
+  curation.json" writes the marks out to drop in `assets/gifcities/` and carry
+  to the show machine, where they become that machine's starting point.
+
+  `?gifwords=muse,moon,love` sets what it spells (short words read best — the
+  glyphs are the same coarse 5×7 the letter mosaic uses), `?giftheme=heart`
+  restricts it to one theme, `?gifs=` the swarm size (default 100), `?gifk=`
+  the coupling (default 2.6; critical is near 1.4, so below about 1.5 it never
+  syncs), `?gifsec=` seconds per word (default 22).
+
+  Plenty of these GIFs were pasted onto a flat white or black rectangle by
+  whoever made them, which would read as a swarm of tiles rather than shapes,
+  so the background colour is sampled off the corners and knocked out. GIFs
+  whose corners disagree are left alone.
 - **The jitterbug listens** (`?content=foldjitter`): Fuller's vector
   equilibrium has exactly one degree of freedom — the whole collapse through
   the icosahedron to the octahedron is a single number — so the bass can drive
@@ -352,6 +481,65 @@ controller (or open the moon with `?stream=1`):
 
 Other devices watch at `http://<live-machine-ip>:8080/stream-view.html`.
 The video flows peer-to-peer; the relay only handles the handshake.
+
+## Driving an LED rig (Advatek PixLite)
+
+The moon can light physical pixels as well as a screen. A PixLite E16-S Mk3
+takes sACN or Art-Net over ethernet and drives 16 outputs of up to 1,020 RGB
+pixels each, 96 universes in total.
+
+Browsers cannot open UDP sockets, so the page cannot speak to the controller.
+Instead the work is split: a bridge process owns the protocol, and the page
+only ever looks at what it drew.
+
+    npm run pixels:map -- halo --leds 240 --name moon-halo   # 1. describe the rig
+    npm run pixels                                           # 2. start the bridge
+    # 3. open the moon with ?pixels=1
+
+The bridge hands the map to the page over a WebSocket; the page samples those
+points out of a small composite of what the room sees — starfield, backdrop
+clip and moon, not just the WebGL layer — and posts the bytes back; the bridge
+packs them into universes and sends them on.
+
+**Maps.** `scripts/make-pixel-map.mjs` writes to `maps/`. Points live in one of
+two spaces. Disc-space points are given in disc radii from the moon's centre,
+resolved against the disc the page has actually measured, so a halo holds the
+limb through a `moonscale` change, a resize or a centring nudge. Frame-space
+points are normalised to the rendered frame, for fixtures that relate to the
+screen rather than to the moon.
+
+    halo    --leds 240 --radius 0.92        ring around the disc (disc space)
+    disc    --rings 12 --per 10             concentric rings filling it (disc space)
+    grid    --w 32 --h 32 --serp 1          matrix, serpentine (frame space)
+    strips  --count 8 --leds 144            uprights, one output each (frame space)
+
+Universes are allocated in whole blocks per output, 170 RGB pixels each, the
+way you would patch it in Advatek Assistant — so a patch change on one output
+never shifts the ones after it. The generator warns if a map exceeds 16
+outputs, 1,020 pixels on an output, or 96 universes.
+
+**Sending.** sACN multicast by default, which is fine on a bench; name the
+controller for a show network. Art-Net if you prefer it.
+
+    PIXLITE=192.168.0.50 npm run pixels
+    PROTOCOL=artnet PIXLITE=192.168.0.50 npm run pixels
+    MAP=maps/moon-disc.json FPS=40 npm run pixels
+
+`pixelgamma` (default 2.2) and `pixelgain` on the moon's URL correct for LEDs
+being driven linearly while the frame is sRGB; without the curve everything
+below half brightness reads far too hot.
+
+**Bringing it up.** The bridge lights the rig with no browser attached, which
+separates a wiring or patch fault from a content one:
+
+    TEST=chase npm run pixels        # one pixel walks each output in turn
+    TEST=rgb npm run pixels          # whole rig cycles red, green, blue
+    TEST=white LEVEL=0.2 npm run pixels
+
+`node scripts/check-pixels.mjs` proves the whole chain with no hardware at all:
+it stands a fake controller on the loopback, runs a headless moon against it,
+and validates the E1.31 framing, the universes that arrived, the frame rate and
+whether anything is actually lit.
 
 ## Locking, sleep, and unattended runs (macOS)
 

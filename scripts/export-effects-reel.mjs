@@ -83,6 +83,12 @@ const SCENES = [
   { id: "cymatics", title: "cymatics plate", facing: true, ms: 7000,
     q: { ...WIN, content: "cymatics", winbright: "0.75", cymsec: "3.5", angw: "1.4", angh: "0.95" },
     note: "sand settling onto the nodal lines of a driven plate" },
+  // A whole phrase — scatter, lock, word — has to land inside the scene, so
+  // this one runs a short cycle and a single short word.
+  { id: "gifswarm", title: "gifcities swarm", facing: true, ms: 9000,
+    q: { ...WIN, content: "gifswarm", gifsec: "8", gifwords: "muse", winbright: "0.62",
+      angw: "1.5", angh: "0.95" },
+    note: "GeoCities gifs as coupled oscillators: they fall into step, then spell" },
   { id: "vajras", title: "orbiting vajras", q: { vajras: "6", vajraradius: "1.3" },
     note: "dorje sprites on tilted lanes, hidden behind the disc" },
   { id: "fisherlive", title: "the fisher, alongside", ms: 8000,

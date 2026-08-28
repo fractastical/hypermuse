@@ -467,6 +467,9 @@
             <option value="fisher">star fisher (troll on a crescent, hearts)</option>
             <option value="harmonics">sonic sphere (spherical harmonic modes)</option>
             <option value="cymatics">cymatics plate (sand on the nodal lines)</option>
+            <option value="gifswarm">gifcities swarm (geocities gifs sync into words)</option>
+            <option value="orbit:ankh">orbiting ankhs only (bare moon, no word — reloads)</option>
+            <option value="orbit:ankh|seahorse,jellyfish,seaweed|coral,starfish">orbiting acts: ankhs, then reef, then starfish (reloads)</option>
             <option value="artifacts/sample-sonicsphere-silent.webm">sonicsphere (baked loop)</option>
             <option value="screen">another window (screen capture)</option>
             <option value="artifacts/crt-terminal-green.mp4">CRT terminal (baked video)</option>
@@ -474,6 +477,8 @@
             <option value="assets/estoteric/web/IMG_1900.jpg,assets/estoteric/web/IMG_1901.jpg,assets/estoteric/web/IMG_1902.jpg,assets/estoteric/web/IMG_1903.jpg,assets/estoteric/web/IMG_1904.jpg">sutra pages (slideshow)</option>
           </select>
           content <input type="text" id="hmContentInput" value="" size="30" placeholder="empty = word mosaic, 'incant' = mantras"/>
+          <input type="button" id="hmGifCuratorButton" value="curate gifs…"
+            title="open the GifCities curator: reject the passengers a themed scrape always lands, star the good ones. A gif rejected there leaves a running moon within a second or two."/>
           backdrop <input type="text" id="hmBackdropInput" value="" size="30"
             placeholder="circle gifs behind the moon, comma-separated"
             title="animated gifs (or images) pinned exactly behind the moon disc — fade the moon opacity slider down to reveal them; applies live on enter"/>
@@ -495,6 +500,14 @@
           <input type="button" id="hmIrisSealButton" value="&#9679; seal moon"
             title="eases the iris closed again — the moon returns to a solid disc"/>
           <span style="white-space:nowrap;">
+            circle clip <select id="hmClipPick"
+              title="clips cut for the circle by npm run clips. Picking one loads it behind the disc; 'all (crossfade)' loads the lot and they change hands on the backdrop timer. Nothing here until the fetch script has run.">
+              <option value="">— none —</option>
+            </select>
+            <input type="button" id="hmClipRevealButton" value="&#9673; reveal clip"
+              title="loads the chosen clip (or the whole set) behind the moon and irises the disc open onto it, with the reveal zoom off so the footage is seen as framed rather than punched into"/>
+          </span>
+          <span style="white-space:nowrap;">
             any video <input type="text" id="hmVideoPicker" list="hmVideoList" size="34"
               placeholder="type to search all loops…" title="every playable video found by npm run manifest:videos — pick one and it plays inside the moon window immediately"/>
             <datalist id="hmVideoList"></datalist>
@@ -508,6 +521,7 @@
             <option value="hour">hour progression (reveal every 3rd rotation)</option>
             <option value="library">whole library (a different effect every 3rd rotation)</option>
             <option value="carousel">carousel (a different effect every single rotation)</option>
+            <option value="gifcities">gifcities exhibit (a scraped gif theme per act)</option>
             <option value="eye10">eye seal (irises open every 10th rotation)</option>
             <option value="folds">bucky folds (reveal every 3rd rotation)</option>
             <option value="eyefolds">folds + eye (folds every 3rd, eye every 10th)</option>
@@ -2432,6 +2446,10 @@ document.querySelectorAll('#hypermoonPanel .hm-slider').forEach(function(slider)
     });
 });
 
+document.getElementById('hmGifCuratorButton').addEventListener('click', function() {
+    window.open(appUrl('gif-curator.html'), 'gifCurator');
+});
+
 document.getElementById('hmOpenOutputButton').addEventListener('click', function() {
     // kiosk=1: the output hides its cursor and goes fullscreen on the first
     // click/keypress in that window (drag it to the target display first).
@@ -2479,12 +2497,58 @@ document.getElementById('hmLogoClearButton').addEventListener('click', function(
 const HM_EYE_GIF = 'assets/esoteric-geometries-circles-warp.gif';
 document.getElementById('hmEyeRevealButton').addEventListener('click', function() {
     document.getElementById('hmBackdropInput').value = HM_EYE_GIF;
+    // iriszoom 2.5 is named rather than left to the default, so revealing a
+    // clip first (which turns the zoom off) cannot flatten the eye afterwards.
     if (hmChannel) hmChannel.postMessage({ type: 'moonConfig', set: {
-        backdrop: HM_EYE_GIF, backscale: 0.98, iris: 1
+        backdrop: HM_EYE_GIF, backscale: 0.98, iris: 1, iriszoom: 2.5
     } });
+    const z = document.getElementById('hmIrisZoom');
+    z.value = 2.5;
+    document.getElementById('hmIrisZoomVal').textContent = HM_FMT.iriszoom(2.5);
 });
 document.getElementById('hmIrisSealButton').addEventListener('click', function() {
     if (hmChannel) hmChannel.postMessage({ type: 'moonConfig', set: { iris: 0 } });
+});
+
+// Circle clips: whatever scripts/fetch-xfeeefeee.mjs has cut. The list is read
+// from the manifest rather than written into this markup, so a new cut appears
+// here on reload without anyone touching the controller. A missing manifest
+// just means the fetch has not been run — the picker stays empty and quiet.
+fetch('assets/xfeeefeee/circle/manifest.json', { cache: 'no-store' })
+    .then(function(r) { return r.ok ? r.json() : null; })
+    .then(function(m) {
+        if (!m || !m.clips || !m.clips.length) return;
+        const pick = document.getElementById('hmClipPick');
+        if (m.clips.length > 1) {
+            const all = document.createElement('option');
+            all.value = m.clips.map(function(c) { return c.src; }).join(',');
+            all.textContent = 'all (crossfade)';
+            pick.appendChild(all);
+        }
+        m.clips.forEach(function(c) {
+            const o = document.createElement('option');
+            o.value = c.src;
+            o.textContent = c.name.replace(/[-_]+/g, ' ');
+            pick.appendChild(o);
+        });
+        pick.selectedIndex = 1;
+    })
+    .catch(function() { /* no clips fetched yet */ });
+
+document.getElementById('hmClipRevealButton').addEventListener('click', function() {
+    const src = document.getElementById('hmClipPick').value;
+    if (!src) return;
+    document.getElementById('hmBackdropInput').value = src;
+    // backscale 1.0 and iriszoom 1: a clip is already cropped square to the
+    // disc, so unlike the eye seal it wants no margin trimmed off it and no
+    // push into its centre — the reveal zoom exists to make an eye fill the
+    // aperture, and on footage it just crops the subject's head off.
+    if (hmChannel) hmChannel.postMessage({ type: 'moonConfig', set: {
+        backdrop: src, backscale: 1.0, iris: 1, iriszoom: 1
+    } });
+    const z = document.getElementById('hmIrisZoom');
+    z.value = 1;
+    document.getElementById('hmIrisZoomVal').textContent = HM_FMT.iriszoom(1);
 });
 
 // Blood moon: one click to the full eclipse grade, one click back. The
@@ -3132,9 +3196,10 @@ document.getElementById('hmProgramSelect').addEventListener('change', function()
 // Mirrors PROGRAMS.hour in hypermoon.html — 201 rotations, an hour at the
 // nominal 18 s rotation. "fit to hour" rescales whatever is in the editor.
 const HM_PROG_HOUR = [
-    { content: 'crt', cycles: 6, dark: 2, reveal: 1 },
+    { content: 'crt', cycles: 5, dark: 2, reveal: 1 },
     { content: 'incant', cycles: 6, dark: 2, reveal: 1, fisher: true },
-    { content: 'vajra', cycles: 6, dark: 2, reveal: 1 },
+    { content: 'vajra', cycles: 5, dark: 2, reveal: 1 },
+    { content: 'gifswarm', cycles: 2, dark: 2, reveal: 1 },
     { content: 'fold', cycles: 5, dark: 2, reveal: 1 },
     { content: 'foldhelix', cycles: 5, dark: 2, reveal: 1 },
     { content: 'cymatics', cycles: 6, dark: 2, reveal: 1, fisher: true },

@@ -25,10 +25,20 @@
   // dorjes), incant (mantra phrases).
   let CONTENT_SRC = params.get("content") || "";
   const CONTENT_KEY = CONTENT_SRC.trim().toLowerCase();
+  // A keyword can carry an argument after a colon — gifswarm:hearts picks one
+  // theme out of the scraped library — so classification looks at the stem.
+  const baseKey = (k) => String(k == null ? "" : k).split(":")[0];
+  const keyArg = (k) => String(k == null ? "" : k).split(":").slice(1).join(":");
   const KEYWORD_CONTENT = [
     "crt", "vajra", "incant", "screen", "mumins", "fisher", "harmonics", "cymatics",
+    "gifswarm", "orbit",
     "fold", "foldsonic", "foldhelix", "foldjitter", "foldgeo", "foldivm"
-  ].includes(CONTENT_KEY);
+  ].includes(baseKey(CONTENT_KEY));
+  // content=orbit[:theme] is the gif swarm's orbit layer on its own: gifs take
+  // the vajras' tilted lanes round the disc and nothing whatever is drawn on
+  // the surface — no window cut into it, no letter panel, no word. For a moon
+  // that should stay a moon and still have something circling it.
+  const ORBIT_ONLY = baseKey(CONTENT_KEY) === "orbit";
   const MOSAIC_OFF = params.get("mosaic") === "0";
   const IMAGE_SEC = num("imagesec", 8);
   const IMG_SCALE = num("imgscale", 0.55); // image size as fraction of frame, centered on the disc
@@ -58,6 +68,19 @@
   // measured dark patch and reads at that size because its glyphs are five
   // cells wide; a wordmark carries much finer detail and vanishes there.
   let LOGO_SCALE = Math.max(0.3, num("logoscale", 1.7));
+  // Flashed mark (?flash=hermes/logo.png): the mark is thrown over the disc for
+  // a beat and gone again, once every flashsec. This is deliberately not the
+  // guest-mark panel above: a mark anchored to the shadow patch spends most of
+  // a minute round the back of the moon, and something that shows for one
+  // second in sixty has to be there when the second comes. Blended additively,
+  // so a mark drawn on black needs no alpha and no keying — the black adds
+  // nothing — and it lands as light on the surface rather than a sticker on it.
+  const FLASH_SRC = params.get("flash") || "";
+  let FLASH_SEC = Math.max(0.5, num("flashsec", 60));     // seconds between flashes
+  let FLASH_HOLD = Math.max(0.05, num("flashhold", 1));   // seconds at full strength
+  let FLASH_SCALE = Math.max(0.1, num("flashscale", 1));  // 1 = the mark spans the disc
+  let FLASH_GAIN = Math.max(0, num("flashgain", 1));      // how hot the flash burns
+  const FLASH_FADE = Math.max(0, num("flashfade", 0.14)); // seconds of rise and fall
   // Kiosk mode (?kiosk=1): hide the cursor and go fullscreen on the first
   // click/keypress (browsers require a gesture). npm run kiosk:hypermoon
   // launches Chrome in true kiosk mode with autoplay enabled.
@@ -101,21 +124,29 @@
   // the moon. It opens wide in shadow and seals to a glimmer in sunlight.
   // ?mosaic=0 with file content skips the letters and window entirely and
   // bleeds the content straight through the shadowed hemisphere (planar).
-  let WIN = !!CONTENT_SRC && !TEXT_PARAM && (KEYWORD_CONTENT || !MOSAIC_OFF);
+  let WIN = !!CONTENT_SRC && !TEXT_PARAM && !ORBIT_ONLY && (KEYWORD_CONTENT || !MOSAIC_OFF);
   // incant and the bucky folds render without the letter panel: the
   // geometry/mantra is the show, no word text over it.
-  const wordlessKey = (k) => k === "incant" || k === "mumins" || k === "fisher"
-    || k === "harmonics" || k === "cymatics" || /^fold/.test(k);
-  // Figures painted on the surface rather than glowing through it.
-  const drawnKey = (k) => k === "mumins" || k === "fisher";
+  const wordlessKey = (k0) => ((k) => k === "incant" || k === "mumins" || k === "fisher"
+    || k === "gifswarm"
+    || k === "harmonics" || k === "cymatics" || /^fold/.test(k))(baseKey(k0));
+  // Figures painted on the surface rather than glowing through it. The gif
+  // swarm belongs here too: they are keyed cut-outs with their own alpha, and
+  // added as light over grey terrain they are a ghost of themselves.
+  const drawnKey = (k0) => ((k) => k === "mumins" || k === "fisher"
+    || k === "gifswarm")(baseKey(k0));
   // Content that is a screen and should read as one: a rectangular opening
   // recessed into the shell, with the panel lit inside it. Everything the page
   // generates itself is a pattern or a figure with no edges of its own, and
   // giving it an opening turns it into a picture hung on the moon rather than
   // something the moon is doing.
   const screenKey = (k) => k === "crt" || k === "screen";
+  const gateFor = (k) => (baseKey(k) === "gifswarm" ? 0.7 : 0.05);
   let WORDLESS_WIN = WIN && (wordlessKey(CONTENT_KEY) || MOSAIC_OFF);
-  const useMosaic = !TEXT_PARAM && (!CONTENT_SRC || WIN);
+  // Orbit-only stays on the mosaic path even though no word is drawn: that is
+  // what tunes the terminator and the earthshine for a bare moon and anchors
+  // the surface to the sphere. uWordOn holds the letters at zero instead.
+  const useMosaic = !TEXT_PARAM && (!CONTENT_SRC || WIN || ORBIT_ONLY);
   // Window/reveal behavior (all live-adjustable from the controller):
   let BLEED = num("bleed", 0);           // planar: target % of the disc auto-revealed (0 = fixed threshold)
   let APPARITION = num("apparition", CONTENT_KEY === "incant" ? 8 : 0); // avg s between random reveals (0 = steady)
@@ -569,6 +600,81 @@
     }
   }
 
+  // --- Flashed mark --------------------------------------------------------
+  // One additive quad seated on the disc, dark for a minute at a time. Sized
+  // against the disc rather than the frame, so a circular mark at flashscale 1
+  // lands on the limb and the moon reads as briefly becoming the mark.
+  function makeFlashMark(src) {
+    const mat = new THREE.ShaderMaterial({
+      uniforms: { map: { value: null }, uOpacity: { value: 0 }, uGain: { value: 1 } },
+      transparent: true,
+      depthTest: false,
+      depthWrite: false,
+      blending: THREE.AdditiveBlending,
+      vertexShader: `
+        varying vec2 vUv;
+        void main() {
+          vUv = uv;
+          gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+        }
+      `,
+      // Premultiplied against a solid alpha: additive takes the colour and
+      // ignores what it was drawn on, so a mark with an alpha channel and a
+      // mark on a black plate both arrive the same way.
+      fragmentShader: `
+        uniform sampler2D map;
+        uniform float uOpacity, uGain;
+        varying vec2 vUv;
+        void main() {
+          vec4 c = texture2D(map, vUv);
+          gl_FragColor = vec4(c.rgb * c.a * uOpacity * uGain, 1.0);
+        }
+      `
+    });
+    const mesh = new THREE.Mesh(new THREE.PlaneGeometry(1, 1), mat);
+    mesh.renderOrder = 3; // over the moon quad and the orbiting sprites
+    mesh.visible = false;
+    scene.add(mesh);
+    const mark = { mesh, mat, aspect: 1, ready: false };
+    new THREE.TextureLoader().load(src, (tex) => {
+      tex.minFilter = THREE.LinearFilter;
+      tex.magFilter = THREE.LinearFilter;
+      mat.uniforms.map.value = tex;
+      const im = tex.image;
+      if (im && im.width && im.height) mark.aspect = im.width / im.height;
+      mark.ready = true;
+    }, undefined, () => console.warn("[flash] could not load " + src));
+    return mark;
+  }
+
+  // Rise, hold, fall, then nothing until the next period comes round. The
+  // cycle is taken off the show clock rather than counted between frames, so
+  // an hour in it is still landing on the minute.
+  function updateFlash(t) {
+    if (!flashMark) return;
+    const span = FLASH_HOLD + FLASH_FADE * 2;
+    const u = t % Math.max(span, FLASH_SEC);
+    const level = u >= span ? 0
+      : FLASH_FADE <= 0 ? 1
+      : Math.max(0, Math.min(1, Math.min(u, span - u) / FLASH_FADE));
+    // Set before the visibility bail-out, or a hidden mark keeps reporting
+    // whatever strength it was at when it went out.
+    flashMark.mat.uniforms.uOpacity.value = level;
+    flashMark.mat.uniforms.uGain.value = FLASH_GAIN;
+    flashMark.mesh.visible = flashMark.ready && level > 0.002;
+    if (!flashMark.mesh.visible) return;
+    // Frame-height units -> world units, the same conversion the vajra lanes
+    // and the gif orbiters make.
+    const fhX = 2 * quad.scale.x * (9 / 16);
+    const fhY = 2 * quad.scale.y;
+    const dv = uniforms.uDisc.value; // disc centre (uv) + radius (frame heights)
+    const cx = (dv.x * 2 - 1) * quad.scale.x + quad.position.x;
+    const cy = (dv.y * 2 - 1) * quad.scale.y + quad.position.y;
+    const s = 2 * dv.z * FLASH_SCALE;
+    flashMark.mesh.position.set(cx, cy, 0);
+    flashMark.mesh.scale.set(s * flashMark.aspect * fhX, s * fhY, 1);
+  }
+
   // Image slideshow: preload all, swap the content texture on a timer.
   let imageTextures = [];
   if (isImageContent) {
@@ -858,6 +964,708 @@
     }
     draw(0);
     return { texture: tex, draw, aspect: W / H };
+  }
+
+  // GifCities swarm (content=gifswarm): the animated GIFs that furnished
+  // GeoCities homepages, rescued by the Internet Archive and set loose on the
+  // dark side as a field of coupled oscillators. Run scripts/scrape-gifcities.mjs
+  // to fill assets/gifcities/ first; without it the swarm quietly draws nothing.
+  //
+  // Each GIF orbits its own little circle, and the angle it sits at is its
+  // Kuramoto phase. While the phases are scattered the field is noise. As the
+  // coupling climbs past critical they pull each other into step, and because
+  // every sprite is then at the same point of its own orbit the whole swarm
+  // visibly starts breathing as one thing. Once it is coherent it collapses
+  // onto the lit cells of a word, holds it, and scatters. The sync is emergent
+  // rather than keyframed, so the moment it locks lands somewhere new each pass.
+  const GIF_INDEX = "assets/gifcities/index.json";
+  const GIF_THEME = (params.get("giftheme") || "").trim().toLowerCase();
+  // Enough to fill the lit cells of a short word with a little overlap, and
+  // few enough that while they are scattered you can still see that each one
+  // is a lava lamp or an eyeball rather than a glowing speck.
+  // A short word's lit cells number well over a hundred, and letters only read
+  // as letters when there are enough bodies to crowd every cell of them.
+  const GIF_N = ORBIT_ONLY ? 0 : Math.max(12, Math.min(400, Math.round(num("gifs", 240))));
+  const GIF_K = num("gifk", 2.6);              // coupling; critical is near 1.4
+  const GIF_SPREAD = num("gifspread", 1.1);    // half-width of natural frequencies
+  const GIF_SEC = Math.max(8, num("gifsec", 22));  // seconds per word
+  // The opening fades from its middle outwards, so a word taken right out to
+  // the edges of it loses its first and last letters to the falloff. Keeping
+  // the block inside two thirds costs size but the whole of it reads.
+  const GIF_ZOOM = Math.max(0.2, Math.min(1.2, num("gifzoom", 0.62)));
+  // An entry with no letters in it — "-" is the obvious one to type — is a
+  // rest: that phrase stays scattered and never gathers. gifwords=hermes,-,-
+  // is how you get a swarm that only occasionally says something.
+  const GIF_WORDS = (params.get("gifwords") || "muse,moon,love")
+    .split(",").map((s) => s.trim().toLowerCase()).filter(Boolean);
+  // A few of the swarm break out of the window and take the vajras' tilted
+  // lanes round the disc — in front on the near half, eaten by the limb on the
+  // way behind. The window is a patch of texture on the sphere and can never
+  // cross the silhouette, so this is the only way a gif gets to orbit.
+  const GIF_ORBIT = Math.max(0, Math.min(12, Math.round(num("giforbit", 5))));
+  const GIF_ORBIT_R = num("giforbitradius", 1.2);   // 1 = skimming the limb
+  const GIF_ORBIT_SCALE = num("giforbitscale", 0.12); // frame-height units
+  // Laps an orbiter keeps its gif for before taking another out of the pool
+  // (0 = it keeps whatever it was dealt for the whole act). The change is made
+  // at the deepest point behind the moon, where the sprite is inside the
+  // silhouette and clipped away, so nobody ever watches one gif cut to
+  // another — the same courtesy the guest marks on the letter panel observe.
+  const GIF_ORBIT_SWAP = Math.max(0, Math.round(num("giforbitswap", 1)));
+  // The acts of the orbit (?orbitseq=coral,seaweed|ankh), "|" between them,
+  // each act a list of themes to draw from and each holding for orbitact
+  // seconds before handing on. Between acts the layer dissolves out, the pool
+  // is rebuilt from the next act's themes, and it dissolves back in: an act
+  // change is a moment in the show and is allowed to be seen, but the pool is
+  // only ever torn down and rebuilt while there is nothing on screen to tear,
+  // so it is still never a cut. One act, or none, is the fixed orbit as before.
+  const ORBIT_SEQ = (params.get("orbitseq") || "")
+    .split("|").map((s) => s.trim().toLowerCase()).filter(Boolean);
+  const ORBIT_ACT = Math.max(4, num("orbitact", 150));
+  const ORBIT_FADE = Math.max(0.1, num("orbitfade", 1.2));
+
+  // Rejections and favourites made in gif-curator.html. curation.json is the
+  // copy that travels with the library; localStorage is what the curator writes
+  // as you click, and being same-origin it is visible here, so triage on this
+  // machine takes effect on the next act without a file being moved anywhere.
+  const GIF_MARKS_KEY = "hypermoon.gifcities.marks";
+  async function loadGifMarks() {
+    let marks = {};
+    try {
+      const r = await fetch("assets/gifcities/curation.json");
+      if (r.ok) marks = await r.json();
+    } catch { /* none shipped with the library */ }
+    try {
+      const local = JSON.parse(localStorage.getItem(GIF_MARKS_KEY) || "null");
+      if (local) marks = Object.assign(marks, local);
+    } catch { /* unreadable, stick with the file */ }
+    return marks;
+  }
+
+  // Pulls every frame out of an animated GIF as an ImageBitmap. Same WebCodecs
+  // path the backdrop layer uses, factored out so the swarm can hold dozens.
+  async function decodeGifFrames(src) {
+    if (!("ImageDecoder" in window)) return null;
+    const resp = await fetch(src);
+    if (!resp.ok) return null;
+    const dec = new ImageDecoder({
+      data: await resp.arrayBuffer(),
+      type: resp.headers.get("content-type") || "image/gif"
+    });
+    await dec.tracks.ready;
+    const count = dec.tracks.selectedTrack.frameCount || 1;
+    const frames = [];
+    for (let f = 0; f < count; f++) {
+      const { image } = await dec.decode({ frameIndex: f });
+      frames.push({ bmp: await createImageBitmap(image), dur: (image.duration || 100000) / 1000 });
+      image.close();
+    }
+    return frames.length ? frames : null;
+  }
+
+  // GeoCities GIFs are a mixed bag: some carry a transparent index, plenty are
+  // just pasted onto a flat white or black rectangle by whoever made them. Left
+  // alone the flat ones read as solid tiles rather than shapes, and a swarm of
+  // tiles is a mosaic, not a swarm. So the background colour is read off the
+  // corners, knocked out of every frame, and what survives is cropped to fit.
+  // If the corners disagree the GIF is left exactly as it is.
+  async function trimGifFrames(frames) {
+    const w = frames[0].bmp.width, h = frames[0].bmp.height;
+    if (!w || !h) return frames;
+    const c = document.createElement("canvas");
+    c.width = w; c.height = h;
+    const cx = c.getContext("2d", { willReadFrequently: true });
+
+    cx.drawImage(frames[0].bmp, 0, 0);
+    const first = cx.getImageData(0, 0, w, h).data;
+    const at = (x, y) => { const i = (y * w + x) * 4; return [first[i], first[i + 1], first[i + 2], first[i + 3]]; };
+    const corners = [at(0, 0), at(w - 1, 0), at(0, h - 1), at(w - 1, h - 1)];
+    const near = (a, b) => Math.abs(a[0] - b[0]) < 22 && Math.abs(a[1] - b[1]) < 22 && Math.abs(a[2] - b[2]) < 22;
+    // Three corners of the same colour is a background; two is a coincidence.
+    let key = null;
+    for (const cand of corners) {
+      if (cand[3] < 8) return frames;                 // already transparent
+      if (corners.filter((o) => near(cand, o)).length >= 3) { key = cand; break; }
+    }
+    if (!key) return frames;
+
+    const keyed = [];
+    let x0 = w, y0 = h, x1 = -1, y1 = -1, kept = 0;
+    for (const f of frames) {
+      cx.clearRect(0, 0, w, h);
+      cx.drawImage(f.bmp, 0, 0);
+      const img = cx.getImageData(0, 0, w, h);
+      const d = img.data;
+      for (let y = 0; y < h; y++) {
+        for (let x = 0; x < w; x++) {
+          const i = (y * w + x) * 4;
+          if (d[i + 3] > 8 && !near([d[i], d[i + 1], d[i + 2]], key)) {
+            kept++;
+            if (x < x0) x0 = x;
+            if (y < y0) y0 = y;
+            if (x > x1) x1 = x;
+            if (y > y1) y1 = y;
+          } else {
+            d[i + 3] = 0;
+          }
+        }
+      }
+      keyed.push(img);
+    }
+    // Knocking out almost everything means the corners were the subject, not
+    // the background — a solid heart filling its own frame, say.
+    if (x1 < x0 || kept < w * h * frames.length * 0.04) return frames;
+
+    // Cropped canvases rather than bitmaps: drawImage takes either, and
+    // createImageBitmap is an async round trip per frame that adds up over a
+    // few dozen gifs. putImageData with a negative offset does the crop.
+    const bw = x1 - x0 + 1, bh = y1 - y0 + 1;
+    const out = keyed.map((img, i) => {
+      const fc = document.createElement("canvas");
+      fc.width = bw; fc.height = bh;
+      fc.getContext("2d").putImageData(img, -x0, -y0);
+      return { bmp: fc, dur: frames[i].dur };
+    });
+    frames.forEach((f) => f.bmp.close());
+    return out;
+  }
+
+  function makeGifSwarm(themeArg) {
+    // A sequence names its own themes, act by act, so it leads; a bare theme is
+    // the one-act case of the same thing.
+    const theme = (ORBIT_SEQ.length ? ORBIT_SEQ[0] : (themeArg || GIF_THEME || "")).trim().toLowerCase();
+    const W = 1024, H = 1024;
+    const canvas = document.createElement("canvas");
+    canvas.width = W;
+    canvas.height = H;
+    const ctx = canvas.getContext("2d");
+    const tex = new THREE.CanvasTexture(canvas);
+    tex.minFilter = THREE.LinearFilter;
+
+    const sources = [];            // decoded GIFs, shared between sprites
+    const sprites = [];
+    let dead = false, phrase = -1, cells = [];
+
+    // The window cover-crops whatever it is given to the shape of its opening,
+    // and the opening is wide and short: a square canvas has a band through the
+    // middle taken out of it and the rest is never seen. Laying out against the
+    // full canvas therefore threw most of the swarm away and left the word a
+    // sixth of the height it could have been. VW/VH are the part that survives,
+    // measured against the live box the same way the shader crops it.
+    let VW = W, VH = H;
+    function measureView() {
+      const ang = uniforms.uAng.value;
+      const box = Math.max(0.3, (ang.x / Math.max(0.05, ang.y)) * 0.72);
+      const src = W / H;
+      const nw = src > box ? H * box : W;
+      const nh = src > box ? H : W / box;
+      if (Math.abs(nw - VW) < 3 && Math.abs(nh - VH) < 3) return false;
+      VW = nw; VH = nh;
+      return true;
+    }
+
+    // Homes on a golden-angle spiral, which covers the opening evenly without
+    // the clumping a random scatter gives you at these counts.
+    function layoutHomes() {
+      for (let i = 0; i < sprites.length; i++) {
+        const r = Math.sqrt((i + 0.5) / sprites.length);
+        const a = i * 2.399963;
+        const s = sprites[i];
+        s.hx = W / 2 + Math.cos(a) * r * VW * 0.44;
+        s.hy = H / 2 + Math.sin(a) * r * VH * 0.44;
+        s.orbit = VH * s.orbitF;
+      }
+    }
+    for (let i = 0; i < GIF_N; i++) {
+      sprites.push({
+        hx: W / 2, hy: H / 2,
+        x: W / 2, y: H / 2, tx: W / 2, ty: H / 2,
+        theta: Math.random() * Math.PI * 2,
+        omega: (Math.random() * 2 - 1) * GIF_SPREAD,
+        orbitF: 0.06 + Math.random() * 0.07, // of the opening's height
+        orbit: 0,
+        sz: 0.7 + Math.random() * 0.7,
+        jx: (Math.random() * 2 - 1), jy: (Math.random() * 2 - 1),
+        src: 0, frame: 0, acc: 0
+      });
+    }
+    layoutHomes();
+    // Sprites migrate in reading order, so the word assembles left to right
+    // rather than every GIF taking the shortest diagonal across everything else.
+    const order = sprites.map((_, i) => i).sort((a, b) => sprites[a].hx - sprites[b].hx);
+
+    // The escapees: quads in the main scene rather than pixels in the window
+    // texture, on the same lane geometry the vajras fly, so they read as the
+    // same kind of object moving in the same space.
+    function makeOrbiter(i) {
+      // Fixed size, and each frame is stretched to fill it: resizing the canvas
+      // leaves three uploading a sub-rectangle against the old dimensions, and
+      // the quad is scaled by the gif's real aspect anyway, so the stretch is
+      // undone on the way to the screen.
+      const cv = document.createElement("canvas");
+      cv.width = cv.height = 128;
+      const g = cv.getContext("2d");
+      const otex = new THREE.CanvasTexture(cv);
+      otex.minFilter = THREE.LinearFilter;
+      otex.magFilter = THREE.LinearFilter;
+      const mat = new THREE.ShaderMaterial({
+        uniforms: {
+          map: { value: otex },
+          uOpacity: { value: 0 },
+          uBehind: { value: 0 },
+          uCen: { value: new THREE.Vector2(0, 0) },
+          uInv: { value: new THREE.Vector2(1, 1) },
+          uR: { value: 0.5 }
+        },
+        transparent: true,
+        depthTest: false,
+        depthWrite: false,
+        blending: THREE.NormalBlending,
+        premultipliedAlpha: true,
+        vertexShader: `
+          varying vec2 vUv;
+          varying vec2 vWorld;
+          void main() {
+            vUv = uv;
+            vec4 wp = modelMatrix * vec4(position, 1.0);
+            vWorld = wp.xy;
+            gl_Position = projectionMatrix * viewMatrix * wp;
+          }
+        `,
+        fragmentShader: `
+          uniform sampler2D map;
+          uniform float uOpacity, uBehind, uR;
+          uniform vec2 uCen, uInv;
+          varying vec2 vUv;
+          varying vec2 vWorld;
+          void main() {
+            vec4 c = texture2D(map, vUv);
+            // Keyed gifs carry their own alpha; the luminance gate is for the
+            // ones whose backing plate could not be read off the corners,
+            // which would otherwise orbit as a black tile.
+            float luma = dot(c.rgb, vec3(0.2126, 0.7152, 0.0722));
+            float a = c.a * smoothstep(0.02, 0.10, luma) * uOpacity;
+            if (uBehind > 0.5) {
+              float d = length((vWorld - uCen) * uInv);
+              a *= smoothstep(uR * 0.995, uR * 1.035, d);
+            }
+            if (a <= 0.001) discard;
+            gl_FragColor = vec4(c.rgb * a, a);
+          }
+        `
+      });
+      const mesh = new THREE.Mesh(new THREE.PlaneGeometry(1, 1), mat);
+      mesh.renderOrder = 2; // over the fullscreen moon quad
+      mesh.visible = false;
+      scene.add(mesh);
+      return {
+        mesh, mat, tex: otex, canvas: cv, ctx: g, aspect: 1,
+        lane: i, phase: i * 1.9 + Math.random() * 0.6,
+        speed: 0.22 + (i % 3) * 0.07,
+        src: i, frame: 0, acc: 0,
+        lap: null, laps: 0
+      };
+    }
+    const orbiters = Array.from({ length: GIF_ORBIT }, (_, i) => makeOrbiter(i));
+    // Where the next hand-over takes its gif from. Shared, so two orbiters
+    // changing at the same moment do not both reach for the same one.
+    let orbitCursor = GIF_ORBIT;
+
+    // Where the sequence has got to. "hold" runs the act out, "out" dissolves
+    // the layer away, "wait" sits dark while the next act's gifs decode, "in"
+    // brings it back up. seqLevel is the whole layer's opacity throughout, and
+    // the swap happens at the bottom of it where there is nothing to see.
+    let seqAct = 0, seqPhase = "hold", seqLevel = 1, seqAt = 0, seqWaitAt = 0;
+    function updateSequence(t, dt) {
+      if (ORBIT_SEQ.length < 2) return;
+      if (seqPhase === "hold") {
+        if (t - seqAt >= ORBIT_ACT) seqPhase = "out";
+      } else if (seqPhase === "out") {
+        seqLevel = Math.max(0, seqLevel - dt / ORBIT_FADE);
+        if (seqLevel > 0) return;
+        seqAct = (seqAct + 1) % ORBIT_SEQ.length;
+        sources.forEach(closeFrames);
+        sources.length = 0;
+        // An empty pool makes drawOrbiters give up early, so the lanes are put
+        // out by hand here — otherwise they would sit through the decode wearing
+        // the last frame of the act that just ended.
+        orbiters.forEach((o) => {
+          o.frame = 0; o.acc = 0; o.lap = null; o.laps = 0;
+          o.mesh.visible = false;
+          o.mat.uniforms.uOpacity.value = 0;
+        });
+        orbitCursor = GIF_ORBIT;
+        loadPool(ORBIT_SEQ[seqAct]);
+        seqPhase = "wait";
+        seqWaitAt = t;
+      } else if (seqPhase === "wait") {
+        // Enough of the act landed that the orbit comes back inhabited rather
+        // than as one gif in every lane. The timeout is for the act that cannot
+        // decode at all: a sparse orbit beats a layer that never returns.
+        if (sources.length >= Math.min(GIF_ORBIT, 4) || t - seqWaitAt > 20) seqPhase = "in";
+      } else {
+        seqLevel = Math.min(1, seqLevel + dt / ORBIT_FADE);
+        if (seqLevel >= 1) { seqPhase = "hold"; seqAt = t; }
+      }
+    }
+
+    function drawOrbiters(t, dt) {
+      if (!orbiters.length || !sources.length) return;
+      // Frame-height units -> world units (the quad is letterboxed to 16:9).
+      const fhX = 2 * quad.scale.x * (9 / 16);
+      const fhY = 2 * quad.scale.y;
+      const dv = uniforms.uDisc.value; // disc centre (uv) + radius (frame heights)
+      const ccx = (dv.x * 2 - 1) * quad.scale.x + quad.position.x;
+      const ccy = (dv.y * 2 - 1) * quad.scale.y + quad.position.y;
+      for (const o of orbiters) {
+        const th = o.phase + t * o.speed;
+        // Laps are counted off the angle rather than a timer, and from the far
+        // point of the lane (sin = -1) so the boundary falls where the sprite
+        // is hidden behind the disc.
+        if (GIF_ORBIT_SWAP > 0) {
+          const lap = Math.floor((th - Math.PI * 1.5) / (Math.PI * 2));
+          if (o.lap == null) o.lap = lap;
+          else if (lap !== o.lap) {
+            o.lap = lap;
+            if (++o.laps >= GIF_ORBIT_SWAP) {
+              o.laps = 0;
+              // A shared cursor deals the pool out instead of sampling it, so
+              // eight orbiters taking turns work through all thirty-odd gifs
+              // rather than landing on the same handful over and over.
+              o.src = orbitCursor++ % sources.length;
+              o.frame = 0;
+              o.acc = 0;
+            }
+          }
+        }
+        const frames = sources[o.src % sources.length];
+        if (!frames) continue;
+        if (o.frame >= frames.length) o.frame = 0;
+        o.acc += dt * 1000;
+        let guard = 0;
+        while (o.acc >= (frames[o.frame].dur || 100) && guard++ < 64) {
+          o.acc -= (frames[o.frame].dur || 100);
+          o.frame = (o.frame + 1) % frames.length;
+        }
+        const bmp = frames[o.frame].bmp;
+        o.aspect = bmp.width / bmp.height;
+        o.ctx.clearRect(0, 0, o.canvas.width, o.canvas.height);
+        o.ctx.drawImage(bmp, 0, 0, o.canvas.width, o.canvas.height);
+        o.tex.needsUpdate = true;
+
+        const rx = dv.z * GIF_ORBIT_R * (1.03 + o.lane * 0.085);
+        const ry = dv.z * Math.min(0.9, 0.75 * (0.45 + o.lane * 0.07));
+        const laneRot = (o.lane - (orbiters.length - 1) / 2) * 0.16;
+        const depth = Math.sin(th); // > 0 = in front of the moon
+        const ex = Math.cos(th) * rx;
+        const ey = Math.sin(th) * ry;
+        const px = ex * Math.cos(laneRot) - ey * Math.sin(laneRot);
+        const py = ex * Math.sin(laneRot) + ey * Math.cos(laneRot);
+        const near = depth * 0.5 + 0.5;
+        const scl = GIF_ORBIT_SCALE * (0.7 + 0.3 * near);
+        o.mesh.visible = true;
+        o.mesh.position.set(ccx + px * fhX, ccy + py * fhY, 0);
+        o.mesh.scale.set(scl * o.aspect * fhX, scl * fhY, 1);
+        const u = o.mat.uniforms;
+        u.uOpacity.value = (0.55 + 0.45 * near) * seqLevel;
+        // The far half is clipped against the disc silhouette in the fragment
+        // shader, so it is eaten by the limb rather than fading out whole.
+        u.uBehind.value = depth < 0 ? 1 : 0;
+        u.uCen.value.set(ccx, ccy);
+        u.uInv.value.set(1 / fhX, 1 / fhY);
+        u.uR.value = dv.z;
+      }
+    }
+
+    // Trimmed frames are canvases, untrimmed ones are bitmaps that hold memory
+    // until closed — and a sequence builds a fresh pool every act, so a leak
+    // here is a leak once every couple of minutes for the length of the show.
+    const closeFrames = (f) => f.forEach((fr) => { if (fr.bmp.close) fr.bmp.close(); });
+
+    // The library index, fetched once and kept: an act change rebuilds the pool
+    // out of it and there is no sense asking for it again every act.
+    let library = null;
+    // Bumped per load, so a slow act that is still decoding when the next one
+    // starts drops what it has left instead of dealing it into the new pool.
+    let poolGen = 0;
+    async function loadPool(themeSpec) {
+      const gen = ++poolGen;
+      if (!library) {
+        try { library = await fetch(GIF_INDEX).then((r) => r.ok ? r.json() : null); } catch { /* offline */ }
+      }
+      if (!library) {
+        console.warn("[gifswarm] no " + GIF_INDEX + " — run: npm run gifs");
+        return;
+      }
+      const marks = await loadGifMarks();
+      if (dead || gen !== poolGen) return;
+      const theme = String(themeSpec || "");
+      const themes = Object.entries(library.themes || {});
+      // Several themes can share one orbit — orbit:ankh,coral draws from both —
+      // so a want of nothing means the whole library.
+      const want = new Set(theme.split(",").map((s) => s.trim()).filter(Boolean));
+      const collect = (only) => {
+        const out = [];
+        for (const [slug, t] of themes) {
+          if (only.size && !only.has(slug)) continue;
+          for (const g of t.gifs) {
+            const p = "assets/gifcities/" + slug + "/" + g.file;
+            if (marks[p] !== "reject") out.push(p);
+          }
+        }
+        return out;
+      };
+      // A named theme that was never scraped would otherwise leave the act
+      // empty for its whole run, so fall back to the whole library.
+      let pool = collect(want);
+      if (!pool.length) pool = collect(new Set());
+      for (let i = pool.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [pool[i], pool[j]] = [pool[j], pool[i]];
+      }
+      // Starred gifs go to the front of the shuffled pool, so a library that
+      // has been picked over leads with the good ones instead of taking pot
+      // luck. Sorting is stable, so the shuffle survives inside each group.
+      pool.sort((a, b) => (marks[b] === "star") - (marks[a] === "star"));
+      // A few dozen distinct GIFs is plenty of variety for any swarm size, and
+      // they are dealt out as they land so the field fills in rather than
+      // appearing all at once. Several at a time, though: each GIF is dozens
+      // of async round trips — decode a frame, make a bitmap, key it, make
+      // another — and strictly one file after another took the better part of
+      // a minute, long enough for an act to be half over before it looked
+      // like anything.
+      const targets = pool.slice(0, 32);
+      let next = 0;
+      const loader = async () => {
+        while (next < targets.length && !dead && gen === poolGen) {
+          const src = targets[next++];
+          let frames = null;
+          try {
+            frames = await decodeGifFrames(src);
+            if (frames) frames = await trimGifFrames(frames);
+          } catch { /* skip the broken one */ }
+          if (!frames) continue;
+          // Decoded into an act that has since handed on — nothing will ever
+          // draw it, so give the memory back rather than growing the pool.
+          if (dead || gen !== poolGen) { closeFrames(frames); continue; }
+          sources.push(frames);
+          sprites.forEach((s, i) => { s.src = i % sources.length; });
+          // Spread the orbiters across the far end of the pool, so the handful
+          // going round the moon are not the same handful filling the window.
+          orbiters.forEach((o, i) => {
+            o.src = (sources.length - 1 - i % sources.length + sources.length) % sources.length;
+          });
+        }
+      };
+      await Promise.all(Array.from({ length: 6 }, loader));
+    }
+    loadPool(theme);
+
+    // Lit cells of a word, straight off the 5x7 bitmap glyphs the letter mosaic
+    // already uses, mapped into canvas space.
+    // Two cells of air between letters rather than the mosaic's one. The
+    // mosaic draws crisp tiles; here every cell is an eyeball or a smiley with
+    // its own outline, and at one cell of gap the letters run into each other.
+    const GIF_GAP = 2;
+    function wordCells(word) {
+      const letters = word.split("");
+      if (!letters.length) return [];
+      // Pick the line count that gives the biggest letters in this opening. Six
+      // letters across a nearly square window is a thin strip on one line and
+      // twice the size on two, and size is the whole of legibility here.
+      let best = null;
+      for (let L = 1; L <= Math.min(4, letters.length); L++) {
+        const per = Math.ceil(letters.length / L);
+        const cols = per * (GLYPH_W + GIF_GAP) - GIF_GAP;
+        const rows = L * (GLYPH_H + GIF_GAP) - GIF_GAP;
+        const cell = Math.min(VW * GIF_ZOOM / cols, VH * GIF_ZOOM / rows);
+        if (!best || cell > best.cell) best = { per, cols, rows, cell };
+      }
+      const { per, cols, rows, cell } = best;
+      const x0 = (W - cols * cell) / 2;
+      const y0 = (H - rows * cell) / 2;
+      const out = [];
+      letters.forEach((ch, li) => {
+        const line = Math.floor(li / per);
+        const inLine = Math.min(per, letters.length - line * per);
+        const lead = (per - inLine) * (GLYPH_W + GIF_GAP) / 2; // centre a short last line
+        const glyph = GLYPHS[ch] || GLYPHS[" "];
+        for (let gy = 0; gy < GLYPH_H; gy++) {
+          for (let gx = 0; gx < GLYPH_W; gx++) {
+            if (!((glyph[gy] >> (GLYPH_W - 1 - gx)) & 1)) continue;
+            out.push({
+              x: x0 + (lead + (li % per) * (GLYPH_W + GIF_GAP) + gx + 0.5) * cell,
+              y: y0 + (line * (GLYPH_H + GIF_GAP) + gy + 0.5) * cell,
+              cell
+            });
+          }
+        }
+      });
+      out.sort((a, b) => a.y - b.y || a.x - b.x);
+      return out;
+    }
+
+    function retarget(word) {
+      cells = wordCells(word);
+      if (!cells.length) return;
+      order.forEach((si, n) => {
+        // More sprites than lit cells is the normal case, so they stack up and
+        // overlap on each cell, which is what makes the letters read as a crowd.
+        const c = cells[Math.floor(n * cells.length / order.length)];
+        const s = sprites[si];
+        s.tx = c.x + s.jx * c.cell * 0.18;
+        s.ty = c.y + s.jy * c.cell * 0.18;
+        s.cell = c.cell;
+      });
+    }
+
+    let last = 0, wasNear = false, lastForm = 0, lastR = 0;
+    function draw(t) {
+      const dt = Math.min(0.05, last ? t - last : 0.016);
+      last = t;
+
+      updateSequence(t, dt);
+
+      // The opening is measured then settles, so this only does anything for
+      // the first turn and whenever the panel is resized from the controller.
+      if (measureView()) {
+        layoutHomes();
+        if (phrase >= 0) retarget(GIF_WORDS[phrase]);
+      }
+
+      // The window only shows any of this while the tracked dark patch is on
+      // the near side, so timing the word off a free-running clock spends most
+      // of its effort spelling to the back of the moon. Drive it off the
+      // rotation instead: the swarm gathers as the patch swings towards the
+      // viewer and disperses as it leaves, and each approach takes the next
+      // entry in the word list — so a word is always delivered to somebody.
+      const tracking = useMosaic && haveAnchor;
+      const off = tracking
+        ? Math.abs(wrapPi(uniforms.uAnchor.value.x + uniforms.uRot.value)) : 0;
+      const face = 1 - smooth01(off, Math.PI * 0.10, Math.PI * 0.40);
+
+      let K, form;
+      if (tracking) {
+        const near = off < Math.PI * 0.40;
+        if (near && !wasNear) {
+          phrase = (phrase + 1) % GIF_WORDS.length;
+          retarget(GIF_WORDS[phrase]);
+        }
+        wasNear = near;
+        // Never fully uncoupled: the swarm is always busy finding itself, and
+        // the approach tightens it the rest of the way.
+        K = GIF_K * (0.35 + 0.65 * face);
+        form = cells.length ? face : 0;
+      } else {
+        // Nothing to track — no mosaic, or the anchor survey has not finished
+        // its first turn yet — so fall back to the free-running phrase clock.
+        const u = (t % GIF_SEC) / GIF_SEC;
+        const idx = Math.floor(t / GIF_SEC) % GIF_WORDS.length;
+        if (idx !== phrase) { phrase = idx; retarget(GIF_WORDS[idx]); }
+        K = GIF_K * smooth01(u, 0, 0.34);
+        form = !cells.length ? 0
+          : u < 0.54 ? smooth01(u, 0.36, 0.54)
+          : u < 0.86 ? 1
+          : 1 - smooth01(u, 0.86, 1);
+      }
+
+      // Mean-field Kuramoto: the order parameter makes the all-to-all sum
+      // exact in one pass instead of N^2 of them.
+      let sx = 0, sy = 0;
+      for (const s of sprites) { sx += Math.cos(s.theta); sy += Math.sin(s.theta); }
+      // Orbit-only has no window sprites at all, and 0/0 would poison the
+      // coherence the field is drawn and reported from.
+      const R = sprites.length ? Math.hypot(sx, sy) / sprites.length : 0;
+      lastForm = form; lastR = R;
+      const psi = Math.atan2(sy, sx);
+      for (const s of sprites) {
+        s.theta += (s.omega + K * R * Math.sin(psi - s.theta)) * dt;
+      }
+
+      drawOrbiters(t, dt);
+
+      ctx.clearRect(0, 0, W, H);
+      if (!sources.length) { tex.needsUpdate = true; return; }
+
+      const ease = form * form * (3 - 2 * form);
+      for (const s of sprites) {
+        const frames = sources[s.src % sources.length];
+        if (!frames) continue;
+        // Sprites get dealt a new GIF each time one finishes decoding, and the
+        // new one may be shorter than wherever this sprite had got to.
+        if (s.frame >= frames.length) s.frame = 0;
+        // Once the phases lock, every GIF is at the same point of its cycle, so
+        // the bubbling and beating fall into time with each other too.
+        s.acc += dt * 1000 * (0.7 + 0.6 * (0.5 + 0.5 * Math.sin(s.theta)));
+        let guard = 0;
+        while (s.acc >= (frames[s.frame].dur || 100) && guard++ < 64) {
+          s.acc -= (frames[s.frame].dur || 100);
+          s.frame = (s.frame + 1) % frames.length;
+        }
+        const bmp = frames[s.frame].bmp;
+
+        const wobble = 1 - 0.72 * ease;   // settled sprites keep a little life
+        const ox = s.hx + Math.cos(s.theta) * s.orbit * wobble;
+        const oy = s.hy + Math.sin(s.theta) * s.orbit * wobble;
+        const x = ox + (s.tx + Math.cos(s.theta) * s.orbit * 0.14 - ox) * ease;
+        const y = oy + (s.ty + Math.sin(s.theta) * s.orbit * 0.14 - oy) * ease;
+
+        // Scattered size is set against the count: it takes a couple of hundred
+        // bodies to crowd the cells of a word, and at the size a hundred of
+        // them wanted the same crowd tiles over the moon completely. The spread
+        // per sprite keeps some of them big enough to still be read as a lava
+        // lamp or an eyeball rather than as confetti.
+        const loose = VH * 0.055 * s.sz;
+        // Gathered, a sprite is about the size of the cell it stands in. Much
+        // bigger and it paints over its neighbours' cells, which is how a word
+        // full of smileys and EXIT signs turns into one long smear — the holes
+        // inside an E and the air between letters are only a cell or two wide.
+        // Much smaller and the strokes go to gravel and the word stops reading
+        // from across a room, which is the only distance that matters.
+        const tight = (s.cell || loose) * 1.35;
+        const span = (loose + (tight - loose) * ease) * (0.88 + 0.22 * Math.sin(s.theta));
+        const k = span / Math.max(bmp.width, bmp.height);
+        const w = bmp.width * k, h = bmp.height * k;
+        // Coherence brightens the field, so the lock is felt as well as seen.
+        ctx.globalAlpha = (0.55 + 0.45 * R) * seqLevel;
+        ctx.drawImage(bmp, x - w / 2, y - h / 2, w, h);
+      }
+      ctx.globalAlpha = 1;
+      tex.needsUpdate = true;
+    }
+
+    function dispose() {
+      dead = true;
+      orbiters.forEach((o) => {
+        scene.remove(o.mesh);
+        o.mesh.geometry.dispose();
+        o.mat.dispose();
+        o.tex.dispose();
+      });
+      orbiters.length = 0;
+      sources.forEach(closeFrames);
+      sources.length = 0;
+    }
+
+    // No draw here: the boot path builds the swarm before the letter mosaic's
+    // glyph table exists, and the first thing draw does is lay out a word from
+    // it. The animate loop picks it up a frame later, by which point it is
+    // defined — and there is nothing decoded to paint this early anyway.
+    return {
+      texture: tex, draw, aspect: W / H, dispose,
+      sourceCount: () => sources.length,
+      // For scripts/check-gifswarm.mjs: whether the swarm is gathered, how
+      // synchronised it is and what shape of opening it thinks it is in.
+      state: () => ({ form: lastForm, R: lastR, VW, VH, cells: cells.length, phrase }),
+      // Which gif each orbiter is holding, so the hand-overs round the back of
+      // the moon can be watched from a check rather than taken on trust.
+      orbitSources: () => orbiters.map((o) => o.src),
+      // Which act of the sequence is up and how far through the hand-over it
+      // is, so a check can watch the acts turn over without waiting on the eye.
+      act: () => ({
+        i: seqAct, of: ORBIT_SEQ.length, themes: ORBIT_SEQ[seqAct] || theme,
+        phase: seqPhase, level: +seqLevel.toFixed(3)
+      })
+    };
   }
 
   // The star fisher (content=fisher): one mumin sits out on a crescent with a
@@ -1939,6 +2747,9 @@
   let fisher = (WIN && CONTENT_KEY === "fisher") ? makeStarFisher() : null;
   let harmonics = (WIN && CONTENT_KEY === "harmonics") ? makeHarmonics() : null;
   let cymatics = (WIN && CONTENT_KEY === "cymatics") ? makeCymatics() : null;
+  let gifswarm = (ORBIT_ONLY || (WIN && baseKey(CONTENT_KEY) === "gifswarm"))
+    ? makeGifSwarm(keyArg(CONTENT_KEY)) : null;
+  const flashMark = FLASH_SRC ? makeFlashMark(FLASH_SRC) : null;
   const SONIC_LOOP = "artifacts/sample-sonicsphere-silent.webm";
   const FOLD_MAKERS = {
     fold: () => makeFold(),
@@ -2356,6 +3167,7 @@
     : fisher ? fisher.texture
     : harmonics ? harmonics.texture
     : cymatics ? cymatics.texture
+    : gifswarm ? gifswarm.texture
     : fold ? fold.texture
     : (WIN && contentVideo) ? contentVideo.texture
     : (WIN && imageTextures.length) ? imageTextures[0]
@@ -2363,6 +3175,7 @@
   const winAspect0 = crt ? crt.aspect : cave ? cave.aspect : incant ? incant.aspect
     : mumins ? mumins.aspect : fisher ? fisher.aspect
     : harmonics ? harmonics.aspect : cymatics ? cymatics.aspect
+    : gifswarm ? gifswarm.aspect
     : fold ? fold.aspect : 16 / 9;
 
   const uniforms = {
@@ -2413,11 +3226,19 @@
       // than the dark-background generators or they clip to a blob.
       value: num("winbright", CONTENT_KEY === "mumins" ? 0.3 : CONTENT_KEY === "fisher" ? 0.34
         : CONTENT_KEY === "harmonics" ? 0.55 : CONTENT_KEY === "cymatics" ? 0.6
+        : baseKey(CONTENT_KEY) === "gifswarm" ? 0.62
         : KEYWORD_CONTENT ? 0.42 : isImageContent ? 0.14 : 0.24)
     },
     // 0 = window content added as light (glowing screens, wireframes),
     // 1 = painted opaque over the surface (drawn figures like the mumins).
     uWinSolid: { value: num("winsolid", drawnKey(CONTENT_KEY) ? 1 : 0) },
+    // How far the window stays open where the surface is sunlit. Near zero the
+    // content is sealed to a glimmer anywhere but the shadow, which is right
+    // for a glow welling up out of the terrain — but it also means that on a
+    // clip with no dark side the only place anything shows is squashed against
+    // the limb, where nothing can be read. Opaque content can hold the lit
+    // face, so the swarm keeps the window most of the way open.
+    uWinGate: { value: num("wingate", gateFor(CONTENT_KEY)) },
     // 1 = the window is an opening: a rectangle of shell is cut away and the
     // content sits in it, which is right for a screen or a photograph. 0 = no
     // opening at all. The content surfaces through a soft oval with no border,
@@ -2430,7 +3251,7 @@
     // How much the content sits *inside* the shell rather than on it: the
     // parallax shift as the window turns, plus the shading its walls cast.
     uWinPar: { value: num("winparallax", drawnKey(CONTENT_KEY) ? 0.15 : 0.5) },
-    uWordOn: { value: WORDLESS_WIN ? 0 : 1 }, // letter panel opacity
+    uWordOn: { value: (WORDLESS_WIN || ORBIT_ONLY) ? 0 : 1 }, // letter panel opacity
     uGate: { value: APPARITION > 0 ? 0 : 1 }, // apparition reveal gate
     // Planar bleed spot: soft circular reveal window centered on the
     // shadow's centroid (x, y in uv; z = radius in frame heights, 0 = off).
@@ -2522,14 +3343,35 @@
     }
     if (fold) fold.dispose();
     if (harmonics) harmonics.dispose();
+    if (gifswarm) gifswarm.dispose();
     crt = null; cave = null; incant = null; mumins = null; fisher = null; fold = null;
     harmonics = null; cymatics = null; contentVideo = null; screenCap = null;
+    gifswarm = null;
     imageTextures = [];
   }
   function setWindowContent(spec, wordlessOverride) {
     if (!useMosaic) return false;
     spec = String(spec == null ? "" : spec).trim();
     const key = spec.toLowerCase();
+    // Orbit-only is settled at boot — it turns the window and the letter panel
+    // off wholesale rather than filling them — so it cannot be swapped in place
+    // the way window content can. Reload into it, keeping the rest of the URL,
+    // rather than falling through and trying to load a file called "orbit".
+    if (baseKey(key) === "orbit") {
+      const q = new URLSearchParams(location.search);
+      const arg = keyArg(spec);
+      // A choice with "|" in it is a run of acts, which lives in its own param.
+      // A named theme is one fixed orbit, and has to clear any sequence still in
+      // the URL: a sequence names its own themes and would outrank it. A bare
+      // "orbit" says nothing about themes and must leave the sequence alone —
+      // the gif curator asks for exactly that to re-read its marks, and it would
+      // otherwise throw a running show back to the whole library.
+      if (arg.includes("|")) { q.set("content", "orbit"); q.set("orbitseq", arg); }
+      else if (arg) { q.set("content", spec); q.delete("orbitseq"); }
+      else q.set("content", spec);
+      location.search = q.toString();
+      return true;
+    }
     stopWindowContent();
     CONTENT_SRC = spec;
     let bright = 0.42;
@@ -2555,6 +3397,13 @@
     }
     else if (key === "harmonics") { harmonics = makeHarmonics(); bright = 0.55; }
     else if (key === "cymatics") { cymatics = makeCymatics(); bright = 0.6; }
+    else if (baseKey(key) === "gifswarm") {
+      gifswarm = makeGifSwarm(keyArg(key));
+      bright = 0.62;
+      // Same as the mumins: the swarm needs a wider window than the measured
+      // shadow patch or the cover-crop eats the ends of the word.
+      if (WIN_SCALE === 1) WIN_SCALE = 1.6;
+    }
     else if (FOLD_MAKERS[key]) { fold = FOLD_MAKERS[key](); bright = 0.55; }
     else if (key === "screen") { screenCap = makeScreenCapture(); bright = 0.5; }
     else if (spec) {
@@ -2585,6 +3434,7 @@
       : fisher ? fisher.texture
       : harmonics ? harmonics.texture
       : cymatics ? cymatics.texture
+      : gifswarm ? gifswarm.texture
       : fold ? fold.texture
       : screenCap ? screenCap.texture
       : contentVideo ? contentVideo.texture
@@ -2593,10 +3443,12 @@
     uniforms.uWinAspect.value = crt ? crt.aspect : cave ? cave.aspect : incant ? incant.aspect
       : mumins ? mumins.aspect : fisher ? fisher.aspect
       : harmonics ? harmonics.aspect : cymatics ? cymatics.aspect
+      : gifswarm ? gifswarm.aspect
       : fold ? fold.aspect : 16 / 9;
     if (WINBRIGHT_PARAM == null) { uniforms.uWinBright.value = bright; winBrightBase = bright; }
     if (WINSOLID_PARAM == null) uniforms.uWinSolid.value = drawnKey(key) ? 1 : 0;
     if (WINPAR_PARAM == null) uniforms.uWinPar.value = drawnKey(key) ? 0.15 : 0.5;
+    if (params.get("wingate") == null) uniforms.uWinGate.value = gateFor(key);
     if (WINBOX_PARAM == null) uniforms.uWinBox.value = screenKey(key) ? 1 : 0;
     uniforms.uWordOn.value = WORDLESS_WIN ? 0 : 1;
     // Sensible cycle defaults unless the URL pinned them explicitly.
@@ -2645,7 +3497,7 @@
       uniform sampler2D uMoon, uContent, uWinTex;
       uniform float uThresh, uFeather, uBright, uFlicker, uScroll, uTime, uIsVideoContent, uTint, uLift, uSphere, uRot;
       uniform float uWin, uWinDepth, uWinGrow, uWinAspect, uWinBright, uWordOn, uGate, uAlpha;
-      uniform float uWinSolid, uWinPar, uWinBox;
+      uniform float uWinSolid, uWinPar, uWinBox, uWinGate;
       uniform float uIris, uIrisR, uIrisFeather, uBloodAmt;
       uniform float uEclOn, uEclDeep;
       uniform vec4 uEcl;
@@ -2707,7 +3559,7 @@
             // both: an oval that is already faint well before it ends leaves
             // nothing straight for the eye to catch.
             float oval = 1.0 - smoothstep(0.35, 1.0, length(e));
-            float shadowGate = mix(0.05, 1.0, lumaMask);
+            float shadowGate = mix(uWinGate, 1.0, lumaMask);
             winMask = mix(oval, box, uWinBox) * limbFade * body * shadowGate * uGate;
             // Cover-crop the content so it fills the window without squash.
             vec2 fuv = wuv - 0.5;
@@ -2913,6 +3765,26 @@
     const layer = { node: null, raf: 0, frames: null, i: 0, acc: 0, last: 0, disposed: false };
     const base = "position:absolute;left:0;top:0;width:100%;height:100%;" +
       "object-fit:contain;transition:opacity 1.2s ease;";
+    const isVideo = /\.(mp4|webm|mov|m4v)(\?|$)/i.test(src);
+    if (isVideo) {
+      // A clip in the circle behind the disc — the same slot the eye seal
+      // uses, so the iris opens onto it and backspeed scrubs it. Cover rather
+      // than contain: a 16:9 clip fitted inside a circle leaves the aperture
+      // empty top and bottom, where cropping it fills the hole.
+      const v = document.createElement("video");
+      v.src = src;
+      v.loop = true;
+      v.muted = true;        // autoplay is only granted to muted video
+      v.playsInline = true;
+      v.preload = "auto";
+      v.style.cssText = base.replace("object-fit:contain", "object-fit:cover");
+      v.addEventListener("loadedmetadata", () => { v.playbackRate = BACK_SPEED; });
+      v.addEventListener("error", () => console.warn("hypermoon: backdrop video failed " + src));
+      v.play().catch(() => {});
+      layer.node = v;
+      layer.video = v;
+      return layer;
+    }
     const isGif = /\.gif(\?|$)/i.test(src);
     if (isGif && ("ImageDecoder" in window)) {
       const canvas = document.createElement("canvas");
@@ -2974,6 +3846,8 @@
     layer.disposed = true;
     if (layer.raf) cancelAnimationFrame(layer.raf);
     if (layer.frames) layer.frames.forEach((f) => f.bmp.close());
+    // Dropping the element is not enough to let go of a video decoder.
+    if (layer.video) { layer.video.pause(); layer.video.removeAttribute("src"); layer.video.load(); }
     if (layer.node) layer.node.remove();
   }
   function setBackdrop(spec) {
@@ -3000,12 +3874,27 @@
     });
     document.body.appendChild(el);
     backdrop.el = el;
+    showBackdrop(0);
     if (backdrop.players.length > 1 && BACK_SEC > 0) {
       backdrop.timer = setInterval(() => {
-        backdrop.idx = (backdrop.idx + 1) % backdrop.players.length;
-        backdrop.players.forEach((p, i) => { p.node.style.opacity = i === backdrop.idx ? 1 : 0; });
+        showBackdrop((backdrop.idx + 1) % backdrop.players.length);
       }, BACK_SEC * 1000);
     }
+  }
+  // Gif layers cost nothing to leave running behind a transparent sibling, but
+  // a stack of 1440p clips all decoding at once for the sake of the one that
+  // is visible will take the frame rate down with it. Only the shown clip
+  // plays. It is started before the fade rather than after, so it crossfades
+  // in moving instead of arriving as a held frame.
+  function showBackdrop(idx) {
+    backdrop.idx = idx;
+    backdrop.players.forEach((p, i) => {
+      const on = i === idx;
+      p.node.style.opacity = on ? 1 : 0;
+      if (!p.video) return;
+      if (on) { p.video.playbackRate = BACK_SPEED; p.video.play().catch(() => {}); }
+      else p.video.pause();
+    });
   }
   // Keep the moon pinned to the window centre: the auto-measured disc can sit
   // slightly off the video-frame centre, and shrinking the quad (moonscale)
@@ -3208,6 +4097,8 @@
     get when() { return WHEN; },
     get gate() { return +uniforms.uGate.value; },
     get wordOn() { return +uniforms.uWordOn.value; },
+    // 0 while the flashed mark is dark, 1 at full strength.
+    get flash() { return flashMark ? +flashMark.mat.uniforms.uOpacity.value : 0; },
     get bleedThresh() { return +uniforms.uThresh.value; },
     get facing() {
       const f = wrapPi(uniforms.uAnchor.value.x + uniforms.uRot.value);
@@ -3403,8 +4294,10 @@
   // Master multiplier on the window/word footprint, live from the
   // controller: 1 = as measured, 2 = twice the angular size.
   // The mumins need a wider window than the auto-measured shadow patch or
-  // the ring gets cropped to a single dancer.
-  let WIN_SCALE = num("winscale", CONTENT_KEY === "mumins" ? 1.6 : 1);
+  // the ring gets cropped to a single dancer; the gif swarm needs it or the
+  // ends of the word fall outside the opening.
+  const WIDE_WIN = ["mumins", "gifswarm"].includes(baseKey(CONTENT_KEY));
+  let WIN_SCALE = num("winscale", WIDE_WIN ? 1.6 : 1);
   let haveAnchor = false;
   let anchorLocked = false;
   let lastSampleT = -Infinity;
@@ -3643,9 +4536,12 @@
     // which is the loop the show runs on. Keep it there — a program that
     // overruns the hour gets cut off mid-act instead of landing.
     hour: [
-      { cycles: 6, dark: 2, reveal: 1, content: "crt" },
+      { cycles: 5, dark: 2, reveal: 1, content: "crt" },
       { cycles: 6, dark: 2, reveal: 1, content: "incant", fisher: true },
-      { cycles: 6, dark: 2, reveal: 1, content: "vajra" },
+      { cycles: 5, dark: 2, reveal: 1, content: "vajra" },
+      // Two cycles borrowed off the crt and vajra acts above, so the lap still
+      // comes to exactly 201 rotations and still lands inside the hour.
+      { cycles: 2, dark: 2, reveal: 1, content: "gifswarm" },
       { cycles: 5, dark: 2, reveal: 1, content: "fold" },
       { cycles: 5, dark: 2, reveal: 1, content: "foldhelix" },
       { cycles: 6, dark: 2, reveal: 1, content: "cymatics", fisher: true },
@@ -3670,6 +4566,7 @@
       { cycles: 1, dark: 2, reveal: 1, content: "incant", fisher: true },
       { cycles: 1, dark: 2, reveal: 1, content: "foldhelix" },
       { cycles: 1, dark: 2, reveal: 1, content: "cymatics" },
+      { cycles: 1, dark: 2, reveal: 1, content: "gifswarm" },
       { cycles: 1, dark: 2, reveal: 1, content: "fisher" },
       { cycles: 1, dark: 2, reveal: 1, content: "harmonics" },
       { cycles: 1, dark: 2, reveal: 1, content: "vajra" },
@@ -3690,6 +4587,7 @@
       { cycles: 1, dark: 0, reveal: 1, content: "incant" },
       { cycles: 1, dark: 0, reveal: 1, content: "foldhelix" },
       { cycles: 1, dark: 0, reveal: 1, content: "cymatics" },
+      { cycles: 1, dark: 0, reveal: 1, content: "gifswarm" },
       { cycles: 1, dark: 0, reveal: 1, content: "fisher" },
       { cycles: 1, dark: 0, reveal: 1, content: "harmonics" },
       { cycles: 1, dark: 0, reveal: 1, content: "vajra" },
@@ -3699,6 +4597,25 @@
       { cycles: 1, dark: 0, reveal: 1, content: "artifacts/sample-sonicsphere-silent.webm" },
       { cycles: 1, dark: 0, reveal: 1, content: "foldivm" },
       { cycles: 1, dark: 0, reveal: 1, content: "foldsonic" }
+    ],
+    // The GifCities exhibit: one scraped theme per act, four rotations each,
+    // so a room gets a couple of minutes of lava lamps finding each other and
+    // spelling something before the hearts take over. About twelve minutes a
+    // lap. A theme that was never scraped falls back to the whole library
+    // rather than showing an empty window.
+    gifcities: [
+      { cycles: 2, dark: 1, reveal: 1, content: "gifswarm:moon" },
+      { cycles: 2, dark: 1, reveal: 1, content: "gifswarm:ufo" },
+      { cycles: 2, dark: 1, reveal: 1, content: "gifswarm:lava-lamp" },
+      { cycles: 2, dark: 1, reveal: 1, content: "gifswarm:alien" },
+      { cycles: 2, dark: 1, reveal: 1, content: "gifswarm:heart" },
+      { cycles: 2, dark: 1, reveal: 1, content: "gifswarm:spaceship" },
+      { cycles: 2, dark: 1, reveal: 1, content: "gifswarm:eye" },
+      { cycles: 2, dark: 1, reveal: 1, content: "gifswarm:saturn" },
+      { cycles: 2, dark: 1, reveal: 1, content: "gifswarm:skull" },
+      { cycles: 2, dark: 1, reveal: 1, content: "gifswarm:rainbow" },
+      { cycles: 2, dark: 1, reveal: 1, content: "gifswarm:astronaut" },
+      { cycles: 2, dark: 1, reveal: 1, content: "gifswarm" }
     ],
     // The soft program: someone is out on the crescent fishing stars, the
     // troupe turns up now and then, and the eye opens once a lap.
@@ -3829,6 +4746,130 @@
   if (FISHER_LIVE) setFisherLive(true);
   if (params.get("program")) setProgram(params.get("program"));
 
+  // --- Pixel feed: driving an LED rig off the moon ------------------------
+  // A page cannot open a UDP socket, so it cannot address a PixLite itself.
+  // What it can do is look at what it just drew: the bridge
+  // (npm run pixels) sends over the map of where every LED takes its colour
+  // from, the moon samples those points each frame and posts the bytes back,
+  // and the bridge turns them into sACN or Art-Net.
+  const PIXELS = params.get("pixels") === "1";
+  const PIXEL_URL = params.get("pixelhost")
+    || "ws://" + (location.hostname || "127.0.0.1") + ":" + (params.get("pixelport") || 8082);
+  const PIXEL_FPS = num("pixelfps", 40);
+  // LEDs are driven linearly but the frame is sRGB, so sending it raw makes
+  // everything below half brightness read far too hot. The curve is worth
+  // having on a slider: rig, pixel type and room all move it.
+  const PIXEL_GAMMA = num("pixelgamma", 2.2);
+  const PIXEL_GAIN = num("pixelgain", 1);
+  const pixLut = new Uint8Array(256);
+  for (let i = 0; i < 256; i++) {
+    pixLut[i] = Math.max(0, Math.min(255,
+      Math.round(255 * Math.pow((i / 255) * PIXEL_GAIN, PIXEL_GAMMA))));
+  }
+  const pix = { ws: null, pts: null, buf: null, c: null, ctx: null, last: 0 };
+  const PIX_W = 192;   // the sampling composite; LEDs are coarse, this is plenty
+
+  function pixelConnect() {
+    let ws;
+    try { ws = new WebSocket(PIXEL_URL); } catch (e) { return; }
+    pix.ws = ws;
+    ws.binaryType = "arraybuffer";
+    ws.addEventListener("message", (e) => {
+      if (typeof e.data !== "string") return;
+      let msg; try { msg = JSON.parse(e.data); } catch (err) { return; }
+      if (msg.type !== "map" || !msg.map) return;
+      // Flattened in the order the bridge packed its universes, so the frame
+      // can go over as bare bytes with no indices attached. Each point keeps
+      // the space it was authored in: disc-space points are resolved against
+      // the measured disc every frame, so they hold the limb through a
+      // moonscale change or a resize instead of drifting off into black.
+      pix.pts = msg.map.outputs.reduce((a, o) => a.concat(
+        o.pixels.map((p) => [p[0], p[1], o.space === "disc" ? 1 : 0])), []);
+      pix.buf = new Uint8Array(pix.pts.length * 3);
+      console.log("hypermoon: pixel map '" + msg.map.name + "', " + pix.pts.length + " leds");
+    });
+    // The bridge is usually started after the moon, and a show machine will
+    // have it come and go; reconnecting quietly beats reloading the output.
+    ws.addEventListener("close", () => {
+      pix.ws = null; pix.pts = null;
+      if (PIXELS) setTimeout(pixelConnect, 3000);
+    });
+    ws.addEventListener("error", () => { try { ws.close(); } catch (e) { /* already gone */ } });
+  }
+  if (PIXELS) pixelConnect();
+
+  function pixelSample() {
+    if (!pix.ws || pix.ws.readyState !== 1 || !pix.pts) return;
+    const now = performance.now();
+    if (now - pix.last < 1000 / PIXEL_FPS) return;
+    pix.last = now;
+    const vw = window.innerWidth, vh = window.innerHeight;
+    const sh = Math.max(1, Math.round(PIX_W * vh / vw));
+    if (!pix.c) {
+      pix.c = document.createElement("canvas");
+      pix.ctx = pix.c.getContext("2d", { willReadFrequently: true });
+    }
+    if (pix.c.width !== PIX_W || pix.c.height !== sh) { pix.c.width = PIX_W; pix.c.height = sh; }
+    const ctx = pix.ctx, k = PIX_W / vw;
+    ctx.fillStyle = "#000";
+    ctx.fillRect(0, 0, PIX_W, sh);
+    // The rig should show what the room sees, and the room sees three stacked
+    // layers, only one of which is the WebGL canvas.
+    if (sky.el && sky.el.style.display !== "none") ctx.drawImage(sky.el, 0, 0, PIX_W, sh);
+    const bd = backdrop.el && backdrop.players[backdrop.idx];
+    if (bd && bd.node) {
+      const rect = backdrop.el.getBoundingClientRect();
+      const src = bd.node;
+      const sw = src.videoWidth || src.naturalWidth || src.width;
+      const sy = src.videoHeight || src.naturalHeight || src.height;
+      if (sw && sy && rect.width > 0) {
+        const cx = (rect.left + rect.width / 2) * k;
+        const cy = (rect.top + rect.height / 2) * k;
+        const rad = (rect.width / 2) * k;
+        ctx.save();
+        ctx.globalAlpha = BACK_ALPHA;
+        // Same circular clip the DOM applies, or the LEDs pick up the corners
+        // of a square clip that no one in the room can see.
+        ctx.beginPath();
+        ctx.arc(cx, cy, rad, 0, Math.PI * 2);
+        ctx.clip();
+        const fit = BACK_FIT ? bd.fit : null;
+        const scale = (1 + (IRIS_ZOOM - 1) * uniforms.uIris.value) * (fit ? fit.s : 1);
+        ctx.translate(cx, cy);
+        ctx.scale(scale, scale);
+        if (fit) ctx.translate(-fit.ox * rad * 2, -fit.oy * rad * 2);
+        // Video covers its circle, stills are contained — matching the CSS.
+        const f = bd.video
+          ? Math.max(rad * 2 / sw, rad * 2 / sy)
+          : Math.min(rad * 2 / sw, rad * 2 / sy);
+        ctx.drawImage(src, -sw * f / 2, -sy * f / 2, sw * f, sy * f);
+        ctx.restore();
+      }
+    }
+    ctx.drawImage(renderer.domElement, 0, 0, PIX_W, sh);
+
+    const img = ctx.getImageData(0, 0, PIX_W, sh).data;
+    // Where the disc actually landed this frame, in sampling-canvas pixels —
+    // the same reckoning positionBackdrop uses to pin the backdrop to it.
+    const qw = quad.scale.x * vw, qh = quad.scale.y * vh;
+    const dcx = (vw / 2 + (disc.x - 0.5) * qw + quad.position.x * vw / 2) * k;
+    const dcy = (vh / 2 - (disc.y - 0.5) * qh - quad.position.y * vh / 2) * k;
+    const dr = disc.r * qh * k;
+    const pts = pix.pts, buf = pix.buf;
+    for (let i = 0; i < pts.length; i++) {
+      const p = pts[i];
+      const px = p[2] ? dcx + p[0] * dr : p[0] * PIX_W;
+      const py = p[2] ? dcy + p[1] * dr : p[1] * sh;
+      const x = Math.max(0, Math.min(PIX_W - 1, Math.round(px)));
+      const y = Math.max(0, Math.min(sh - 1, Math.round(py)));
+      const o = (y * PIX_W + x) * 4;
+      buf[i * 3] = pixLut[img[o]];
+      buf[i * 3 + 1] = pixLut[img[o + 1]];
+      buf[i * 3 + 2] = pixLut[img[o + 2]];
+    }
+    try { pix.ws.send(buf); } catch (e) { /* socket closing under us */ }
+  }
+
   // --- Solo bake mode: blit the content maker straight to the screen ------
   let soloCtx = null, soloIncantFrame = -1;
   if (SOLO) {
@@ -3901,6 +4942,7 @@
     if (fisher) fisher.draw(t);
     if (harmonics) harmonics.draw(t);
     if (cymatics) cymatics.draw(t, dt);
+    if (gifswarm) { gifswarm.draw(t); window.__gifswarm = gifswarm; }
     if (fold) { fold.draw(t); window.__fold = fold; }
     pollMic();
     updateAudio(dt);
@@ -3930,6 +4972,7 @@
     updatePeek(t, dt);
     adaptBleed(t);
     updateVajras(t);
+    updateFlash(t);
     updateFisherLive(t);
     // Ease the iris toward its target over ~IRIS_SEC with a smooth ramp.
     {
@@ -3973,6 +5016,7 @@
     positionBackdrop();
     zoomBackdrop();
     renderer.render(scene, camera);
+    if (PIXELS) pixelSample();
   }
 
   // --- Frame pump ---------------------------------------------------------
@@ -4125,6 +5169,13 @@
       if (LOGO_SEC !== 24) q.set("logosec", LOGO_SEC.toFixed(0));
       if (LOGO_SCALE !== 1.7) q.set("logoscale", LOGO_SCALE.toFixed(2));
     }
+    if (FLASH_SRC) {
+      q.set("flash", FLASH_SRC);
+      if (FLASH_SEC !== 60) q.set("flashsec", FLASH_SEC.toFixed(1));
+      if (FLASH_HOLD !== 1) q.set("flashhold", FLASH_HOLD.toFixed(2));
+      if (FLASH_SCALE !== 1) q.set("flashscale", FLASH_SCALE.toFixed(2));
+      if (FLASH_GAIN !== 1) q.set("flashgain", FLASH_GAIN.toFixed(2));
+    }
     if (REACT !== 1) q.set("react", REACT.toFixed(2));
     if (MIC) q.set("mic", "1");
     q.set("flicker", (+uniforms.uFlicker.value).toFixed(2));
@@ -4192,6 +5243,11 @@
       logoink: LOGO_INK,
       logosec: LOGO_SEC,
       logoscale: LOGO_SCALE,
+      flash: FLASH_SRC,
+      flashsec: FLASH_SEC,
+      flashhold: FLASH_HOLD,
+      flashscale: FLASH_SCALE,
+      flashgain: FLASH_GAIN,
       backscale: BACK_SCALE,
       backfit: BACK_FIT ? 1 : 0,
       backalpha: BACK_ALPHA,
@@ -4294,7 +5350,11 @@
         case "backfit": BACK_FIT = !!v; setBackdrop(BACKDROP_SRC); break;
         case "backalpha": BACK_ALPHA = Math.max(0, Math.min(1, v)); break;
         case "backsec": BACK_SEC = Math.max(0, v); setBackdrop(BACKDROP_SRC); break;
-        case "backspeed": BACK_SPEED = Math.max(0.1, v); break;
+        case "backspeed":
+          BACK_SPEED = Math.max(0.1, v);
+          // Gif layers read this each frame; a video has to be told.
+          backdrop.players.forEach((p) => { if (p.video) p.video.playbackRate = BACK_SPEED; });
+          break;
         case "stars": setStars(v); break;
         case "meteors": SKY_METEORS = Math.max(0, v); break;
         case "stardrift": SKY_DRIFT = Math.max(0, v); break;
@@ -4311,6 +5371,7 @@
         case "winsolid": uniforms.uWinSolid.value = Math.max(0, Math.min(1, v)); break;
         case "winparallax": uniforms.uWinPar.value = Math.max(0, Math.min(1, v)); break;
         case "winbox": uniforms.uWinBox.value = Math.max(0, Math.min(1, v)); break;
+        case "wingate": uniforms.uWinGate.value = Math.max(0, Math.min(1, v)); break;
         case "winbright": winBrightBase = Math.max(0, v); uniforms.uWinBright.value = winBrightBase; break;
         case "lon": LON_OFF = v * (Math.PI / 180); pickAnchor(); break;
         case "lat": LAT_OFF = v * (Math.PI / 180); pickAnchor(); break;
@@ -4353,6 +5414,10 @@
           break;
         case "logosec": LOGO_SEC = Math.max(0, v); break;
         case "logoscale": LOGO_SCALE = Math.max(0.3, v); break;
+        case "flashsec": FLASH_SEC = Math.max(0.5, v); break;
+        case "flashhold": FLASH_HOLD = Math.max(0.05, v); break;
+        case "flashscale": FLASH_SCALE = Math.max(0.1, v); break;
+        case "flashgain": FLASH_GAIN = Math.max(0, v); break;
         case "when":
           WHEN = String(v || "").trim() || WHEN;
           if (crt) crt.setWhen();
@@ -4398,6 +5463,13 @@
         return;
       }
       if (msg.type === "moonRequestState") { announce(); return; }
+      // Someone is triaging the gif library next door. Rebuilding the swarm
+      // re-reads the marks, so a gif rejected in the curator leaves the moon
+      // within a second or two instead of at the next act.
+      if (msg.type === "gifCuration") {
+        if (gifswarm) setWindowContent(CONTENT_SRC);
+        return;
+      }
       if (msg.type === "moonConfig") {
         if (msg.set) applyLiveConfig(msg.set);
         if (msg.sources) { applySources(msg.sources); return; }
