@@ -11,6 +11,7 @@
 //   PIXLITE=192.168.0.50 npm run pixels             # sACN unicast (show nets)
 //   PROTOCOL=artnet PIXLITE=192.168.0.50 npm run pixels
 //   MAP=maps/moon-halo.json npm run pixels
+//   IFACE=en7 npm run pixels                        # send out the cable, not Wi-Fi
 //
 // Without a browser attached it can still light the rig, which is how you
 // prove wiring and patch before the show has anything to show:
@@ -28,6 +29,14 @@ const PORT = Number(process.env.PIXEL_PORT || 8082);
 const MAP_PATH = process.env.MAP || "maps/moon-halo.json";
 const PROTOCOL = (process.env.PROTOCOL || "sacn").toLowerCase();
 const HOST = process.env.PIXLITE || "";      // empty = sACN multicast
+// Which network port the light leaves by ("en7", or its address). A laptop at a
+// show has Wi-Fi up as well as the cable to the rig, and multicast and broadcast
+// do not consult the routing table the way a unicast packet does: they go out
+// whichever interface the OS favours, which on macOS is usually Wi-Fi. That is
+// the whole reason a rig can stay dark while this process cheerfully reports
+// packets out. Unicast (PIXLITE=) has no such problem and is still the right
+// answer for a show; this is for when you want multicast anyway.
+const IFACE = process.env.IFACE || "";
 const FPS = Number(process.env.FPS || 40);
 const PRIORITY = Number(process.env.PRIORITY || 100);
 const TEST = (process.env.TEST || "").toLowerCase();
@@ -73,6 +82,25 @@ for (const r of runs) {
 
 const sock = dgram.createSocket({ type: "udp4", reuseAddr: true });
 const CID = crypto.randomBytes(16);
+
+// Every IPv4 port this machine could send out of, by name, so an interface can
+// be named rather than looked up by hand at load-in.
+const lans = Object.entries(os.networkInterfaces()).flatMap(([name, addrs]) =>
+  (addrs || []).filter((a) => a.family === "IPv4" && !a.internal)
+    .map((a) => ({ name, address: a.address, netmask: a.netmask })));
+const iface = IFACE ? lans.find((l) => l.name === IFACE || l.address === IFACE) : null;
+if (IFACE && !iface) {
+  console.error(`[pixels] no interface "${IFACE}" here. Available: ` +
+    (lans.map((l) => `${l.name} (${l.address})`).join(", ") || "none"));
+  process.exit(1);
+}
+// The subnet's broadcast address: host bits all ones. Art-Net is conventionally
+// broadcast, and a subnet broadcast is both likelier to survive a switch and
+// certain to leave by the interface that owns the subnet, where the all-ones
+// 255.255.255.255 is neither.
+const bcast = (l) => l.address.split(".")
+  .map((o, i) => Number(o) | (~Number(l.netmask.split(".")[i]) & 0xff)).join(".");
+const ARTNET_DEST = iface ? bcast(iface) : "255.255.255.255";
 
 // --- sACN (E1.31) --------------------------------------------------------
 // Layout per ANSI E1.31-2018: a 38-byte root layer, a 77-byte framing layer
@@ -124,7 +152,7 @@ for (const u of universes) {
     : sacnPacket(u.universe, u.channels);
   u.dataAt = PROTOCOL === "artnet" ? 18 : 126;
   u.seqAt = PROTOCOL === "artnet" ? 12 : 111;
-  u.dest = HOST || (PROTOCOL === "artnet" ? "255.255.255.255" : sacnGroup(u.universe));
+  u.dest = HOST || (PROTOCOL === "artnet" ? ARTNET_DEST : sacnGroup(u.universe));
   u.port = PROTOCOL === "artnet" ? ARTNET_PORT : SACN_PORT;
 }
 
@@ -182,12 +210,27 @@ wss.on("connection", (ws, req) => {
   ws.on("close", () => console.log("[pixels] moon disconnected"));
 });
 
-setInterval(() => {
-  if (TEST) testFrame();
-  else if (!dirty && !framesIn) return;   // nothing has ever arrived; stay dark
-  blast();
-  dirty = false;
-}, 1000 / FPS);
+// Broadcast has to be asked for — a send to a broadcast address is refused
+// outright without it — and neither it nor the multicast interface can be set on
+// an unbound socket, so nothing goes out until the bind lands.
+sock.bind(() => {
+  if (!HOST) {
+    try { sock.setBroadcast(true); } catch (e) {
+      console.warn("[pixels] could not enable broadcast: " + e.message);
+    }
+    if (iface && PROTOCOL !== "artnet") {
+      try { sock.setMulticastInterface(iface.address); } catch (e) {
+        console.warn(`[pixels] could not pin multicast to ${iface.name}: ${e.message}`);
+      }
+    }
+  }
+  setInterval(() => {
+    if (TEST) testFrame();
+    else if (!dirty && !framesIn) return;   // nothing has ever arrived; stay dark
+    blast();
+    dirty = false;
+  }, 1000 / FPS);
+});
 
 const STAT_SEC = 5;
 let lastIn = 0, lastOut = 0;
@@ -199,14 +242,23 @@ setInterval(() => {
     ` (${(fout / STAT_SEC * universes.length).toFixed(0)} packets/s over ${universes.length} universes)`);
 }, STAT_SEC * 1000);
 
-const lan = Object.values(os.networkInterfaces()).flat()
-  .filter((i) => i && i.family === "IPv4" && !i.internal).map((i) => i.address);
 console.log(`[pixels] map ${MAP_PATH}: ${TOTAL} pixels, ${runs.length} output(s), ` +
   `${universes.length} universes (${universes[0].universe}-${universes[universes.length - 1].universe})`);
-console.log(`[pixels] ${PROTOCOL} -> ${HOST || (PROTOCOL === "artnet" ? "broadcast" : "multicast")}` +
+console.log(`[pixels] ${PROTOCOL} -> ` +
+  (HOST ? HOST : PROTOCOL === "artnet" ? `broadcast ${ARTNET_DEST}` : "multicast") +
   ` at ${FPS}fps${TEST ? `, test pattern "${TEST}"` : ""}`);
-if (!HOST && PROTOCOL === "sacn") {
-  console.log("[pixels] multicast: fine on a quiet bench, but set PIXLITE=<ip> for a show net");
+if (HOST) {
+  // Unicast follows the routing table, so it leaves by whichever interface owns
+  // the rig's subnet whether or not anything was named here.
+  console.log("[pixels] unicast: the route decides the interface, which is what you want at a show");
+} else if (iface) {
+  console.log(`[pixels] leaving by ${iface.name} (${iface.address})`);
+} else {
+  // The failure this warns about is silent and looks exactly like broken
+  // wiring: packets out, rig dark, because the light went out of the Wi-Fi.
+  console.log(`[pixels] no interface pinned, so the OS picks${lans.length > 1
+    ? " — with " + lans.map((l) => l.name).join(" and ") + " both up that is a coin toss" : ""}.` +
+    ` Set IFACE=<name> or PIXLITE=<ip>`);
 }
 console.log(`[pixels] listening on ws://0.0.0.0:${PORT}`);
-for (const ip of lan) console.log(`[pixels] moon: http://${ip}:8080/hypermoon.html?pixels=1`);
+for (const l of lans) console.log(`[pixels] moon: http://${l.address}:8080/hypermoon.html?pixels=1`);

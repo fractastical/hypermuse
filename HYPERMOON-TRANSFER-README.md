@@ -525,6 +525,22 @@ controller for a show network. Art-Net if you prefer it.
     PROTOCOL=artnet PIXLITE=192.168.0.50 npm run pixels
     MAP=maps/moon-disc.json FPS=40 npm run pixels
 
+**Which cable the light leaves by.** Plugging in ethernet is not enough on its
+own. A unicast packet consults the routing table, so naming the controller
+(`PIXLITE=`) sends it out of whichever port owns the rig's subnet and is the
+right answer at a show. Multicast and broadcast do not: they leave by whichever
+interface the OS favours, which on a laptop with Wi-Fi up is usually the Wi-Fi.
+The rig then stays dark while the bridge cheerfully reports packets out, which
+looks exactly like a wiring fault. Name the port if you want them anyway:
+
+    IFACE=en7 npm run pixels                        # multicast out the cable
+    PROTOCOL=artnet IFACE=en7 npm run pixels        # broadcasts to en7's subnet
+
+The bridge prints the interfaces it can see, says which one it is leaving by,
+and refuses to start on a name that is not there rather than quietly sending
+nowhere. Art-Net broadcast goes to the subnet's own broadcast address when a
+port is named, which survives a switch better than the all-ones address.
+
 `pixelgamma` (default 2.2) and `pixelgain` on the moon's URL correct for LEDs
 being driven linearly while the frame is sRGB; without the curve everything
 below half brightness reads far too hot.
