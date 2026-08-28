@@ -71,13 +71,13 @@
   // Flashed mark (?flash=hermes/logo.png): the mark is thrown over the disc for
   // a beat and gone again, once every flashsec. This is deliberately not the
   // guest-mark panel above: a mark anchored to the shadow patch spends most of
-  // a minute round the back of the moon, and something that shows for one
-  // second in sixty has to be there when the second comes. Blended additively,
+  // a minute round the back of the moon, and something that shows for three
+  // seconds in sixty has to be there when they come. Blended additively,
   // so a mark drawn on black needs no alpha and no keying — the black adds
   // nothing — and it lands as light on the surface rather than a sticker on it.
   const FLASH_SRC = params.get("flash") || "";
   let FLASH_SEC = Math.max(0.5, num("flashsec", 60));     // seconds between flashes
-  let FLASH_HOLD = Math.max(0.05, num("flashhold", 1));   // seconds at full strength
+  let FLASH_HOLD = Math.max(0.05, num("flashhold", 3));   // seconds at full strength
   let FLASH_SCALE = Math.max(0.1, num("flashscale", 1));  // 1 = the mark spans the disc
   let FLASH_GAIN = Math.max(0, num("flashgain", 1));      // how hot the flash burns
   const FLASH_FADE = Math.max(0, num("flashfade", 0.14)); // seconds of rise and fall
@@ -5172,7 +5172,7 @@
     if (FLASH_SRC) {
       q.set("flash", FLASH_SRC);
       if (FLASH_SEC !== 60) q.set("flashsec", FLASH_SEC.toFixed(1));
-      if (FLASH_HOLD !== 1) q.set("flashhold", FLASH_HOLD.toFixed(2));
+      if (FLASH_HOLD !== 3) q.set("flashhold", FLASH_HOLD.toFixed(2));
       if (FLASH_SCALE !== 1) q.set("flashscale", FLASH_SCALE.toFixed(2));
       if (FLASH_GAIN !== 1) q.set("flashgain", FLASH_GAIN.toFixed(2));
     }
