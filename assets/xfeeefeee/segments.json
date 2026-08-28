@@ -1,0 +1,12 @@
+{
+  "note": "Stretches worth playing on their own, cut out of the xfeeefeee masters by scripts/cut-xfeeefeee-segments.mjs. The clips are long and mostly dancers; a few seconds here and there are abstract enough to sit behind the moon for a whole act without reading as somebody's bedroom. Times are seconds into the square-cropped clip in assets/xfeeefeee/circle.",
+  "segments": [
+    {
+      "name": "shadow-blooms",
+      "src": "the-shadow-of-you",
+      "in": 192.5,
+      "out": 208.0,
+      "note": "radial dandelion/chrysanthemum blooms opening and closing on a magenta field - the only sustained flower run across the six clips"
+    }
+  ]
+}

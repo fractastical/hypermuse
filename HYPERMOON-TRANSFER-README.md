@@ -32,6 +32,18 @@ latest versions). Then:
   it (or the whole set, crossfading) and irises the disc open onto it.
   Note the square crop lands on whatever is mid-frame, which in this source is
   usually a face or torso — worth previewing before projecting one.
+- **Clip segments** (`npm run clips:cut`): most of a four-minute clip is
+  somebody dancing in a bedroom, and the few abstract stretches that suit the
+  moon are buried minutes apart. List the good ones by in/out seconds in
+  `assets/xfeeefeee/segments.json` and the script cuts them to their own short
+  loops in `assets/xfeeefeee/segments/`, which the backdrop can then play as
+  often as you like — a 15s loop simply repeats for its whole `backsec` slot.
+  Cuts are re-encoded rather than stream-copied: these masters use long GOPs,
+  so a copy would either slip seconds off the mark or open on grey macroblocks.
+  Finding the segments is a looking job — contact-sheet a clip with
+  `ffmpeg -i clip.mp4 -vf "fps=1/3,scale=192:192,tile=10x8" sheet.png` and read
+  the timestamps off the tile positions. The one flower run across the current
+  six is `the-shadow-of-you` at 192.5–208s, cut as `shadow-blooms`.
 - **LED pixel output** (`npm run pixels`): drives an Advatek PixLite — the
   E16-S Mk3 takes 16 outputs of up to 1,020 RGB pixels, 96 universes, over
   sACN or Art-Net. A browser cannot open a UDP socket, so the page cannot

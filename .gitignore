@@ -26,6 +26,12 @@ assets/*
 !assets/gifcities/
 assets/gifcities/*
 !assets/gifcities/curation.json
+# Which stretches of the xfeeefeee clips are worth playing on their own: the
+# timestamps took an eye to find, while the cuts they describe are rebuilt by
+# npm run clips:cut from masters that are ignored anyway.
+!assets/xfeeefeee/
+assets/xfeeefeee/*
+!assets/xfeeefeee/segments.json
 # Guest-mark examples: a few hundred bytes of SVG each, and the site's branding
 # stills are shot from them, so they are source rather than media.
 !assets/marks/
