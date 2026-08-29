@@ -1,0 +1,12 @@
+{
+  "built": "2026-08-29T00:23:07.366Z",
+  "note": "Marks cropped to their own bounds and scaled for sprite use. Add more with: node scripts/build-marks.mjs <files…>",
+  "base": "assets/metavillan/",
+  "marks": [
+    "mv-chrome.png",
+    "mv-crimson-gold.png",
+    "mv-lime-cyan.png",
+    "mv-magenta-cyan.png",
+    "mv-violet-blue.png"
+  ]
+}

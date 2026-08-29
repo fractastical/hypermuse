@@ -41,6 +41,11 @@ assets/xfeeefeee/*
 # stills are shot from them, so they are source rather than media.
 !assets/marks/
 !assets/marks/*
+# The Metavillan marks. Unlike the scraped libraries there is no script that can
+# fetch these back — they are a collected set, cropped and scaled for sprite use
+# by npm run metavillan — so the sprite-sized copies are the source of record.
+!assets/metavillan/
+!assets/metavillan/*
 
 # Generated exports, caches, datasets, PDFs, and media (videos, wav, LED samples, DJ cache, …)
 artifacts/*
