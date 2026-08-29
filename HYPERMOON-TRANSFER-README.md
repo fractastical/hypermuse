@@ -10,6 +10,24 @@ latest versions). Then:
   (or open it from the controller's "open output" button)
 - Controller: `http://localhost:8080/controller.html`
 
+**Hot keys in the output window.** The controller drives everything from another
+window, which is fine at a desk and useless on a car at night: there is nowhere
+to put the laptop and nothing to read it by. So the layers go in and out from the
+keyboard of the machine the show is on, and every key answers on screen — a key
+that silently does nothing, because the layer was already out or this show never
+had one, is worse than no key at all.
+
+`g` orbiting sprites · `v` vajras · `s` stars · `b` backdrop clip · `f` the
+flashed mark · `i` the iris · `n` hands on to the next orbit act · `m` gathers or
+scatters the flower · `0` puts everything back · `?` lists the lot with what is
+currently in and out.
+
+A toggle puts back what it took out rather than a default, so a starfield taken
+down and brought back comes back at the count the show was running. Anything with
+cmd, ctrl or alt held is left to the browser, so quitting and reloading still
+work. `?hotkeys=0` turns the whole thing off for an installation that might get
+leant on.
+
 ## What's new in this build
 
 - **Backdrop layer**: gifs/images pinned exactly behind the moon disc

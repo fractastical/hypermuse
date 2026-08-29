@@ -93,6 +93,7 @@
   let FLASH_HOLD = Math.max(0.05, num("flashhold", 3));   // seconds at full strength
   let FLASH_SCALE = Math.max(0.1, num("flashscale", 1));  // 1 = the mark spans the disc
   let FLASH_GAIN = Math.max(0, num("flashgain", 1));      // how hot the flash burns
+  let FLASH_ON = true;                                    // put out from the keyboard
   const FLASH_FADE = Math.max(0, num("flashfade", 0.14)); // seconds of rise and fall
   // Kiosk mode (?kiosk=1): hide the cursor and go fullscreen on the first
   // click/keypress (browsers require a gesture). npm run kiosk:hypermoon
@@ -699,6 +700,11 @@
   // an hour in it is still landing on the minute.
   function updateFlash(t) {
     if (!flashMark) return;
+    if (!FLASH_ON) {
+      flashMark.mat.uniforms.uOpacity.value = 0;
+      flashMark.mesh.visible = false;
+      return;
+    }
     const span = FLASH_HOLD + FLASH_FADE * 2;
     const u = t % Math.max(span, FLASH_SEC);
     const level = u >= span ? 0
@@ -1503,8 +1509,17 @@
       }
     }
 
+    // Whether the lanes are being flown at all. Put out from the keyboard, and
+    // left alone by everything else — the sequencer keeps running underneath, so
+    // putting the lanes back does not restart the act that was mid-flight.
+    let orbitShown = 1;
+
     function drawOrbiters(t, dt) {
       if (!orbiters.length || !sources.length) return;
+      if (!orbitShown) {
+        orbiters.forEach((o) => { o.mesh.visible = false; });
+        return;
+      }
       // Frame-height units -> world units (the quad is letterboxed to 16:9).
       const fhX = 2 * quad.scale.x * (9 / 16);
       const fhY = 2 * quad.scale.y;
@@ -1937,7 +1952,29 @@
       }),
       // Where the mandala is in its cycle, so a check can catch it formed
       // instead of waiting on the eye and shooting at a guess.
-      mandala: () => ({ phase: mandPhase, form: +mandForm.toFixed(3), marks: markLit })
+      mandala: () => ({ phase: mandPhase, form: +mandForm.toFixed(3), marks: markLit }),
+      shown: () => orbitShown,
+      setShown: (on) => {
+        orbitShown = on ? 1 : 0;
+        if (!orbitShown) orbiters.forEach((o) => { o.mesh.visible = false; });
+      },
+      // Hand on to the next act now rather than at the end of this one. From
+      // the middle of a hand-over there is nothing to do: one is already
+      // running, and forcing a second would drop the pool it is decoding.
+      nextAct: () => {
+        if (ORBIT_SEQ.length < 2) return false;
+        if (seqPhase === "hold") { seqPhase = "out"; return true; }
+        if (seqPhase === "vajras") { setVajraAct(false); seqPhase = "out"; return true; }
+        return false;
+      },
+      // Gather or scatter on demand, on the act that has a flower to gather.
+      // Mid-move it is left to arrive: reversing it looks like a mistake.
+      flower: () => {
+        if (!markLit) return "no marks in the lanes";
+        if (mandPhase === "orbit") { mandPhase = "gather"; return "gathering"; }
+        if (mandPhase === "hold") { mandPhase = "scatter"; return "scattering"; }
+        return false;
+      }
     };
   }
 
@@ -5390,6 +5427,152 @@
     window.addEventListener("pointerdown", takeWakeLock, { once: true });
     window.addEventListener("keydown", takeWakeLock, { once: true });
   }
+
+  // --- Hot keys ----------------------------------------------------------
+  // The controller drives all of this from another window, which is fine at a
+  // desk and useless on a car at night: there is nowhere to put the laptop and
+  // nothing to see it by. So the layers go in and out from the keyboard, with a
+  // line of feedback on screen, because a key that silently does nothing — the
+  // layer was already out, or this show never had one — is worse than no key.
+  //
+  // Every toggle puts back what it turned off rather than a default. A
+  // starfield taken out and put back comes back at the count the show was
+  // running, not at whatever the parameter's default happens to be.
+  const HOTKEYS = params.get("hotkeys") !== "0";
+
+  const keyNote = document.createElement("div");
+  keyNote.id = "keynote";   // named so a check can read what a key answered
+  keyNote.style.cssText = "position:fixed;left:50%;bottom:8%;transform:translateX(-50%);" +
+    "color:rgba(143,216,255,0.9);font:12px 'JetBrains Mono',Menlo,monospace;" +
+    "letter-spacing:3px;text-transform:uppercase;z-index:6;pointer-events:none;" +
+    "opacity:0;transition:opacity 0.25s;text-shadow:0 0 12px rgba(0,0,0,0.9);";
+  const keyHelp = document.createElement("div");
+  keyHelp.id = "keyhelp";
+  keyHelp.style.cssText = "position:fixed;left:50%;top:50%;transform:translate(-50%,-50%);" +
+    "color:rgba(143,216,255,0.9);font:13px/1.9 'JetBrains Mono',Menlo,monospace;" +
+    "letter-spacing:2px;z-index:6;pointer-events:none;display:none;white-space:pre;" +
+    "background:rgba(0,0,0,0.72);padding:22px 30px;border:1px solid rgba(143,216,255,0.25);" +
+    "text-shadow:0 0 12px rgba(0,0,0,0.9);";
+  if (HOTKEYS) { document.body.appendChild(keyNote); document.body.appendChild(keyHelp); }
+
+  let noteTimer = 0;
+  function note(msg) {
+    keyNote.textContent = msg;
+    keyNote.style.opacity = "1";
+    clearTimeout(noteTimer);
+    noteTimer = setTimeout(() => { keyNote.style.opacity = "0"; }, 1500);
+  }
+
+  // Whether this show was given any clips to play behind the iris. Taking the
+  // backdrop out empties BACKDROP_SRC, so it cannot answer that question later.
+  const HAD_BACKDROP = !!BACKDROP_SRC;
+
+  // Each layer is read and written through one value, whatever its type, so a
+  // single toggle serves all of them: reading nothing back means this show does
+  // not have that layer at all.
+  const LAYERS = {
+    g: {
+      name: "orbiting sprites", off: 0,
+      get: () => (gifswarm ? gifswarm.shown() : null),
+      set: (v) => gifswarm.setShown(!!v)
+    },
+    v: {
+      name: "vajras", off: 0,
+      get: () => VAJRA_BASE,
+      set: (v) => applyLiveConfig({ vajras: v })
+    },
+    s: {
+      name: "stars", off: 0,
+      get: () => SKY_COUNT,
+      set: (v) => applyLiveConfig({ stars: v })
+    },
+    b: {
+      name: "backdrop clip", off: "",
+      get: () => (HAD_BACKDROP ? BACKDROP_SRC : null),
+      set: (v) => setBackdrop(v)
+    },
+    f: {
+      name: "flashed mark", off: 0,
+      get: () => (FLASH_SRC ? (FLASH_ON ? 1 : 0) : null),
+      set: (v) => { FLASH_ON = !!v; }
+    },
+    i: {
+      name: "iris", off: 0,
+      get: () => IRIS_TARGET,
+      set: (v) => applyLiveConfig({ iris: v })
+    }
+  };
+
+  // What each layer was showing at load, which is what a toggle puts back if it
+  // was never taken out from here.
+  const bootLayer = {};
+  const parked = {};
+  for (const k in LAYERS) bootLayer[k] = LAYERS[k].get();
+
+  function toggleLayer(k) {
+    const L = LAYERS[k];
+    const now = L.get();
+    if (now == null) { note(L.name + " — not in this show"); return; }
+    if (now) {
+      parked[k] = now;
+      L.set(L.off);
+    } else {
+      const back = parked[k] || bootLayer[k];
+      if (!back) { note(L.name + " — nothing to put back"); return; }
+      L.set(back);
+    }
+    note(L.name + (L.get() ? " in" : " out"));
+    announce();
+  }
+
+  function showHelp(on) {
+    if (!on) { keyHelp.style.display = "none"; return; }
+    const rows = Object.keys(LAYERS).map((k) => {
+      const v = LAYERS[k].get();
+      return "  " + k + "   " + LAYERS[k].name.padEnd(18) +
+        (v == null ? "—" : v ? "in" : "out");
+    });
+    keyHelp.textContent = ["HOT KEYS", ""].concat(rows).concat([
+      "", "  n   next orbit act", "  m   gather / scatter the flower",
+      "  0   everything back in", "  ?   this list"
+    ]).join("\n");
+    keyHelp.style.display = "block";
+  }
+
+  if (HOTKEYS) window.addEventListener("keydown", (e) => {
+    // Anything with a modifier belongs to the browser or the window manager.
+    if (e.metaKey || e.ctrlKey || e.altKey) return;
+    const el = document.activeElement;
+    if (el && /^(input|textarea|select)$/i.test(el.tagName)) return;
+    const k = e.key.toLowerCase();
+    if (LAYERS[k]) { toggleLayer(k); showHelp(keyHelp.style.display === "block"); return; }
+    if (k === "n") {
+      const moved = gifswarm && gifswarm.nextAct();
+      note(moved ? "next act" : ORBIT_SEQ.length < 2 ? "no sequence to move on" : "already handing over");
+      return;
+    }
+    if (k === "m") {
+      const what = gifswarm && gifswarm.flower();
+      note(typeof what === "string" ? what : what ? "flower" : "the flower is already moving");
+      return;
+    }
+    if (k === "0") {
+      for (const key in LAYERS) {
+        const L = LAYERS[key];
+        if (L.get() != null && !L.get()) {
+          const back = parked[key] || bootLayer[key];
+          if (back) L.set(back);
+        }
+      }
+      note("everything back in");
+      announce();
+      showHelp(keyHelp.style.display === "block");
+      return;
+    }
+    if (k === "?" || k === "/" || k === "h") {
+      showHelp(keyHelp.style.display !== "block");
+    }
+  });
 
   // --- Controller link (BroadcastChannel 'hypermoon') --------------------
   // The controller.html hypermoon panel drives this window live and asks it
