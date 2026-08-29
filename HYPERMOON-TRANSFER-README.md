@@ -274,22 +274,40 @@ latest versions). Then:
   `metavillan` (or `mv`) is the other reserved name, and the only act that does
   something the lanes cannot. It flies the collected Metavillan marks — the same
   lanes, the same pool, just a different index to read — and then every
-  `?mandsec=` (20) seconds it takes them out of those lanes: over `?mandmove=`
-  (3) they gather into a ring of eight petals at `?mandr=` (0.58) of the disc
-  radius, grown to `?mandscale=` (1.25), hold for `?mandhold=` (12) while the
-  ring turns at `?mandspin=`, and scatter back. Each petal is turned to point
-  its V at the centre, which is what makes it a mandala rather than eight marks
-  standing near each other: the tips converge on a void and the M's wings
-  scallop the outside. `?mandaim=1` turns them out instead, which is worth
-  looking at once and then not using. During the show the ring lands inside the
-  iris, so it frames the backdrop clip rather than sitting on grey moon;
-  `?mandr=0.9` puts it out on the moon proper instead.
+  `?mandsec=` (12) seconds it takes them out of those lanes: over `?mandmove=`
+  (3) they gather into a ring of eight petals at `?mandr=` (1.16) of the disc
+  radius, grown to `?mandscale=` (1.5), and hold for `?mandhold=` (30) while the
+  ring turns at `?mandspin=` (0.22 rad/s, about one circuit of the moon per
+  hold) before scattering back. Just over 1 sets the ring outside the limb,
+  which is the flower: the moon is its heart and the marks are petals going
+  round it. Under 1 puts them on the face instead, which is a seal rather than a
+  flower — `?mandr=0.58&mandscale=1.25` is the tight mandala, and during the show
+  a ring that small lands inside the iris and frames the backdrop clip.
+
+  Which way each V faces follows from that, and getting it backwards is the
+  difference between a flower and eight darts aimed at the same rock. Petals
+  point away from whatever the ring is arranged around: outside the limb that is
+  the moon, so they radiate, while a ring on the face has no centre until the
+  marks make one, so there they point in and their tips close on a void. Hence
+  `?mandaim=` defaults off the radius rather than to a constant, and is only
+  worth setting by hand to see the wrong one.
+
+  The marks also run through the hues as they go — `?markhue=` (0.3 rad/s) turns
+  every mark about the grey axis of the colour cube, which cycles the colour and
+  leaves the brightness, so a mark keeps its gradient and the chrome one keeps
+  its metal. `?markhuespread=` (1) starts each petal a further step round the
+  wheel, so the flower is a spectrum that turns as well as a ring that does.
+  `?markhue=0` leaves the collected colourways as they were shot. Only the marks
+  are turned: a GeoCities gif is the colour it was in 1999.
 
   A sprite on the far side of its lane is hidden by the limb, so it crosses to
-  the face while nobody can see it move and fades in where it lands. And the
-  ring is dropped outright at the bottom of an act's dissolve rather than eased
-  out, because a half-formed ring that outlived the hand-over would gather the
-  next act's gifs into it.
+  the face while nobody can see it move and fades in where it lands. The other
+  two are both the same trap, which is that an act's name changes at the top of
+  the dissolve while the last act's sprites are still on screen. So the ring is
+  dropped outright at the bottom of the dissolve rather than eased out, or a
+  half-formed one would outlive the hand-over and gather the next act's gifs into
+  it — and the hues do not start turning until that same bottom, where the pool
+  is rebuilt, or they would recolour the outgoing act's gifs on their way down.
 
   `npm run metavillan` brings marks in: it crops each one to its own bounds —
   they arrive as a glyph floating in a wide transparent margin, and a fixed

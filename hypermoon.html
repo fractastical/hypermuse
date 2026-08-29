@@ -1053,22 +1053,37 @@
   const GIF_ORBIT = Math.max(0, Math.min(12, Math.round(num("giforbit", 5))));
   const GIF_ORBIT_R = num("giforbitradius", 1.2);   // 1 = skimming the limb
   const GIF_ORBIT_SCALE = num("giforbitscale", 0.12); // frame-height units
-  // The mandala, on a mark act: every mandsec the sprites leave their lanes,
-  // gather over mandmove into a ring of petals at equal angles on the disc
-  // face, hold mandhold, and scatter back. Each petal is turned to point out of
-  // the ring, so the mark's own V is the petal — which is why this is worth
+  // The flower, on a mark act: every mandsec the sprites leave their lanes,
+  // gather over mandmove into a ring of petals at equal angles round the moon,
+  // turn there for mandhold, and scatter back. Each petal is turned to point out
+  // of the ring, so the mark's own V is the petal — which is why this is worth
   // doing to a monogram and not to a dancing GeoCities banner.
-  const MAND_SEC = Math.max(0, num("mandsec", 20));    // orbiting before it forms
-  const MAND_HOLD = Math.max(0, num("mandhold", 12));  // held as a mandala
+  const MAND_SEC = Math.max(0, num("mandsec", 12));    // orbiting before it forms
+  const MAND_HOLD = Math.max(0, num("mandhold", 30));  // held as a flower
   const MAND_MOVE = Math.max(0.2, num("mandmove", 3)); // gather / scatter
-  const MAND_R = Math.max(0, num("mandr", 0.58));      // ring radius, in disc radii
-  const MAND_SPIN = num("mandspin", 0.05);             // radians/sec of the whole ring
-  const MAND_SCALE = Math.max(0.1, num("mandscale", 1.25)); // petal size against a lane sprite
-  // -1 turns every V in towards the centre, which is the one that reads as a
-  // mandala: the tips converge on a void and the M's wings scallop the outside.
-  // Aimed outward (1) the same ring just looks like eight marks that happen to
-  // be near each other.
-  const MAND_AIM = num("mandaim", -1) < 0 ? -1 : 1;
+  // Just over 1 sets the ring outside the limb, where the moon reads as the
+  // heart of the flower and the petals as attached to it. Under 1 puts them on
+  // the face instead, a seal rather than a flower — 0.58 for the tight mandala.
+  const MAND_R = Math.max(0, num("mandr", 1.16));      // ring radius, in disc radii
+  const MAND_SPIN = num("mandspin", 0.22);             // radians/sec of the whole ring
+  const MAND_SCALE = Math.max(0.1, num("mandscale", 1.5)); // petal size against a lane sprite
+  // The marks run through the hues as they go, each petal a step further round
+  // the colour wheel than the last, so the flower is a spectrum that turns as
+  // well as a ring that does. Rate in radians/sec; markhue=0 leaves the
+  // collected colourways alone.
+  const MARK_HUE = num("markhue", 0.3);
+  const MARK_HUE_SPREAD = num("markhuespread", 1);     // 1 = spread evenly round the ring
+  // Which way each V faces. What makes petals is pointing away from whatever the
+  // ring is arranged around, and that depends on where the ring is: outside the
+  // limb the moon is already the heart of the flower, so the marks point out of
+  // it and radiate. A ring on the face has no centre until the marks make one,
+  // so there they point in and their tips close on a void. Same eight marks,
+  // and getting this backwards is the difference between a flower and eight
+  // darts that happen to be aimed at the same rock — hence a default that
+  // follows the radius rather than a constant.
+  const MAND_AIM = params.has("mandaim")
+    ? (num("mandaim", 1) < 0 ? -1 : 1)
+    : (MAND_R >= 1 ? 1 : -1);
   // Laps an orbiter keeps its gif for before taking another out of the pool
   // (0 = it keeps whatever it was dealt for the whole act). The change is made
   // at the deepest point behind the moon, where the sprite is inside the
@@ -1324,6 +1339,7 @@
           map: { value: otex },
           uOpacity: { value: 0 },
           uBehind: { value: 0 },
+          uHue: { value: 0 },
           uCen: { value: new THREE.Vector2(0, 0) },
           uInv: { value: new THREE.Vector2(1, 1) },
           uR: { value: 0.5 }
@@ -1345,12 +1361,21 @@
         `,
         fragmentShader: `
           uniform sampler2D map;
-          uniform float uOpacity, uBehind, uR;
+          uniform float uOpacity, uBehind, uR, uHue;
           uniform vec2 uCen, uInv;
           varying vec2 vUv;
           varying vec2 vWorld;
+          // A turn about the grey axis of the colour cube, which cycles the hue
+          // and leaves brightness where it was — so a mark keeps its gradient
+          // and its metal, and only the colours run.
+          vec3 hueTurn(vec3 c, float h) {
+            const vec3 k = vec3(0.57735);
+            float ca = cos(h);
+            return c * ca + cross(k, c) * sin(h) + k * dot(k, c) * (1.0 - ca);
+          }
           void main() {
             vec4 c = texture2D(map, vUv);
+            if (uHue != 0.0) c.rgb = clamp(hueTurn(c.rgb, uHue), 0.0, 1.0);
             // Keyed gifs carry their own alpha; the luminance gate is for the
             // ones whose backing plate could not be read off the corners,
             // which would otherwise orbit as a black tile.
@@ -1440,6 +1465,11 @@
 
     // How far into the formation the sprites are, and the clock that drives it.
     let mandPhase = "orbit", mandAt = 0, mandForm = 0;
+    // Whether what is in the lanes is marks, which is not the same question as
+    // whether the mark act is current: at the top of a dissolve the next act's
+    // name is up while the marks are still on screen, and they should keep
+    // running through the hues until they are actually gone.
+    let markLit = 0;
     function updateMandala(t, dt) {
       // Any other act, and the formation unwinds and its clock is held at now,
       // so a mark act always begins by orbiting rather than half-gathered.
@@ -1449,10 +1479,17 @@
         // outright at the bottom, where the pool is rebuilt. A ring that
         // outlived the dissolve would gather the next act's gifs into it.
         mandForm = seqLevel <= 0 ? 0 : Math.max(0, mandForm - dt / MAND_MOVE);
+        if (seqLevel <= 0) markLit = 0;
         mandPhase = "orbit";
         mandAt = t;
         return;
       }
+      // And the other side of the same problem: the marks are not in the lanes
+      // the moment their act's name comes up, only once the dissolve has
+      // bottomed out and the pool has been rebuilt out of them. Turning the
+      // hues any earlier would recolour the outgoing act's gifs on their way
+      // down. With no sequence there is no dissolve to wait for.
+      if (ORBIT_SEQ.length < 2 || seqLevel <= 0) markLit = 1;
       if (mandPhase === "orbit") {
         if (t - mandAt >= MAND_SEC) mandPhase = "gather";
       } else if (mandPhase === "gather") {
@@ -1549,6 +1586,11 @@
         // not passing by.
         const base = 0.55 + 0.45 * near;
         u.uOpacity.value = (base + (1 - base) * e) * seqLevel * seen;
+        // Only the marks run through the hues. A GeoCities gif is the colour it
+        // was in 1999 and turning it would be vandalism.
+        u.uHue.value = markLit
+          ? t * MARK_HUE + (o.lane / orbiters.length) * Math.PI * 2 * MARK_HUE_SPREAD
+          : 0;
         // The far half is clipped against the disc silhouette in the fragment
         // shader, so it is eaten by the limb rather than fading out whole —
         // except once the formation has it, when it belongs on the face.
@@ -1895,7 +1937,7 @@
       }),
       // Where the mandala is in its cycle, so a check can catch it formed
       // instead of waiting on the eye and shooting at a guess.
-      mandala: () => ({ phase: mandPhase, form: +mandForm.toFixed(3) })
+      mandala: () => ({ phase: mandPhase, form: +mandForm.toFixed(3), marks: markLit })
     };
   }
 
