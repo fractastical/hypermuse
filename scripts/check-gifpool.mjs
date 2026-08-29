@@ -51,10 +51,14 @@ try {
   const browser = await chromium.launch();
 
   for (const spec of ACTS) {
-    // "vajra" is a reserved act name: it flies the dorje loops rather than the
-    // library, so there is no pool to report on.
+    // Reserved act names fly something other than the library, so there is no
+    // curated pool to report against.
     if (/^vajras?$/.test(spec)) {
       console.log(`${spec.padEnd(30)} the vajras' own act — no gifs`);
+      continue;
+    }
+    if (/^(metavillan|mv)$/.test(spec)) {
+      console.log(`${spec.padEnd(30)} the collected marks — see assets/metavillan/`);
       continue;
     }
     const page = await browser.newPage({ viewport: { width: 900, height: 900 } });

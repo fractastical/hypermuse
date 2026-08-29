@@ -271,6 +271,38 @@ latest versions). Then:
   a black sky rather than a swarm — worth putting between two turns of
   GeoCities rather than next to the ankhs.
 
+  `metavillan` (or `mv`) is the other reserved name, and the only act that does
+  something the lanes cannot. It flies the collected Metavillan marks — the same
+  lanes, the same pool, just a different index to read — and then every
+  `?mandsec=` (20) seconds it takes them out of those lanes: over `?mandmove=`
+  (3) they gather into a ring of eight petals at `?mandr=` (0.58) of the disc
+  radius, grown to `?mandscale=` (1.25), hold for `?mandhold=` (12) while the
+  ring turns at `?mandspin=`, and scatter back. Each petal is turned to point
+  its V at the centre, which is what makes it a mandala rather than eight marks
+  standing near each other: the tips converge on a void and the M's wings
+  scallop the outside. `?mandaim=1` turns them out instead, which is worth
+  looking at once and then not using. During the show the ring lands inside the
+  iris, so it frames the backdrop clip rather than sitting on grey moon;
+  `?mandr=0.9` puts it out on the moon proper instead.
+
+  A sprite on the far side of its lane is hidden by the limb, so it crosses to
+  the face while nobody can see it move and fades in where it lands. And the
+  ring is dropped outright at the bottom of an act's dissolve rather than eased
+  out, because a half-formed ring that outlived the hand-over would gather the
+  next act's gifs into it.
+
+  `npm run metavillan` brings marks in: it crops each one to its own bounds —
+  they arrive as a glyph floating in a wide transparent margin, and a fixed
+  sprite scale would otherwise render the margin and fly the mark at a third the
+  size of the gifs beside it, differently for each file — scales it to sprite
+  resolution and rewrites the index. Pass it any number of files, rerun it to
+  add more. Unlike the scraped libraries these are tracked in git, because there
+  is no script that can fetch a collected set back. `npm run metavillan:check`
+  shoots the cycle at four points — orbiting, mid-gather, held, back out — into
+  `artifacts/metavillan/`, so the ring can be tuned by looking at it rather than
+  by standing in front of a two-and-a-half minute act waiting for it to come
+  round; `EXTRA="&mandr=0.9&mandaim=1"` shoots a variant.
+
   `npm run gifs:pool` reports what each act of the show's sequence actually
   flies — curated, tried, and how many were dropped as tiles — and writes a
   sheet of the survivors over a checkerboard to `artifacts/gifpool/`, so a thin

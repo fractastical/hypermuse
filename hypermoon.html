@@ -1053,6 +1053,22 @@
   const GIF_ORBIT = Math.max(0, Math.min(12, Math.round(num("giforbit", 5))));
   const GIF_ORBIT_R = num("giforbitradius", 1.2);   // 1 = skimming the limb
   const GIF_ORBIT_SCALE = num("giforbitscale", 0.12); // frame-height units
+  // The mandala, on a mark act: every mandsec the sprites leave their lanes,
+  // gather over mandmove into a ring of petals at equal angles on the disc
+  // face, hold mandhold, and scatter back. Each petal is turned to point out of
+  // the ring, so the mark's own V is the petal — which is why this is worth
+  // doing to a monogram and not to a dancing GeoCities banner.
+  const MAND_SEC = Math.max(0, num("mandsec", 20));    // orbiting before it forms
+  const MAND_HOLD = Math.max(0, num("mandhold", 12));  // held as a mandala
+  const MAND_MOVE = Math.max(0.2, num("mandmove", 3)); // gather / scatter
+  const MAND_R = Math.max(0, num("mandr", 0.58));      // ring radius, in disc radii
+  const MAND_SPIN = num("mandspin", 0.05);             // radians/sec of the whole ring
+  const MAND_SCALE = Math.max(0.1, num("mandscale", 1.25)); // petal size against a lane sprite
+  // -1 turns every V in towards the centre, which is the one that reads as a
+  // mandala: the tips converge on a void and the M's wings scallop the outside.
+  // Aimed outward (1) the same ring just looks like eight marks that happen to
+  // be near each other.
+  const MAND_AIM = num("mandaim", -1) < 0 ? -1 : 1;
   // Laps an orbiter keeps its gif for before taking another out of the pool
   // (0 = it keeps whatever it was dealt for the whole act). The change is made
   // at the deepest point behind the moon, where the sprite is inside the
@@ -1075,6 +1091,13 @@
   // so the sequence can put a turn of the spinning brass between two turns of
   // GeoCities. Nothing is decoded for it and the gif layer simply stays out.
   const isVajraAct = (spec) => /^vajras?$/.test(String(spec || "").trim());
+  // "metavillan" (or "mv") is the other reserved act name. It flies the same
+  // lanes as a gif act, out of the same pool, so it needs none of the vajras'
+  // special handling — only a different index to read, because the marks are a
+  // collected set rather than a scraped one. What it adds is the mandala: the
+  // marks leave their lanes, gather into a rosette on the disc, and scatter.
+  const isMarkAct = (spec) => /^(metavillan|mv)$/.test(String(spec || "").trim());
+  const MARK_INDEX = "assets/metavillan/index.json";
 
   // Rejections and favourites made in gif-curator.html. curation.json is the
   // copy that travels with the library; localStorage is what the curator writes
@@ -1412,6 +1435,37 @@
       }
     }
 
+    // Which act's themes are up, so the mandala knows whether it is its turn.
+    const actSpec = () => (ORBIT_SEQ.length ? ORBIT_SEQ[seqAct] : theme);
+
+    // How far into the formation the sprites are, and the clock that drives it.
+    let mandPhase = "orbit", mandAt = 0, mandForm = 0;
+    function updateMandala(t, dt) {
+      // Any other act, and the formation unwinds and its clock is held at now,
+      // so a mark act always begins by orbiting rather than half-gathered.
+      if (!isMarkAct(actSpec())) {
+        // The act name changes at the top of the dissolve, so while the marks
+        // are still on screen the ring scatters as it fades — but it is gone
+        // outright at the bottom, where the pool is rebuilt. A ring that
+        // outlived the dissolve would gather the next act's gifs into it.
+        mandForm = seqLevel <= 0 ? 0 : Math.max(0, mandForm - dt / MAND_MOVE);
+        mandPhase = "orbit";
+        mandAt = t;
+        return;
+      }
+      if (mandPhase === "orbit") {
+        if (t - mandAt >= MAND_SEC) mandPhase = "gather";
+      } else if (mandPhase === "gather") {
+        mandForm = Math.min(1, mandForm + dt / MAND_MOVE);
+        if (mandForm >= 1) { mandPhase = "hold"; mandAt = t; }
+      } else if (mandPhase === "hold") {
+        if (t - mandAt >= MAND_HOLD) mandPhase = "scatter";
+      } else {
+        mandForm = Math.max(0, mandForm - dt / MAND_MOVE);
+        if (mandForm <= 0) { mandPhase = "orbit"; mandAt = t; }
+      }
+    }
+
     function drawOrbiters(t, dt) {
       if (!orbiters.length || !sources.length) return;
       // Frame-height units -> world units (the quad is letterboxed to 16:9).
@@ -1462,18 +1516,43 @@
         const depth = Math.sin(th); // > 0 = in front of the moon
         const ex = Math.cos(th) * rx;
         const ey = Math.sin(th) * ry;
-        const px = ex * Math.cos(laneRot) - ey * Math.sin(laneRot);
-        const py = ex * Math.sin(laneRot) + ey * Math.cos(laneRot);
+        let px = ex * Math.cos(laneRot) - ey * Math.sin(laneRot);
+        let py = ex * Math.sin(laneRot) + ey * Math.cos(laneRot);
         const near = depth * 0.5 + 0.5;
-        const scl = GIF_ORBIT_SCALE * (0.7 + 0.3 * near);
+
+        // The formation, eased so the sprites leave and rejoin their lanes
+        // rather than snapping off them.
+        const e = mandForm * mandForm * (3 - 2 * mandForm);
+        let rot = 0, seen = 1;
+        if (e > 0) {
+          const a = (o.lane / orbiters.length) * Math.PI * 2 + t * MAND_SPIN;
+          const mr = dv.z * MAND_R;
+          px = px * (1 - e) + Math.cos(a) * mr * e;
+          py = py * (1 - e) + Math.sin(a) * mr * e;
+          // The mark's V points down, so turning it by the petal's own angle
+          // plus a quarter turn aims it out of the ring, and minus a quarter
+          // turn aims it in.
+          rot = (a + MAND_AIM * Math.PI / 2) * e;
+          // A sprite on the far side is hidden by the limb, so it can cross to
+          // the face without being watched doing it: it fades in where it
+          // lands, and on the way back out it fades before the limb takes over.
+          if (depth < 0) seen = e;
+        }
+
+        const scl = GIF_ORBIT_SCALE * (0.7 + 0.3 * near) * (1 + (MAND_SCALE - 1) * e);
         o.mesh.visible = true;
         o.mesh.position.set(ccx + px * fhX, ccy + py * fhY, 0);
         o.mesh.scale.set(scl * o.aspect * fhX, scl * fhY, 1);
+        o.mesh.rotation.z = rot;
         const u = o.mat.uniforms;
-        u.uOpacity.value = (0.55 + 0.45 * near) * seqLevel;
+        // A petal is at full strength: it is on the face and meant to be read,
+        // not passing by.
+        const base = 0.55 + 0.45 * near;
+        u.uOpacity.value = (base + (1 - base) * e) * seqLevel * seen;
         // The far half is clipped against the disc silhouette in the fragment
-        // shader, so it is eaten by the limb rather than fading out whole.
-        u.uBehind.value = depth < 0 ? 1 : 0;
+        // shader, so it is eaten by the limb rather than fading out whole —
+        // except once the formation has it, when it belongs on the face.
+        u.uBehind.value = (depth < 0 && e <= 0) ? 1 : 0;
         u.uCen.value.set(ccx, ccy);
         u.uInv.value.set(1 / fhX, 1 / fhY);
         u.uR.value = dv.z;
@@ -1485,24 +1564,45 @@
     let library = null;
     // Bumped per load, so a slow act that is still decoding when the next one
     // starts drops what it has left instead of dealing it into the new pool.
+    // The marks index, kept the same way: small, and read once.
+    let markLib = null;
     let poolGen = 0;
-    async function loadPool(themeSpec) {
-      const gen = ++poolGen;
+
+    const getJson = async (u) => {
+      try { return await fetch(u).then((r) => r.ok ? r.json() : null); } catch { return null; }
+    };
+
+    // The collected marks, shuffled so the colourways do not always fall into
+    // the lanes in the same order. No themes to choose between and no curation
+    // to apply: everything in the directory was put there on purpose.
+    async function markTargets() {
+      if (!markLib) markLib = await getJson(MARK_INDEX);
+      const list = (markLib && markLib.marks) || [];
+      if (!list.length) {
+        console.warn("[metavillan] no " + MARK_INDEX + " — run: npm run metavillan");
+        return [];
+      }
+      const base = markLib.base || "assets/metavillan/";
+      const pool = list.map((m) => base + m);
+      for (let i = pool.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [pool[i], pool[j]] = [pool[j], pool[i]];
+      }
+      return pool;
+    }
+
+    async function gifTargets(themeSpec) {
       if (!library) {
-        const get = async (u) => {
-          try { return await fetch(u).then((r) => r.ok ? r.json() : null); } catch { return null; }
-        };
         // The scraped library first, then the pre-curated subset that ships in
         // git. Either answers with the same shape; only its base differs.
-        library = await get(GIF_INDEX) || await get(GIF_STARTER_INDEX);
+        library = await getJson(GIF_INDEX) || await getJson(GIF_STARTER_INDEX);
       }
       if (!library) {
         console.warn("[gifswarm] no " + GIF_INDEX + " — run: npm run gifs");
-        return;
+        return [];
       }
       const libBase = library.base || "assets/gifcities/";
       const marks = await loadGifMarks();
-      if (dead || gen !== poolGen) return;
       const theme = String(themeSpec || "");
       const themes = Object.entries(library.themes || {});
       // Several themes can share one orbit — orbit:ankh,coral draws from both —
@@ -1531,14 +1631,22 @@
       // has been picked over leads with the good ones instead of taking pot
       // luck. Sorting is stable, so the shuffle survives inside each group.
       pool.sort((a, b) => (marks[b] === "star") - (marks[a] === "star"));
-      // A few dozen distinct GIFs is plenty of variety for any swarm size, and
-      // they are dealt out as they land so the field fills in rather than
+      // A few dozen distinct GIFs is plenty of variety for any swarm size.
+      return pool.slice(0, 32);
+    }
+
+    async function loadPool(themeSpec) {
+      const gen = ++poolGen;
+      const targets = isMarkAct(themeSpec)
+        ? await markTargets()
+        : await gifTargets(themeSpec);
+      if (dead || gen !== poolGen) return;
+      // They are dealt out as they land so the field fills in rather than
       // appearing all at once. Several at a time, though: each GIF is dozens
       // of async round trips — decode a frame, make a bitmap, key it, make
       // another — and strictly one file after another took the better part of
       // a minute, long enough for an act to be half over before it looked
       // like anything.
-      const targets = pool.slice(0, 32);
       let next = 0;
       const loader = async () => {
         while (next < targets.length && !dead && gen === poolGen) {
@@ -1638,6 +1746,7 @@
       last = t;
 
       updateSequence(t, dt);
+      updateMandala(t, dt);
 
       // The opening is measured then settles, so this only does anything for
       // the first turn and whenever the panel is resized from the controller.
@@ -1783,7 +1892,10 @@
       act: () => ({
         i: seqAct, of: ORBIT_SEQ.length, themes: ORBIT_SEQ[seqAct] || theme,
         phase: seqPhase, level: +seqLevel.toFixed(3)
-      })
+      }),
+      // Where the mandala is in its cycle, so a check can catch it formed
+      // instead of waiting on the eye and shooting at a guess.
+      mandala: () => ({ phase: mandPhase, form: +mandForm.toFixed(3) })
     };
   }
 

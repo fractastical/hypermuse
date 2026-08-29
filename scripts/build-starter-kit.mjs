@@ -50,11 +50,13 @@ const q = new URLSearchParams(url.split("?")[1] || "");
 const clips = [...new Set((q.get("backdrop") || "").split(",")
   .map((s) => s.trim()).filter((s) => /\.(mp4|webm|mov|m4v)$/i.test(s)))];
 // orbitseq is acts separated by |, each act one or more comma-separated themes.
-// "vajra" is a reserved act name rather than a theme — it flies the dorje loops,
-// whose web proxies the repo already tracks — so there is nothing to subset.
+// "vajra" and "metavillan" are reserved act names rather than themes — they fly
+// the dorje loops and the collected marks, both already tracked in the repo — so
+// there is nothing to subset for either.
+const RESERVED = /^(vajras?|metavillan|mv)$/;
 const themes = [...new Set((q.get("orbitseq") || "").split("|")
   .flatMap((act) => act.split(",")).map((s) => s.trim().toLowerCase())
-  .filter((s) => s && !/^vajras?$/.test(s)))];
+  .filter((s) => s && !RESERVED.test(s)))];
 
 console.log(`show wants ${clips.length} clip(s) and ${themes.length} gif theme(s)`);
 if (!clips.length && !themes.length) {
