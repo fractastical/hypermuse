@@ -451,11 +451,14 @@
   });
 
   // Where the state lives. Two arrangements are both normal: hermes-server can
-  // serve this page as well as the API, in which case the API is on this origin,
-  // or it can sit on its own port beside the plain static server the show is
-  // usually started with. So this origin is tried first and the API's own port
-  // second, and whichever answers is kept for the event stream too. The server
-  // already sends the CORS headers the second case needs. ?hermesapi= pins it.
+  // serve this page as well as the API, or it can sit on its own port beside the
+  // plain static server the show is usually started with. Its own port is tried
+  // first and this origin second — that way both of those answer on the first
+  // request, and the console stays clean. Asking this origin first meant a 404
+  // on every load of the commoner arrangement, which is noise in the one place
+  // you look when something is actually wrong. Whichever answers is kept for the
+  // event stream too, and the server already sends the CORS headers the
+  // cross-origin case needs. ?hermesapi= pins it, for an API on another machine.
   const API_PORT = 8124;
   const API_FALLBACK = `${location.protocol}//${location.hostname}:${API_PORT}`;
   const API_PINNED = params.get("hermesapi");
@@ -474,7 +477,7 @@
   }
 
   async function poll() {
-    const bases = resolved ? [apiBase] : ["", API_FALLBACK];
+    const bases = resolved ? [apiBase] : [API_FALLBACK, ""];
     let err = null;
     for (const base of bases) {
       try {
