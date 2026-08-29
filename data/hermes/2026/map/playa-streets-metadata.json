@@ -1,0 +1,22 @@
+{
+  "source": "Burning Man 2026 official GIS street_lines.geojson and cpns.geojson",
+  "image": "playa-streets.png",
+  "width": 1400,
+  "height": 900,
+  "origin": {
+    "lon": -119.20788409599999,
+    "lat": 40.783247448000054
+  },
+  "rotation": 0.7835655796677954,
+  "bounds": {
+    "minX": -1755.072887547654,
+    "minY": -1754.9408042479258,
+    "maxX": 1782.7738712092578,
+    "maxY": 1503.2525490209523
+  },
+  "scale": 0.23325810275731723,
+  "offset": {
+    "x": 287.3842886031193,
+    "y": 70
+  }
+}

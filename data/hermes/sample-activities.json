@@ -1,0 +1,50 @@
+[
+  {
+    "title": "Moon Choir At The Man",
+    "placeName": "The Man",
+    "timeLabel": "now until 10:45 PM",
+    "startsInMin": -15,
+    "adult": false,
+    "description": "A participatory vocal drone and call-and-response circle at the base of the Man."
+  },
+  {
+    "title": "Secret Moon Service",
+    "placeName": "The Temple",
+    "timeLabel": "starts in 28 min",
+    "startsInMin": 28,
+    "adult": true,
+    "description": "18+ ritual performance with immersive sound, consent-forward participation, and late-night lunar theater."
+  },
+  {
+    "title": "Center Camp Dust Opera",
+    "placeName": "Center Camp",
+    "timeLabel": "now until 11:15 PM",
+    "startsInMin": -5,
+    "adult": false,
+    "description": "Improvised dusty opera for anyone passing through Center Camp."
+  },
+  {
+    "title": "Plaza Body Electric",
+    "placeName": "730 & G Plaza",
+    "timeLabel": "starts in 41 min",
+    "startsInMin": 41,
+    "adult": true,
+    "description": "18+ dance and body-art gathering with high-energy sound and live projection."
+  },
+  {
+    "title": "Three O'Clock Tea Signal",
+    "placeName": "3 & B Plaza",
+    "timeLabel": "starts in 52 min",
+    "startsInMin": 52,
+    "adult": false,
+    "description": "Tea, shade, and ambient transmissions for riders cutting through the 3:00 side."
+  },
+  {
+    "title": "DMZ Bass Lanterns",
+    "placeName": "Deep-Playa Music Zone (DMZ)",
+    "timeLabel": "now until midnight",
+    "startsInMin": -30,
+    "adult": false,
+    "description": "Deep playa lantern walk with bass music and roaming light sculptures."
+  }
+]
