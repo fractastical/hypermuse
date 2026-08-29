@@ -28,6 +28,30 @@ cmd, ctrl or alt held is left to the browser, so quitting and reloading still
 work. `?hotkeys=0` turns the whole thing off for an installation that might get
 leant on.
 
+**The playa overlay.** `?hermes=1` puts the car's position, what is on nearby in
+the next hour, and a Black Rock City street map with the track behind it around
+the edges of the show. Without that parameter the script returns immediately and
+nothing about the show changes, so it costs nothing to leave in.
+
+It reads `/api/hermes/state` and an event stream from `scripts/hermes-server.mjs`
+(`npm run hermes:server`, or `hermes:mock` to drive it round an invented route
+with no hardware). That server serves the repo as well as the API, so it can be
+the only thing running — but it listens on **8124** rather than 8080, because
+8080 is where `npm start` already is and the two could otherwise never be up at
+once. The overlay tries its own origin first and 8124 second and keeps whichever
+answers, so either arrangement works: the show on `npm start` with the API
+beside it, or everything out of the one server on 8124. `?hermesapi=` pins it if
+the API is on another machine.
+
+Position comes from a Garmin Alpha: `npm run hermes:post <lat> <lon>` pushes one
+by hand, and `scripts/hermes-alpha-watcher.mjs` polls the handheld's
+`.Position.gpx` and posts it every few seconds. That path is where a Linux box
+mounts the unit over MTP, so on a Mac it needs `ALPHA_POSITION_PATH` pointed at
+wherever the Alpha actually appears.
+
+`h` hides and shows the overlay's panels, which is why it is not also the key for
+the hot key list.
+
 ## What's new in this build
 
 - **Backdrop layer**: gifs/images pinned exactly behind the moon disc

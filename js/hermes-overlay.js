@@ -450,34 +450,60 @@
     if (event.key && event.key.toLowerCase() === "h") setVisible(!visible);
   });
 
+  // Where the state lives. Two arrangements are both normal: hermes-server can
+  // serve this page as well as the API, in which case the API is on this origin,
+  // or it can sit on its own port beside the plain static server the show is
+  // usually started with. So this origin is tried first and the API's own port
+  // second, and whichever answers is kept for the event stream too. The server
+  // already sends the CORS headers the second case needs. ?hermesapi= pins it.
+  const API_PORT = 8124;
+  const API_FALLBACK = `${location.protocol}//${location.hostname}:${API_PORT}`;
+  const API_PINNED = params.get("hermesapi");
+  let apiBase = API_PINNED || "";
+  let resolved = API_PINNED != null;
+  let events = null;
+
+  function connectEvents() {
+    if (!("EventSource" in window)) return;
+    if (events) events.close();
+    events = new EventSource(apiBase + "/api/hermes/events");
+    events.addEventListener("state", (event) => {
+      try { render(JSON.parse(event.data)); } catch { /* ignore malformed event */ }
+    });
+    events.onerror = () => poll();
+  }
+
   async function poll() {
-    try {
-      const resp = await fetch("/api/hermes/state", { cache: "no-store" });
-      if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
-      render(await resp.json());
-    } catch (err) {
-      if (!lastState) {
-        render({
-          fix: {},
-          place: { label: "Hermes backend offline", kind: "status", detail: err.message },
-          activities: []
-        });
-      }
+    const bases = resolved ? [apiBase] : ["", API_FALLBACK];
+    let err = null;
+    for (const base of bases) {
+      try {
+        const resp = await fetch(base + "/api/hermes/state", { cache: "no-store" });
+        if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
+        const next = await resp.json();
+        const moved = !resolved || base !== apiBase || !events;
+        apiBase = base;
+        resolved = true;
+        if (moved) connectEvents();
+        render(next);
+        return;
+      } catch (e) { err = e; }
+    }
+    if (!lastState) {
+      render({
+        fix: {},
+        place: {
+          label: "Hermes backend offline", kind: "status",
+          detail: (err ? err.message + " — " : "") + "npm run hermes:server"
+        },
+        activities: []
+      });
     }
   }
 
-  if ("EventSource" in window) {
-    const es = new EventSource("/api/hermes/events");
-    es.addEventListener("state", (event) => {
-      try { render(JSON.parse(event.data)); } catch { /* ignore malformed event */ }
-    });
-    es.onerror = () => poll();
-  } else {
-    poll();
-    setInterval(poll, 5000);
-  }
+  if (!("EventSource" in window)) setInterval(poll, 5000);
   // Keep the displayed age honest between Alpha watcher updates.
   setInterval(() => { if (lastState) render(lastState); }, 1000);
   loadMapMeta();
-  poll();
+  poll();   // finds the API, then opens the event stream on whatever answered
 })();

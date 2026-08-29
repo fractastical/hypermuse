@@ -5533,6 +5533,9 @@
       return "  " + k + "   " + LAYERS[k].name.padEnd(18) +
         (v == null ? "—" : v ? "in" : "out");
     });
+    // The gps overlay is a separate script with its own key, so it is listed
+    // only when it is actually up rather than promised to every show.
+    if (document.querySelector(".hermes-panel")) rows.push("  h   gps panels");
     keyHelp.textContent = ["HOT KEYS", ""].concat(rows).concat([
       "", "  n   next orbit act", "  m   gather / scatter the flower",
       "  0   everything back in", "  ?   this list"
@@ -5570,7 +5573,9 @@
       showHelp(keyHelp.style.display === "block");
       return;
     }
-    if (k === "?" || k === "/" || k === "h") {
+    // Not "h": that is the gps overlay's own key for hiding its panels, and it
+    // is a layer switch in all but name, so it keeps it.
+    if (k === "?" || k === "/") {
       showHelp(keyHelp.style.display !== "block");
     }
   });

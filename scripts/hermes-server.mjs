@@ -5,7 +5,11 @@ import { extname, join, normalize, resolve, sep } from "node:path";
 import { setInterval } from "node:timers";
 
 const root = process.cwd();
-const port = Number(process.env.PORT || 8080);
+// Its own port rather than 8080. It serves the repo as well as the API, so it
+// can be the only server running — but 8080 is where npm start already is, and
+// defaulting on top of that meant the two could never be up at once. On 8124 it
+// runs beside a plain static server, and the overlay finds it either way.
+const port = Number(process.env.PORT || 8124);
 const host = process.env.HOST || "0.0.0.0";
 const mock = process.argv.includes("--mock");
 const samplePath = join(root, "data", "hermes", "sample-state.json");
@@ -314,5 +318,6 @@ server.listen(port, host, () => {
   console.log(`[hermes] serving ${root}`);
   console.log(`[hermes] moon: http://127.0.0.1:${port}/hypermoon.html?kiosk=1&hermes=1`);
   console.log(`[hermes] state: http://127.0.0.1:${port}/api/hermes/state`);
+  console.log(`[hermes] or leave the show on :8080 and add ?hermes=1 — the overlay finds :${port}`);
   if (mock) console.log("[hermes] mock route enabled");
 });
