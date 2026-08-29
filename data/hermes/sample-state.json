@@ -1,0 +1,41 @@
+{
+  "fix": {
+    "lat": 40.78645,
+    "lon": -119.20332,
+    "accuracyM": 9,
+    "ageSec": 0,
+    "source": "mock"
+  },
+  "place": {
+    "label": "near 7:30 & E",
+    "kind": "intersection",
+    "detail": "Mock playa route"
+  },
+  "activities": [
+    {
+      "title": "Dust Choir Warmup",
+      "location": "Camp Resonant Breakfast",
+      "distanceM": 86,
+      "timeLabel": "now until 10:45 PM",
+      "adult": false,
+      "description": "A rolling participatory vocal drone for passengers, walkers, and passing mutant vehicles."
+    },
+    {
+      "title": "Secret Moon Service",
+      "location": "Temple-adjacent deep playa marker",
+      "distanceM": 142,
+      "timeLabel": "starts in 28 min",
+      "adult": true,
+      "description": "18+ ritual performance with immersive sound, consent-forward participation, and late-night lunar theater."
+    },
+    {
+      "title": "Tea Under The Engine",
+      "location": "Camp Low Voltage",
+      "distanceM": 194,
+      "timeLabel": "starts in 51 min",
+      "adult": false,
+      "description": "Small tea service for dusty travelers, with ambient electronics and shade if the structure is still standing."
+    }
+  ],
+  "updatedAt": "2026-08-29T06:45:00.000Z"
+}
