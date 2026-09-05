@@ -1,0 +1,511 @@
+<!doctype html>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Hermes Crew Graph</title>
+<style>
+  :root { color-scheme: dark; }
+  body {
+    margin: 0;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    background: #090d13;
+    color: #dbe7f3;
+  }
+  .wrap {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 14px;
+  }
+  .top {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    flex-wrap: wrap;
+    margin-bottom: 10px;
+  }
+  .grow { flex: 1 1 auto; min-width: 260px; }
+  .chip {
+    border: 1px solid #2f455e;
+    background: #132030;
+    border-radius: 999px;
+    padding: 5px 10px;
+    font-size: 12px;
+  }
+  input, select, textarea {
+    width: 100%;
+    border: 1px solid #38516c;
+    background: #101b28;
+    color: #dbe7f3;
+    border-radius: 8px;
+    padding: 7px 8px;
+    font-size: 13px;
+    box-sizing: border-box;
+  }
+  textarea { min-height: 62px; resize: vertical; }
+  .form {
+    margin-bottom: 12px;
+    border: 1px solid #25384f;
+    background: #0f1825;
+    border-radius: 10px;
+    padding: 10px;
+  }
+  .form-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 8px;
+  }
+  .full { grid-column: 1 / -1; }
+  .share {
+    border: 1px solid #25384f;
+    background: #0f1825;
+    border-radius: 8px;
+    padding: 7px 8px;
+    font-size: 12px;
+    overflow-wrap: anywhere;
+  }
+  button {
+    border: 1px solid #3a5675;
+    background: #18314a;
+    color: #dbe7f3;
+    border-radius: 8px;
+    padding: 6px 10px;
+    font-size: 13px;
+  }
+  .grid {
+    display: grid;
+    grid-template-columns: 1fr 330px;
+    gap: 12px;
+  }
+  #graph {
+    width: 100%;
+    height: 700px;
+    background: #0c1520;
+    border: 1px solid #25384f;
+    border-radius: 10px;
+  }
+  .side {
+    border: 1px solid #25384f;
+    border-radius: 10px;
+    background: #0c1520;
+    padding: 10px;
+    max-height: 700px;
+    overflow: auto;
+  }
+  .side h3 {
+    margin: 6px 0;
+    font-size: 14px;
+  }
+  .row {
+    font-size: 12px;
+    border-top: 1px solid rgba(89, 115, 140, 0.35);
+    padding: 7px 0;
+  }
+  .row:first-child { border-top: 0; }
+  .muted { color: #94a9bf; }
+  .warn { color: #ff8f8f; }
+  .ok { color: #8fe3bf; }
+  .pill {
+    display: inline-block;
+    border-radius: 999px;
+    padding: 2px 8px;
+    font-size: 11px;
+    border: 1px solid #5b7086;
+    margin-left: 6px;
+  }
+  .pill.q { border-color: #ff8872; color: #ffb3a1; background: rgba(255,120,90,0.12); }
+  .pill.noshow { border-color: #ffd08a; color: #ffd9a8; background: rgba(255,190,90,0.14); }
+  .pill.breach { border-color: #ff8c8c; color: #ffc1c1; background: rgba(255,95,95,0.14); }
+  .pill.appeal { border-color: #9dd3ff; color: #b8e2ff; background: rgba(99, 176, 236, 0.14); }
+  .pill.restitution { border-color: #8fe3bf; color: #baf2da; background: rgba(102, 214, 160, 0.14); }
+  .quick {
+    display: flex;
+    gap: 6px;
+    margin-top: 6px;
+    flex-wrap: wrap;
+  }
+  .quick button {
+    font-size: 11px;
+    padding: 4px 8px;
+  }
+</style>
+<div class="wrap">
+  <div class="top">
+    <div class="chip" id="counts">loading graph...</div>
+    <button id="refresh" type="button">Refresh</button>
+    <button id="copyShare" type="button">Copy share link</button>
+    <div class="grow share" id="shareLink">Preparing share link...</div>
+    <div class="muted">Red intro lines = guilt-by-association path (introduced someone with incident flags)</div>
+  </div>
+  <div class="form">
+    <div class="muted" style="margin-bottom:8px;">Shared write panel (intro / no-show / ethical breach / appeal / restitution / judgement)</div>
+    <div class="form-grid">
+      <div>
+        <label for="action">Action</label>
+        <select id="action">
+          <option value="intro">Intro (who introduced whom)</option>
+          <option value="no-show">No-show</option>
+          <option value="ethical-breach">Ethical breach</option>
+          <option value="appeal">Appeal</option>
+          <option value="restitution">Restitution</option>
+          <option value="third-party-judgement">Third-party judgement</option>
+        </select>
+      </div>
+      <div>
+        <label for="by">Reported by</label>
+        <input id="by" placeholder="admin name">
+      </div>
+      <div>
+        <label for="person">Person</label>
+        <input id="person" placeholder="person name">
+      </div>
+      <div>
+        <label for="severityRank">Severity (1-10)</label>
+        <input id="severityRank" type="number" min="1" max="10" step="1" value="6">
+      </div>
+      <div>
+        <label for="severity">Severity band (optional)</label>
+        <select id="severity">
+          <option value="low">low</option>
+          <option value="medium" selected>medium</option>
+          <option value="high">high</option>
+          <option value="critical">critical</option>
+        </select>
+      </div>
+      <div>
+        <label for="from">From (intro only)</label>
+        <input id="from" placeholder="introduced by">
+      </div>
+      <div>
+        <label for="to">To (intro only)</label>
+        <input id="to" placeholder="introduced person">
+      </div>
+      <div>
+        <label for="requestId">Linked request id (optional)</label>
+        <input id="requestId" placeholder="pickup/booking request id">
+      </div>
+      <div>
+        <label for="place">Place (optional)</label>
+        <input id="place" placeholder="e.g. 8:45 & F">
+      </div>
+      <div>
+        <label for="verdict">Judgement verdict (optional)</label>
+        <select id="verdict">
+          <option value="">none</option>
+          <option value="pending">pending</option>
+          <option value="mitigate">mitigate</option>
+          <option value="clear">clear</option>
+          <option value="uphold">uphold</option>
+        </select>
+      </div>
+      <div class="full">
+        <label for="note">Note</label>
+        <textarea id="note" placeholder="short details"></textarea>
+      </div>
+      <div class="full" style="display:flex; gap:8px; align-items:center; flex-wrap:wrap;">
+        <button id="submitEvent" type="button">Save graph event</button>
+        <span class="muted" id="submitStatus"></span>
+      </div>
+    </div>
+  </div>
+  <div class="grid">
+    <svg id="graph" viewBox="0 0 900 700" preserveAspectRatio="xMidYMid meet"></svg>
+    <div class="side">
+      <h3>Highest Risk</h3>
+      <div id="risk"></div>
+      <h3>People</h3>
+      <div id="people"></div>
+      <h3>Recent Events</h3>
+      <div id="events"></div>
+    </div>
+  </div>
+</div>
+<script>
+(() => {
+  const svg = document.getElementById("graph");
+  const refreshBtn = document.getElementById("refresh");
+  const countsEl = document.getElementById("counts");
+  const riskEl = document.getElementById("risk");
+  const peopleEl = document.getElementById("people");
+  const eventsEl = document.getElementById("events");
+  const shareLinkEl = document.getElementById("shareLink");
+  const copyShareBtn = document.getElementById("copyShare");
+  const actionEl = document.getElementById("action");
+  const byEl = document.getElementById("by");
+  const personEl = document.getElementById("person");
+  const severityRankEl = document.getElementById("severityRank");
+  const severityEl = document.getElementById("severity");
+  const fromEl = document.getElementById("from");
+  const toEl = document.getElementById("to");
+  const requestIdEl = document.getElementById("requestId");
+  const placeEl = document.getElementById("place");
+  const verdictEl = document.getElementById("verdict");
+  const noteEl = document.getElementById("note");
+  const submitBtn = document.getElementById("submitEvent");
+  const submitStatusEl = document.getElementById("submitStatus");
+  const params = new URLSearchParams(location.search);
+  const token = String(params.get("t") || params.get("token") || "").trim();
+  let cachedShareUrl = "";
+
+  const esc = (s) => String(s || "")
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;");
+
+  function ringPosition(i, n, cx, cy, radius) {
+    const t = (Math.PI * 2 * i / Math.max(1, n)) - Math.PI / 2;
+    return { x: cx + Math.cos(t) * radius, y: cy + Math.sin(t) * radius };
+  }
+
+  function colorFor(kind, severity) {
+    if (kind === "person") return "#9cd3ff";
+    if (kind === "request") return "#d3b3ff";
+    if (kind === "incident") {
+      if (severity === "critical") return "#ff5f5f";
+      if (severity === "high") return "#ff8872";
+      return "#ffba95";
+    }
+    if (kind === "resolution") return "#8fe3bf";
+    return "#b6c6d8";
+  }
+
+  function draw(data) {
+    const width = 900;
+    const height = 700;
+    const cx = width / 2;
+    const cy = height / 2;
+    const nodes = Array.isArray(data.nodes) ? data.nodes : [];
+    const edges = Array.isArray(data.edges) ? data.edges : [];
+    const byId = new Map(nodes.map((n) => [n.id, n]));
+
+    const people = nodes.filter((n) => n.kind === "person");
+    const requests = nodes.filter((n) => n.kind === "request");
+    const incidents = nodes.filter((n) => n.kind === "incident");
+    const resolutions = nodes.filter((n) => n.kind === "resolution");
+
+    people.forEach((n, i) => Object.assign(n, ringPosition(i, people.length, cx, cy, 230)));
+    requests.forEach((n, i) => Object.assign(n, ringPosition(i, requests.length, cx, cy, 310)));
+    incidents.forEach((n, i) => Object.assign(n, ringPosition(i, incidents.length, cx, cy, 130)));
+    resolutions.forEach((n, i) => Object.assign(n, ringPosition(i, resolutions.length, cx, cy, 175)));
+
+    svg.innerHTML = "";
+
+    const bg = document.createElementNS("http://www.w3.org/2000/svg", "rect");
+    bg.setAttribute("x", "0");
+    bg.setAttribute("y", "0");
+    bg.setAttribute("width", String(width));
+    bg.setAttribute("height", String(height));
+    bg.setAttribute("fill", "#0b1420");
+    svg.appendChild(bg);
+
+    for (const edge of edges) {
+      const a = byId.get(edge.from);
+      const b = byId.get(edge.to);
+      if (!a || !b || !Number.isFinite(a.x) || !Number.isFinite(b.x)) continue;
+      const line = document.createElementNS("http://www.w3.org/2000/svg", "line");
+      line.setAttribute("x1", String(a.x));
+      line.setAttribute("y1", String(a.y));
+      line.setAttribute("x2", String(b.x));
+      line.setAttribute("y2", String(b.y));
+      const assocIntro = edge.kind === "intro" && Number(edge.associationRisk || 0) > 0;
+      line.setAttribute("stroke", assocIntro ? "#ff7878" : edge.kind === "intro" ? "#72dfaa" : edge.kind === "incident" ? "#ff9888" : edge.kind === "resolution" ? "#7edfb7" : "#8ca5bf");
+      line.setAttribute("stroke-opacity", assocIntro ? "0.92" : "0.68");
+      line.setAttribute("stroke-width", assocIntro ? "2.8" : edge.kind === "incident" ? "2.1" : "1.2");
+      svg.appendChild(line);
+    }
+
+    for (const n of nodes) {
+      if (!Number.isFinite(n.x) || !Number.isFinite(n.y)) continue;
+      const g = document.createElementNS("http://www.w3.org/2000/svg", "g");
+      const c = document.createElementNS("http://www.w3.org/2000/svg", "circle");
+      const r = n.kind === "person" ? 11 : n.kind === "request" ? 8 : 7;
+      c.setAttribute("cx", String(n.x));
+      c.setAttribute("cy", String(n.y));
+      c.setAttribute("r", String(r));
+      c.setAttribute("fill", colorFor(n.kind, n.severity));
+      c.setAttribute("stroke", "#09111c");
+      c.setAttribute("stroke-width", "1.2");
+      g.appendChild(c);
+
+      if (n.kind === "person") {
+        const t = document.createElementNS("http://www.w3.org/2000/svg", "text");
+        t.setAttribute("x", String(n.x + 13));
+        t.setAttribute("y", String(n.y + 4));
+        t.setAttribute("fill", "#cde4ff");
+        t.setAttribute("font-size", "11");
+        t.textContent = String(n.label || "person");
+        g.appendChild(t);
+      }
+
+      const title = document.createElementNS("http://www.w3.org/2000/svg", "title");
+      title.textContent =
+        `${n.kind}: ${n.label || n.id}` +
+        (n.noShows ? `\nno-shows: ${n.noShows}` : "") +
+        (n.ethicalBreaches ? `\nbreaches: ${n.ethicalBreaches}` : "") +
+        (n.associationRisk ? `\nassociation risk: ${n.associationRisk}` : "") +
+        (n.associationPeople ? `\nintroduced questionable people: ${n.associationPeople}` : "") +
+        (n.place ? `\nplace: ${n.place}` : "") +
+        (n.note ? `\nnote: ${n.note}` : "");
+      g.appendChild(title);
+      svg.appendChild(g);
+    }
+  }
+
+  async function postEvent(payload) {
+    submitStatusEl.textContent = "Saving...";
+    const body = { ...payload };
+    if (token) body.token = token;
+    const res = await fetch("/api/hermes/graph", {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify(body)
+    });
+    const json = await res.json().catch(() => null);
+    if (!res.ok || !json || json.ok === false) {
+      throw new Error(json && json.error ? json.error : `save ${res.status}`);
+    }
+    submitStatusEl.textContent = "Saved.";
+    setTimeout(() => { submitStatusEl.textContent = ""; }, 2500);
+    await refresh();
+  }
+
+  async function refreshShareUrl() {
+    try {
+      const res = await fetch("/api/hermes/graph-url?mode=auto", { cache: "no-store" });
+      const body = await res.json().catch(() => null);
+      if (!res.ok || !body || body.ok === false) throw new Error("share url unavailable");
+      cachedShareUrl = body.tokenized || body.url || "";
+      shareLinkEl.textContent = cachedShareUrl || "share url unavailable";
+    } catch {
+      const fallback = `${location.origin}${location.pathname}${token ? `?t=${encodeURIComponent(token)}` : ""}`;
+      cachedShareUrl = fallback;
+      shareLinkEl.textContent = fallback;
+    }
+  }
+
+  async function refresh() {
+    try {
+      const res = await fetch("/api/hermes/graph?includeRequests=1", { cache: "no-store" });
+      const body = await res.json();
+      if (!res.ok || !body || body.ok === false) throw new Error(body && body.error ? body.error : `graph ${res.status}`);
+      draw(body);
+      const c = body.counts || {};
+      countsEl.textContent = `${c.people || 0} people • ${c.requests || 0} requests • ${c.incidents || 0} incidents • ${c.resolutions || 0} resolutions • ${c.intros || 0} intros`;
+      const risky = Array.isArray(body.highestRisk) ? body.highestRisk : [];
+      riskEl.innerHTML = risky.length
+        ? risky.slice(0, 30).map((r) =>
+          `<div class="row"><b>${esc(r.name)}</b><br>` +
+          `<span class="warn">breaches ${Number(r.ethicalBreaches || 0)}</span> • ` +
+          `<span class="warn">no-shows ${Number(r.noShows || 0)}</span> • ` +
+          `<span class="warn">assoc ${Number(r.associationRisk || 0)}</span> • ` +
+          `<span class="warn">severity pts ${Number(r.riskPoints || 0)}</span> • ` +
+          `<span class="ok">requests ${Number(r.requests || 0)}</span>` +
+          `${(Number(r.netRisk || 0) > 0) ? `<span class="pill q">questionable</span>` : ""}` +
+          `${(Number(r.noShows || 0) > 0) ? `<span class="pill noshow">no show</span>` : ""}` +
+          `${(Number(r.ethicalBreaches || 0) > 0) ? `<span class="pill breach">ethical breach</span>` : ""}` +
+          `${(Number(r.appeals || 0) > 0) ? `<span class="pill appeal">appeal ${Number(r.appeals || 0)}</span>` : ""}` +
+          `${(Number(r.restitutions || 0) > 0) ? `<span class="pill restitution">restitution ${Number(r.restitutions || 0)}</span>` : ""}<br>` +
+          `<span class="muted">net risk ${Number(r.netRisk || 0)} (raw ${Number(r.totalRisk || 0)} - mitigation ${Number(r.mitigation || 0)})${Number(r.associationPeople || 0) > 0 ? ` · introduced ${Number(r.associationPeople)} flagged` : ""}</span></div>`
+        ).join("")
+        : `<div class="row muted">No incidents logged yet.</div>`;
+      const people = Array.isArray(body.stats) ? body.stats : [];
+      peopleEl.innerHTML = people.length
+        ? people.slice(0, 80).map((p) =>
+          `<div class="row"><b>${esc(p.name)}</b>` +
+          `${(Number(p.netRisk || 0) > 0) ? `<span class="pill q">questionable</span>` : ""}` +
+          `${(Number(p.noShows || 0) > 0) ? `<span class="pill noshow">no show</span>` : ""}` +
+          `${(Number(p.ethicalBreaches || 0) > 0) ? `<span class="pill breach">ethical breach</span>` : ""}` +
+          `${(Number(p.appeals || 0) > 0) ? `<span class="pill appeal">appeal ${Number(p.appeals || 0)}</span>` : ""}` +
+          `${(Number(p.restitutions || 0) > 0) ? `<span class="pill restitution">restitution ${Number(p.restitutions || 0)}</span>` : ""}<br>` +
+          `<span class="muted">net ${Number(p.netRisk || 0)} • raw ${Number(p.totalRisk || 0)} • mitigation ${Number(p.mitigation || 0)} • severity pts ${Number(p.riskPoints || 0)} • breaches ${Number(p.ethicalBreaches || 0)} • no-shows ${Number(p.noShows || 0)} • assoc ${Number(p.associationRisk || 0)} • intros ${Number(p.intros || 0)} • requests ${Number(p.requests || 0)}</span>` +
+          `<div class="quick">` +
+            `<button type="button" data-quick="no-show" data-person="${esc(p.name)}">Flag no-show</button>` +
+            `<button type="button" data-quick="ethical-breach" data-person="${esc(p.name)}">Flag breach</button>` +
+            `<button type="button" data-quick="appeal" data-person="${esc(p.name)}">File appeal</button>` +
+            `<button type="button" data-quick="restitution" data-person="${esc(p.name)}">Add restitution</button>` +
+          `</div></div>`
+        ).join("")
+        : `<div class="row muted">No people in graph yet.</div>`;
+      const ev = Array.isArray(body.recentEvents) ? body.recentEvents : [];
+      eventsEl.innerHTML = ev.length
+        ? ev.slice(0, 40).map((e) =>
+          `<div class="row"><b>${esc(e.type || "event")}</b> · ${esc(e.kind || "")}<br>` +
+          `${esc(e.person || `${e.fromPerson || ""} -> ${e.toPerson || ""}`)}<br>` +
+          `${Number.isFinite(Number(e.severityRank)) ? `<span class="muted">severity ${Math.max(1, Math.min(10, Math.round(Number(e.severityRank))))}/10</span><br>` : ""}` +
+          `${e.verdict ? `<span class="muted">verdict: ${esc(e.verdict)}</span><br>` : ""}` +
+          `<span class="muted">${esc(e.at || "")}${e.by ? ` · by ${esc(e.by)}` : ""}</span><br>` +
+          `${e.note ? esc(e.note) : ""}</div>`
+        ).join("")
+        : `<div class="row muted">No graph events yet.</div>`;
+    } catch (err) {
+      countsEl.textContent = `Graph unavailable: ${String(err.message || err)}`;
+    }
+  }
+
+  submitBtn.addEventListener("click", async () => {
+    try {
+      const action = String(actionEl.value || "").trim();
+      const by = String(byEl.value || "admin").trim();
+      const note = String(noteEl.value || "").trim();
+      const severity = String(severityEl.value || "medium").trim();
+      const severityRank = Math.max(1, Math.min(10, Math.round(Number(severityRankEl.value || 6) || 6)));
+      const verdict = String(verdictEl.value || "").trim();
+      if (action === "intro") {
+        const from = String(fromEl.value || "").trim();
+        const to = String(toEl.value || personEl.value || "").trim();
+        if (!from || !to) throw new Error("intro requires from + to");
+        await postEvent({ action, from, to, by, note, severityRank: 2, severity: "low" });
+      } else {
+        const person = String(personEl.value || "").trim();
+        if (!person) throw new Error("person required");
+        await postEvent({
+          action,
+          person,
+          by,
+          severity,
+          severityRank,
+          verdict,
+          note,
+          requestId: String(requestIdEl.value || "").trim(),
+          place: String(placeEl.value || "").trim()
+        });
+      }
+    } catch (err) {
+      submitStatusEl.textContent = String(err.message || err);
+    }
+  });
+
+  peopleEl.addEventListener("click", async (ev) => {
+    const btn = ev.target && ev.target.closest ? ev.target.closest("button[data-quick]") : null;
+    if (!btn) return;
+    const action = String(btn.getAttribute("data-quick") || "");
+    const person = String(btn.getAttribute("data-person") || "");
+    if (!action || !person) return;
+    const note = prompt(`${action} note for ${person}`, "") || "";
+    let verdict = "";
+    if (action === "appeal") verdict = "pending";
+    const severityRank = action === "ethical-breach" ? 8 : action === "no-show" ? 6 : action === "restitution" ? 6 : 5;
+    try {
+      await postEvent({ action, person, by: byEl.value || "admin", severity: "medium", severityRank, verdict, note });
+    } catch (err) {
+      submitStatusEl.textContent = String(err.message || err);
+    }
+  });
+
+  copyShareBtn.addEventListener("click", async () => {
+    const text = cachedShareUrl || shareLinkEl.textContent || "";
+    if (!text) return;
+    try {
+      await navigator.clipboard.writeText(text);
+      submitStatusEl.textContent = "Share link copied.";
+      setTimeout(() => { submitStatusEl.textContent = ""; }, 2000);
+    } catch {
+      submitStatusEl.textContent = "Could not copy automatically.";
+    }
+  });
+
+  refreshBtn.addEventListener("click", refresh);
+  refreshShareUrl();
+  refresh();
+  setInterval(refresh, 15000);
+})();
+</script>

@@ -1,0 +1,814 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Hermes Live Tracker</title>
+<style>
+  :root { color-scheme: dark; }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    min-height: 100vh;
+    padding: max(16px, env(safe-area-inset-top)) 16px max(16px, env(safe-area-inset-bottom));
+    background: #06090f;
+    color: #f4faff;
+    font: 16px/1.4 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+  h1 { margin: 0; font-size: 23px; }
+  .sub { margin: 0; color: #8fa3b8; font-size: 14px; }
+  .card {
+    border: 1px solid #1d2937;
+    border-radius: 12px;
+    background: #0b111a;
+    padding: 12px;
+  }
+  #state { font-size: 18px; font-weight: 700; }
+  #detail { margin-top: 6px; color: #9eb3c9; font-size: 13px; }
+  #map {
+    width: 100%;
+    aspect-ratio: 1.24 / 1;
+    border-radius: 10px;
+    display: block;
+    background: #060b12;
+  }
+  #pickupForm {
+    display: grid;
+    gap: 8px;
+    margin-top: 10px;
+  }
+  #pickupForm input {
+    width: 100%;
+    padding: 10px;
+    border-radius: 10px;
+    border: 1px solid #24344a;
+    background: #060b12;
+    color: #f4faff;
+    font: inherit;
+  }
+  #pickupForm select {
+    width: 100%;
+    padding: 10px;
+    border-radius: 10px;
+    border: 1px solid #24344a;
+    background: #060b12;
+    color: #f4faff;
+    font: inherit;
+  }
+  #pickupForm button {
+    border: 0;
+    border-radius: 10px;
+    padding: 10px 12px;
+    background: #1d6fe0;
+    color: #fff;
+    font: inherit;
+    font-weight: 650;
+  }
+  #pickupStatus {
+    min-height: 18px;
+    color: #9eb3c9;
+    font-size: 13px;
+  }
+  #weatherCard .kicker {
+    color: #9eb3c9;
+    font-size: 13px;
+    margin-bottom: 6px;
+  }
+  #weatherSummary {
+    color: #d7e8fa;
+    font-size: 14px;
+    line-height: 1.4;
+  }
+  #weatherMeta {
+    margin-top: 6px;
+    color: #9eb3c9;
+    font-size: 12px;
+  }
+  #weatherMapWrap {
+    margin-top: 8px;
+    border: 1px solid rgba(41, 63, 88, 0.8);
+    border-radius: 10px;
+    overflow: hidden;
+    background: #070d14;
+  }
+  #weatherMap {
+    display: block;
+    width: 100%;
+    height: 220px;
+    border: 0;
+  }
+</style>
+<script src="js/hermes-marks.js"></script>
+<script src="js/playa-map.js"></script>
+</head>
+<body>
+  <div>
+    <h1>Hermes Live Tracker</h1>
+    <p class="sub">Current location and nearby active events.</p>
+  </div>
+
+  <div class="card">
+    <div id="state">Connecting…</div>
+    <div id="detail">Waiting for first fix.</div>
+    <div id="nowPlaying" class="sub" style="margin-top:6px;">Now playing: nobody scheduled</div>
+  </div>
+
+  <div class="card">
+    <canvas id="map" width="620" height="500" aria-label="Hermes location map"></canvas>
+  </div>
+
+  <div class="card" id="weatherCard">
+    <div class="kicker">Weather watch</div>
+    <div id="weatherSummary">Waiting for location…</div>
+    <div id="weatherMeta"></div>
+    <div id="weatherMapWrap">
+      <iframe id="weatherMap" title="Local rain map" loading="lazy"></iframe>
+    </div>
+  </div>
+
+  <div class="card">
+    <div style="font-weight:700; margin-bottom:4px;">Request service</div>
+    <div class="sub" id="requestHelp" style="margin-bottom:8px;">Send Hermes a pickup request at a place.</div>
+    <form id="pickupForm">
+      <input id="requestIntention" placeholder="Intention (optional), e.g. heading to sunrise set" autocomplete="off">
+      <select id="requestType" aria-label="Request type">
+        <option value="pickup" selected>Pickup request</option>
+        <option value="dj-set">DJ / live act request</option>
+      </select>
+      <input id="pickupWho" placeholder="Your name (optional)" autocomplete="name">
+      <input id="pickupPlace" placeholder="Pickup place (required), e.g. 7:30 & E" autocomplete="off" required>
+      <input id="pickupWhen" placeholder="Pickup time (optional), e.g. now / 9:45pm / in 15 min" autocomplete="off">
+      <input id="equipmentNeeded" placeholder="Equipment needed (optional), e.g. decks, 2 mics, PA" autocomplete="off">
+      <input id="pickupNote" placeholder="Note (optional): riders, landmark, DJ style, etc." autocomplete="off">
+      <button id="requestSubmit" type="submit">Send pickup request</button>
+    </form>
+    <div id="pickupStatus"></div>
+  </div>
+
+<script>
+(() => {
+  const params = new URLSearchParams(location.search);
+  const ART_FILTER = ["all", "deep", "city"].includes((params.get("artfilter") || "").toLowerCase())
+    ? (params.get("artfilter") || "").toLowerCase()
+    : "all";
+  const ART_DEEP_MIN_M = Math.max(200, Number(params.get("deepmin")) || 1100);
+  const WEATHER_PROVIDER = ["auto", "open-meteo", "accuweather", "accu"].includes((params.get("weather") || "").toLowerCase())
+    ? (params.get("weather") || "auto").toLowerCase()
+    : "auto";
+  const MAN_LAT = 40.783247448000054;
+  const MAN_LON = -119.20788409599999;
+  const stateEl = document.getElementById("state");
+  const detailEl = document.getElementById("detail");
+  const canvas = document.getElementById("map");
+  const ctx = canvas.getContext("2d");
+  const mapLayer = document.createElement("canvas");
+  mapLayer.width = canvas.width;
+  mapLayer.height = canvas.height;
+  const mapLayerCtx = mapLayer.getContext("2d");
+  const pickupForm = document.getElementById("pickupForm");
+  const pickupStatus = document.getElementById("pickupStatus");
+  const requestTypeEl = document.getElementById("requestType");
+  const requestIntentionEl = document.getElementById("requestIntention");
+  const equipmentNeededEl = document.getElementById("equipmentNeeded");
+  const requestHelp = document.getElementById("requestHelp");
+  const requestSubmit = document.getElementById("requestSubmit");
+  const pickupPlaceEl = document.getElementById("pickupPlace");
+  const pickupWhenEl = document.getElementById("pickupWhen");
+  const pickupNoteEl = document.getElementById("pickupNote");
+  const nowPlayingEl = document.getElementById("nowPlaying");
+  const weatherSummaryEl = document.getElementById("weatherSummary");
+  const weatherMetaEl = document.getElementById("weatherMeta");
+  const weatherMapEl = document.getElementById("weatherMap");
+  let map = null;
+  let data = null;
+  let weatherState = {
+    updatedAt: 0,
+    nearest: null,
+    etaMin: NaN,
+    nextLikely: null,
+    etaWindMin: NaN,
+    etaMotionMin: NaN,
+    windPushKph: NaN,
+    approachKph: NaN,
+    confidences: { rain: "unknown", eta: "unknown", wind: "unknown" },
+    rainNow: NaN,
+    windKph: NaN,
+    gustKph: NaN,
+    windDirDeg: NaN,
+    provider: "unknown",
+    error: "",
+    mapUrl: ""
+  };
+  let weatherNextAtMs = 0;
+  const WEATHER_LOG_KEY = "hermes-live-weather-confidence-log-v1";
+  const WEATHER_TREND_KEY = "hermes-live-weather-rain-distance-trend-v1";
+  let weatherTrend = (() => {
+    try {
+      const rows = JSON.parse(localStorage.getItem(WEATHER_TREND_KEY) || "[]");
+      return Array.isArray(rows) ? rows : [];
+    } catch {
+      return [];
+    }
+  })();
+  let motion = { bearing: NaN, speedMps: NaN };
+  const motionSamples = [];
+  const MOTION_WINDOW = 3;
+  const northSamples = [];
+  const NORTH_WINDOW = 25;
+  const NORTH_ROTATE_MIN_UPDATES = 70;
+  const MOVE_MIN_MPS = 0.35;
+  const NORTH_MIN_MPS = 0.08;
+  const NORTH_MAX_DEVIATION_FRACTION = 0.2;
+  const HEADING_EMA_ALPHA = 0.3;
+  const SPEED_EMA_ALPHA = 0.25;
+  const HEADING_MAX_STEP_DEG = 18;
+  const hermesLogo = new Image();
+  let hermesLogoReady = false;
+  hermesLogo.onload = () => { hermesLogoReady = true; draw(); };
+  hermesLogo.src = "hermes/logo.png";
+
+  const meters = (m) => !Number.isFinite(m) ? "?" : (m < 1000 ? `${Math.round(m)}m` : `${(m / 1000).toFixed(2)}km`);
+  const since = (s) => !Number.isFinite(s) ? "?" : (s < 60 ? `${Math.round(s)}s` : `${Math.round(s / 60)}m`);
+  const bearingDeg = (aLat, aLon, bLat, bLon) => {
+    const to = Math.PI / 180;
+    const y = Math.sin((bLon - aLon) * to) * Math.cos(bLat * to);
+    const x = Math.cos(aLat * to) * Math.sin(bLat * to) -
+      Math.sin(aLat * to) * Math.cos(bLat * to) * Math.cos((bLon - aLon) * to);
+    return (Math.atan2(y, x) * 180 / Math.PI + 360) % 360;
+  };
+  const distM = (aLat, aLon, bLat, bLon) => {
+    const latM = (bLat - aLat) * 111320;
+    const lonM = (bLon - aLon) * 111320 * Math.cos(((aLat + bLat) / 2) * Math.PI / 180);
+    return Math.hypot(latM, lonM);
+  };
+  const destinationPoint = (lat, lon, bearingDegNow, metersOut) => {
+    const rad = bearingDegNow * Math.PI / 180;
+    const dLat = (Math.cos(rad) * metersOut) / 111320;
+    const cosLat = Math.max(0.2, Math.cos(lat * Math.PI / 180));
+    const dLon = (Math.sin(rad) * metersOut) / (111320 * cosLat);
+    return { lat: lat + dLat, lon: lon + dLon };
+  };
+  const weatherRows = (body) => {
+    if (Array.isArray(body)) return body;
+    if (body && Array.isArray(body.responses)) return body.responses;
+    return body ? [body] : [];
+  };
+  const rainAmount = (row, idx = 0) => {
+    const m = row && row.minutely_15;
+    if (!m || !Array.isArray(m.precipitation)) return NaN;
+    const v = Number(m.precipitation[idx]);
+    return Number.isFinite(v) ? v : NaN;
+  };
+  const weatherBaseFix = () => {
+    if (data && data.fix && Number.isFinite(Number(data.fix.lat)) && Number.isFinite(Number(data.fix.lon))) {
+      return { lat: Number(data.fix.lat), lon: Number(data.fix.lon) };
+    }
+    return null;
+  };
+  const weatherMapUrl = (base) => {
+    if (!base) return "";
+    const lat = Number(base.lat).toFixed(4);
+    const lon = Number(base.lon).toFixed(4);
+    return `https://embed.windy.com/embed2.html?lat=${lat}&lon=${lon}&detailLat=${lat}&detailLon=${lon}&width=650&height=350&zoom=8&level=surface&overlay=rain&menu=&message=&marker=true&calendar=now&pressure=&type=map&location=coordinates&metricWind=default&metricTemp=default&radarRange=-1`;
+  };
+  const addWeatherConfidenceLog = (entry) => {
+    try {
+      const rows = JSON.parse(localStorage.getItem(WEATHER_LOG_KEY) || "[]");
+      const next = Array.isArray(rows) ? rows : [];
+      next.push(entry);
+      if (next.length > 200) next.splice(0, next.length - 200);
+      localStorage.setItem(WEATHER_LOG_KEY, JSON.stringify(next));
+    } catch {
+      // Storage can fail in private mode; live weather still works.
+    }
+  };
+  const pushRainDistanceSample = (atMs, distanceM) => {
+    if (!Number.isFinite(atMs) || !Number.isFinite(distanceM)) return;
+    weatherTrend.push({ t: Math.round(atMs), d: Math.round(distanceM) });
+    const cutoff = atMs - 6 * 3600 * 1000;
+    weatherTrend = weatherTrend.filter((s) => Number.isFinite(s.t) && Number.isFinite(s.d) && s.t >= cutoff).slice(-120);
+    try { localStorage.setItem(WEATHER_TREND_KEY, JSON.stringify(weatherTrend)); } catch { /* ignore */ }
+  };
+  const rainApproachModel = (currentDistanceM) => {
+    if (!Number.isFinite(currentDistanceM)) return { approachKph: NaN, etaMotionMin: NaN, confidence: "low" };
+    const rows = weatherTrend.slice(-14);
+    if (rows.length < 3) return { approachKph: NaN, etaMotionMin: NaN, confidence: "low" };
+    const t0 = rows[0].t;
+    let sx = 0, sy = 0, sxx = 0, sxy = 0;
+    for (const r of rows) {
+      const x = (r.t - t0) / 3600000;
+      const y = r.d / 1000;
+      sx += x; sy += y; sxx += x * x; sxy += x * y;
+    }
+    const n = rows.length;
+    const den = n * sxx - sx * sx;
+    if (!Number.isFinite(den) || Math.abs(den) < 1e-9) return { approachKph: NaN, etaMotionMin: NaN, confidence: "low" };
+    const slope = (n * sxy - sx * sy) / den;
+    const approachKph = -slope;
+    const yMean = sy / n;
+    let ssTot = 0;
+    let ssRes = 0;
+    for (const r of rows) {
+      const x = (r.t - t0) / 3600000;
+      const y = r.d / 1000;
+      const pred = (sy - slope * sx) / n + slope * x;
+      ssTot += (y - yMean) ** 2;
+      ssRes += (y - pred) ** 2;
+    }
+    const r2 = ssTot > 1e-9 ? Math.max(0, Math.min(1, 1 - ssRes / ssTot)) : 0;
+    if (!(approachKph > 0.2)) return { approachKph: NaN, etaMotionMin: NaN, confidence: "low" };
+    const etaMotionMin = ((currentDistanceM / 1000) / Math.max(0.05, approachKph)) * 60;
+    const confidence = (rows.length >= 6 && r2 >= 0.6) ? "high" : (rows.length >= 4 && r2 >= 0.35 ? "medium" : "low");
+    return { approachKph, etaMotionMin, confidence };
+  };
+  function renderWeather() {
+    if (!weatherSummaryEl || !weatherMetaEl || !weatherMapEl) return;
+    const ws = weatherState || {};
+    if (ws.error) {
+      weatherSummaryEl.textContent = `Weather unavailable: ${ws.error}`;
+    } else {
+      const rainNowText = Number.isFinite(ws.rainNow) && ws.rainNow > 0.01
+        ? `Rain now: ${ws.rainNow.toFixed(2)} mm/15m`
+        : "Rain now: none detected";
+      const nearText = ws.nearest
+        ? `Closest rain: ${meters(ws.nearest.d)} ${ws.nearest.dir}`
+        : "Closest rain: not seen in 50km sample";
+      const etaText = Number.isFinite(ws.etaWindMin)
+        ? `ETA by wind + rain position: ${Math.round(ws.etaWindMin)} min (${ws.windPushKph.toFixed(1)} km/h toward us)`
+        : (Number.isFinite(ws.etaMin)
+          ? `ETA from forecast bins: ${Math.round(ws.etaMin)} min`
+          : "ETA: no arrival in next 3h");
+      const etaMotionText = Number.isFinite(ws.etaMotionMin)
+        ? `Arrival by rain motion: ${Math.round(ws.etaMotionMin)} min (${ws.approachKph.toFixed(1)} km/h toward us)`
+        : "Arrival by rain motion: not approaching yet";
+      const likelyInText = (mins) => {
+        const m = Math.max(0, Math.round(Number(mins)));
+        if (!Number.isFinite(m)) return "?";
+        if (m < 60) return `${m}m`;
+        const h = Math.floor(m / 60);
+        const rem = m % 60;
+        return rem ? `${h}h ${rem}m` : `${h}h`;
+      };
+      const nextLikelyText = ws.nextLikely && Number.isFinite(Number(ws.nextLikely.probPct))
+        ? `Likely rain window: ${likelyInText(ws.nextLikely.inMin)} · ${Math.round(Number(ws.nextLikely.probPct))}%` +
+          `${Number.isFinite(Number(ws.nextLikely.precipMm)) ? ` · ~${Number(ws.nextLikely.precipMm).toFixed(2)} mm/hr` : ""}`
+        : "Likely rain window: none above 20% in next 12h";
+      const windText = Number.isFinite(ws.windKph)
+        ? `Wind: ${ws.windKph.toFixed(1)} km/h ${Number.isFinite(ws.windDirDeg) ? `${arrow(ws.windDirDeg)} ${Math.round(ws.windDirDeg)}°` : ""}` +
+          `${Number.isFinite(ws.gustKph) ? ` · gust ${ws.gustKph.toFixed(1)} km/h` : ""}`
+        : "Wind: unknown";
+      weatherSummaryEl.textContent = `${rainNowText} · ${nearText} · ${etaText} · ${nextLikelyText} · ${etaMotionText} · ${windText}`;
+    }
+    const agoSec = ws.updatedAt ? Math.max(0, Math.round((Date.now() - ws.updatedAt) / 1000)) : NaN;
+    const ago = Number.isFinite(agoSec) ? (agoSec < 90 ? `${agoSec}s` : `${Math.round(agoSec / 60)}m`) : "?";
+    const conf = ws.confidences || {};
+    weatherMetaEl.textContent = `Confidence rain:${conf.rain || "?"} eta:${conf.eta || "?"} wind:${conf.wind || "?"} · ${ws.provider || "weather-api"} · updated ${ago} ago`;
+    if (ws.mapUrl && weatherMapEl.src !== ws.mapUrl) weatherMapEl.src = ws.mapUrl;
+  }
+  async function refreshWeather(force = false) {
+    const now = Date.now();
+    if (!force && now < weatherNextAtMs) return;
+    const base = weatherBaseFix();
+    if (!base) {
+      weatherState = { ...weatherState, updatedAt: now, error: "waiting for Hermes position" };
+      renderWeather();
+      weatherNextAtMs = now + 15000;
+      return;
+    }
+    const weatherUrl = `/api/hermes/weather?lat=${base.lat.toFixed(5)}&lon=${base.lon.toFixed(5)}&provider=${encodeURIComponent(WEATHER_PROVIDER)}`;
+    try {
+      const res = await fetch(weatherUrl, { cache: "no-store" });
+      const body = await res.json().catch(() => null);
+      if (!res.ok || !body || body.ok === false) throw new Error(body && body.error ? body.error : `weather ${res.status}`);
+      const nearest = body.nearest && Number.isFinite(Number(body.nearest.d))
+        ? {
+          d: Number(body.nearest.d),
+          dir: body.nearest.dir || (Number.isFinite(Number(body.nearest.b)) ? arrow(Number(body.nearest.b)) : "•")
+        }
+        : null;
+      const etaMin = Number(body.etaMin);
+      const nextLikely = body.nextLikely && typeof body.nextLikely === "object" ? body.nextLikely : null;
+      const etaWindMin = Number(body.etaWindMin);
+      const windPushKph = Number(body.windPushKph);
+      const rainNow = Number(body.rainNow);
+      const windKph = Number(body.windKph);
+      const gustKph = Number(body.gustKph);
+      const windDirDeg = Number(body.windDirDeg);
+      const confRain = body.confidences && body.confidences.rain
+        ? String(body.confidences.rain)
+        : nearest && nearest.d <= 15000 ? "high" : nearest && nearest.d <= 35000 ? "medium" : "low";
+      if (nearest && Number.isFinite(nearest.d)) pushRainDistanceSample(now, nearest.d);
+      const model = rainApproachModel(nearest && nearest.d);
+      const confEtaForecast = body.confidences && body.confidences.eta
+        ? String(body.confidences.eta)
+        : Number.isFinite(etaMin) ? (etaMin <= 45 ? "high" : etaMin <= 120 ? "medium" : "low") : "low";
+      const confWind = body.confidences && body.confidences.wind
+        ? String(body.confidences.wind)
+        : Number.isFinite(windKph) ? "high" : "low";
+      const confEta = confEtaForecast;
+      weatherState = {
+        updatedAt: now,
+        nearest,
+        etaMin,
+        nextLikely,
+        etaWindMin: Number.isFinite(etaWindMin) ? etaWindMin : NaN,
+        etaMotionMin: model.etaMotionMin,
+        windPushKph: Number.isFinite(windPushKph) ? windPushKph : NaN,
+        approachKph: model.approachKph,
+        rainNow: Number.isFinite(rainNow) ? rainNow : NaN,
+        windKph: Number.isFinite(windKph) ? windKph : NaN,
+        gustKph: Number.isFinite(gustKph) ? gustKph : NaN,
+        windDirDeg: Number.isFinite(windDirDeg) ? windDirDeg : NaN,
+        provider: body.provider || "weather-api",
+        confidences: { rain: confRain, eta: confEta, wind: confWind },
+        error: "",
+        mapUrl: weatherMapUrl(base)
+      };
+      addWeatherConfidenceLog({
+        at: new Date(now).toISOString(),
+        source: body.provider || "weather-api",
+        lat: Number(base.lat.toFixed(5)),
+        lon: Number(base.lon.toFixed(5)),
+        rain: confRain,
+        eta: confEta,
+        wind: confWind,
+        etaForecast: confEtaForecast,
+        etaMotion: model.confidence
+      });
+    } catch (err) {
+      weatherState = {
+        ...weatherState,
+        updatedAt: now,
+        error: String((err && err.message) || err || "fetch failed"),
+        mapUrl: weatherMapUrl(base)
+      };
+    }
+    weatherNextAtMs = now + 5 * 60 * 1000;
+    renderWeather();
+  }
+  function filteredArtRows(allRows) {
+    const rows = Array.isArray(allRows) ? allRows : [];
+    return rows
+      .filter((a) => Number.isFinite(Number(a.lat)) && Number.isFinite(Number(a.lon)))
+      .map((a) => {
+        const lat = Number(a.lat);
+        const lon = Number(a.lon);
+        const manDistanceM = distM(MAN_LAT, MAN_LON, lat, lon);
+        const deep = manDistanceM >= ART_DEEP_MIN_M;
+        return { ...a, deep };
+      })
+      .filter((row) => ART_FILTER === "deep" ? row.deep : ART_FILTER === "city" ? !row.deep : true);
+  }
+  const arrow = (deg) => ["↑", "↗", "→", "↘", "↓", "↙", "←", "↖"][Math.round(deg / 45) % 8];
+  function updateMotion(lat, lon, ts) {
+    motionSamples.push({ lat, lon, ts: Number(ts) || Date.now() });
+    if (motionSamples.length > 8) motionSamples.splice(0, motionSamples.length - 8);
+    const recent = motionSamples.slice(-MOTION_WINDOW);
+    if (recent.length < 2) {
+      motion = { bearing: NaN, speedMps: NaN };
+      return;
+    }
+    let sumX = 0;
+    let sumY = 0;
+    let totalDist = 0;
+    let totalSec = 0;
+    for (let i = 1; i < recent.length; i++) {
+      const a = recent[i - 1];
+      const b = recent[i];
+      const dtSec = Math.max(0, (b.ts - a.ts) / 1000);
+      if (dtSec <= 0) continue;
+      const d = distM(a.lat, a.lon, b.lat, b.lon);
+      const rad = bearingDeg(a.lat, a.lon, b.lat, b.lon) * Math.PI / 180;
+      sumX += Math.cos(rad) * d;
+      sumY += Math.sin(rad) * d;
+      totalDist += d;
+      totalSec += dtSec;
+    }
+    if (totalSec <= 0 || totalDist < 1) {
+      motion = {
+        bearing: Number.isFinite(motion.bearing) ? motion.bearing : NaN,
+        speedMps: Number.isFinite(motion.speedMps) ? motion.speedMps * 0.8 : 0
+      };
+      return;
+    }
+    const rawBearing = (Math.atan2(sumY, sumX) * 180 / Math.PI + 360) % 360;
+    const rawSpeed = totalDist / totalSec;
+    if (!Number.isFinite(motion.bearing)) {
+      motion = { bearing: rawBearing, speedMps: rawSpeed };
+    } else {
+      const delta = shortestAngleDeltaDeg(rawBearing, motion.bearing);
+      const limited = Math.max(-HEADING_MAX_STEP_DEG, Math.min(HEADING_MAX_STEP_DEG, delta));
+      const nextBearing = (motion.bearing + limited * HEADING_EMA_ALPHA + 360) % 360;
+      const nextSpeed = Number.isFinite(motion.speedMps)
+        ? motion.speedMps * (1 - SPEED_EMA_ALPHA) + rawSpeed * SPEED_EMA_ALPHA
+        : rawSpeed;
+      motion = { bearing: nextBearing, speedMps: nextSpeed };
+    }
+    if (Number.isFinite(motion.bearing) && Number.isFinite(motion.speedMps) && motion.speedMps >= NORTH_MIN_MPS) {
+      northSamples.push(motion.bearing);
+      if (northSamples.length > NORTH_WINDOW) northSamples.splice(0, northSamples.length - NORTH_WINDOW);
+    }
+  }
+  function averageBearing(degList) {
+    if (!degList.length) return NaN;
+    let x = 0;
+    let y = 0;
+    for (const deg of degList) {
+      const r = deg * Math.PI / 180;
+      x += Math.cos(r);
+      y += Math.sin(r);
+    }
+    if (Math.abs(x) < 1e-6 && Math.abs(y) < 1e-6) return NaN;
+    return (Math.atan2(y, x) * 180 / Math.PI + 360) % 360;
+  }
+  function angularDiffDeg(a, b) {
+    const raw = Math.abs((a - b) % 360);
+    return raw > 180 ? 360 - raw : raw;
+  }
+  function shortestAngleDeltaDeg(target, current) {
+    return ((target - current + 540) % 360) - 180;
+  }
+  function filteredAverageBearing(degList) {
+    const seed = averageBearing(degList);
+    if (!Number.isFinite(seed)) return NaN;
+    const maxDevDeg = 360 * NORTH_MAX_DEVIATION_FRACTION;
+    const filtered = degList.filter((deg) => angularDiffDeg(deg, seed) <= maxDevDeg);
+    if (!filtered.length) return seed;
+    const refined = averageBearing(filtered);
+    return Number.isFinite(refined) ? refined : seed;
+  }
+  function mapNorthBearing() {
+    if (northSamples.length < NORTH_ROTATE_MIN_UPDATES) return NaN;
+    const avg = filteredAverageBearing(northSamples.slice(-NORTH_WINDOW));
+    if (Number.isFinite(avg)) return avg;
+    return Number.isFinite(motion.bearing) ? motion.bearing : NaN;
+  }
+  function drawOrientedLayer(dst, layer, northDeg) {
+    const w = dst.canvas.width;
+    const h = dst.canvas.height;
+    dst.clearRect(0, 0, w, h);
+    if (!Number.isFinite(northDeg)) {
+      dst.drawImage(layer, 0, 0);
+      return;
+    }
+    dst.save();
+    dst.translate(w / 2, h / 2);
+    dst.rotate(-northDeg * Math.PI / 180);
+    dst.drawImage(layer, -w / 2, -h / 2, w, h);
+    dst.restore();
+  }
+  function drawHeadingWedge(ctx2d, at, bearingDegNow, speedMps) {
+    if (!Number.isFinite(bearingDegNow) || !Number.isFinite(speedMps) || speedMps < MOVE_MIN_MPS) return;
+    const rad = (bearingDegNow - 90) * Math.PI / 180;
+    const len = 44;
+    const wing = 14;
+    const tail = 10;
+    const tipX = at.x + Math.cos(rad) * len;
+    const tipY = at.y + Math.sin(rad) * len;
+    const baseX = at.x - Math.cos(rad) * tail;
+    const baseY = at.y - Math.sin(rad) * tail;
+    const perp = rad + Math.PI / 2;
+    const leftX = baseX + Math.cos(perp) * wing;
+    const leftY = baseY + Math.sin(perp) * wing;
+    const rightX = baseX - Math.cos(perp) * wing;
+    const rightY = baseY - Math.sin(perp) * wing;
+    ctx2d.fillStyle = "rgba(88,219,255,0.98)";
+    ctx2d.strokeStyle = "rgba(4,16,30,0.98)";
+    ctx2d.lineWidth = 3;
+    ctx2d.shadowColor = "rgba(0,0,0,0.45)";
+    ctx2d.shadowBlur = 6;
+    ctx2d.beginPath();
+    ctx2d.moveTo(tipX, tipY);
+    ctx2d.lineTo(leftX, leftY);
+    ctx2d.lineTo(rightX, rightY);
+    ctx2d.closePath();
+    ctx2d.fill();
+    ctx2d.stroke();
+    ctx2d.shadowColor = "transparent";
+    ctx2d.shadowBlur = 0;
+  }
+  function drawWindOverlay(ctx2d, ws) {
+    const windKph = Number(ws && ws.windKph);
+    const gustKph = Number(ws && ws.gustKph);
+    const windDirDeg = Number(ws && ws.windDirDeg);
+    if (!Number.isFinite(windKph) && !Number.isFinite(windDirDeg)) return;
+    const x = 12, y = 12, w = 248, h = 62;
+    ctx2d.save();
+    ctx2d.fillStyle = "rgba(7, 16, 28, 0.72)";
+    ctx2d.strokeStyle = "rgba(138, 193, 232, 0.7)";
+    ctx2d.lineWidth = 1.4;
+    ctx2d.beginPath();
+    ctx2d.rect(x, y, w, h);
+    ctx2d.fill();
+    ctx2d.stroke();
+
+    ctx2d.fillStyle = "#d8ecff";
+    ctx2d.font = "700 12px -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, sans-serif";
+    ctx2d.fillText("Wind now", x + 50, y + 18);
+    ctx2d.font = "12px -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, sans-serif";
+    const dirText = Number.isFinite(windDirDeg) ? `${arrow(windDirDeg)} ${Math.round(windDirDeg)}°` : "dir ?";
+    const speedText = Number.isFinite(windKph) ? `${windKph.toFixed(1)} km/h` : "speed ?";
+    const gustText = Number.isFinite(gustKph) ? ` gust ${gustKph.toFixed(1)}` : "";
+    ctx2d.fillText(`${speedText}${gustText}`, x + 50, y + 36);
+    ctx2d.fillText(`from ${dirText}`, x + 50, y + 53);
+
+    if (Number.isFinite(windDirDeg)) {
+      // Meteorological convention: direction is where wind comes from.
+      const towardDeg = (windDirDeg + 180) % 360;
+      const rad = (towardDeg - 90) * Math.PI / 180;
+      const cx = x + 24;
+      const cy = y + 36;
+      const len = 17;
+      const tipX = cx + Math.cos(rad) * len;
+      const tipY = cy + Math.sin(rad) * len;
+      const tailX = cx - Math.cos(rad) * 8;
+      const tailY = cy - Math.sin(rad) * 8;
+      const wing = 5;
+      const perp = rad + Math.PI / 2;
+      ctx2d.strokeStyle = "rgba(112,224,255,0.98)";
+      ctx2d.lineWidth = 2;
+      ctx2d.beginPath();
+      ctx2d.moveTo(tailX, tailY);
+      ctx2d.lineTo(tipX, tipY);
+      ctx2d.stroke();
+      ctx2d.fillStyle = "rgba(112,224,255,0.98)";
+      ctx2d.beginPath();
+      ctx2d.moveTo(tipX, tipY);
+      ctx2d.lineTo(tipX - Math.cos(rad) * 8 + Math.cos(perp) * wing, tipY - Math.sin(rad) * 8 + Math.sin(perp) * wing);
+      ctx2d.lineTo(tipX - Math.cos(rad) * 8 - Math.cos(perp) * wing, tipY - Math.sin(rad) * 8 - Math.sin(perp) * wing);
+      ctx2d.closePath();
+      ctx2d.fill();
+    }
+    ctx2d.restore();
+  }
+
+  function draw() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    mapLayerCtx.clearRect(0, 0, mapLayer.width, mapLayer.height);
+    if (!map || !data || !data.fix || !Number.isFinite(Number(data.fix.lat))) {
+      ctx.fillStyle = "#8fa3b8";
+      ctx.font = "16px -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, sans-serif";
+      ctx.fillText("Waiting for map and location…", 16, 30);
+      return;
+    }
+    const lat = Number(data.fix.lat), lon = Number(data.fix.lon);
+    const spanM = map.wholeCity && Number.isFinite(map.wholeCity.spanM) ? map.wholeCity.spanM * 1.08 : 5200;
+    const centre = map.man || map.at(lat, lon);
+    const view = map.draw(mapLayerCtx, { lat, lon, centre, spanM, dim: 0.82, cityAlpha: 0.95, mask: false });
+
+    const me = view.toCanvas(view.at(lat, lon));
+    // Draw late in stack for readability over dense markers.
+    drawHeadingWedge(mapLayerCtx, me, motion.bearing, motion.speedMps);
+    // Draw Hermes last so its own marker is never buried by nearby event icons.
+    if (hermesLogoReady && hermesLogo.naturalWidth) {
+      const s = 40;
+      mapLayerCtx.save();
+      mapLayerCtx.beginPath();
+      mapLayerCtx.arc(me.x, me.y, s * 0.54, 0, Math.PI * 2);
+      mapLayerCtx.clip();
+      mapLayerCtx.drawImage(hermesLogo, me.x - s / 2, me.y - s / 2, s, s);
+      mapLayerCtx.restore();
+      mapLayerCtx.strokeStyle = "rgba(6,12,18,0.95)";
+      mapLayerCtx.lineWidth = 2;
+      mapLayerCtx.beginPath();
+      mapLayerCtx.arc(me.x, me.y, s * 0.54, 0, Math.PI * 2);
+      mapLayerCtx.stroke();
+    }
+    drawOrientedLayer(ctx, mapLayer, mapNorthBearing());
+    drawWindOverlay(ctx, weatherState);
+  }
+
+  function render() {
+    if (!data || !data.fix) return;
+    const fix = data.fix;
+    const age = Number(fix.heardSec);
+    stateEl.textContent = fix.source ? `Live: ${fix.source.replace(/^phone-/, "")}` : "Live";
+    const north = mapNorthBearing();
+    const northText = Number.isFinite(north) ? ` · Map north ${arrow(north)} ${Math.round(north)}°` : "";
+    const move = Number.isFinite(motion.bearing) && Number.isFinite(motion.speedMps) && motion.speedMps >= MOVE_MIN_MPS
+      ? ` • Moving ${arrow(motion.bearing)} ${(motion.speedMps * 3.6).toFixed(1)} km/h`
+      : " • Mostly stationary";
+    detailEl.textContent = `Updated ${since(age)} ago${move}${northText}`;
+    draw();
+  }
+
+  async function poll() {
+    try {
+      const r = await fetch("/api/hermes/state", { cache: "no-store" });
+      data = await r.json();
+      if (data && data.fix && Number.isFinite(Number(data.fix.lat)) && Number.isFinite(Number(data.fix.lon))) {
+        const now = Date.parse(data.updatedAt || "") || Date.now();
+        const cur = { lat: Number(data.fix.lat), lon: Number(data.fix.lon), t: now };
+        updateMotion(cur.lat, cur.lon, cur.t);
+      }
+      render();
+      refreshNowPlaying();
+      refreshWeather(false);
+    } catch {
+      stateEl.textContent = "Tracker offline";
+      detailEl.textContent = "Cannot reach Hermes server.";
+    }
+  }
+
+  async function refreshNowPlaying() {
+    try {
+      const r = await fetch("/api/hermes/pickup", { cache: "no-store" });
+      const body = await r.json();
+      const nowPlaying = body && body.nowPlaying ? body.nowPlaying : null;
+      if (nowPlaying) {
+        const who = nowPlaying.who || "someone";
+        const intention = String(nowPlaying.intention || "").trim();
+        nowPlayingEl.textContent = intention
+          ? `Now playing: ${who} · ${intention}`
+          : `Now playing: ${who}`;
+      } else {
+        nowPlayingEl.textContent = "Now playing: nobody scheduled";
+      }
+    } catch {
+      // Keep last text.
+    }
+  }
+
+  function syncRequestForm() {
+    const kind = requestTypeEl.value === "dj-set" ? "dj-set" : "pickup";
+    if (kind === "dj-set") {
+      requestHelp.textContent = "Send Hermes a request for a DJ or live act set.";
+      requestIntentionEl.placeholder = "Intention (optional), e.g. sunset live set";
+      pickupPlaceEl.placeholder = "Where should the set happen? (optional)";
+      pickupPlaceEl.required = false;
+      pickupWhenEl.placeholder = "Set time (optional), e.g. now / 11:30pm / sunrise";
+      equipmentNeededEl.hidden = false;
+      equipmentNeededEl.placeholder = "Equipment needed (optional), e.g. decks, 2 mics, PA";
+      requestSubmit.textContent = "Send DJ/live act request";
+    } else {
+      requestHelp.textContent = "Send Hermes a pickup request at a place.";
+      requestIntentionEl.placeholder = "Intention (optional), e.g. heading to camp";
+      pickupPlaceEl.placeholder = "Pickup place (required), e.g. 7:30 & E";
+      pickupPlaceEl.required = true;
+      pickupWhenEl.placeholder = "Pickup time (optional), e.g. now / 9:45pm / in 15 min";
+      equipmentNeededEl.hidden = true;
+      equipmentNeededEl.value = "";
+      requestSubmit.textContent = "Send pickup request";
+    }
+  }
+
+  requestTypeEl.addEventListener("change", syncRequestForm);
+  syncRequestForm();
+
+  pickupForm.addEventListener("submit", async (ev) => {
+    ev.preventDefault();
+    const requestType = requestTypeEl.value === "dj-set" ? "dj-set" : "pickup";
+    const intention = (requestIntentionEl.value || "").trim();
+    const equipmentNeeded = (equipmentNeededEl.value || "").trim();
+    const who = (document.getElementById("pickupWho").value || "").trim();
+    const place = (document.getElementById("pickupPlace").value || "").trim();
+    const pickupWhen = (document.getElementById("pickupWhen").value || "").trim();
+    const note = (document.getElementById("pickupNote").value || "").trim();
+    if (requestType === "pickup" && !place) {
+      pickupStatus.textContent = "Pickup place is required.";
+      return;
+    }
+    pickupStatus.textContent = "Sending…";
+    try {
+      const r = await fetch("/api/hermes/pickup", {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({ requestType, intention, equipmentNeeded, who, place, pickupWhen, note })
+      });
+      const body = await r.json();
+      if (!r.ok || body.ok === false) {
+        pickupStatus.textContent = body.error || "Could not send request.";
+        return;
+      }
+      const label = requestType === "dj-set" ? "DJ/live act request" : "Pickup request";
+      const status = String(body.request && body.request.approvalStatus || "").toLowerCase();
+      const base = `${label} sent at ${new Date(body.request.at).toLocaleTimeString([], { hour: "numeric", minute: "2-digit" })}.`;
+      pickupStatus.textContent = status === "pending"
+        ? `${base} Waiting for admin approval.`
+        : base;
+      requestIntentionEl.value = "";
+      equipmentNeededEl.value = "";
+      document.getElementById("pickupPlace").value = "";
+      document.getElementById("pickupWhen").value = "";
+      document.getElementById("pickupNote").value = "";
+    } catch {
+      pickupStatus.textContent = "Network error sending request.";
+    }
+  });
+
+  if (window.PlayaMap) {
+    window.PlayaMap.load().then((m) => { map = m; draw(); }).catch(() => {});
+  }
+  renderWeather();
+  refreshWeather(true);
+  poll();
+  setInterval(poll, 5000);
+  setInterval(refreshNowPlaying, 7000);
+  setInterval(() => refreshWeather(false), 30000);
+})();
+</script>
+</body>
+</html>

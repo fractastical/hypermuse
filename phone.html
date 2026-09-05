@@ -1,0 +1,1785 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Feed Hermes</title>
+<!-- A page instead of a recipe. Talking a dozen people through building an iOS
+     Shortcut at night in the dust does not work; handing them a link does. The
+     browser already has a geolocation API with a permission prompt everyone has
+     seen before, so the whole job is: open, tap allow, leave it open. -->
+<style>
+  :root { color-scheme: dark; }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    min-height: 100vh;
+    padding: max(22px, env(safe-area-inset-top)) 22px max(22px, env(safe-area-inset-bottom));
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    background: #06090f;
+    color: #f4faff;
+    font: 17px/1.45 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  }
+  h1 { margin: 0; font-size: 25px; letter-spacing: -0.01em; }
+  .sub { margin: 0; color: #8fa3b8; font-size: 15px; }
+  .card {
+    padding: 18px;
+    border: 1px solid #1d2937;
+    border-radius: 14px;
+    background: #0b111a;
+  }
+  #state { font-size: 19px; font-weight: 600; }
+  #detail {
+    margin-top: 8px;
+    color: #8fa3b8;
+    font-size: 14px;
+    font-family: ui-monospace, Menlo, monospace;
+  }
+  .live #state { color: #6ee7a8; }
+  .warn #state { color: #ffcf73; }
+  .bad #state { color: #ff8d8d; }
+  button {
+    width: 100%;
+    padding: 17px;
+    border: 0;
+    border-radius: 13px;
+    background: #1d6fe0;
+    color: #fff;
+    font: inherit;
+    font-size: 18px;
+    font-weight: 650;
+  }
+  button:disabled { background: #223247; color: #6d8099; }
+  label { display: block; margin-bottom: 7px; color: #8fa3b8; font-size: 14px; }
+  input {
+    width: 100%;
+    padding: 14px;
+    border: 1px solid #24344a;
+    border-radius: 11px;
+    background: #060b12;
+    color: #f4faff;
+    font: inherit;
+  }
+  ol { margin: 0; padding-left: 21px; color: #8fa3b8; font-size: 14.5px; }
+  li { margin-bottom: 7px; }
+  .count { font-variant-numeric: tabular-nums; }
+  #mapCard { padding: 12px; }
+  #miniMap {
+    display: block;
+    width: 100%;
+    aspect-ratio: 1.2 / 1;
+    border-radius: 10px;
+    background: #060b12;
+  }
+  .map-tools {
+    margin-top: 8px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  .map-mode {
+    width: auto;
+    padding: 8px 11px;
+    border-radius: 9px;
+    background: #162234;
+    color: #d6e6f8;
+    font-size: 13px;
+    font-weight: 600;
+    border: 1px solid #28405e;
+  }
+  .events-more {
+    width: auto;
+    padding: 8px 11px;
+    border-radius: 9px;
+    background: #162234;
+    color: #d6e6f8;
+    font-size: 13px;
+    font-weight: 600;
+    border: 1px solid #28405e;
+  }
+  .art-nav {
+    width: auto;
+    padding: 8px 11px;
+    border-radius: 9px;
+    background: #162234;
+    color: #d6e6f8;
+    font-size: 13px;
+    font-weight: 600;
+    border: 1px solid #28405e;
+  }
+  #nearby {
+    margin-top: 10px;
+    color: #c7d5e6;
+    font-size: 14px;
+    line-height: 1.35;
+  }
+  #nearby .row {
+    padding: 4px 0;
+    border-top: 1px solid rgba(34, 50, 71, 0.6);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  #nearby .row:first-child { border-top: 0; }
+  #nearby b { color: #f4faff; }
+  #nearby .event-row {
+    padding: 0;
+    white-space: normal;
+    overflow: visible;
+    text-overflow: clip;
+  }
+  #nearby .event-row button {
+    width: 100%;
+    padding: 7px 8px;
+    text-align: left;
+    border-radius: 8px;
+    border: 1px solid transparent;
+    background: transparent;
+    color: inherit;
+    font-size: 14px;
+    font-weight: 500;
+  }
+  #nearby .event-row button.active {
+    border-color: rgba(116, 203, 255, 0.55);
+    background: rgba(33, 59, 88, 0.35);
+  }
+  #eventDetail {
+    margin-top: 8px;
+    padding: 10px;
+    border-radius: 10px;
+    border: 1px solid rgba(41, 63, 88, 0.8);
+    background: rgba(8, 15, 23, 0.95);
+    color: #d4e2f2;
+    font-size: 13px;
+    line-height: 1.35;
+    white-space: normal;
+  }
+  #eventDetail b { color: #f4faff; }
+  #eventDetail .muted { color: #9eb3c9; }
+  #artBrowser {
+    margin-top: 8px;
+    padding: 10px;
+    border-radius: 10px;
+    border: 1px solid rgba(72, 62, 108, 0.75);
+    background: rgba(15, 11, 26, 0.9);
+    color: #d6cff3;
+    min-height: 210px;
+  }
+  #artTools {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 8px;
+  }
+  #artPrev, #artNext {
+    width: auto;
+    padding: 6px 10px;
+    border-radius: 8px;
+    font-size: 12px;
+    font-weight: 650;
+    border: 1px solid #51457a;
+    background: #231d3f;
+    color: #e6deff;
+  }
+  #artCount {
+    margin-left: auto;
+    color: #b8accf;
+    font-size: 12px;
+  }
+  #artDetail {
+    font-size: 13px;
+    line-height: 1.36;
+  }
+  #artDetail b { color: #f4f0ff; }
+  #artDetail .muted { color: #b8accf; }
+  #artDetail img {
+    display: block;
+    width: 100%;
+    max-width: 240px;
+    max-height: 180px;
+    object-fit: cover;
+    border-radius: 8px;
+    margin-top: 8px;
+    border: 1px solid rgba(140, 124, 191, 0.6);
+  }
+  #artDetail a { color: #c7bbff; }
+  #pickupRequests { margin-top: 8px; color: #c7d5e6; font-size: 14px; line-height: 1.35; }
+  #pickupRequests .row {
+    padding: 6px 0;
+    border-top: 1px solid rgba(34, 50, 71, 0.6);
+  }
+  #pickupRequests .row:first-child { border-top: 0; }
+  #pickupRequests b { color: #f4faff; }
+  #pickupRequests .controls {
+    margin-top: 6px;
+    display: flex;
+    gap: 7px;
+  }
+  #pickupRequests .pill {
+    width: auto;
+    padding: 5px 8px;
+    border-radius: 999px;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.01em;
+  }
+  #pickupRequests .pill.pending {
+    background: rgba(255, 207, 115, 0.12);
+    border: 1px solid rgba(255, 207, 115, 0.5);
+    color: #ffcf73;
+  }
+  #pickupRequests .pill.approved {
+    background: rgba(110, 231, 168, 0.14);
+    border: 1px solid rgba(110, 231, 168, 0.5);
+    color: #6ee7a8;
+  }
+  #pickupRequests .pill.rejected {
+    background: rgba(255, 141, 141, 0.14);
+    border: 1px solid rgba(255, 141, 141, 0.5);
+    color: #ff9b9b;
+  }
+  #pickupRequests .decision {
+    width: auto;
+    padding: 6px 10px;
+    border-radius: 8px;
+    font-size: 11px;
+    font-weight: 680;
+    border: 1px solid #28405e;
+    background: #162234;
+    color: #d6e6f8;
+  }
+  #pickupRequests .decision.approve {
+    border-color: rgba(110, 231, 168, 0.45);
+    color: #c7f2db;
+  }
+  #pickupRequests .decision.reject {
+    border-color: rgba(255, 141, 141, 0.42);
+    color: #ffd6d6;
+  }
+  #infractionsCard { margin-top: 10px; }
+  #infractionsSummary {
+    color: #d7e4f1;
+    font-size: 13px;
+    margin-bottom: 6px;
+  }
+  #infractionsList {
+    color: #c7d5e6;
+    font-size: 13px;
+    line-height: 1.35;
+  }
+  #infractionsList .row {
+    padding: 6px 0;
+    border-top: 1px solid rgba(34, 50, 71, 0.6);
+  }
+  #infractionsList .row:first-child { border-top: 0; }
+  #infractionsList .pill {
+    display: inline-block;
+    border-radius: 999px;
+    padding: 2px 7px;
+    font-size: 11px;
+    margin-left: 6px;
+    border: 1px solid #5b7086;
+  }
+  #infractionsList .pill.q {
+    border-color: #ff8872;
+    color: #ffb3a1;
+    background: rgba(255, 120, 90, 0.12);
+  }
+  #infractionsList .pill.n {
+    border-color: #ffd08a;
+    color: #ffd9a8;
+    background: rgba(255, 190, 90, 0.14);
+  }
+  #infractionsList .pill.b {
+    border-color: #ff8c8c;
+    color: #ffc1c1;
+    background: rgba(255, 95, 95, 0.14);
+  }
+  .pickup-kicker {
+    color: #9eb3c9;
+    font-size: 13px;
+    margin-bottom: 4px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 8px;
+  }
+  #alertToggle {
+    width: auto;
+    padding: 7px 10px;
+    border-radius: 9px;
+    font-size: 12px;
+    font-weight: 650;
+    background: #1a2a3d;
+    border: 1px solid #2d4867;
+    color: #d7e8fa;
+  }
+  #alertState {
+    margin-top: 6px;
+    color: #9eb3c9;
+    font-size: 12px;
+  }
+  #nowPlaying {
+    margin-top: 6px;
+    color: #f4faff;
+    font-size: 13px;
+    font-weight: 620;
+  }
+  #weatherCard .kicker {
+    color: #9eb3c9;
+    font-size: 13px;
+    margin-bottom: 6px;
+  }
+  #weatherSummary {
+    color: #d7e8fa;
+    font-size: 14px;
+    line-height: 1.4;
+  }
+  #weatherSummary b { color: #f4faff; }
+  #weatherMeta {
+    margin-top: 6px;
+    color: #9eb3c9;
+    font-size: 12px;
+  }
+  #weatherMapWrap {
+    margin-top: 8px;
+    border: 1px solid rgba(41, 63, 88, 0.8);
+    border-radius: 10px;
+    overflow: hidden;
+    background: #070d14;
+  }
+  #weatherMap {
+    display: block;
+    width: 100%;
+    height: 220px;
+    border: 0;
+  }
+</style>
+</head>
+<body>
+  <div>
+    <h1>Feed Hermes</h1>
+    <p class="sub">Your phone tells the moon where you are.</p>
+  </div>
+
+  <div class="card">
+    <label for="who">Your name</label>
+    <input id="who" placeholder="e.g. Anna" autocomplete="off"
+      autocapitalize="words" spellcheck="false">
+  </div>
+
+  <button id="go">Start sharing</button>
+
+  <div class="card" id="status">
+    <div id="state">Not sharing yet</div>
+    <div id="detail">Enter a name, then tap Start.</div>
+  </div>
+
+  <div class="card" id="mapCard">
+    <canvas id="miniMap" width="480" height="400" aria-label="Nearby events map"></canvas>
+    <div class="map-tools">
+      <button id="moreEvents" class="events-more" type="button">More events</button>
+      <button id="artNextTop" class="art-nav" type="button">Next art</button>
+      <button id="mapMode" class="map-mode" type="button">Map: Whole Playa</button>
+    </div>
+    <div id="nearby">Waiting for location…</div>
+    <div id="eventDetail" hidden></div>
+    <div id="artBrowser" hidden>
+      <div id="artTools">
+        <button id="artPrev" type="button">Prev art</button>
+        <button id="artNext" type="button">Next art</button>
+        <div id="artCount"></div>
+      </div>
+      <div id="artDetail"></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="pickup-kicker">Requests <button id="alertToggle" type="button">Enable alerts</button></div>
+    <div id="nowPlaying">Now playing: nobody scheduled</div>
+    <div id="alertState">Alerts off</div>
+    <div id="pickupRequests">Waiting for requests…</div>
+  </div>
+
+  <div class="card" id="infractionsCard" hidden>
+    <div class="pickup-kicker">Crew infractions</div>
+    <div id="infractionsSummary">Loading infraction visibility…</div>
+    <div id="infractionsList"></div>
+  </div>
+
+  <div class="card" id="weatherCard">
+    <div class="kicker">Weather watch</div>
+    <div id="weatherSummary">Waiting for location…</div>
+    <div id="weatherMeta"></div>
+    <div id="weatherMapWrap">
+      <iframe id="weatherMap" title="Local rain map" loading="lazy"></iframe>
+    </div>
+  </div>
+
+  <ol>
+    <li>Tap <b>Start sharing</b> and choose <b>Allow</b> when your phone asks about location.</li>
+    <li><b>Leave this page open.</b> If you lock the phone or switch apps it pauses, and picks up again when you come back.</li>
+    <li>Keep it on the camp wifi. No internet needed — this only talks to the moon.</li>
+  </ol>
+
+<script src="js/hermes-marks.js"></script>
+<script src="js/playa-map.js"></script>
+<script>
+// Same origin as whatever they opened, so this works over any address the
+// server is reached on without anybody editing a URL.
+// Carried in the link rather than typed. The QR code people scan has it, so the
+// token is something nobody at the show ever has to know exists.
+const params = new URLSearchParams(location.search);
+const TOKEN = params.get("t") || "";
+const DEFAULT_MAP_VIEW = params.get("mapview") === "local" ? "local" : "whole";
+const LOCAL_SPAN_M = Math.max(400, Number(params.get("mapspan")) || 1500);
+const ART_FILTER = ["all", "deep", "city"].includes((params.get("artfilter") || "").toLowerCase())
+  ? (params.get("artfilter") || "").toLowerCase()
+  : "all";
+const ART_DEEP_MIN_M = Math.max(200, Number(params.get("deepmin")) || 1100);
+const WEATHER_PROVIDER = ["auto", "open-meteo", "accuweather", "accu"].includes((params.get("weather") || "").toLowerCase())
+  ? (params.get("weather") || "auto").toLowerCase()
+  : "auto";
+const MAN_LAT = 40.783247448000054;
+const MAN_LON = -119.20788409599999;
+
+const post = (lat, lon, acc, name) =>
+  fetch(`/api/location?lat=${lat}&lon=${lon}&accuracyM=${Math.round(acc || 0)}` +
+    `&name=${encodeURIComponent(name)}&token=${encodeURIComponent(TOKEN)}`,
+  { cache: "no-store" }).then((r) => r.json());
+
+const el = (id) => document.getElementById(id);
+const status = el("status");
+const mapCanvas = el("miniMap");
+const mapCtx = mapCanvas.getContext("2d");
+const mapLayer = document.createElement("canvas");
+mapLayer.width = mapCanvas.width;
+mapLayer.height = mapCanvas.height;
+const mapLayerCtx = mapLayer.getContext("2d");
+const marks = window.HermesMarks || null;
+let watch = null;
+let sent = 0;
+let failed = 0;
+let lastFix = null;
+let latestState = null;
+let miniMap = null;
+let motion = { bearing: NaN, speedMps: NaN };
+const motionSamples = [];
+const MOTION_WINDOW = 3;
+const northSamples = [];
+const NORTH_WINDOW = 25;
+const NORTH_ROTATE_MIN_UPDATES = 70;
+const MOVE_MIN_MPS = 0.35;
+const NORTH_MIN_MPS = 0.08;
+const NORTH_MAX_DEVIATION_FRACTION = 0.2;
+const HEADING_EMA_ALPHA = 0.3;
+const SPEED_EMA_ALPHA = 0.25;
+const HEADING_MAX_STEP_DEG = 18;
+let pickupRequests = [];
+let nowPlayingRequest = null;
+let infractionsState = { loaded: false, counts: null, highestRisk: [], error: "" };
+const alertsCapable = typeof window !== "undefined" && "Notification" in window;
+let alertsWanted = localStorage.getItem("hermes-request-alerts") !== "off";
+let seenRequestKeys = new Set();
+let seededRequests = false;
+let mapView = localStorage.getItem("hermes-map-view") || DEFAULT_MAP_VIEW;
+let selectedEventKey = "";
+let selectedArtKey = "";
+const EVENT_PAGE_SIZES = [5, 15, 25];
+let eventPageSize = Number(localStorage.getItem("hermes-event-page-size") || EVENT_PAGE_SIZES[0]);
+if (!EVENT_PAGE_SIZES.includes(eventPageSize)) eventPageSize = EVENT_PAGE_SIZES[0];
+let lastSentAtMs = 0;
+let liveStatusClass = "";
+let liveStatusTitle = "";
+let liveStatusDetail = "";
+let weatherState = {
+  updatedAt: 0,
+  nearest: null,
+  etaMin: NaN,
+  nextLikely: null,
+  etaWindMin: NaN,
+  etaMotionMin: NaN,
+  windPushKph: NaN,
+  approachKph: NaN,
+  confidences: { rain: "unknown", eta: "unknown", wind: "unknown" },
+  rainNow: NaN,
+  windKph: NaN,
+  gustKph: NaN,
+  windDirDeg: NaN,
+  provider: "unknown",
+  error: "",
+  mapUrl: ""
+};
+let weatherNextAtMs = 0;
+const badArtImageUrls = new Set();
+const WEATHER_LOG_KEY = "hermes-weather-confidence-log-v1";
+const WEATHER_TREND_KEY = "hermes-weather-rain-distance-trend-v1";
+let weatherTrend = (() => {
+  try {
+    const rows = JSON.parse(localStorage.getItem(WEATHER_TREND_KEY) || "[]");
+    return Array.isArray(rows) ? rows : [];
+  } catch {
+    return [];
+  }
+})();
+const hermesLogo = new Image();
+let hermesLogoReady = false;
+hermesLogo.onload = () => { hermesLogoReady = true; renderNearby(); };
+hermesLogo.src = "hermes/logo.png";
+
+const show = (cls, state, detail) => {
+  status.className = "card " + cls;
+  el("state").textContent = state;
+  el("detail").textContent = detail;
+};
+
+function alertsEnabled() {
+  return alertsCapable && alertsWanted && Notification.permission === "granted";
+}
+
+function syncAlertUI() {
+  const btn = el("alertToggle");
+  const state = el("alertState");
+  if (!btn || !state) return;
+  if (!alertsCapable) {
+    btn.disabled = true;
+    btn.textContent = "Alerts unavailable";
+    state.textContent = "This browser does not support notifications.";
+    return;
+  }
+  if (alertsEnabled()) {
+    btn.disabled = false;
+    btn.textContent = "Disable alerts";
+    state.textContent = "Alerts on — you will be notified on new requests.";
+    return;
+  }
+  btn.disabled = false;
+  btn.textContent = "Enable alerts";
+  if (!alertsWanted) state.textContent = "Alerts off";
+  else if (Notification.permission === "denied") state.textContent = "Notifications blocked in browser settings.";
+  else state.textContent = "Alerts need notification permission.";
+}
+
+async function enableAlerts() {
+  if (!alertsCapable) return false;
+  if (!alertsWanted) alertsWanted = true;
+  if (Notification.permission === "granted") {
+    localStorage.setItem("hermes-request-alerts", "on");
+    syncAlertUI();
+    return true;
+  }
+  if (Notification.permission === "denied") {
+    syncAlertUI();
+    return false;
+  }
+  const result = await Notification.requestPermission();
+  const ok = result === "granted";
+  localStorage.setItem("hermes-request-alerts", ok ? "on" : "off");
+  alertsWanted = ok;
+  syncAlertUI();
+  return ok;
+}
+
+function requestKey(request) {
+  if (!request || typeof request !== "object") return "";
+  return String(request.id || `${request.at || ""}|${request.who || ""}|${request.requestType || ""}|${request.place || ""}|${request.pickupWhen || ""}`);
+}
+
+function alertBody(request) {
+  const kind = request.requestType === "dj-set" ? "DJ set" : "Pickup";
+  const who = request.who || "Someone";
+  const place = request.place || (kind === "DJ set" ? "wherever Hermes is now" : "unknown place");
+  const when = request.pickupWhen || "asap";
+  return `${who} • ${kind} • ${place} • ${when}`;
+}
+
+function notifyNewRequests(nextRequests) {
+  const rows = Array.isArray(nextRequests) ? nextRequests : [];
+  const keysNow = new Set(rows.map(requestKey).filter(Boolean));
+  if (!seededRequests) {
+    seededRequests = true;
+    seenRequestKeys = keysNow;
+    return;
+  }
+  const incoming = rows.filter((r) => {
+    const k = requestKey(r);
+    return k && !seenRequestKeys.has(k);
+  });
+  seenRequestKeys = keysNow;
+  if (!incoming.length) return;
+  if (navigator.vibrate) navigator.vibrate([130, 70, 130]);
+  if (!alertsEnabled()) return;
+  incoming.slice(0, 3).reverse().forEach((r) => {
+    try {
+      const n = new Notification("New Hermes request", {
+        body: alertBody(r),
+        tag: `hermes-request-${requestKey(r)}`,
+        renotify: true
+      });
+      setTimeout(() => { try { n.close(); } catch { /* ignore */ } }, 12000);
+    } catch {
+      // Notification APIs vary by browser; vibration/text list still update.
+    }
+  });
+}
+
+const meters = (m) => !Number.isFinite(m) ? "?" : m < 1000 ? `${Math.round(m)}m` : `${(m / 1000).toFixed(2)}km`;
+const shortClock = (iso) => {
+  const t = Date.parse(iso || "");
+  if (!Number.isFinite(t)) return "?";
+  return new Date(t).toLocaleTimeString([], { hour: "numeric", minute: "2-digit" });
+};
+const ageLabel = (iso) => {
+  const t = Date.parse(iso || "");
+  if (!Number.isFinite(t)) return "?";
+  const sec = Math.max(0, Math.round((Date.now() - t) / 1000));
+  if (sec < 60) return `${sec}s ago`;
+  const min = Math.round(sec / 60);
+  if (min < 60) return `${min}m ago`;
+  const hr = Math.round(min / 60);
+  return `${hr}h ago`;
+};
+const esc = (text) => String(text || "")
+  .replace(/&/g, "&amp;")
+  .replace(/</g, "&lt;")
+  .replace(/>/g, "&gt;")
+  .replace(/"/g, "&quot;")
+  .replace(/'/g, "&#39;");
+const approvalStatusOf = (request) => {
+  const raw = String(request && request.approvalStatus || "").toLowerCase();
+  if (raw === "pending" || raw === "approved" || raw === "rejected") return raw;
+  if (request && request.approved === false) return "pending";
+  return "approved";
+};
+const eventKey = (event) =>
+  String(event && (event.uid || event.id || "")) + "|" +
+  String(event && (event.title || "")) + "|" +
+  String(event && (event.start || event.timeLabel || ""));
+const artKey = (art) =>
+  String(art && (art.uid || "")) + "|" +
+  String(art && (art.title || "")) + "|" +
+  String(art && Number(art.lat).toFixed(5)) + "|" +
+  String(art && Number(art.lon).toFixed(5));
+const safeHttpUrl = (value) => {
+  try {
+    const u = new URL(String(value || ""), location.href);
+    if (u.protocol === "http:") u.protocol = "https:";
+    return /^https?:$/.test(u.protocol) ? u.href : "";
+  } catch {
+    return "";
+  }
+};
+const bearingDeg = (aLat, aLon, bLat, bLon) => {
+  const to = Math.PI / 180;
+  const y = Math.sin((bLon - aLon) * to) * Math.cos(bLat * to);
+  const x = Math.cos(aLat * to) * Math.sin(bLat * to) -
+    Math.sin(aLat * to) * Math.cos(bLat * to) * Math.cos((bLon - aLon) * to);
+  return (Math.atan2(y, x) * 180 / Math.PI + 360) % 360;
+};
+const arrow = (deg) => ["↑", "↗", "→", "↘", "↓", "↙", "←", "↖"][Math.round(deg / 45) % 8];
+const distM = (aLat, aLon, bLat, bLon) => {
+  const latM = (bLat - aLat) * 111320;
+  const lonM = (bLon - aLon) * 111320 * Math.cos(((aLat + bLat) / 2) * Math.PI / 180);
+  return Math.hypot(latM, lonM);
+};
+const destinationPoint = (lat, lon, bearingDegNow, metersOut) => {
+  const rad = bearingDegNow * Math.PI / 180;
+  const dLat = (Math.cos(rad) * metersOut) / 111320;
+  const cosLat = Math.max(0.2, Math.cos(lat * Math.PI / 180));
+  const dLon = (Math.sin(rad) * metersOut) / (111320 * cosLat);
+  return { lat: lat + dLat, lon: lon + dLon };
+};
+const rainAmount = (row, idx = 0) => {
+  const m = row && row.minutely_15;
+  if (!m || !Array.isArray(m.precipitation)) return NaN;
+  const v = Number(m.precipitation[idx]);
+  return Number.isFinite(v) ? v : NaN;
+};
+const weatherRows = (data) => {
+  if (Array.isArray(data)) return data;
+  if (data && Array.isArray(data.responses)) return data.responses;
+  if (data && Array.isArray(data.latitude) && Array.isArray(data.longitude)) {
+    return data.latitude.map((lat, i) => ({
+      latitude: lat,
+      longitude: data.longitude[i],
+      minutely_15: Array.isArray(data.minutely_15) ? data.minutely_15[i] : data.minutely_15
+    }));
+  }
+  return data ? [data] : [];
+};
+const weatherBaseFix = () => {
+  if (lastFix && Number.isFinite(lastFix.lat) && Number.isFinite(lastFix.lon)) return { lat: lastFix.lat, lon: lastFix.lon };
+  if (latestState && latestState.fix && Number.isFinite(Number(latestState.fix.lat)) && Number.isFinite(Number(latestState.fix.lon))) {
+    return { lat: Number(latestState.fix.lat), lon: Number(latestState.fix.lon) };
+  }
+  return null;
+};
+function updateMotion(lat, lon, ts) {
+  motionSamples.push({ lat, lon, ts: Number(ts) || Date.now() });
+  if (motionSamples.length > 8) motionSamples.splice(0, motionSamples.length - 8);
+  const recent = motionSamples.slice(-MOTION_WINDOW);
+  if (recent.length < 2) {
+    motion = { bearing: NaN, speedMps: NaN };
+    return;
+  }
+  let sumX = 0;
+  let sumY = 0;
+  let totalDist = 0;
+  let totalSec = 0;
+  for (let i = 1; i < recent.length; i++) {
+    const a = recent[i - 1];
+    const b = recent[i];
+    const dtSec = Math.max(0, (b.ts - a.ts) / 1000);
+    if (dtSec <= 0) continue;
+    const d = distM(a.lat, a.lon, b.lat, b.lon);
+    const rad = bearingDeg(a.lat, a.lon, b.lat, b.lon) * Math.PI / 180;
+    sumX += Math.cos(rad) * d;
+    sumY += Math.sin(rad) * d;
+    totalDist += d;
+    totalSec += dtSec;
+  }
+  if (totalSec <= 0 || totalDist < 1) {
+    motion = {
+      bearing: Number.isFinite(motion.bearing) ? motion.bearing : NaN,
+      speedMps: Number.isFinite(motion.speedMps) ? motion.speedMps * 0.8 : 0
+    };
+    return;
+  }
+  const rawBearing = (Math.atan2(sumY, sumX) * 180 / Math.PI + 360) % 360;
+  const rawSpeed = totalDist / totalSec;
+  if (!Number.isFinite(motion.bearing)) {
+    motion = { bearing: rawBearing, speedMps: rawSpeed };
+  } else {
+    const delta = shortestAngleDeltaDeg(rawBearing, motion.bearing);
+    const limited = Math.max(-HEADING_MAX_STEP_DEG, Math.min(HEADING_MAX_STEP_DEG, delta));
+    const nextBearing = (motion.bearing + limited * HEADING_EMA_ALPHA + 360) % 360;
+    const nextSpeed = Number.isFinite(motion.speedMps)
+      ? motion.speedMps * (1 - SPEED_EMA_ALPHA) + rawSpeed * SPEED_EMA_ALPHA
+      : rawSpeed;
+    motion = { bearing: nextBearing, speedMps: nextSpeed };
+  }
+  if (Number.isFinite(motion.bearing) && Number.isFinite(motion.speedMps) && motion.speedMps >= NORTH_MIN_MPS) {
+    northSamples.push(motion.bearing);
+    if (northSamples.length > NORTH_WINDOW) northSamples.splice(0, northSamples.length - NORTH_WINDOW);
+  }
+}
+function averageBearing(degList) {
+  if (!degList.length) return NaN;
+  let x = 0;
+  let y = 0;
+  for (const deg of degList) {
+    const r = deg * Math.PI / 180;
+    x += Math.cos(r);
+    y += Math.sin(r);
+  }
+  if (Math.abs(x) < 1e-6 && Math.abs(y) < 1e-6) return NaN;
+  return (Math.atan2(y, x) * 180 / Math.PI + 360) % 360;
+}
+function angularDiffDeg(a, b) {
+  const raw = Math.abs((a - b) % 360);
+  return raw > 180 ? 360 - raw : raw;
+}
+function shortestAngleDeltaDeg(target, current) {
+  return ((target - current + 540) % 360) - 180;
+}
+function filteredAverageBearing(degList) {
+  const seed = averageBearing(degList);
+  if (!Number.isFinite(seed)) return NaN;
+  const maxDevDeg = 360 * NORTH_MAX_DEVIATION_FRACTION;
+  const filtered = degList.filter((deg) => angularDiffDeg(deg, seed) <= maxDevDeg);
+  if (!filtered.length) return seed;
+  const refined = averageBearing(filtered);
+  return Number.isFinite(refined) ? refined : seed;
+}
+function mapNorthBearing() {
+  if (northSamples.length < NORTH_ROTATE_MIN_UPDATES) return NaN;
+  const avg = filteredAverageBearing(northSamples.slice(-NORTH_WINDOW));
+  if (Number.isFinite(avg)) return avg;
+  return Number.isFinite(motion.bearing) ? motion.bearing : NaN;
+}
+function drawOrientedLayer(dst, layer, northDeg) {
+  const w = dst.canvas.width;
+  const h = dst.canvas.height;
+  dst.clearRect(0, 0, w, h);
+  if (!Number.isFinite(northDeg)) {
+    dst.drawImage(layer, 0, 0);
+    return;
+  }
+  dst.save();
+  dst.translate(w / 2, h / 2);
+  dst.rotate(-northDeg * Math.PI / 180);
+  dst.drawImage(layer, -w / 2, -h / 2, w, h);
+  dst.restore();
+}
+function drawHeadingWedge(ctx, at, bearingDegNow, speedMps) {
+  if (!Number.isFinite(bearingDegNow) || !Number.isFinite(speedMps) || speedMps < MOVE_MIN_MPS) return;
+  const rad = (bearingDegNow - 90) * Math.PI / 180;
+  const len = 42;
+  const wing = 13;
+  const tail = 10;
+  const tipX = at.x + Math.cos(rad) * len;
+  const tipY = at.y + Math.sin(rad) * len;
+  const baseX = at.x - Math.cos(rad) * tail;
+  const baseY = at.y - Math.sin(rad) * tail;
+  const perp = rad + Math.PI / 2;
+  const leftX = baseX + Math.cos(perp) * wing;
+  const leftY = baseY + Math.sin(perp) * wing;
+  const rightX = baseX - Math.cos(perp) * wing;
+  const rightY = baseY - Math.sin(perp) * wing;
+  ctx.fillStyle = "rgba(88,219,255,0.98)";
+  ctx.strokeStyle = "rgba(4,16,30,0.98)";
+  ctx.lineWidth = 2.8;
+  ctx.shadowColor = "rgba(0,0,0,0.45)";
+  ctx.shadowBlur = 6;
+  ctx.beginPath();
+  ctx.moveTo(tipX, tipY);
+  ctx.lineTo(leftX, leftY);
+  ctx.lineTo(rightX, rightY);
+  ctx.closePath();
+  ctx.fill();
+  ctx.stroke();
+  ctx.shadowColor = "transparent";
+  ctx.shadowBlur = 0;
+}
+function drawWindOverlay(ctx2d, ws) {
+  const windKph = Number(ws && ws.windKph);
+  const gustKph = Number(ws && ws.gustKph);
+  const windDirDeg = Number(ws && ws.windDirDeg);
+  if (!Number.isFinite(windKph) && !Number.isFinite(windDirDeg)) return;
+  const x = 12, y = 12, w = 248, h = 62;
+  ctx2d.save();
+  ctx2d.fillStyle = "rgba(7, 16, 28, 0.72)";
+  ctx2d.strokeStyle = "rgba(138, 193, 232, 0.7)";
+  ctx2d.lineWidth = 1.4;
+  ctx2d.beginPath();
+  ctx2d.rect(x, y, w, h);
+  ctx2d.fill();
+  ctx2d.stroke();
+
+  ctx2d.fillStyle = "#d8ecff";
+  ctx2d.font = "700 12px -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, sans-serif";
+  ctx2d.fillText("Wind now", x + 50, y + 18);
+  ctx2d.font = "12px -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, sans-serif";
+  const dirText = Number.isFinite(windDirDeg) ? `${arrow(windDirDeg)} ${Math.round(windDirDeg)}°` : "dir ?";
+  const speedText = Number.isFinite(windKph) ? `${windKph.toFixed(1)} km/h` : "speed ?";
+  const gustText = Number.isFinite(gustKph) ? ` gust ${gustKph.toFixed(1)}` : "";
+  ctx2d.fillText(`${speedText}${gustText}`, x + 50, y + 36);
+  ctx2d.fillText(`from ${dirText}`, x + 50, y + 53);
+
+  if (Number.isFinite(windDirDeg)) {
+    // Meteorological convention: direction is where wind comes from.
+    const towardDeg = (windDirDeg + 180) % 360;
+    const rad = (towardDeg - 90) * Math.PI / 180;
+    const cx = x + 24;
+    const cy = y + 36;
+    const len = 17;
+    const tipX = cx + Math.cos(rad) * len;
+    const tipY = cy + Math.sin(rad) * len;
+    const tailX = cx - Math.cos(rad) * 8;
+    const tailY = cy - Math.sin(rad) * 8;
+    const wing = 5;
+    const perp = rad + Math.PI / 2;
+    ctx2d.strokeStyle = "rgba(112,224,255,0.98)";
+    ctx2d.lineWidth = 2;
+    ctx2d.beginPath();
+    ctx2d.moveTo(tailX, tailY);
+    ctx2d.lineTo(tipX, tipY);
+    ctx2d.stroke();
+    ctx2d.fillStyle = "rgba(112,224,255,0.98)";
+    ctx2d.beginPath();
+    ctx2d.moveTo(tipX, tipY);
+    ctx2d.lineTo(tipX - Math.cos(rad) * 8 + Math.cos(perp) * wing, tipY - Math.sin(rad) * 8 + Math.sin(perp) * wing);
+    ctx2d.lineTo(tipX - Math.cos(rad) * 8 - Math.cos(perp) * wing, tipY - Math.sin(rad) * 8 - Math.sin(perp) * wing);
+    ctx2d.closePath();
+    ctx2d.fill();
+  }
+  ctx2d.restore();
+}
+const motionText = () => {
+  if (!Number.isFinite(motion.bearing) || !Number.isFinite(motion.speedMps)) return "Movement unknown";
+  if (motion.speedMps < MOVE_MIN_MPS) return "Mostly stationary";
+  const north = mapNorthBearing();
+  const northText = Number.isFinite(north) ? ` · Map north ${arrow(north)} ${Math.round(north)}°` : "";
+  return `Moving ${arrow(motion.bearing)} ${Math.round(motion.bearing)}° · ${(motion.speedMps * 3.6).toFixed(1)} km/h${northText}`;
+};
+const sentAgoText = () => {
+  if (!Number.isFinite(lastSentAtMs) || lastSentAtMs <= 0) return "never";
+  const sec = Math.max(0, Math.round((Date.now() - lastSentAtMs) / 1000));
+  if (sec < 60) return `${sec}s ago`;
+  const min = Math.round(sec / 60);
+  if (min < 60) return `${min}m ago`;
+  const hr = Math.round(min / 60);
+  return `${hr}h ago`;
+};
+function showLiveSendStatus(cls, title, detail) {
+  liveStatusClass = cls;
+  liveStatusTitle = title;
+  liveStatusDetail = detail;
+  const suffix = lastSentAtMs > 0 ? ` · last sent ${sentAgoText()}` : "";
+  show(cls, title, `${detail}${suffix}`);
+}
+function tickLiveSendStatus() {
+  if (!watch || !liveStatusClass) return;
+  showLiveSendStatus(liveStatusClass, liveStatusTitle, liveStatusDetail);
+}
+
+function weatherMapUrl(base) {
+  if (!base) return "";
+  const lat = Number(base.lat).toFixed(4);
+  const lon = Number(base.lon).toFixed(4);
+  return `https://embed.windy.com/embed2.html?lat=${lat}&lon=${lon}&detailLat=${lat}&detailLon=${lon}&width=650&height=350&zoom=8&level=surface&overlay=rain&menu=&message=&marker=true&calendar=now&pressure=&type=map&location=coordinates&metricWind=default&metricTemp=default&radarRange=-1`;
+}
+
+function addWeatherConfidenceLog(entry) {
+  try {
+    const rows = JSON.parse(localStorage.getItem(WEATHER_LOG_KEY) || "[]");
+    const next = Array.isArray(rows) ? rows : [];
+    next.push(entry);
+    if (next.length > 200) next.splice(0, next.length - 200);
+    localStorage.setItem(WEATHER_LOG_KEY, JSON.stringify(next));
+  } catch {
+    // Storage may be disabled; weather still renders live.
+  }
+}
+
+function pushRainDistanceSample(atMs, distanceM) {
+  if (!Number.isFinite(atMs) || !Number.isFinite(distanceM)) return;
+  weatherTrend.push({ t: Math.round(atMs), d: Math.round(distanceM) });
+  const cutoff = atMs - 6 * 3600 * 1000;
+  weatherTrend = weatherTrend.filter((s) => Number.isFinite(s.t) && Number.isFinite(s.d) && s.t >= cutoff).slice(-120);
+  try { localStorage.setItem(WEATHER_TREND_KEY, JSON.stringify(weatherTrend)); } catch { /* ignore */ }
+}
+
+function rainApproachModel(currentDistanceM) {
+  if (!Number.isFinite(currentDistanceM)) return { approachKph: NaN, etaMotionMin: NaN, confidence: "low" };
+  const rows = weatherTrend.slice(-14);
+  if (rows.length < 3) return { approachKph: NaN, etaMotionMin: NaN, confidence: "low" };
+  const t0 = rows[0].t;
+  let sx = 0, sy = 0, sxx = 0, sxy = 0;
+  const ys = [];
+  for (const r of rows) {
+    const x = (r.t - t0) / 3600000;
+    const y = r.d / 1000;
+    sx += x; sy += y; sxx += x * x; sxy += x * y; ys.push(y);
+  }
+  const n = rows.length;
+  const den = n * sxx - sx * sx;
+  if (!Number.isFinite(den) || Math.abs(den) < 1e-9) return { approachKph: NaN, etaMotionMin: NaN, confidence: "low" };
+  const slope = (n * sxy - sx * sy) / den; // km per hour; negative means approaching
+  const approachKph = -slope;
+  const yMean = sy / n;
+  let ssTot = 0;
+  let ssRes = 0;
+  for (const r of rows) {
+    const x = (r.t - t0) / 3600000;
+    const y = r.d / 1000;
+    const pred = (sy - slope * sx) / n + slope * x;
+    ssTot += (y - yMean) ** 2;
+    ssRes += (y - pred) ** 2;
+  }
+  const r2 = ssTot > 1e-9 ? Math.max(0, Math.min(1, 1 - ssRes / ssTot)) : 0;
+  if (!(approachKph > 0.2)) return { approachKph: NaN, etaMotionMin: NaN, confidence: "low" };
+  const etaMotionMin = ((currentDistanceM / 1000) / Math.max(0.05, approachKph)) * 60;
+  const confidence = (rows.length >= 6 && r2 >= 0.6) ? "high" : (rows.length >= 4 && r2 >= 0.35 ? "medium" : "low");
+  return { approachKph, etaMotionMin, confidence };
+}
+
+function renderWeather() {
+  const summary = el("weatherSummary");
+  const meta = el("weatherMeta");
+  const map = el("weatherMap");
+  if (!summary || !meta || !map) return;
+  const ws = weatherState || {};
+  if (ws.error) {
+    summary.innerHTML = `<b>Weather unavailable</b> · ${esc(ws.error)}`;
+  } else {
+    const rainNow = ws.rainNow;
+    const nowText = Number.isFinite(rainNow) && rainNow > 0.01
+      ? `Rain at Hermes now: <b>${rainNow.toFixed(2)} mm/15m</b>`
+      : "Rain at Hermes now: <b>none detected</b>";
+    const near = ws.nearest
+      ? `Closest rain band: <b>${meters(ws.nearest.d)}</b> ${ws.nearest.dir}`
+      : "Closest rain band: <b>not seen in 50km sample</b>";
+    const eta = Number.isFinite(ws.etaWindMin)
+      ? `ETA by wind + rain position: <b>${Math.round(ws.etaWindMin)} min</b> (${ws.windPushKph.toFixed(1)} km/h toward us)`
+      : (Number.isFinite(ws.etaMin)
+        ? `ETA from forecast bins: <b>${Math.round(ws.etaMin)} min</b>`
+        : "ETA: <b>no arrival in next 3h</b>");
+    const etaMotion = Number.isFinite(ws.etaMotionMin)
+      ? `Arrival by rain motion: <b>${Math.round(ws.etaMotionMin)} min</b> (${ws.approachKph.toFixed(1)} km/h toward us)`
+      : "Arrival by rain motion: <b>not approaching yet</b>";
+    const likelyInText = (mins) => {
+      const m = Math.max(0, Math.round(Number(mins)));
+      if (!Number.isFinite(m)) return "?";
+      if (m < 60) return `${m}m`;
+      const h = Math.floor(m / 60);
+      const rem = m % 60;
+      return rem ? `${h}h ${rem}m` : `${h}h`;
+    };
+    const nextLikely = ws.nextLikely && Number.isFinite(Number(ws.nextLikely.probPct))
+      ? `Likely rain window: <b>${likelyInText(ws.nextLikely.inMin)}</b> · ${Math.round(Number(ws.nextLikely.probPct))}%` +
+        `${Number.isFinite(Number(ws.nextLikely.precipMm)) ? ` · ~${Number(ws.nextLikely.precipMm).toFixed(2)} mm/hr` : ""}`
+      : "Likely rain window: <b>none above 20% in next 12h</b>";
+    const wind = Number.isFinite(ws.windKph)
+      ? `Wind: <b>${ws.windKph.toFixed(1)} km/h</b> ${Number.isFinite(ws.windDirDeg) ? `${arrow(ws.windDirDeg)} ${Math.round(ws.windDirDeg)}°` : ""}` +
+        `${Number.isFinite(ws.gustKph) ? ` · gust ${ws.gustKph.toFixed(1)} km/h` : ""}`
+      : "Wind: <b>unknown</b>";
+    summary.innerHTML = `${nowText}<br>${near}<br>${eta}<br>${nextLikely}<br>${etaMotion}<br>${wind}`;
+  }
+  const agoSec = ws.updatedAt ? Math.max(0, Math.round((Date.now() - ws.updatedAt) / 1000)) : NaN;
+  const ago = Number.isFinite(agoSec) ? (agoSec < 90 ? `${agoSec}s` : `${Math.round(agoSec / 60)}m`) : "?";
+  const conf = ws.confidences || {};
+  meta.textContent = `Confidence rain:${conf.rain || "?"} eta:${conf.eta || "?"} wind:${conf.wind || "?"} · ${ws.provider || "weather-api"} · updated ${ago} ago`;
+  if (ws.mapUrl && map.src !== ws.mapUrl) map.src = ws.mapUrl;
+}
+
+async function refreshWeather(force = false) {
+  const now = Date.now();
+  if (!force && now < weatherNextAtMs) return;
+  const base = weatherBaseFix();
+  if (!base) {
+    weatherState = { ...weatherState, error: "waiting for Hermes position", updatedAt: now };
+    renderWeather();
+    weatherNextAtMs = now + 15000;
+    return;
+  }
+  const weatherUrl = `/api/hermes/weather?lat=${base.lat.toFixed(5)}&lon=${base.lon.toFixed(5)}&provider=${encodeURIComponent(WEATHER_PROVIDER)}`;
+  try {
+    const res = await fetch(weatherUrl, { cache: "no-store" });
+    const body = await res.json().catch(() => null);
+    if (!res.ok || !body || body.ok === false) throw new Error(body && body.error ? body.error : `weather ${res.status}`);
+    const nearest = body.nearest && Number.isFinite(Number(body.nearest.d))
+      ? {
+        d: Number(body.nearest.d),
+        b: Number(body.nearest.b),
+        dir: body.nearest.dir || (Number.isFinite(Number(body.nearest.b)) ? arrow(Number(body.nearest.b)) : "•")
+      }
+      : null;
+    const etaMin = Number(body.etaMin);
+    const nextLikely = body.nextLikely && typeof body.nextLikely === "object" ? body.nextLikely : null;
+    const etaWindMin = Number(body.etaWindMin);
+    const windPushKph = Number(body.windPushKph);
+    const rainNow = Number(body.rainNow);
+    const windKph = Number(body.windKph);
+    const gustKph = Number(body.gustKph);
+    const windDirDeg = Number(body.windDirDeg);
+    const confRain = body.confidences && body.confidences.rain
+      ? String(body.confidences.rain)
+      : nearest && nearest.d <= 15000 ? "high" : nearest && nearest.d <= 35000 ? "medium" : "low";
+    if (nearest && Number.isFinite(nearest.d)) pushRainDistanceSample(now, nearest.d);
+    const model = rainApproachModel(nearest && nearest.d);
+    const confEtaForecast = body.confidences && body.confidences.eta
+      ? String(body.confidences.eta)
+      : Number.isFinite(etaMin) ? (etaMin <= 45 ? "high" : etaMin <= 120 ? "medium" : "low") : "low";
+    const confWind = body.confidences && body.confidences.wind
+      ? String(body.confidences.wind)
+      : Number.isFinite(windKph) ? "high" : "low";
+    const confEta = confEtaForecast;
+    weatherState = {
+      updatedAt: now,
+      nearest,
+      etaMin,
+      nextLikely,
+      etaWindMin: Number.isFinite(etaWindMin) ? etaWindMin : NaN,
+      etaMotionMin: model.etaMotionMin,
+      windPushKph: Number.isFinite(windPushKph) ? windPushKph : NaN,
+      approachKph: model.approachKph,
+      rainNow: Number.isFinite(rainNow) ? rainNow : NaN,
+      windKph: Number.isFinite(windKph) ? windKph : NaN,
+      gustKph: Number.isFinite(gustKph) ? gustKph : NaN,
+      windDirDeg: Number.isFinite(windDirDeg) ? windDirDeg : NaN,
+      provider: body.provider || "weather-api",
+      confidences: { rain: confRain, eta: confEta, wind: confWind },
+      error: "",
+      mapUrl: weatherMapUrl(base)
+    };
+    addWeatherConfidenceLog({
+      at: new Date(now).toISOString(),
+      source: body.provider || "weather-api",
+      lat: Number(base.lat.toFixed(5)),
+      lon: Number(base.lon.toFixed(5)),
+      rain: confRain,
+      eta: confEta,
+      wind: confWind,
+      etaForecast: confEtaForecast,
+      etaMotion: model.confidence
+    });
+  } catch (err) {
+    weatherState = {
+      ...weatherState,
+      updatedAt: now,
+      error: String((err && err.message) || err || "fetch failed"),
+      mapUrl: weatherMapUrl(base)
+    };
+  }
+  weatherNextAtMs = now + 5 * 60 * 1000;
+  renderWeather();
+}
+
+function eventRows() {
+  if (!latestState || !Array.isArray(latestState.activities)) return [];
+  const at = lastFix || (latestState.fix && Number.isFinite(Number(latestState.fix.lat))
+    ? { lat: Number(latestState.fix.lat), lon: Number(latestState.fix.lon) }
+    : null);
+  if (!at) return [];
+  return latestState.activities
+    .filter((e) => Number.isFinite(Number(e.lat)) && Number.isFinite(Number(e.lon)))
+    .map((e) => {
+      const lat = Number(e.lat), lon = Number(e.lon);
+      const d = distM(at.lat, at.lon, lat, lon);
+      const b = bearingDeg(at.lat, at.lon, lat, lon);
+      return { event: e, d, b, dir: arrow(b) };
+    })
+    .sort((a, b) => a.d - b.d);
+}
+
+function artRows() {
+  const at = lastFix || (latestState && latestState.fix && Number.isFinite(Number(latestState.fix.lat))
+    ? { lat: Number(latestState.fix.lat), lon: Number(latestState.fix.lon) }
+    : null);
+  if (!at) return [];
+  const moving = Number.isFinite(motion.bearing) && Number.isFinite(motion.speedMps) && motion.speedMps >= MOVE_MIN_MPS;
+  const heading = motion.bearing;
+  const arts = (latestState && Array.isArray(latestState.art) ? latestState.art : []);
+  const mapped = arts
+    .filter((a) => Number.isFinite(Number(a.lat)) && Number.isFinite(Number(a.lon)))
+    .map((a) => {
+      const lat = Number(a.lat);
+      const lon = Number(a.lon);
+      const d = distM(at.lat, at.lon, lat, lon);
+      const b = bearingDeg(at.lat, at.lon, lat, lon);
+      const offCourse = moving ? angularDiffDeg(b, heading) : NaN;
+      const manDistanceM = distM(MAN_LAT, MAN_LON, lat, lon);
+      const deep = manDistanceM >= ART_DEEP_MIN_M;
+      return { art: a, d, b, dir: arrow(b), offCourse, deep };
+    })
+    .filter((row) => ART_FILTER === "deep" ? row.deep : ART_FILTER === "city" ? !row.deep : true)
+    .sort((a, b) => a.d - b.d);
+  if (!moving) return mapped;
+  const ahead = mapped
+    .filter((row) => Number.isFinite(row.offCourse) && row.offCourse <= 90)
+    .sort((a, b) => a.d - b.d);
+  return ahead.length ? ahead : mapped;
+}
+
+function pickupRows() {
+  const at = lastFix || (latestState && latestState.fix && Number.isFinite(Number(latestState.fix.lat))
+    ? { lat: Number(latestState.fix.lat), lon: Number(latestState.fix.lon) }
+    : null);
+  return pickupRequests
+    .map((req) => {
+      const lat = Number(req.lat);
+      const lon = Number(req.lon);
+      const mapped = Number.isFinite(lat) && Number.isFinite(lon);
+      const d = (at && mapped) ? distM(at.lat, at.lon, lat, lon) : Infinity;
+      const b = (at && mapped) ? bearingDeg(at.lat, at.lon, lat, lon) : NaN;
+      return { req, mapped, d, b, dir: Number.isFinite(b) ? arrow(b) : "•" };
+    })
+    .sort((a, b) => a.d - b.d);
+}
+
+function drawMiniMap(rows, arts, pickups) {
+  const base = lastFix || (latestState && latestState.fix && Number.isFinite(Number(latestState.fix.lat))
+    ? { lat: Number(latestState.fix.lat), lon: Number(latestState.fix.lon) }
+    : null);
+  mapCtx.clearRect(0, 0, mapCanvas.width, mapCanvas.height);
+  mapLayerCtx.clearRect(0, 0, mapLayer.width, mapLayer.height);
+  if (!base) {
+    mapCtx.fillStyle = "#8fa3b8";
+    mapCtx.font = "16px -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, sans-serif";
+    mapCtx.fillText("Waiting for location…", 14, 30);
+    return;
+  }
+  if (!miniMap) {
+    mapCtx.fillStyle = "#8fa3b8";
+    mapCtx.font = "16px -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, sans-serif";
+    mapCtx.fillText("Loading playa map…", 14, 30);
+    return;
+  }
+  const whole = mapView !== "local";
+  const spanM = whole
+    ? (miniMap.wholeCity && Number.isFinite(miniMap.wholeCity.spanM)
+      ? miniMap.wholeCity.spanM * 1.08
+      : 5200)
+    : LOCAL_SPAN_M;
+  const centre = whole ? (miniMap.man || miniMap.at(base.lat, base.lon)) : miniMap.at(base.lat, base.lon);
+  const view = miniMap.draw(mapLayerCtx, {
+    lat: base.lat,
+    lon: base.lon,
+    centre,
+    spanM,
+    dim: 0.82,
+    cityAlpha: 0.95,
+    mask: false
+  });
+  const me = view.toCanvas(view.at(base.lat, base.lon));
+  let selectedMarker = null;
+  let selectedArtMarker = null;
+  rows.slice(0, 8).forEach((row, i) => {
+    const p = view.toCanvas(view.at(Number(row.event.lat), Number(row.event.lon)));
+    const isSelected = selectedEventKey && eventKey(row.event) === selectedEventKey;
+    if (isSelected) {
+      selectedMarker = { row, i, p };
+      return;
+    }
+    if (marks && typeof marks.drawMarker === "function" && typeof marks.marker === "function") {
+      marks.drawMarker(mapLayerCtx, p, marks.marker(row.event, i), 13);
+    } else {
+      mapLayerCtx.fillStyle = "rgba(255, 212, 92, 0.95)";
+      mapLayerCtx.beginPath();
+      mapLayerCtx.arc(p.x, p.y, 4.5, 0, Math.PI * 2);
+      mapLayerCtx.fill();
+    }
+  });
+  if (!selectedMarker && selectedEventKey) {
+    const row = rows.find((item) => eventKey(item.event) === selectedEventKey);
+    if (row) {
+      const p = view.toCanvas(view.at(Number(row.event.lat), Number(row.event.lon)));
+      const i = Math.max(0, rows.findIndex((item) => eventKey(item.event) === selectedEventKey));
+      selectedMarker = { row, i, p };
+    }
+  }
+  arts.slice(0, 20).forEach((row, i) => {
+    const art = row.art || {};
+    const p = view.toCanvas(view.at(Number(art.lat), Number(art.lon)));
+    if (selectedArtKey && artKey(art) === selectedArtKey) {
+      selectedArtMarker = { row, i, p };
+      return;
+    }
+    if (marks && typeof marks.drawMarker === "function" && typeof marks.marker === "function") {
+      marks.drawMarker(mapLayerCtx, p, marks.marker({ ...art, kind: "art" }, i), 10);
+      return;
+    }
+    mapLayerCtx.strokeStyle = "rgba(186, 156, 255, 0.96)";
+    mapLayerCtx.lineWidth = 2.2;
+    mapLayerCtx.beginPath();
+    mapLayerCtx.moveTo(p.x - 6, p.y);
+    mapLayerCtx.lineTo(p.x + 6, p.y);
+    mapLayerCtx.moveTo(p.x, p.y - 6);
+    mapLayerCtx.lineTo(p.x, p.y + 6);
+    mapLayerCtx.stroke();
+  });
+  if (!selectedArtMarker && selectedArtKey) {
+    const row = arts.find((item) => artKey(item.art) === selectedArtKey);
+    if (row) {
+      const p = view.toCanvas(view.at(Number(row.art.lat), Number(row.art.lon)));
+      const i = Math.max(0, arts.findIndex((item) => artKey(item.art) === selectedArtKey));
+      selectedArtMarker = { row, i, p };
+    }
+  }
+  pickups.filter((p) => p.mapped).slice(0, 8).forEach((pick, i) => {
+    const p = view.toCanvas(view.at(Number(pick.req.lat), Number(pick.req.lon)));
+    mapLayerCtx.strokeStyle = "rgba(115, 248, 193, 0.95)";
+    mapLayerCtx.lineWidth = 2;
+    mapLayerCtx.beginPath();
+    mapLayerCtx.arc(p.x, p.y, 7.5, 0, Math.PI * 2);
+    mapLayerCtx.stroke();
+    mapLayerCtx.fillStyle = "rgba(115, 248, 193, 0.92)";
+    mapLayerCtx.font = "11px -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, sans-serif";
+    mapLayerCtx.fillText(String(i + 1), p.x + 9, p.y + 3);
+  });
+  if (selectedMarker) {
+    const { row, i, p } = selectedMarker;
+    // Direction guide from Hermes to the selected event.
+    mapLayerCtx.save();
+    mapLayerCtx.setLineDash([6, 5]);
+    mapLayerCtx.strokeStyle = "rgba(116, 203, 255, 0.95)";
+    mapLayerCtx.lineWidth = 2.1;
+    mapLayerCtx.beginPath();
+    mapLayerCtx.moveTo(me.x, me.y);
+    mapLayerCtx.lineTo(p.x, p.y);
+    mapLayerCtx.stroke();
+    mapLayerCtx.restore();
+    // Target ring + selected marker, drawn late so it is never buried.
+    mapLayerCtx.strokeStyle = "rgba(245, 252, 255, 0.96)";
+    mapLayerCtx.lineWidth = 2.6;
+    mapLayerCtx.beginPath();
+    mapLayerCtx.arc(p.x, p.y, 12, 0, Math.PI * 2);
+    mapLayerCtx.stroke();
+    if (marks && typeof marks.drawMarker === "function" && typeof marks.marker === "function") {
+      marks.drawMarker(mapLayerCtx, p, marks.marker(row.event, i), 17);
+    } else {
+      mapLayerCtx.fillStyle = "rgba(255, 232, 128, 0.98)";
+      mapLayerCtx.beginPath();
+      mapLayerCtx.arc(p.x, p.y, 6.5, 0, Math.PI * 2);
+      mapLayerCtx.fill();
+    }
+  }
+  if (selectedArtMarker) {
+    const { row, i, p } = selectedArtMarker;
+    mapLayerCtx.save();
+    mapLayerCtx.setLineDash([4, 4]);
+    mapLayerCtx.strokeStyle = "rgba(201, 169, 255, 0.95)";
+    mapLayerCtx.lineWidth = 1.9;
+    mapLayerCtx.beginPath();
+    mapLayerCtx.moveTo(me.x, me.y);
+    mapLayerCtx.lineTo(p.x, p.y);
+    mapLayerCtx.stroke();
+    mapLayerCtx.restore();
+    mapLayerCtx.strokeStyle = "rgba(240, 226, 255, 0.98)";
+    mapLayerCtx.lineWidth = 2.2;
+    mapLayerCtx.beginPath();
+    mapLayerCtx.arc(p.x, p.y, 10.5, 0, Math.PI * 2);
+    mapLayerCtx.stroke();
+    if (marks && typeof marks.drawMarker === "function" && typeof marks.marker === "function") {
+      marks.drawMarker(mapLayerCtx, p, marks.marker({ ...(row.art || {}), kind: "art" }, i), 14);
+    }
+  }
+  // Draw late in stack for readability over dense markers.
+  drawHeadingWedge(mapLayerCtx, me, motion.bearing, motion.speedMps);
+  // Draw Hermes last so its own marker is never buried by nearby event icons.
+  if (hermesLogoReady && hermesLogo.naturalWidth) {
+    const s = 36;
+    mapLayerCtx.save();
+    mapLayerCtx.beginPath();
+    mapLayerCtx.arc(me.x, me.y, s * 0.54, 0, Math.PI * 2);
+    mapLayerCtx.clip();
+    mapLayerCtx.drawImage(hermesLogo, me.x - s / 2, me.y - s / 2, s, s);
+    mapLayerCtx.restore();
+    mapLayerCtx.lineWidth = 2;
+    mapLayerCtx.strokeStyle = "rgba(6,12,18,0.95)";
+    mapLayerCtx.beginPath();
+    mapLayerCtx.arc(me.x, me.y, s * 0.54, 0, Math.PI * 2);
+    mapLayerCtx.stroke();
+  }
+  drawOrientedLayer(mapCtx, mapLayer, mapNorthBearing());
+  drawWindOverlay(mapCtx, weatherState);
+}
+
+function syncMapModeLabel() {
+  const btn = el("mapMode");
+  if (!btn) return;
+  btn.textContent = mapView === "local" ? "Map: Nearby Zoom" : "Map: Whole Playa";
+}
+function syncMoreEventsLabel() {
+  const btn = el("moreEvents");
+  if (!btn) return;
+  const ix = EVENT_PAGE_SIZES.indexOf(eventPageSize);
+  const next = EVENT_PAGE_SIZES[(ix + 1) % EVENT_PAGE_SIZES.length];
+  btn.textContent = `More events (${eventPageSize} → ${next})`;
+}
+
+function renderNearby() {
+  const rows = eventRows();
+  const arts = artRows();
+  const pickups = pickupRows();
+  const browseArts = (() => {
+    const deep = arts.filter((row) => row.deep);
+    return deep.length ? deep : arts;
+  })();
+  let browseArtIndex = selectedArtKey ? browseArts.findIndex((row) => artKey(row.art) === selectedArtKey) : -1;
+  if (browseArts.length) {
+    if (browseArtIndex < 0) browseArtIndex = 0;
+    selectedArtKey = artKey((browseArts[browseArtIndex] || {}).art);
+  } else {
+    selectedArtKey = "";
+  }
+  drawMiniMap(rows, arts, pickups);
+  const eventDetailEl = el("eventDetail");
+  const topEvents = rows.slice(0, eventPageSize);
+  const selectedRow = selectedEventKey
+    ? rows.find((row) => eventKey(row.event) === selectedEventKey) || null
+    : null;
+  const artLines = browseArts.slice(0, 3).map((row) =>
+    `<div class="row"><b>✣ ${row.dir} ${meters(row.d)}</b> • ${row.art.title || "Art piece"}${row.deep ? " · deep playa" : ""}</div>`);
+  if (!rows.length) {
+    const base = [`<div class="row"><b>${motionText()}</b></div>`, "<div class=\"row\">No nearby mapped events yet.</div>"];
+    if (artLines.length) base.push(...artLines);
+    el("nearby").innerHTML = base.join("");
+    selectedEventKey = "";
+    if (eventDetailEl) {
+      eventDetailEl.hidden = true;
+      eventDetailEl.innerHTML = "";
+    }
+  } else {
+    const lines = topEvents.map((row) => {
+      const key = eventKey(row.event);
+      const when = row.event.timeLabel || "time unknown";
+      const title = esc(row.event.title || "Untitled");
+      const active = key === selectedEventKey ? " active" : "";
+      return `<div class="row event-row"><button type="button" data-event-key="${esc(key)}" class="${active}"><b>${row.dir} ${meters(row.d)}</b> • ${esc(when)} • ${title}</button></div>`;
+    });
+    lines.unshift(`<div class="row"><b>${motionText()}</b></div>`);
+    if (artLines.length) {
+      const label = Number.isFinite(motion.bearing) && Number.isFinite(motion.speedMps) && motion.speedMps >= MOVE_MIN_MPS
+        ? "Art ahead"
+        : "Nearby art";
+      const modeLabel = ART_FILTER === "deep" ? " (deep only)" : ART_FILTER === "city" ? " (city only)" : "";
+      lines.push(`<div class="row"><b>${label}${modeLabel}</b></div>`, ...artLines);
+    }
+    el("nearby").innerHTML = lines.join("");
+    const detailTarget = selectedRow || topEvents[0] || null;
+    selectedEventKey = detailTarget ? eventKey(detailTarget.event) : "";
+    if (eventDetailEl && detailTarget) {
+      const e = detailTarget.event || {};
+      const location = esc(e.location || e.where || e.place || "location unknown");
+      const title = esc(e.title || "Untitled");
+      const time = esc(e.timeLabel || "time unknown");
+      const descRaw = String(e.description || e.note || e.details || "").trim();
+      const desc = descRaw ? esc(descRaw) : "No extra details.";
+      eventDetailEl.hidden = false;
+      eventDetailEl.innerHTML =
+        `<b>${title}</b><br>` +
+        `<span class="muted">${detailTarget.dir} ${meters(detailTarget.d)} • ${time}</span><br>` +
+        `<span class="muted">${location}</span><br>` +
+        `${desc}`;
+    } else if (eventDetailEl) {
+      eventDetailEl.hidden = true;
+      eventDetailEl.innerHTML = "";
+    }
+  }
+  const artBrowserEl = el("artBrowser");
+  const artDetailEl = el("artDetail");
+  const artCountEl = el("artCount");
+  if (!browseArts.length) {
+    selectedArtKey = "";
+    if (artBrowserEl) artBrowserEl.hidden = true;
+  } else {
+    const idx = Math.max(0, browseArtIndex);
+    const picked = browseArts[idx];
+    selectedArtKey = artKey(picked.art);
+    const art = picked.art || {};
+    const title = esc(art.title || "Art piece");
+    const artist = esc(art.artist || art.location || "Unknown artist");
+    const location = esc(art.location || "deep playa");
+    const descRaw = String(art.about || art.description || art.note || "").trim();
+    const desc = descRaw ? esc(descRaw) : "No description available.";
+    const photoUrlRaw = safeHttpUrl(art.image || art.imageUrl || art.photo || "");
+    const photoUrl = photoUrlRaw && !badArtImageUrls.has(photoUrlRaw) ? photoUrlRaw : "";
+    const linkUrl = safeHttpUrl(art.link || art.url || "");
+    const photoHtml = photoUrl
+      ? `<img src="${esc(photoUrl)}" alt="${title}" width="240" height="180" loading="lazy" decoding="async" referrerpolicy="no-referrer" data-art-photo="1">`
+      : "";
+    const linkHtml = linkUrl ? `<br><a href="${esc(linkUrl)}" target="_blank" rel="noopener noreferrer">More info link</a>` : "";
+    if (artDetailEl) {
+      artDetailEl.innerHTML =
+        `<b>${title}</b><br>` +
+        `<span class="muted">${picked.dir} ${meters(picked.d)}${art.bigArtCar ? " • big art car" : ""}</span><br>` +
+        `<span class="muted">${artist} • ${location}</span><br>` +
+        `${desc}${linkHtml}${photoHtml}`;
+      const img = artDetailEl.querySelector("img[data-art-photo='1']");
+      if (img && photoUrl) {
+        img.addEventListener("error", () => {
+          badArtImageUrls.add(photoUrl);
+          if (selectedArtKey === artKey(picked.art)) renderNearby();
+        }, { once: true });
+      }
+    }
+    if (artCountEl) artCountEl.textContent = `${idx + 1} / ${browseArts.length}`;
+    if (artBrowserEl) artBrowserEl.hidden = false;
+  }
+
+  const reqLines = pickups.slice(0, 6).map((item, i) => {
+    const r = item.req || {};
+    const who = esc(r.who || "anonymous");
+    const intention = esc(String(r.intention || "").trim());
+    const kind = r.requestType === "dj-set" ? "DJ/live act" : "Pickup";
+    const where = esc(r.place || (kind === "DJ/live act" ? "wherever Hermes is now" : "unknown place"));
+    const gear = esc(String(r.equipmentNeeded || "").trim());
+    const asked = ageLabel(r.at);
+    const want = esc(r.pickupWhen || "asap");
+    const mapBit = item.mapped && Number.isFinite(item.d) ? `${item.dir} ${meters(item.d)} • ` : "";
+    const detail = kind === "DJ/live act" ? `set ${want}` : `pickup ${want}`;
+    const intentLine = intention ? `<br>Intention: ${intention}` : "";
+    const gearLine = gear ? `<br>Equipment: ${gear}` : "";
+    const status = approvalStatusOf(r);
+    const statusTag = `<span class="pill ${status}">${status}</span>`;
+    const id = esc(String(r.id || ""));
+    const controls = TOKEN && status !== "approved"
+      ? `<div class="controls">
+          <button class="decision approve" type="button" data-approve-id="${id}" data-approve-status="approved">Approve</button>
+          <button class="decision reject" type="button" data-approve-id="${id}" data-approve-status="rejected">Reject</button>
+        </div>`
+      : "";
+    return `<div class="row"><b>${i + 1}. ${who}</b> • ${kind} • ${asked} • ${statusTag}${intentLine}${gearLine}<br>${mapBit}${where} • ${detail}${controls}</div>`;
+  });
+  if (nowPlayingRequest) {
+    const who = nowPlayingRequest.who || "someone";
+    const intention = String(nowPlayingRequest.intention || "").trim();
+    const extra = intention ? ` · ${intention}` : "";
+    el("nowPlaying").textContent = `Now playing: ${who}${extra}`;
+  } else {
+    el("nowPlaying").textContent = "Now playing: nobody scheduled";
+  }
+  el("pickupRequests").innerHTML = reqLines.length ? reqLines.join("") : "<div class=\"row\">No requests yet.</div>";
+}
+
+async function refreshState() {
+  try {
+    const r = await fetch("/api/hermes/state", { cache: "no-store" });
+    latestState = await r.json();
+    renderNearby();
+    refreshWeather(false);
+    refreshInfractions();
+  } catch { /* next refresh will try again */ }
+}
+
+async function refreshPickups() {
+  try {
+    const qs = TOKEN ? `?includePending=1&token=${encodeURIComponent(TOKEN)}` : "";
+    const r = await fetch(`/api/hermes/pickup${qs}`, { cache: "no-store" });
+    const body = await r.json();
+    const next = Array.isArray(body.requests) ? body.requests : [];
+    nowPlayingRequest = body && body.nowPlaying ? body.nowPlaying : null;
+    notifyNewRequests(next);
+    pickupRequests = next;
+    renderNearby();
+  } catch { /* next refresh will try again */ }
+}
+
+function meshLoggedIn() {
+  const name = (el("who") && el("who").value ? el("who").value : "").trim();
+  return Boolean(TOKEN && name);
+}
+
+function renderInfractions() {
+  const card = el("infractionsCard");
+  const summary = el("infractionsSummary");
+  const list = el("infractionsList");
+  if (!card || !summary || !list) return;
+  if (!meshLoggedIn()) {
+    card.hidden = true;
+    return;
+  }
+  card.hidden = false;
+  if (infractionsState.error) {
+    summary.textContent = `Could not load infractions: ${infractionsState.error}`;
+    list.innerHTML = "";
+    return;
+  }
+  if (!infractionsState.loaded) {
+    summary.textContent = "Loading infractions…";
+    list.innerHTML = "";
+    return;
+  }
+  const rows = Array.isArray(infractionsState.highestRisk) ? infractionsState.highestRisk : [];
+  const flagged = rows.filter((r) => Number(r.netRisk || 0) > 0).slice(0, 8);
+  const counts = infractionsState.counts || {};
+  summary.textContent = `Infractions visible on mesh: ${flagged.length} questionable of ${Number(counts.people || 0)} people`;
+  if (!flagged.length) {
+    list.innerHTML = `<div class="row">No active questionable flags right now.</div>`;
+    return;
+  }
+  list.innerHTML = flagged.map((r) => {
+    const noShow = Number(r.noShows || 0);
+    const breach = Number(r.ethicalBreaches || 0);
+    const assoc = Number(r.associationRisk || 0);
+    const mit = Number(r.mitigation || 0);
+    const net = Number(r.netRisk || 0);
+    const tags = `<span class="pill q">questionable</span>` +
+      (noShow > 0 ? `<span class="pill n">no show</span>` : "") +
+      (breach > 0 ? `<span class="pill b">ethical breach</span>` : "");
+    const assocText = assoc > 0 ? ` · assoc ${assoc}` : "";
+    return `<div class="row"><b>${esc(r.name || "Unknown")}</b>${tags}<br>` +
+      `net ${net} · raw ${Number(r.totalRisk || 0)} · mitigation ${mit}${assocText}</div>`;
+  }).join("");
+}
+
+async function refreshInfractions() {
+  if (!meshLoggedIn()) {
+    infractionsState = { loaded: false, counts: null, highestRisk: [], error: "" };
+    renderInfractions();
+    return;
+  }
+  try {
+    const qs = `?includeRequests=1&token=${encodeURIComponent(TOKEN)}`;
+    const r = await fetch(`/api/hermes/graph${qs}`, { cache: "no-store" });
+    const body = await r.json();
+    if (!r.ok || !body || body.ok === false) throw new Error(body && body.error ? body.error : `graph ${r.status}`);
+    infractionsState = {
+      loaded: true,
+      counts: body.counts || null,
+      highestRisk: Array.isArray(body.highestRisk) ? body.highestRisk : [],
+      error: ""
+    };
+  } catch (err) {
+    infractionsState = {
+      loaded: true,
+      counts: null,
+      highestRisk: [],
+      error: String((err && err.message) || err || "fetch failed")
+    };
+  }
+  renderInfractions();
+}
+
+async function setPickupApproval(id, status) {
+  if (!id || !TOKEN) return;
+  try {
+    const who = (el("who").value || "admin").trim() || "admin";
+    const res = await fetch("/api/hermes/pickup/approve", {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({ id, status, token: TOKEN, by: who })
+    });
+    const body = await res.json().catch(() => null);
+    if (!res.ok || !body || body.ok === false) {
+      show("warn", "Approval not saved", body && body.error ? body.error : "Try again in a moment.");
+      return;
+    }
+    refreshPickups();
+  } catch {
+    show("warn", "Approval failed", "Could not reach Hermes server.");
+  }
+}
+
+// Remembered, so a phone that gets locked and reopened does not come back as a
+// nameless second source competing with the one it was a minute ago.
+el("who").value = localStorage.getItem("hermes-who") || "";
+renderInfractions();
+syncAlertUI();
+el("who").addEventListener("input", () => {
+  renderInfractions();
+  refreshInfractions();
+});
+el("alertToggle").addEventListener("click", async () => {
+  if (alertsEnabled()) {
+    alertsWanted = false;
+    localStorage.setItem("hermes-request-alerts", "off");
+    syncAlertUI();
+    return;
+  }
+  alertsWanted = true;
+  localStorage.setItem("hermes-request-alerts", "on");
+  await enableAlerts();
+});
+
+el("pickupRequests").addEventListener("click", (event) => {
+  const btn = event.target && event.target.closest ? event.target.closest("button[data-approve-id]") : null;
+  if (!btn) return;
+  const id = String(btn.dataset.approveId || "");
+  const status = String(btn.dataset.approveStatus || "approved");
+  setPickupApproval(id, status);
+});
+el("nearby").addEventListener("click", (event) => {
+  const btn = event.target && event.target.closest ? event.target.closest("button[data-event-key]") : null;
+  if (!btn) return;
+  const key = String(btn.dataset.eventKey || "");
+  if (!key) return;
+  selectedEventKey = key;
+  renderNearby();
+});
+const stepArt = (delta) => {
+  const arts = artRows();
+  const browse = (() => {
+    const deep = arts.filter((row) => row.deep);
+    return deep.length ? deep : arts;
+  })();
+  if (!browse.length) return;
+  const cur = selectedArtKey ? browse.findIndex((row) => artKey(row.art) === selectedArtKey) : -1;
+  const start = cur < 0 ? 0 : cur;
+  const next = (start + delta + browse.length) % browse.length;
+  selectedArtKey = artKey(browse[next].art);
+  renderNearby();
+};
+
+el("go").addEventListener("click", () => {
+  if (watch != null) {
+    navigator.geolocation.clearWatch(watch);
+    watch = null;
+    liveStatusClass = "";
+    liveStatusTitle = "";
+    liveStatusDetail = "";
+    el("go").textContent = "Start sharing";
+    show("", "Stopped", `Sent ${sent} position${sent === 1 ? "" : "s"} in total.`);
+    return;
+  }
+  const name = (el("who").value || "").trim();
+  if (!name) { show("warn", "Name needed", "So we know whose dot it is."); return; }
+  localStorage.setItem("hermes-who", name);
+  if (!navigator.geolocation) {
+    show("bad", "No location on this browser", "Try Safari or Chrome.");
+    return;
+  }
+  el("go").textContent = "Stop sharing";
+  show("warn", "Asking for location…", "Tap Allow on the prompt.");
+  // Best moment to ask: user just tapped a button and expects permissions.
+  if (alertsWanted && alertsCapable && Notification.permission === "default") {
+    enableAlerts().catch(() => {});
+  }
+
+  // watchPosition rather than a timer: the phone tells us when it has moved,
+  // which is both fresher and easier on the battery than asking every few
+  // seconds and being handed the same fix over and over.
+  watch = navigator.geolocation.watchPosition(async (pos) => {
+    const { latitude, longitude, accuracy } = pos.coords;
+    lastFix = { lat: Number(latitude), lon: Number(longitude) };
+    updateMotion(lastFix.lat, lastFix.lon, pos.timestamp);
+    lastFix.ts = pos.timestamp;
+    try {
+      const answer = await post(latitude.toFixed(6), longitude.toFixed(6), accuracy, name);
+      sent++;
+      lastSentAtMs = Date.now();
+      const at = `${latitude.toFixed(5)}, ${longitude.toFixed(5)} ±${Math.round(accuracy)}m`;
+      if (answer.ok === false) {
+        // The one refusal that is a real problem: a link without its token, or
+        // with the wrong one. Everything else here is the system working.
+        liveStatusClass = "";
+        show("bad", "This link is missing its code", "Scan the QR code again.");
+      } else if (answer.accepted) {
+        showLiveSendStatus("live", "Sharing — you are feeding Hermes", `${at} · ${sent} sent`);
+      } else {
+        // Not an error. Somebody else has the position and this phone is the
+        // spare, so saying "failed" would send people off to debug something
+        // that is working exactly as intended.
+        showLiveSendStatus("live", `Standing by — ${answer.reason || "someone else is feeding Hermes"}`,
+          `${at} · ${sent} sent · ready if they drop out`);
+      }
+      refreshState();
+    } catch (err) {
+      failed++;
+      liveStatusClass = "";
+      show("bad", "Cannot reach Hermes", `Check you are on the camp wifi. (${failed} tries)`);
+    }
+  }, (err) => {
+    if (err.code === 1) {
+      liveStatusClass = "";
+      show("bad", "Location permission was denied",
+        "Settings › Safari › Location, or reload and tap Allow.");
+      el("go").textContent = "Start sharing";
+      watch = null;
+    } else {
+      liveStatusClass = "";
+      show("warn", "No fix yet", "Step outside if you can — it keeps trying.");
+    }
+  }, { enableHighAccuracy: true, maximumAge: 10000, timeout: 30000 });
+});
+
+if (window.PlayaMap) {
+  window.PlayaMap.load()
+    .then((map) => { miniMap = map; renderNearby(); })
+    .catch(() => {});
+}
+refreshState();
+refreshPickups();
+renderWeather();
+refreshWeather(true);
+refreshInfractions();
+setInterval(refreshState, 7000);
+setInterval(refreshPickups, 7000);
+setInterval(() => refreshWeather(false), 30000);
+setInterval(refreshInfractions, 15000);
+setInterval(tickLiveSendStatus, 1000);
+syncMapModeLabel();
+syncMoreEventsLabel();
+el("mapMode").addEventListener("click", () => {
+  mapView = mapView === "local" ? "whole" : "local";
+  localStorage.setItem("hermes-map-view", mapView);
+  syncMapModeLabel();
+  renderNearby();
+});
+el("moreEvents").addEventListener("click", () => {
+  const ix = EVENT_PAGE_SIZES.indexOf(eventPageSize);
+  eventPageSize = EVENT_PAGE_SIZES[(ix + 1) % EVENT_PAGE_SIZES.length];
+  localStorage.setItem("hermes-event-page-size", String(eventPageSize));
+  syncMoreEventsLabel();
+  renderNearby();
+});
+el("artPrev").addEventListener("click", () => stepArt(-1));
+el("artNext").addEventListener("click", () => stepArt(1));
+el("artNextTop").addEventListener("click", () => stepArt(1));
+</script>
+</body>
+</html>
