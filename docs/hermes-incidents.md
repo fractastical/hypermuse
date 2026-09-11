@@ -158,14 +158,29 @@ edge made it look like a working site serving a broken page.
 **Caught now by:** `/api/hermes/faults` shows a `start` entry per run, with pid
 and node version, so "which build is actually answering" is answerable.
 
-## ~2026-09-02 — `npm run hermes:restart` raced itself
+## 2026-09-11 — `npm run hermes:restart` was racing launchd, not itself
 
-**Seen:** `EADDRINUSE: address already in use 0.0.0.0:8124`.
+**Seen:** `EADDRINUSE: address already in use 0.0.0.0:8124` on restart. 22
+launches in `~/Library/Logs/hypermuse/hermes-server.out.log`.
 
-**Actually:** the script kills the listener and starts the next one after a
-fixed `sleep 1`, which is sometimes not long enough. Still present; wait for
-the port to actually free rather than trusting the sleep. Reproduced again on
-2026-09-11, and it is now the first real entry in the fault log.
+**First diagnosed as** a race in the script's own `sleep 1` being too short.
+That was wrong, and the wrong version is kept here because the correct answer
+is the more useful thing to know.
+
+**Actually:** `com.hypermuse.hermes-server` is a loaded launchd agent with
+`KeepAlive` set. Killing the listener does not free the port — launchd notices
+within milliseconds and starts its own replacement. The kill and the sleep then
+race a process that has already won, so the new copy dies on `EADDRINUSE` while
+the old one carries on serving. It looks like a failed restart when in fact the
+server is already back; just not the copy that was asked for.
+
+**Fixed:** `scripts/hermes-restart.sh` asks launchd when launchd owns the
+process (`launchctl kickstart -k`) and waits for the port to answer rather than
+trusting a fixed sleep. It falls back to killing by hand when no agent is
+loaded.
+
+**Worth remembering:** a manual `kill` on anything under `KeepAlive` is not a
+stop, it is a restart request. Use `launchctl bootout` to actually stop it.
 
 ## 2026-08-30 — the PixLite would not take Art-Net
 

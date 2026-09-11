@@ -2,9 +2,25 @@
 
 This deploy keeps the site online even when the laptop is off.
 
-Until this is done, the laptop *is* the origin: `cloudflared` runs a tunnel from
-`~/.cloudflared/config.yml` to `127.0.0.1:8124`, so closing the lid takes all
-three hostnames down with it.
+Until this is done, the laptop *is* the origin. Two processes have to be up, and
+both are launchd agents with `KeepAlive` and `RunAtLoad`, so they start at login
+and come back on their own if they crash or are killed:
+
+- `com.hypermuse.hermes-server` — the app, on `127.0.0.1:8124`
+- `com.hypermuse.hermes-cloudflared` — `cloudflared tunnel run hermes-return`,
+  forwarding all three hostnames there per `~/.cloudflared/config.yml`
+
+They fail differently, which is worth knowing before diagnosing:
+
+- app down, tunnel up → Cloudflare returns **502**, because the connector is
+  there but has nothing to forward to
+- tunnel down → Cloudflare returns **1033** or **530**, because there is no
+  connector at all
+
+What `KeepAlive` cannot survive is the machine: powered off, asleep, or logged
+out. These are LaunchAgents, not LaunchDaemons, so they are tied to the login
+session — nobody logged in means nothing serving. That is the gap this deploy
+closes, and it is the only gap left.
 
 ## 1) Create Railway project
 

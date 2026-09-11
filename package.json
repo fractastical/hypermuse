@@ -8,7 +8,7 @@
   "scripts": {
     "start": "npx http-server -c-1 -p 8080 .",
     "hermes:server": "node scripts/hermes-server.mjs",
-    "hermes:restart": "lsof -ti tcp:8124 -sTCP:LISTEN | xargs kill 2>/dev/null; sleep 1; node scripts/hermes-server.mjs",
+    "hermes:restart": "bash scripts/hermes-restart.sh",
     "hermes:mock": "node scripts/hermes-server.mjs --mock",
     "hermes:post": "node scripts/hermes-post-location.mjs",
     "hermes:alpha": "node scripts/hermes-alpha-watcher.mjs",
