@@ -3,7 +3,23 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Hermes Live Tracker</title>
+<title>Return of Hermes | Live Art Car Tracker & Circle of Hermes</title>
+<meta name="description" content="Track the Return of Hermes art car, send pickup or live act requests, and learn about the Circle of Hermes community on playa.">
+<meta name="keywords" content="Return of Hermes, Hermes art car, Burning Man art car, Circle of Hermes, playa tracker, pickup request">
+<meta name="robots" content="index,follow,max-image-preview:large">
+<meta name="theme-color" content="#06090f">
+<meta property="og:type" content="website">
+<meta property="og:title" content="Return of Hermes | Live Art Car Tracker & Circle of Hermes">
+<meta property="og:description" content="Live location, request form, and core info for the Return of Hermes and the Circle of Hermes.">
+<meta property="og:image" content="/hermes/logo.png">
+<meta property="og:image:alt" content="Return of Hermes logo">
+<meta property="og:url" content="https://request.returnofhermes.com/hermes-live.html">
+<meta property="og:site_name" content="Return of Hermes">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Return of Hermes | Live Art Car Tracker & Circle of Hermes">
+<meta name="twitter:description" content="Live location, ride requests, and basic info for the Return of Hermes and Circle of Hermes.">
+<meta name="twitter:image" content="/hermes/logo.png">
+<link rel="canonical" href="https://request.returnofhermes.com/hermes-live.html">
 <style>
   :root { color-scheme: dark; }
   * { box-sizing: border-box; }
@@ -100,14 +116,67 @@
     height: 220px;
     border: 0;
   }
+  .about h2 {
+    margin: 0 0 8px;
+    font-size: 18px;
+  }
+  .about p {
+    margin: 0 0 8px;
+    color: #d7e8fa;
+    font-size: 14px;
+  }
+  .about ul {
+    margin: 0;
+    padding-left: 18px;
+    color: #d7e8fa;
+    font-size: 14px;
+  }
+  .about li { margin: 4px 0; }
 </style>
 <script src="js/hermes-marks.js"></script>
 <script src="js/playa-map.js"></script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Organization",
+  "name": "Return of Hermes",
+  "url": "https://request.returnofhermes.com/",
+  "logo": "https://request.returnofhermes.com/hermes/logo.png",
+  "description": "Return of Hermes is a playa art car project and community gathering point, including live location and request coordination.",
+  "sameAs": []
+}
+</script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "WebSite",
+  "name": "Return of Hermes Live Tracker",
+  "url": "https://request.returnofhermes.com/",
+  "description": "Live tracker and request form for the Return of Hermes art car and Circle of Hermes."
+}
+</script>
 </head>
 <body>
   <div>
-    <h1>Hermes Live Tracker</h1>
-    <p class="sub">Current location and nearby active events.</p>
+    <h1>Return of Hermes Live Tracker</h1>
+    <p class="sub">Current location, request form, and Circle of Hermes info.</p>
+  </div>
+
+  <div class="card about" aria-label="About Return of Hermes">
+    <h2>About the Art Car</h2>
+    <p>
+      Return of Hermes is a roaming playa art car focused on connection, movement,
+      and shared moments across the city and deep playa.
+    </p>
+    <p>
+      This page lets guests find the current Hermes position and send pickup or live act requests.
+    </p>
+    <h2>Circle of Hermes</h2>
+    <ul>
+      <li>A collaborative camp-and-crew network around the Hermes mission.</li>
+      <li>Supports riders, artists, DJs, and live performers.</li>
+      <li>Centered on consent, reliability, and mutual support.</li>
+    </ul>
   </div>
 
   <div class="card">
@@ -184,6 +253,12 @@
   const weatherMapEl = document.getElementById("weatherMap");
   let map = null;
   let data = null;
+  let hasFreshFix = false;
+  const LAST_FIX_KEY = "hermes-live-last-fix-v1";
+  const MAX_BOOT_FIX_AGE_MS = 1000 * 60 * 60 * 8;
+  // The phones report every few seconds while anyone aboard has the page open, so
+  // a gap of minutes means nobody is feeding rather than that the car is parked.
+  const LIVE_MAX_AGE_SEC = 60 * 5;
   let weatherState = {
     updatedAt: 0,
     nearest: null,
@@ -229,6 +304,40 @@
   let hermesLogoReady = false;
   hermesLogo.onload = () => { hermesLogoReady = true; draw(); };
   hermesLogo.src = "hermes/logo.png";
+
+  function loadBootFix() {
+    try {
+      const raw = JSON.parse(localStorage.getItem(LAST_FIX_KEY) || "null");
+      if (!raw || typeof raw !== "object") return null;
+      const fix = raw.fix && typeof raw.fix === "object" ? raw.fix : null;
+      if (!fix) return null;
+      const lat = Number(fix.lat);
+      const lon = Number(fix.lon);
+      if (!Number.isFinite(lat) || !Number.isFinite(lon)) return null;
+      const stampMs = Date.parse(raw.updatedAt || "") || 0;
+      if (stampMs && (Date.now() - stampMs) > MAX_BOOT_FIX_AGE_MS) return null;
+      return {
+        fix: { ...fix, lat, lon },
+        place: raw.place || null,
+        updatedAt: raw.updatedAt || ""
+      };
+    } catch {
+      return null;
+    }
+  }
+
+  function saveBootFix(snapshot) {
+    try {
+      if (!snapshot || !snapshot.fix) return;
+      localStorage.setItem(LAST_FIX_KEY, JSON.stringify({
+        fix: snapshot.fix,
+        place: snapshot.place || null,
+        updatedAt: snapshot.updatedAt || ""
+      }));
+    } catch {
+      // Ignore localStorage issues.
+    }
+  }
 
   const meters = (m) => !Number.isFinite(m) ? "?" : (m < 1000 ? `${Math.round(m)}m` : `${(m / 1000).toFixed(2)}km`);
   const since = (s) => !Number.isFinite(s) ? "?" : (s < 60 ? `${Math.round(s)}s` : `${Math.round(s / 60)}m`);
@@ -595,7 +704,7 @@
     const gustKph = Number(ws && ws.gustKph);
     const windDirDeg = Number(ws && ws.windDirDeg);
     if (!Number.isFinite(windKph) && !Number.isFinite(windDirDeg)) return;
-    const x = 12, y = 12, w = 248, h = 62;
+    const x = 12, y = 12, w = 260, h = 76;
     ctx2d.save();
     ctx2d.fillStyle = "rgba(7, 16, 28, 0.72)";
     ctx2d.strokeStyle = "rgba(138, 193, 232, 0.7)";
@@ -611,9 +720,11 @@
     ctx2d.font = "12px -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, sans-serif";
     const dirText = Number.isFinite(windDirDeg) ? `${arrow(windDirDeg)} ${Math.round(windDirDeg)}°` : "dir ?";
     const speedText = Number.isFinite(windKph) ? `${windKph.toFixed(1)} km/h` : "speed ?";
-    const gustText = Number.isFinite(gustKph) ? ` gust ${gustKph.toFixed(1)}` : "";
-    ctx2d.fillText(`${speedText}${gustText}`, x + 50, y + 36);
-    ctx2d.fillText(`from ${dirText}`, x + 50, y + 53);
+    const gustText = Number.isFinite(gustKph) ? `${gustKph.toFixed(1)} km/h` : "unknown";
+    const deltaText = Number.isFinite(gustKph) && Number.isFinite(windKph) ? ` (+${Math.max(0, gustKph - windKph).toFixed(1)})` : "";
+    ctx2d.fillText(`Wind: ${speedText}`, x + 50, y + 34);
+    ctx2d.fillText(`Gust: ${gustText}${deltaText}`, x + 50, y + 50);
+    ctx2d.fillText(`from ${dirText}`, x + 50, y + 66);
 
     if (Number.isFinite(windDirDeg)) {
       // Meteorological convention: direction is where wind comes from.
@@ -621,7 +732,7 @@
       const rad = (towardDeg - 90) * Math.PI / 180;
       const cx = x + 24;
       const cy = y + 36;
-      const len = 17;
+      const len = Math.max(14, Math.min(26, Number.isFinite(gustKph) ? gustKph * 0.55 : windKph * 0.55));
       const tipX = cx + Math.cos(rad) * len;
       const tipY = cy + Math.sin(rad) * len;
       const tailX = cx - Math.cos(rad) * 8;
@@ -644,6 +755,53 @@
     }
     ctx2d.restore();
   }
+  function rotatePointAround(px, py, cx, cy, deg) {
+    if (!Number.isFinite(deg)) return { x: px, y: py };
+    const rad = deg * Math.PI / 180;
+    const dx = px - cx;
+    const dy = py - cy;
+    return {
+      x: cx + dx * Math.cos(rad) - dy * Math.sin(rad),
+      y: cy + dx * Math.sin(rad) + dy * Math.cos(rad)
+    };
+  }
+  function clampPointToCanvas(p, margin) {
+    const m = Math.max(2, Number(margin) || 2);
+    return {
+      x: Math.max(m, Math.min(canvas.width - m, p.x)),
+      y: Math.max(m, Math.min(canvas.height - m, p.y))
+    };
+  }
+  function drawHermesMarkerTop(ctx2d, p, size = 42) {
+    const s = Math.max(24, Number(size) || 42);
+    const outerScale = 1.4; // +40% diameter ring
+    ctx2d.save();
+    if (hermesLogoReady && hermesLogo.naturalWidth) {
+      ctx2d.beginPath();
+      ctx2d.arc(p.x, p.y, s * 0.54, 0, Math.PI * 2);
+      ctx2d.clip();
+      ctx2d.drawImage(hermesLogo, p.x - s / 2, p.y - s / 2, s, s);
+      ctx2d.restore();
+      ctx2d.save();
+    } else {
+      ctx2d.fillStyle = "rgba(101, 212, 255, 0.98)";
+      ctx2d.beginPath();
+      ctx2d.arc(p.x, p.y, s * 0.5, 0, Math.PI * 2);
+      ctx2d.fill();
+    }
+    ctx2d.strokeStyle = "rgba(6,12,18,0.98)";
+    ctx2d.lineWidth = 2.4;
+    ctx2d.beginPath();
+    ctx2d.arc(p.x, p.y, s * 0.54, 0, Math.PI * 2);
+    ctx2d.stroke();
+    // Thin high-contrast halo for visibility over busy map content.
+    ctx2d.strokeStyle = "rgba(255, 120, 214, 0.95)";
+    ctx2d.lineWidth = 1.8;
+    ctx2d.beginPath();
+    ctx2d.arc(p.x, p.y, s * 0.54 * outerScale, 0, Math.PI * 2);
+    ctx2d.stroke();
+    ctx2d.restore();
+  }
 
   function draw() {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
@@ -662,30 +820,31 @@
     const me = view.toCanvas(view.at(lat, lon));
     // Draw late in stack for readability over dense markers.
     drawHeadingWedge(mapLayerCtx, me, motion.bearing, motion.speedMps);
-    // Draw Hermes last so its own marker is never buried by nearby event icons.
-    if (hermesLogoReady && hermesLogo.naturalWidth) {
-      const s = 40;
-      mapLayerCtx.save();
-      mapLayerCtx.beginPath();
-      mapLayerCtx.arc(me.x, me.y, s * 0.54, 0, Math.PI * 2);
-      mapLayerCtx.clip();
-      mapLayerCtx.drawImage(hermesLogo, me.x - s / 2, me.y - s / 2, s, s);
-      mapLayerCtx.restore();
-      mapLayerCtx.strokeStyle = "rgba(6,12,18,0.95)";
-      mapLayerCtx.lineWidth = 2;
-      mapLayerCtx.beginPath();
-      mapLayerCtx.arc(me.x, me.y, s * 0.54, 0, Math.PI * 2);
-      mapLayerCtx.stroke();
-    }
-    drawOrientedLayer(ctx, mapLayer, mapNorthBearing());
+    const north = mapNorthBearing();
+    drawOrientedLayer(ctx, mapLayer, north);
     drawWindOverlay(ctx, weatherState);
+    // Always draw Hermes marker on top-most pass, and keep it fully visible.
+    const rotated = Number.isFinite(north)
+      ? rotatePointAround(me.x, me.y, canvas.width / 2, canvas.height / 2, -north)
+      : { x: me.x, y: me.y };
+    const marker = clampPointToCanvas(rotated, 26);
+    drawHermesMarkerTop(ctx, marker, 42);
   }
 
   function render() {
     if (!data || !data.fix) return;
     const fix = data.fix;
     const age = Number(fix.heardSec);
-    stateEl.textContent = fix.source ? `Live: ${fix.source.replace(/^phone-/, "")}` : "Live";
+    // A poll that succeeded is not the same as a car that is out there. The
+    // server answers with whatever fix it last heard, so age decides the wording
+    // and reaching the server does not: calling a three-day-old position "Live"
+    // is the one thing this page must never do.
+    const live = hasFreshFix && Number.isFinite(age) && age <= LIVE_MAX_AGE_SEC;
+    if (live) {
+      stateEl.textContent = fix.source ? `Live: ${fix.source.replace(/^phone-/, "")}` : "Live";
+    } else {
+      stateEl.textContent = fix.source ? `Last known: ${fix.source.replace(/^phone-/, "")}` : "Last known Hermes location";
+    }
     const north = mapNorthBearing();
     const northText = Number.isFinite(north) ? ` · Map north ${arrow(north)} ${Math.round(north)}°` : "";
     const move = Number.isFinite(motion.bearing) && Number.isFinite(motion.speedMps) && motion.speedMps >= MOVE_MIN_MPS
@@ -697,8 +856,17 @@
 
   async function poll() {
     try {
-      const r = await fetch("/api/hermes/state", { cache: "no-store" });
-      data = await r.json();
+      const r = await fetch("/api/hermes/fix", { cache: "no-store" });
+      const body = await r.json();
+      if (!r.ok || !body || body.ok === false || !body.fix) return;
+      data = {
+        ...(data || {}),
+        fix: body.fix,
+        place: body.place || (data && data.place) || null,
+        updatedAt: body.updatedAt || (data && data.updatedAt) || ""
+      };
+      hasFreshFix = true;
+      saveBootFix(data);
       if (data && data.fix && Number.isFinite(Number(data.fix.lat)) && Number.isFinite(Number(data.fix.lon))) {
         const now = Date.parse(data.updatedAt || "") || Date.now();
         const cur = { lat: Number(data.fix.lat), lon: Number(data.fix.lon), t: now };
@@ -802,10 +970,16 @@
   if (window.PlayaMap) {
     window.PlayaMap.load().then((m) => { map = m; draw(); }).catch(() => {});
   }
+  const bootFix = loadBootFix();
+  if (bootFix) {
+    data = { ...(data || {}), ...bootFix };
+    detailEl.textContent = "Loading fresh live location…";
+    render();
+  }
   renderWeather();
   refreshWeather(true);
   poll();
-  setInterval(poll, 5000);
+  setInterval(poll, 3000);
   setInterval(refreshNowPlaying, 7000);
   setInterval(() => refreshWeather(false), 30000);
 })();

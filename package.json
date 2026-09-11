@@ -2,6 +2,9 @@
   "name": "audiosphere-tests",
   "version": "0.1.0",
   "private": true,
+  "engines": {
+    "node": ">=20"
+  },
   "scripts": {
     "start": "npx http-server -c-1 -p 8080 .",
     "hermes:server": "node scripts/hermes-server.mjs",
@@ -15,6 +18,7 @@
     "hermes:art:nearby": "node scripts/hermes-nearby-art.mjs",
     "hermes:instagram": "node scripts/hermes-instagram.mjs",
     "hermes:story": "node scripts/hermes-story.mjs",
+    "hermes:annals": "node scripts/hermes-annals.mjs",
     "hermes:gif": "node scripts/hermes-trail-gif.mjs",
     "pixels:find": "node scripts/find-pixlite.mjs",
     "hermes:answers": "node scripts/check-answers.mjs",
@@ -26,7 +30,7 @@
     "hermes:icons": "node scripts/build-hermes-icons.mjs",
     "kiosk:hypermoon": "open -na \"Google Chrome\" --args --kiosk --user-data-dir=/tmp/hypermoon-kiosk --autoplay-policy=no-user-gesture-required \"http://localhost:8080/hypermoon.html?kiosk=1\"",
     "kiosk:show": "open -na \"Google Chrome\" --args --kiosk --user-data-dir=/tmp/hypermoon-show --autoplay-policy=no-user-gesture-required --use-fake-ui-for-media-stream \"http://localhost:8080/hypermoon.html?show=1&kiosk=1&mic=1&react=1.5&pixels=1\"",
-    "kiosk:show:hermes": "open -na \"Google Chrome\" --args --kiosk --user-data-dir=/tmp/hypermoon-show --autoplay-policy=no-user-gesture-required --use-fake-ui-for-media-stream \"http://localhost:8124/hypermoon.html?show=1&kiosk=1&mic=1&react=1.5&pixels=1&hermes=1&speed=1&ticker=timer&keepfps=60&content=orbit&orbitseq=ankh|seahorse,jellyfish,seaweed|vajra|coral,starfish|condom,dildo,boobs|metavillan&orbitact=150&giforbit=8&vajras=3\"",
+    "kiosk:show:hermes": "open -na \"Google Chrome\" --args --kiosk --user-data-dir=/tmp/hypermoon-show --autoplay-policy=no-user-gesture-required --use-fake-ui-for-media-stream \"http://localhost:8124/hypermoon.html?show=1&kiosk=1&mic=1&react=1.5&pixels=1&hermes=1&speed=1&ticker=timer&keepfps=60&content=orbit&orbitseq=ankh|seahorse,jellyfish,seaweed|vajra|starfish|boobs|metavillan&orbitact=150&giforbit=8&vajras=3\"",
     "export:reel": "node scripts/export-effects-reel.mjs",
     "export:clips": "CLIPS=1 REEL=0 node scripts/export-effects-reel.mjs",
     "build:vajra:proxies": "node scripts/build-vajra-proxies.mjs",

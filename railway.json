@@ -1,0 +1,8 @@
+{
+  "$schema": "https://railway.com/railway.schema.json",
+  "deploy": {
+    "startCommand": "node scripts/hermes-server.mjs",
+    "healthcheckPath": "/api/hermes/state",
+    "healthcheckTimeout": 120
+  }
+}

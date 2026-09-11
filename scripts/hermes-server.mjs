@@ -227,6 +227,10 @@ const PICKUP_PAST_GRACE_MIN = Math.max(0, Number(process.env.HERMES_PICKUP_PAST_
 const PICKUP_REQUIRE_APPROVAL = String(process.env.HERMES_PICKUP_REQUIRE_APPROVAL || "1") !== "0";
 const PICKUP_SYNC_MS = Math.max(5000, Number(process.env.HERMES_PICKUP_SYNC_MS || 30000));
 const PICKUP_REMOTE_WRITE = String(process.env.HERMES_PICKUP_REMOTE_WRITE || "1") !== "0";
+// Announcing a performer who is not playing is worse than announcing nobody, so
+// this stays empty unless someone sets it for a night they know about. A real
+// approved dj-set request overrides it either way.
+const NOW_PLAYING_DEFAULT = String(process.env.HERMES_NOW_PLAYING_DEFAULT || "").trim().slice(0, 80);
 const pickupRecent = [];
 const peopleGraphPath = join(root, "data", "hermes", "people-graph-events.jsonl");
 const PEOPLE_GRAPH_LIMIT = Math.max(100, Number(process.env.HERMES_PEOPLE_GRAPH_LIMIT || 5000));
@@ -511,6 +515,23 @@ function pickNowPlaying(requests, now = Date.now()) {
   const upNextHit = dj.find((r) => r.at > now + leadMs);
   const upNext = upNextHit ? upNextHit.request : null;
   return { nowPlaying, upNext };
+}
+
+function defaultNowPlaying() {
+  if (!NOW_PLAYING_DEFAULT) return null;
+  return {
+    id: "default-now-playing",
+    at: new Date().toISOString(),
+    who: NOW_PLAYING_DEFAULT,
+    intention: "",
+    requestType: "dj-set",
+    place: "Hermes",
+    pickupWhen: "now",
+    pickupAt: null,
+    note: "manual default",
+    approved: true,
+    approvalStatus: "approved"
+  };
 }
 
 function readPickupLog() {
@@ -1797,11 +1818,13 @@ const handle = async (req, res) => {
     }
 
     const url = new URL(req.url || "/", `http://${req.headers.host || "localhost"}`);
-    // The public request domain is for dispatch, not for the promo homepage, so
-    // landing on "/" should go straight to the form.
+    // Every public Hermes hostname is for dispatch, not for the promo homepage,
+    // so landing on "/" should go straight to the form. The apex matters as much
+    // as the subdomain: it is what the QR code on the moon display points at, and
+    // serving it the HyperMuse page sends a scanned rider to the wrong product.
     if (req.method === "GET" && url.pathname === "/") {
       const hostOnly = String(req.headers.host || "").split(":")[0].toLowerCase();
-      if (hostOnly === "request.returnofhermes.com") {
+      if (hostOnly === "returnofhermes.com" || hostOnly.endsWith(".returnofhermes.com")) {
         res.writeHead(302, { location: "/hermes-live.html", "cache-control": "no-store" });
         res.end("redirecting to /hermes-live.html\n");
         return;
@@ -1809,6 +1832,16 @@ const handle = async (req, res) => {
     }
     if (req.method === "GET" && url.pathname === "/api/hermes/state") {
       sendJson(res, 200, withAges(state));
+      return;
+    }
+    if (req.method === "GET" && url.pathname === "/api/hermes/fix") {
+      const s = withAges(state);
+      sendJson(res, 200, {
+        ok: true,
+        updatedAt: s.updatedAt,
+        fix: s.fix,
+        place: s.place || null
+      });
       return;
     }
     if (req.method === "GET" && url.pathname === "/api/hermes/weather") {
@@ -2261,13 +2294,14 @@ const handle = async (req, res) => {
             approved: normalizedApprovalStatus(request) === "approved"
           }));
         const { nowPlaying, upNext } = pickNowPlaying(requests);
+        const effectiveNowPlaying = nowPlaying || defaultNowPlaying();
         sendJson(res, 200, {
           ok: true,
           count: requests.length,
           includePending: Boolean(includePending && admin),
           requiresApproval: PICKUP_REQUIRE_APPROVAL,
           requests,
-          nowPlaying,
+          nowPlaying: effectiveNowPlaying,
           upNext
         });
         return;

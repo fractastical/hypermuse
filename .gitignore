@@ -32,6 +32,12 @@ assets/gifcities/*
 !assets/xfeeefeee/
 assets/xfeeefeee/*
 !assets/xfeeefeee/segments.json
+# Clips sampled from elsewhere on the web. Same deal: the videos are ignored,
+# but which video and which stretch of it took an eye to settle, and npm run
+# clips:web fetches and re-cuts the lot from this one file.
+!assets/clips/
+assets/clips/*
+!assets/clips/sources.json
 # The starter kit: low-bandwidth copies of the two libraries that are otherwise
 # fetched by script, so a fresh clone runs the show instead of orbiting nothing
 # in front of a black iris. About 10MB, rebuilt by npm run starter.
@@ -52,6 +58,15 @@ artifacts/*
 !artifacts/moon-cube-index.json
 !artifacts/color-cubes/
 !artifacts/sample-sonicsphere-silent.webm
+
+# Where the car actually was, appended fix by fix by scripts/hermes-server.mjs.
+# A week of driving is a record, not source, and it is the crew's business alone.
+data/hermes/track*.jsonl
+
+# The server's own https key and certificate, made on first run for whatever
+# network the camp is on. A private key is never source, and these are specific
+# to one wifi anyway — the next network gets a new pair.
+data/hermes/tls/
 
 video-manifest.json
 audio-manifest.json
