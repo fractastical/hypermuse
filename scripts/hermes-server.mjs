@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 import { randomBytes } from "node:crypto";
-import { appendFileSync, createReadStream, existsSync, mkdirSync, readFileSync, readdirSync, statSync, writeFileSync } from "node:fs";
+import { accessSync, appendFileSync, constants as fsConstants, createReadStream, existsSync, mkdirSync, readFileSync, readdirSync, statSync, writeFileSync } from "node:fs";
 import { createServer } from "node:http";
 import { createServer as createTlsServer } from "node:https";
 import { dirname, extname, join, normalize, resolve, sep } from "node:path";
@@ -10,6 +10,7 @@ import QRCode from "qrcode";
 // at the top of hermes-tls.mjs.
 import { answer, help } from "./lib/hermes-answers.mjs";
 import { createHermesDb } from "./lib/hermes-db.mjs";
+import { startFaultLog, noteStartupFaults } from "./lib/hermes-faults.mjs";
 import { ensureCert, lanAddresses } from "./lib/hermes-tls.mjs";
 import { pointsFrom } from "./lib/journeys.mjs";
 // Naming a place is shared with the story tool, so the dispatch calls a corner
@@ -23,6 +24,11 @@ const root = process.cwd();
 // runs beside a plain static server, and the overlay finds it either way.
 const port = Number(process.env.PORT || 8124);
 const host = process.env.HOST || "0.0.0.0";
+// Started before anything that could fail, so that whatever goes wrong during
+// boot is written down rather than printed at a terminal nobody is watching.
+const faults = startFaultLog({
+  path: process.env.HERMES_FAULT_LOG || join(root, "data", "hermes", "faults.jsonl")
+});
 const mock = process.argv.includes("--mock");
 const samplePath = join(root, "data", "hermes", "sample-state.json");
 const sample = JSON.parse(readFileSync(samplePath, "utf8"));
@@ -305,6 +311,19 @@ function recordTrack(fix, at) {
     console.error(`[hermes] could not write the track: ${err.message}`);
     if (db) db.saveTrackPoint(point).catch((dberr) =>
       console.error(`[hermes] could not write track point to postgres: ${dberr.message}`));
+    return false;
+  }
+}
+
+// Asked at startup rather than discovered on the first fix of the night, because
+// a read-only data directory looks exactly like a working server until someone
+// goes to read the week back and finds nothing there.
+function trackCanBeWritten() {
+  try {
+    mkdirSync(dirname(trackPath), { recursive: true });
+    accessSync(dirname(trackPath), fsConstants.W_OK);
+    return true;
+  } catch {
     return false;
   }
 }
@@ -1830,6 +1849,23 @@ const handle = async (req, res) => {
         return;
       }
     }
+    // Readable over http because the times when this matters most are the times
+    // there is no shell on the box: a Railway container, or a phone in the dust
+    // wondering why the map stopped moving.
+    if (req.method === "GET" && url.pathname === "/api/hermes/faults") {
+      const limit = Math.max(1, Math.min(500, Number(url.searchParams.get("limit") || 100)));
+      const history = faults.history(limit);
+      sendJson(res, 200, {
+        ok: true,
+        path: faults.path,
+        thisRun: faults.count(),
+        // Degraded entries are the ones worth acting on, and they are easy to
+        // lose among ordinary starts and stops.
+        degraded: history.filter((row) => row && row.degraded),
+        faults: history
+      });
+      return;
+    }
     if (req.method === "GET" && url.pathname === "/api/hermes/state") {
       sendJson(res, 200, withAges(state));
       return;
@@ -2559,4 +2595,28 @@ server.listen(port, host, () => {
   startPhoneListener();
   console.log(`[hermes] or leave the show on :8080 and add ?hermes=1 — the overlay finds :${port}`);
   if (mock) console.log("[hermes] mock route enabled");
+
+  // The startup lines above are the whole health report, and read as a wall of
+  // ordinary news whether or not anything is wrong. These are the same facts
+  // asked as questions, so a missing art listing or an unnamed city becomes an
+  // entry with a time on it rather than a number nobody looked at.
+  faults.note("start", `listening on ${host}:${port}`, {
+    node: process.version,
+    pid: process.pid,
+    artPieces: artPieces.length,
+    cityIntersections: places.intersections,
+    postgres: Boolean(db)
+  });
+  const degraded = noteStartupFaults(faults, {
+    artPieces: artPieces.length,
+    artPath: loadedArt.path,
+    cityIntersections: places.intersections,
+    gisDir: places.gisDir,
+    databaseUrlSet: Boolean(String(process.env.DATABASE_URL || "").trim()),
+    databaseConnected: Boolean(db),
+    trackWritable: trackOff || trackCanBeWritten(),
+    trackPath
+  });
+  for (const fault of degraded) console.log(`[hermes] degraded: ${fault.message}`);
+  console.log(`[hermes] faults: ${faults.path} (/api/hermes/faults)`);
 });

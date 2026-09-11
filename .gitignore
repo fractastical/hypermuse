@@ -68,6 +68,12 @@ data/hermes/track*.jsonl
 # to one wifi anyway — the next network gets a new pair.
 data/hermes/tls/
 
+# What went wrong on one machine, with times. Read it over http at
+# /api/hermes/faults, or roll it up by hand into docs/hermes-incidents.md, which
+# is the version worth keeping: this one is a machine's bad days, not source.
+data/hermes/faults.jsonl
+data/hermes/faults.jsonl.1
+
 video-manifest.json
 audio-manifest.json
 .pnpm-store/
