@@ -32,14 +32,19 @@ closes, and it is the only gap left.
    track log, the location feed and the pickup requests.
 4. Add all three custom domains on the web service, or it will not answer for
    them: `returnofhermes.com`, `www.returnofhermes.com`,
-   `request.returnofhermes.com`.
+   `request.returnofhermes.com`. Each asks for a port: give it the same number
+   as `PORT` below, or the edge routes to a port nothing is listening on and
+   every hostname answers 502.
 
 ## 2) Required variables
 
 Set these on the Railway web service:
 
+- `PORT=8080` — the server falls back to 8124 when this is unset, so the number
+  here and the number in the domain dialog have to agree.
 - `HERMES_PICKUP_URL=https://returnofhermes.com/`
-- `HERMES_PHONE=off`
+- `HERMES_PHONE=off` — otherwise it tries to bind a second https port and make
+  certificates for a LAN the container does not have.
 - `HERMES_RESUME=1`
 - `HERMES_ACTIVITY_MAX_M=2000` (or your preferred range)
 - `HERMES_ART_MAX_M=4000`
@@ -105,4 +110,15 @@ moon display points at:
 - `https://returnofhermes.com/api/hermes/pickup` should return requests.
 - The startup log should say `art: 341 pieces` and `city: 308 corners`. Zero of
   either means a data file did not make it into the build.
+- `/api/hermes/faults` lists anything the server found wrong at startup, which is
+  the quickest way to see a Postgres connection that silently failed.
+
+A note on 8080 in particular. `npm start` in this repo is
+`npx http-server -c-1 -p 8080 .`, the same port. `railway.json` overrides it, so
+this does not normally arise — but if the override is ever missed, http-server
+binds 8080 and serves the repo as static files. The tracker page then loads and
+looks correct while every `/api/hermes/*` call returns 404, and because the port
+matches, the failure disguises itself as a working deploy. The deploy log tells
+them apart: `[hermes] serving` is the right process, an http-server banner is
+not.
 
