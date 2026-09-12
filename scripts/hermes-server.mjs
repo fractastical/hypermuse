@@ -2614,6 +2614,7 @@ server.listen(port, host, () => {
     gisDir: places.gisDir,
     databaseUrlSet: Boolean(String(process.env.DATABASE_URL || "").trim()),
     databaseConnected: Boolean(db),
+    containerised: process.pid === 1,
     trackWritable: trackOff || trackCanBeWritten(),
     trackPath
   });

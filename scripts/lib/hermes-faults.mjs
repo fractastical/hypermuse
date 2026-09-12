@@ -155,6 +155,17 @@ export function noteStartupFaults(faults, checks) {
     "city geometry missing — places cannot be named", { gisDir: checks.gisDir || null });
   claim(!checks.databaseUrlSet || checks.databaseConnected, "degraded",
     "DATABASE_URL is set but Postgres did not connect — writes are going to disk only, which is lost on redeploy");
+  // Adding a Postgres service to a Railway project does not attach it to
+  // anything; the web service still needs DATABASE_URL referencing it. Missing
+  // that step looks like a completely healthy deploy — correct port, all data
+  // loaded, no errors — while every fix and every request is written to a
+  // filesystem that the next deploy discards. Running as pid 1 is the giveaway:
+  // it means an init-less container rather than a machine someone is sitting at,
+  // and on a laptop the JSONL files are the point, so this cannot simply warn
+  // whenever DATABASE_URL is unset.
+  claim(!checks.containerised || checks.databaseUrlSet, "degraded",
+    "running as pid 1 with no DATABASE_URL — this looks like a container, so the track log, " +
+    "location feed and pickup requests are being written to storage that is lost on the next deploy");
   claim(checks.trackWritable, "degraded",
     "the track log is not writable — positions will be served but not kept", { trackPath: checks.trackPath || null });
 
