@@ -310,6 +310,11 @@ button:hover {
             <button id="stopExportButton">Stop Export</button>
             <button id="toggleFullscreenButton">Fullscreen</button>
           </div>
+          <div class="file-input-group">
+            <label for="audioInputSelect">Live input:</label>
+            <select id="audioInputSelect" title="which sound card to listen to — a USB interface carrying the synth or the mixer, rather than the built-in mic"></select>
+            <button id="audioInputRefreshButton" title="rescan — use after plugging an interface in">rescan</button>
+          </div>
           <button id="startButton">Start</button>
           <button id="beatButton" onclick="hide()">Hide ("h")</button>
           <video id="videoElement" class="hidden" autoplay muted></video>
@@ -5102,18 +5107,192 @@ button:hover {
             startButton.style.display = 'none';
         }
 
-        function startMicCaptureFromGesture() {
-            navigator.mediaDevices.getUserMedia({ video: false, audio: true}).then(function(stream) {
+        // Which sound card to listen to. The visual used to take whatever macOS had
+        // set as the default input, so pointing it at an interface meant changing a
+        // system setting and hoping — with no way to tell from the page which device
+        // it had actually opened.
+        const AUDIO_INPUT_ID_KEY = 'hypermuse.audioInput.deviceId';
+        const AUDIO_INPUT_LABEL_KEY = 'hypermuse.audioInput.label';
+        const audioInputSelect = document.getElementById('audioInputSelect');
+        let knownAudioInputs = [];
 
-            //NOTE: this helped with some pitch detection but had side effects
+        function readStoredAudioInput() {
+            try {
+                return {
+                    deviceId: localStorage.getItem(AUDIO_INPUT_ID_KEY) || '',
+                    label: localStorage.getItem(AUDIO_INPUT_LABEL_KEY) || ''
+                };
+            } catch (e) {
+                return { deviceId: '', label: '' };
+            }
+        }
 
-            // navigator.mediaDevices.getUserMedia({ video: false, audio: {
-            // "mandatory": {
-            //     "googEchoCancellation": "false",
-            //     "googAutoGainControl": "false",
-            //     "googNoiseSuppression": "false",
-            //     "googHighpassFilter": "false"
-            // }}}).then(function(stream) {
+        function storeAudioInput(deviceId, label) {
+            try {
+                localStorage.setItem(AUDIO_INPUT_ID_KEY, deviceId || '');
+                localStorage.setItem(AUDIO_INPUT_LABEL_KEY, label || '');
+            } catch (e) {
+                // Private mode: the choice just will not survive a reload.
+            }
+        }
+
+        // Set-and-forget for kiosk launches: audioin=Scarlett matches on the label, so
+        // a show script does not have to know the opaque per-profile device id.
+        function requestedAudioInputName() {
+            return String(new URLSearchParams(window.location.search).get('audioin') || '').trim().toLowerCase();
+        }
+
+        function chosenAudioInputDeviceId() {
+            const wanted = requestedAudioInputName();
+            if (wanted) {
+                const byName = knownAudioInputs.find(d => String(d.label || '').toLowerCase().includes(wanted));
+                if (byName) return byName.deviceId;
+            }
+            if (audioInputSelect && audioInputSelect.value) {
+                return audioInputSelect.value;
+            }
+            const stored = readStoredAudioInput();
+            if (stored.deviceId && knownAudioInputs.some(d => d.deviceId === stored.deviceId)) {
+                return stored.deviceId;
+            }
+            // Replugging an interface can hand it a new id, so fall back to the name we
+            // last used rather than silently dropping to the built-in mic.
+            if (stored.label) {
+                const byLabel = knownAudioInputs.find(d => d.label === stored.label);
+                if (byLabel) return byLabel.deviceId;
+            }
+            return '';
+        }
+
+        // The device actually opened, which is not always the one asked for.
+        function rememberStreamDevice(stream) {
+            const track = stream && stream.getAudioTracks ? stream.getAudioTracks()[0] : null;
+            if (!track) return;
+            const settings = typeof track.getSettings === 'function' ? track.getSettings() : {};
+            if (settings.deviceId) {
+                storeAudioInput(settings.deviceId, track.label || '');
+            }
+            console.log('[hypermuse] listening to', track.label || '(unnamed input)', settings);
+        }
+
+        function populateAudioInputSelect() {
+            if (!audioInputSelect) return;
+            const previous = audioInputSelect.value || readStoredAudioInput().deviceId;
+            audioInputSelect.innerHTML = '';
+            const fallback = document.createElement('option');
+            fallback.value = '';
+            fallback.textContent = 'system default input';
+            audioInputSelect.appendChild(fallback);
+            for (const device of knownAudioInputs) {
+                const option = document.createElement('option');
+                option.value = device.deviceId;
+                // Labels are blank until the page has been granted audio once, so the
+                // list is unusable before Start is pressed. Saying so beats numbering
+                // devices the operator cannot identify.
+                option.textContent = device.label || 'unnamed input — press Start once to reveal names';
+                audioInputSelect.appendChild(option);
+            }
+            if (previous && knownAudioInputs.some(d => d.deviceId === previous)) {
+                audioInputSelect.value = previous;
+            }
+        }
+
+        function refreshAudioInputList() {
+            if (!navigator.mediaDevices || !navigator.mediaDevices.enumerateDevices) {
+                return Promise.resolve([]);
+            }
+            return navigator.mediaDevices.enumerateDevices().then(function(devices) {
+                knownAudioInputs = devices.filter(d => d.kind === 'audioinput');
+                populateAudioInputSelect();
+                return knownAudioInputs;
+            }).catch(function(error) {
+                console.warn('[hypermuse] could not list audio inputs', error);
+                return [];
+            });
+        }
+
+        if (audioInputSelect) {
+            audioInputSelect.addEventListener('change', function() {
+                const option = audioInputSelect.options[audioInputSelect.selectedIndex];
+                storeAudioInput(audioInputSelect.value, option ? option.textContent : '');
+                // Already running: reopen on the newly chosen card rather than making
+                // the operator reload mid-set.
+                if (audioContext) {
+                    startMicCaptureFromGesture(audioInputSelect.value || null);
+                }
+            });
+        }
+
+        const audioInputRefreshButton = document.getElementById('audioInputRefreshButton');
+        if (audioInputRefreshButton) {
+            audioInputRefreshButton.addEventListener('click', function() {
+                refreshAudioInputList();
+            });
+        }
+
+        if (navigator.mediaDevices && typeof navigator.mediaDevices.addEventListener === 'function') {
+            // So an interface plugged in after the page loaded shows up on its own.
+            navigator.mediaDevices.addEventListener('devicechange', function() {
+                refreshAudioInputList();
+            });
+        }
+
+        refreshAudioInputList();
+
+        // Chrome's voice processing is built for speech on a laptop mic, and it is
+        // actively wrong for a line feed off a synth or a mixer: automatic gain
+        // control flattens exactly the dynamics the visuals are reading, so quiet
+        // passages get pushed up and hits get pulled down until everything reacts
+        // the same amount. The old attempt at this used the long-dead "mandatory"
+        // syntax, which browsers ignore.
+        function audioCaptureConstraints(deviceId) {
+            const audio = {
+                echoCancellation: false,
+                autoGainControl: false,
+                noiseSuppression: false
+            };
+            if (deviceId) {
+                audio.deviceId = { exact: deviceId };
+            }
+            return { video: false, audio };
+        }
+
+        // Switching cards mid-set opens a second capture, so the first has to be let
+        // go: an abandoned stream keeps the old interface held open and its context
+        // running, which on some drivers blocks reopening the device at all.
+        let liveInputStream = null;
+
+        function releasePreviousInput() {
+            if (liveInputStream) {
+                for (const track of liveInputStream.getTracks()) {
+                    try { track.stop(); } catch (e) { /* already gone */ }
+                }
+                liveInputStream = null;
+            }
+            if (audioContext) {
+                const closing = audioContext;
+                audioContext = null;
+                analyser = null;
+                try { closing.close(); } catch (e) { /* already closed */ }
+            }
+        }
+
+        function startMicCaptureFromGesture(deviceId) {
+            const wantedId = deviceId === undefined ? chosenAudioInputDeviceId() : deviceId;
+            navigator.mediaDevices.getUserMedia(audioCaptureConstraints(wantedId)).catch(function(error) {
+                // A remembered device that has since been unplugged fails with exact,
+                // which would otherwise leave the show with no sound at all rather
+                // than falling back to whatever is still attached.
+                if (!wantedId) throw error;
+                console.warn('[hypermuse] chosen audio input unavailable, falling back to the default', error);
+                return navigator.mediaDevices.getUserMedia(audioCaptureConstraints(null));
+            }).then(function(stream) {
+                rememberStreamDevice(stream);
+                // Device names are withheld until a page has been granted audio once,
+                // so this is the first moment the picker can show anything readable.
+                refreshAudioInputList();
+                releasePreviousInput();
+                liveInputStream = stream;
                 
                 audioContext = new AudioContext();
                 let source = audioContext.createMediaStreamSource(stream);

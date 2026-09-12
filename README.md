@@ -170,13 +170,31 @@ fullscreen.
 
 ### Step 3: Play music
 
-The visuals react to sound. You have two options:
+The visuals react to sound. You have three options:
 
 - **Easiest:** just play music out loud / through the venue — but the visual needs the
   audio fed into it. For a reliable signal, load an audio file directly: in the visual
   window there's a **`Music`** file picker — choose an `.mp3`/`.wav` and it starts
   reacting.
+- **Live instrument or mixer:** pick the sound card under **`Live input:`** and press
+  **`Start`**. Device names stay blank until the page has been granted audio once, so
+  press `Start` first and the list fills in. The choice is remembered, and you can
+  switch cards mid-set without reloading. `rescan` picks up an interface plugged in
+  after the page loaded.
+- **The built-in mic:** leave `Live input:` on `system default input` and press `Start`.
+  Fine for a room, but it hears the crowd as well as the music.
 - Press **`h`** in the visual window to hide or show its control panel.
+
+A synth or a mixer needs an audio interface to reach the laptop — USB on most
+instruments (the Moog Matriarch included) carries MIDI only, not sound. Run the
+instrument's outputs into a class-compliant USB interface and it appears in the
+`Live input:` list. For an unattended launch, `audioin=` matches on the device name,
+so `?audioin=scarlett` picks the right card without hard-coding an id that changes
+between machines.
+
+Whichever input you use, the browser's speech processing is switched off — echo
+cancellation, noise suppression, and especially automatic gain control, which would
+otherwise level out the loud and quiet passages the visuals are reading.
 
 ### Step 4: Drive the look from the controller
 
