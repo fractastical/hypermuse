@@ -1094,7 +1094,12 @@ let state = {
       gpsTimestamp: resume.gps || null,
       ageSec: 0
     }
-    : sample.fix,
+    // Flagged, because on a fresh deploy there is no track to resume from and the
+    // seed is all there is — and a seed keeps the boot time as its updatedAt, so
+    // it reads as a fix from seconds ago and every freshness check believes it.
+    // The public page said "Live: mock" over a coordinate nobody had ever been
+    // at. Any real fix replaces this object wholesale, so the flag goes with it.
+    : { ...sample.fix, seed: true },
   updatedAt: resume ? resume.t : new Date().toISOString()
 };
 

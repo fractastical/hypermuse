@@ -329,6 +329,10 @@
   function saveBootFix(snapshot) {
     try {
       if (!snapshot || !snapshot.fix) return;
+      // Caching the seed would turn a placeholder into a "last known location"
+      // that outlives the deploy that invented it, and the next visit would open
+      // on it before the first poll could disagree.
+      if (snapshot.fix.seed) return;
       localStorage.setItem(LAST_FIX_KEY, JSON.stringify({
         fix: snapshot.fix,
         place: snapshot.place || null,
@@ -839,6 +843,17 @@
     // server answers with whatever fix it last heard, so age decides the wording
     // and reaching the server does not: calling a three-day-old position "Live"
     // is the one thing this page must never do.
+    // The seed is a placeholder the server holds when it has never been told a
+    // position — on a fresh deploy that is its permanent state. It carries the
+    // boot time, so it is always "seconds old" and would pass any freshness test
+    // put to it. Nothing about it is a place Hermes has been, so it is not
+    // described as one.
+    if (fix.seed) {
+      stateEl.textContent = "No position reported yet";
+      detailEl.textContent = "Waiting for the first fix from a phone aboard.";
+      draw();
+      return;
+    }
     const live = hasFreshFix && Number.isFinite(age) && age <= LIVE_MAX_AGE_SEC;
     if (live) {
       stateEl.textContent = fix.source ? `Live: ${fix.source.replace(/^phone-/, "")}` : "Live";
