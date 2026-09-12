@@ -5277,7 +5277,14 @@ button:hover {
             }
         }
 
+        // Requesting on load and an impatient click on Start can otherwise overlap,
+        // and two getUserMedia calls in flight leave one orphaned stream holding the
+        // device open.
+        let liveInputStarting = false;
+
         function startMicCaptureFromGesture(deviceId) {
+            if (liveInputStarting) return;
+            liveInputStarting = true;
             const wantedId = deviceId === undefined ? chosenAudioInputDeviceId() : deviceId;
             navigator.mediaDevices.getUserMedia(audioCaptureConstraints(wantedId)).catch(function(error) {
                 // A remembered device that has since been unplugged fails with exact,
@@ -5287,6 +5294,7 @@ button:hover {
                 console.warn('[hypermuse] chosen audio input unavailable, falling back to the default', error);
                 return navigator.mediaDevices.getUserMedia(audioCaptureConstraints(null));
             }).then(function(stream) {
+                liveInputStarting = false;
                 rememberStreamDevice(stream);
                 // Device names are withheld until a page has been granted audio once,
                 // so this is the first moment the picker can show anything readable.
@@ -5315,16 +5323,49 @@ button:hover {
                 // startPitchDetect();
                 // updatePitch();
                 hideMicEnableButton();
+                // Asking on load means there was no click to authorise the clock, so
+                // the context can come up suspended and read as pure silence. Nudged
+                // here and again on the first interaction, whichever lands first.
+                resumeAudioContextWhenAllowed();
 
             }).catch(function(error) {
+                liveInputStarting = false;
                 console.warn('Mic permission was not granted or failed to start.', error);
                 ensureMicEnableButtonVisible();
             });
         }
 
+        function resumeAudioContextWhenAllowed() {
+            if (!audioContext) return;
+            if (audioContext.state !== 'suspended') return;
+            audioContext.resume().catch(function() { /* needs a real gesture still */ });
+        }
+
+        for (const gesture of ['pointerdown', 'keydown']) {
+            window.addEventListener(gesture, resumeAudioContextWhenAllowed, { passive: true });
+        }
+
         startButton.addEventListener('click', function() {
             startMicCaptureFromGesture();
         });
+
+        // hypermoon takes the microphone as soon as it loads when given mic=1, which
+        // is why the kiosk scripts never show a Start button and the browser simply
+        // asks. This page waited for a click instead, so arriving by URL left the
+        // geometry with nothing to react to and no prompt to explain why. mic= is
+        // accepted alongside audio= so both pages answer to the same word.
+        const bootLiveInput = (function() {
+            const q = new URLSearchParams(window.location.search);
+            const raw = q.get('mic') !== null ? q.get('mic') : q.get('audio');
+            return raw === '1' || raw === 'true';
+        })();
+        if (bootLiveInput) {
+            // enumerateDevices first, so a remembered interface is honoured on the
+            // opening request rather than opening the default and switching after.
+            refreshAudioInputList().then(function() {
+                startMicCaptureFromGesture();
+            });
+        }
 
         
         let masterInput = document.getElementById('master');
