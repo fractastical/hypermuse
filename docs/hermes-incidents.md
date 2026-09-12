@@ -22,6 +22,36 @@ can be honestly claimed, only the day is given.
 
 ---
 
+## 2026-09-12 — the public page invented a location
+
+**Seen:** minutes after the apex was moved to Railway, the tracker read
+**"Live: mock"**, "Updated 1m ago", with a marker drawn near 1200 Promenade.
+
+**Actually:** with no track log to resume from, the server falls back to the fix
+in `data/hermes/sample-state.json` — `40.78645, -119.20332`, a coordinate nobody
+has ever been at. That fallback takes the boot time as its `updatedAt`, so it is
+permanently a few seconds old and passes every freshness test put to it,
+including the staleness check added hours earlier the same day. That check
+compares ages, and the seed's age is truthful. It was the position that was
+fiction, and no amount of age arithmetic could have caught it.
+
+**Why it had never shown up here:** this laptop always has a track log, so the
+seed appears for a moment at startup and is immediately replaced. A fresh
+container has no track log at all, so the seed is not a transient state — it is
+the steady state until a phone reports in. Moving to a host with an empty disk
+turned a one-second glitch into the front page.
+
+**Fixed:** the fallback fix is tagged `seed: true` where it is constructed, and
+the page refuses to describe a seed as a position — it says no position has been
+reported, and will not cache one as a last known location. Tagging at
+construction rather than tracking a flag works because any genuine fix replaces
+the whole fix object and takes the tag with it.
+
+**Caught now by:** nothing automatic, and that gap is worth naming. A degraded
+startup check cannot tell a seed from a real fix, because on a box that has
+genuinely never had a phone report in, serving the seed is not an error. The
+honest guard is the one now in place: label it, and never let the label be lost.
+
 ## 2026-09-11 — returnofhermes.com had never resolved
 
 **Seen:** the QR code on the moon display went nowhere.
