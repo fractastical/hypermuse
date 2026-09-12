@@ -277,6 +277,7 @@
         Presets:
         <input type="button" id="presetCells12AutoplayButton" value="cells1+cells2 autoplay (with logo)"/>
         <input type="button" id="presetCells12NoLogoButton" value="cells1+cells2 autoplay (no logo)"/>
+        <input type="button" id="presetClassicSoundButton" value="classic + sound" title="the original geometry, reacting to audio, pinned in classic — click Enable Mic in the visual"/>
     </div>
     <div class="input-group">
         Controller style:
@@ -1758,6 +1759,7 @@ inputs.forEach(input => {
         input.id === 'clipDriftOffButton' ||
         input.id === 'presetCells12AutoplayButton' ||
         input.id === 'presetCells12NoLogoButton' ||
+        input.id === 'presetClassicSoundButton' ||
         input.id === 'logoShowButton' ||
         input.id === 'logoHideButton' ||
         input.id === 'logoPositionSelect' ||
@@ -2049,6 +2051,10 @@ if (clipDriftOffButton) {
 // Presets that overwrite the visualizer URL field, then open it.
 const cells12PresetUrl = 'sonicsphere.html?basicvideo=1&fullbg=1&aspect=16x9&videofit=cover&set=sets/set-cells1-cells2-autoplay.json';
 const cells12LogoPresetUrl = cells12PresetUrl + '&logo=1&logoposition=top&logoopacity=0.92';
+// Deliberately no demo=1: with a set loaded, demo mode switches the visual to
+// videos-only, which is the opposite of wanting to watch the geometry react.
+// fxtimeline=0 keeps it in classic rather than moving on after sixteen seconds.
+const classicSoundPresetUrl = 'sonicsphere.html?mode=classic&fxtimeline=0&audio=1&fullbg=1&aspect=16x9&videofit=cover&hideoverlay=1&set=sets/set-live-default-all-loops.json';
 
 function applyPresetUrl(url) {
     const input = document.getElementById('visualUrl');
@@ -2067,6 +2073,13 @@ const presetCells12NoLogoButton = document.getElementById('presetCells12NoLogoBu
 if (presetCells12NoLogoButton) {
     presetCells12NoLogoButton.addEventListener('click', function() {
         applyPresetUrl(cells12PresetUrl);
+    });
+}
+
+const presetClassicSoundButton = document.getElementById('presetClassicSoundButton');
+if (presetClassicSoundButton) {
+    presetClassicSoundButton.addEventListener('click', function() {
+        applyPresetUrl(classicSoundPresetUrl);
     });
 }
 

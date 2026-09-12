@@ -510,6 +510,10 @@ button:hover {
         let lastSimulationTickMs = performance.now();
         let effectTimelineStartMs = null;
         let effectTimelineEnabled = true;
+        // Set by fxtimeline=0. Setlists carry their own effectTimeline block and load
+        // asynchronously, so without this a set would quietly switch the cycling back
+        // on a moment after the URL asked for a single fixed mode.
+        let effectTimelinePinnedOff = false;
         let lastAppliedEffectPhase = '';
         let activeEffectProfile = 'molecule';
         const VALID_EFFECT_PROFILES = new Set(['classic', 'life', 'hierarchical-life', 'hex-life', 'kuramoto', 'gray-scott', 'physarum', 'molecule', 'rewrite', 'word-cloud', 'stacked']);
@@ -4092,6 +4096,9 @@ button:hover {
             if (typeof config.enabled === 'boolean') {
                 effectTimelineEnabled = config.enabled;
             }
+            if (effectTimelinePinnedOff) {
+                effectTimelineEnabled = false;
+            }
 
             if (Array.isArray(config.phases) && config.phases.length > 0) {
                 const nextPlan = [];
@@ -4152,6 +4159,10 @@ button:hover {
         }
 
         window.setEffectTimelineConfig = setEffectTimelineConfig;
+        window.pinEffectTimelineOff = function pinEffectTimelineOff() {
+            effectTimelinePinnedOff = true;
+            setEffectTimelineConfig({ enabled: false }, false);
+        };
 
         function applyTimedEffects() {
             if (basicVideoModeEnabled || !effectTimelineEnabled || effectTimelineStartMs === null || effectTimelinePlan.length === 0) {
@@ -5805,6 +5816,28 @@ button:hover {
         logoOpacity: Number.isFinite(bootLogoOpacity) ? bootLogoOpacity : undefined,
         logoPosition: bootLogoPosition || undefined
     });
+    // Once audio is running the timeline moves to the next profile every ~16s, so a
+    // mode= asked for at boot only lasts until the first phase boundary. fxtimeline=0
+    // holds it, which is the difference between "open in classic" and "run classic".
+    // There is no VJ command for this, so without a param the only way to pin a mode
+    // is unchecking the box in the visual's own panel.
+    // Polled for the same reason the set manifest below is: the pin lives in the
+    // renderer scope and is not on window yet when this boot block runs.
+    const bootFxTimeline = vjBootParams.get('fxtimeline');
+    function pinEffectTimelineOffWhenReady(attempt = 0) {
+        if (typeof window.pinEffectTimelineOff === 'function') {
+            window.pinEffectTimelineOff();
+            return;
+        }
+        if (attempt < 80) {
+            setTimeout(function() {
+                pinEffectTimelineOffWhenReady(attempt + 1);
+            }, 125);
+        }
+    }
+    if (bootFxTimeline === '0' || bootFxTimeline === 'false') {
+        pinEffectTimelineOffWhenReady();
+    }
     function loadBootSetWhenReady(manifestPath, attempt = 0) {
         if (!manifestPath) return;
         if (typeof window.loadVideoSetManifest === 'function') {
