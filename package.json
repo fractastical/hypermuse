@@ -31,6 +31,8 @@
     "kiosk:hypermoon": "open -na \"Google Chrome\" --args --kiosk --user-data-dir=/tmp/hypermoon-kiosk --autoplay-policy=no-user-gesture-required \"http://localhost:8080/hypermoon.html?kiosk=1\"",
     "kiosk:show": "open -na \"Google Chrome\" --args --kiosk --user-data-dir=/tmp/hypermoon-show --autoplay-policy=no-user-gesture-required --use-fake-ui-for-media-stream \"http://localhost:8080/hypermoon.html?show=1&kiosk=1&mic=1&react=1.5&pixels=1\"",
     "kiosk:show:hermes": "open -na \"Google Chrome\" --args --kiosk --user-data-dir=/tmp/hypermoon-show --autoplay-policy=no-user-gesture-required --use-fake-ui-for-media-stream \"http://localhost:8124/hypermoon.html?show=1&kiosk=1&mic=1&react=1.5&pixels=1&hermes=1&speed=1&ticker=timer&keepfps=60&content=orbit&orbitseq=ankh|seahorse,jellyfish,seaweed|vajra|starfish|boobs|metavillan&orbitact=150&giforbit=8&vajras=3\"",
+    "kiosk:classic": "open -na \"Google Chrome\" --args --kiosk --user-data-dir=/tmp/hypermuse-kiosk --no-first-run --no-default-browser-check --autoplay-policy=no-user-gesture-required --use-fake-ui-for-media-stream \"http://localhost:8080/sonicsphere.html?mode=classic&fxtimeline=0&mic=1&hideui=1\"",
+    "kiosk:desk": "open -na \"Google Chrome\" --args --user-data-dir=/tmp/hypermuse-desk --no-first-run --no-default-browser-check --autoplay-policy=no-user-gesture-required --use-fake-ui-for-media-stream --disable-popup-blocking \"http://localhost:8080/controller.html\"",
     "export:reel": "node scripts/export-effects-reel.mjs",
     "export:clips": "CLIPS=1 REEL=0 node scripts/export-effects-reel.mjs",
     "build:vajra:proxies": "node scripts/build-vajra-proxies.mjs",
