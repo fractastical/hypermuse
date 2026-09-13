@@ -2495,7 +2495,10 @@ button:hover {
                 iframe.style.border = '0';
                 iframe.style.pointerEvents = 'none';
                 const modeParam = encodeURIComponent(mode);
-                iframe.src = `${window.location.origin}${window.location.pathname}?demo=1&hideui=1&mode=${modeParam}&layout=thirds-2d`;
+                // hideui=1 only hides the control panel. The debug ticker is a separate
+                // flag, and without it every FX tile prints "Effect: LIFE | Lanes: ..."
+                // across itself, which reads as a caption on the output.
+                iframe.src = `${window.location.origin}${window.location.pathname}?demo=1&hideui=1&hideoverlay=1&mode=${modeParam}&layout=thirds-2d`;
                 tile.appendChild(iframe);
                 return { tile, iframe, isFx: true, mode };
             }
