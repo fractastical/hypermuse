@@ -270,7 +270,7 @@
     <div id="thresholds" class="input-grid">
     <div class="input-group">
         Visualizer URL:
-        <input type="text" id="visualUrl" size="80" value="sonicsphere.html?demo=1&fullscreen=1&hideoverlay=1&basicvideo=1&fullbg=1&aspect=16x9&videofit=cover&set=sets/set-live-default-all-loops.json"/>
+        <input type="text" id="visualUrl" size="80" value="sonicsphere.html?mode=classic&fxtimeline=0&mic=1"/>
         <input type="button" id="openVisualButton" value="open/reopen visual"/>
     </div>
     <div class="input-group">
@@ -278,6 +278,8 @@
         <input type="button" id="presetCells12AutoplayButton" value="cells1+cells2 autoplay (with logo)"/>
         <input type="button" id="presetCells12NoLogoButton" value="cells1+cells2 autoplay (no logo)"/>
         <input type="button" id="presetClassicSoundButton" value="classic + sound" title="the original look — coloured polygon slices on the lane spheres, reacting to the mic, pinned in classic"/>
+        <input type="button" id="presetClassicVideoSlicesButton" value="classic + sound + video slices" title="the sphere geometry, but each polygon slice takes a video frame as its texture instead of a flat colour — loading a set is what turns the slices into video"/>
+        <input type="button" id="presetVideoWallButton" value="all-loops video wall" title="full-screen video backdrop with every loop in the default set — heavy, expect it to drop frames on a laptop"/>
     </div>
     <div class="input-group">
         Controller style:
@@ -348,6 +350,249 @@
         Bridge:
         <input type="button" id="bridgeFadeOutButton" value="fade to black"/>
         <input type="button" id="bridgeFadeInButton" value="fade in"/>
+    </div>
+    <div class="input-group" id="audioDeckPanel" style="grid-column: 1 / -1;">
+        <b>Audio deck</b>
+        <span style="color:rgba(207,233,255,0.5);font-size:10px;">looped bed + interjections on a period — plays from this window; feed the PA from here</span>
+        <span id="adCount" style="color:rgba(207,233,255,0.5);font-size:10px;"></span>
+        <datalist id="adAudioList"></datalist>
+        <div style="margin-top:4px;">
+          bed loop <input type="text" id="adBedInput" list="adAudioList" size="44" placeholder="type to search all audio…"/>
+          vol <input type="range" id="adBedVol" min="0" max="1" step="0.02" value="0.8" style="width:90px;vertical-align:middle;"/>
+          <input type="button" id="adBedButton" value="play bed"/>
+          <span id="adBedStatus" style="color:rgba(207,233,255,0.62);font-size:10px;">stopped</span>
+        </div>
+        <table style="border-collapse:collapse;font-size:11px;margin-top:4px;">
+          <tr style="color:rgba(207,233,255,0.45);">
+            <td style="padding:2px 6px;">interjection</td><td>file</td><td>every (s)</td>
+            <td>&#177; jitter (s)</td><td>vol</td><td>duck bed</td><td>on</td><td>next in</td>
+          </tr>
+          <tr>
+            <td style="padding:2px 6px;color:rgba(207,233,255,0.62);">A</td>
+            <td><input type="text" class="ad-slot-file" data-slot="0" list="adAudioList" size="40"/></td>
+            <td><input type="text" class="ad-slot-period" data-slot="0" value="60" size="4"/></td>
+            <td><input type="text" class="ad-slot-jitter" data-slot="0" value="0" size="4"/></td>
+            <td><input type="range" class="ad-slot-vol" data-slot="0" min="0" max="1" step="0.02" value="1" style="width:70px;"/></td>
+            <td style="text-align:center;"><input type="checkbox" class="ad-slot-duck" data-slot="0" checked/></td>
+            <td style="text-align:center;"><input type="checkbox" class="ad-slot-on" data-slot="0"/></td>
+            <td style="padding:2px 6px;"><span class="ad-slot-next" data-slot="0" style="color:rgba(207,233,255,0.62);">–</span></td>
+          </tr>
+          <tr>
+            <td style="padding:2px 6px;color:rgba(207,233,255,0.62);">B</td>
+            <td><input type="text" class="ad-slot-file" data-slot="1" list="adAudioList" size="40"/></td>
+            <td><input type="text" class="ad-slot-period" data-slot="1" value="120" size="4"/></td>
+            <td><input type="text" class="ad-slot-jitter" data-slot="1" value="20" size="4"/></td>
+            <td><input type="range" class="ad-slot-vol" data-slot="1" min="0" max="1" step="0.02" value="1" style="width:70px;"/></td>
+            <td style="text-align:center;"><input type="checkbox" class="ad-slot-duck" data-slot="1" checked/></td>
+            <td style="text-align:center;"><input type="checkbox" class="ad-slot-on" data-slot="1"/></td>
+            <td style="padding:2px 6px;"><span class="ad-slot-next" data-slot="1" style="color:rgba(207,233,255,0.62);">–</span></td>
+          </tr>
+          <tr>
+            <td style="padding:2px 6px;color:rgba(207,233,255,0.62);">C</td>
+            <td><input type="text" class="ad-slot-file" data-slot="2" list="adAudioList" size="40"/></td>
+            <td><input type="text" class="ad-slot-period" data-slot="2" value="300" size="4"/></td>
+            <td><input type="text" class="ad-slot-jitter" data-slot="2" value="60" size="4"/></td>
+            <td><input type="range" class="ad-slot-vol" data-slot="2" min="0" max="1" step="0.02" value="1" style="width:70px;"/></td>
+            <td style="text-align:center;"><input type="checkbox" class="ad-slot-duck" data-slot="2" checked/></td>
+            <td style="text-align:center;"><input type="checkbox" class="ad-slot-on" data-slot="2"/></td>
+            <td style="padding:2px 6px;"><span class="ad-slot-next" data-slot="2" style="color:rgba(207,233,255,0.62);">–</span></td>
+          </tr>
+        </table>
+        <div style="margin-top:2px;font-size:10px;color:rgba(207,233,255,0.45);">
+          "every" counts from the moment an interjection starts; "fire now" = <input type="button" id="adFireA" value="A"/> <input type="button" id="adFireB" value="B"/> <input type="button" id="adFireC" value="C"/>
+          &#183; duck lowers the bed to 25% while the interjection plays
+        </div>
+        <div style="margin-top:6px;border-top:1px solid rgba(207,233,255,0.15);padding-top:5px;">
+          <b style="font-size:11px;">music &#8594; moon</b>
+          <label style="font-size:11px;"><input type="checkbox" id="adReactOn" checked/> drive hypermoon</label>
+          source <select id="adAudioSource" title="what the beat analyser listens to">
+            <option value="deck">audio deck (this window)</option>
+            <option value="http://192.168.1.83:1984/api/webrtc?src=sentinel">camera: sentinel (go2rtc)</option>
+            <option value="http://192.168.1.83:1984/api/webrtc?src=sparkle">camera: sparkle (go2rtc)</option>
+            <option value="custom">custom go2rtc URL&#8230;</option>
+          </select>
+          <input type="text" id="adCamUrl" size="36" style="display:none;" placeholder="http://host:1984/api/webrtc?src=name"/>
+          <label style="font-size:11px;" title="also hear the camera audio in this window"><input type="checkbox" id="adCamListen"/> listen</label>
+          <span id="adCamStatus" style="font-size:10px;color:rgba(207,233,255,0.62);"></span>
+          intensity <input type="range" id="adReactAmt" min="0" max="2" step="0.05" value="1" style="width:110px;vertical-align:middle;"/>
+          <span id="adReactVal" style="font-size:10px;color:rgba(207,233,255,0.62);">1.00&#215;</span>
+          <label style="font-size:11px;" title="the moon output listens to its own microphone — for external / live music not played from this deck"><input type="checkbox" id="adMicOn"/> moon uses its mic</label>
+          <span id="adReactMeter" style="font-family:monospace;font-size:11px;color:rgba(140,220,255,0.85);letter-spacing:1px;"></span>
+        </div>
+        <div style="font-size:10px;color:rgba(207,233,255,0.45);">
+          bass beats flare the vajras, earthshine breathes with the bass, the window glow shimmers with the highs, letters shake faster when it's loud
+        </div>
+    </div>
+    <div class="input-group">
+        FX Mode:
+        <input type="button" id="modeClassicButton" value="classic"/>
+        <input type="button" id="modeLifeButton" value="life"/>
+        <input type="button" id="modeHierLifeButton" value="hier life"/>
+        <input type="button" id="modeHexLifeButton" value="hex life"/>
+        <input type="button" id="modeKuramotoButton" value="kuramoto"/>
+        <input type="button" id="modeGrayScottButton" value="gray-scott"/>
+        <input type="button" id="modePhysarumButton" value="physarum"/>
+        <input type="button" id="modeMoleculeButton" value="molecule"/>
+        <input type="button" id="modeNextButton" value="next mode"/>
+    </div>
+    <div class="input-group">
+        Hex CA:
+        speed <input type="text" id="hexSpeedInput" value="1.0" size="4"/>
+        sync audio <input type="checkbox" id="hexSyncInput" checked/>
+        sweep rows <input type="text" id="hexSweepRowsInput" value="2" size="3"/>
+        rule
+        <select id="hexRuleSelect">
+            <option value="hexlife">hexlife (B2/S34)</option>
+            <option value="bloom">bloom (B2/S3)</option>
+            <option value="maze">maze (B3/S12345)</option>
+            <option value="pulse">pulse (B13/S24)</option>
+            <option value="coral">coral (B2/S2)</option>
+        </select>
+        <input type="button" id="hexRuleCycleButton" value="cycle rule"/>
+        aperiodic <input type="text" id="hexAperiodicInput" value="0.0" size="4"/>
+        palette
+        <select id="hexPaletteSelect">
+            <option value="aurora">aurora</option>
+            <option value="magma">magma</option>
+            <option value="violet">violet</option>
+            <option value="mono">mono</option>
+            <option value="neon">neon</option>
+        </select>
+        <input type="button" id="applyHexCaButton" value="apply hex"/>
+    </div>
+    <div class="input-group">
+        Basic Video Mode:
+        <input type="button" id="basicVideoOnButton" value="basic on"/>
+        <input type="button" id="basicVideoOffButton" value="basic off"/>
+        <input type="button" id="basicVideoToggleButton" value="toggle basic"/>
+    </div>
+    <div class="input-group">
+        Loop Rating:
+        <input type="button" id="likeLoopButton" value="like loop"/>
+        <input type="button" id="dislikeLoopButton" value="dislike & skip"/>
+    </div>
+    <div class="input-group">
+        Recent Loop Rating:
+        loops back <input type="text" id="recentOffsetBack" value="1" size="3"/>
+        <input type="button" id="likeRecentLoopButton" value="like recent"/>
+        <input type="button" id="dislikeRecentLoopButton" value="dislike recent"/>
+    </div>
+    <div class="input-group">
+        Clip Drift (per-loop variation):
+        <input type="button" id="clipDriftOnButton" value="drift on"/>
+        <input type="button" id="clipDriftOffButton" value="drift off"/>
+        offset sec/visit <input type="text" id="clipDriftOffsetSec" value="1"/>
+        hold +ms/visit <input type="text" id="clipDriftHoldMs" value="350"/>
+    </div>
+
+     <!-- music add:  <input type="file" id="audioInput" multiple  accept="audio/*, .midi, .mid">
+     <input type="text" id="audiopop" value="pop"/>
+    video: <input type="file" id="videoInput" accept="video/*" multiple>
+     <input type="text" id="videopop" value="pop"/> -->
+
+    <!-- <audio id="audioElement" controls></audio> -->
+    <div class="input-group">
+        Hue is a degree on the color wheel from 0 to 360. 0 is red, 120 is green, and 240 is blue.
+        Hueoffset1: <input type="text" id="hueoffset" value="20"/>
+        Hueoffset2: <input type="text" id="hueoffset" value="20"/>
+        Hueoffset3: <input type="text" id="hueoffset" value="20"/>
+        Hueoffset4: <input type="text" id="hueoffset" value="20"/>
+        Hueoffset5: <input type="text" id="hueoffset" value="20"/>
+
+    </div>
+    <div class="input-group">
+        Loaded videos: <input  type="textarea"  id="loadedvideos" value=""/>
+    </div>
+
+    <div class="input-group">
+        Video change: <input  type="button"  id="videochange" value="change"/>
+    </div>
+    <div class="input-group">
+         Video loop change: <input  type="button"  id="videochangeloop" value="change"/>
+    </div>
+    <div class="input-group">    
+    Mode (classic/life/hierarchical-life/hex-life/kuramoto/gray-scott/physarum/morphospace): <input type="text" id="mode" value="classic"/>
+    </div>
+    <div class="input-group">
+    Xrotationspeed: <input type="text" id="xrotation" value="0.0001"/>
+    </div>
+    <div class="input-group">
+    Yrotationspeed: <input type="text" id="yrotation" value="0.0005"/>
+    </div>
+    <div class="input-group">
+    Saturation: <input type="text" id="saturation" value="100"/>
+     </div>
+    <div class="input-group">
+    Brightness: <input type="text" id="brightness" value="50"/>
+    </div>
+    <div class="input-group">
+        Volume magnifier: <input type="text" id="volumemagnification" value="1.2"/>
+    </div>
+    <div class="input-group">
+        Active Geometries limit: <input type="text" id="activegeometrieslimit" value="25"/>
+    </div>
+    <div class="input-group">
+         Playback speed (1 is normal) <input type="text" id="playbackrate" value="1"/>
+     </div>
+     <div class="input-group">
+        render density (1 is normal) <input type="text" id="renderdensity" value="1"/>
+    </div>
+     <div class="input-group">
+        Pointlight position x <input type="text" id="pointlightx" value="5"/>
+    </div>
+    <div class="input-group">
+        y <input type="text" id="pointlighty" value="5"/>
+    </div>
+    <div class="input-group">
+         z <input type="text" id="pointlightz" value="5"/>
+    </div>
+    <div class="input-group">
+        intensity <input type="text" id="pointlightintensity" value="5"/>
+    </div>
+    <div class="input-group">
+         Camera position x <input type="text" id="cxposition" value="1"/>
+    </div>
+    <div class="input-group">
+        y <input type="text" id="cyposition" value="0"/>
+    </div>
+    <div class="input-group">
+        z <input type="text" id="czposition" value="0"/>
+    </div>
+    <div class="input-group">
+
+        history:  <textarea id="changelog"  rows="8" cols="30">
+            </textarea>
+     </div>
+     <div class="input-group">
+
+        active videos:  <textarea id="videoList"  rows="8" cols="30">
+            </textarea>
+     </div>
+
+    <!-- Number of frequency bands <input type="text" id="numbands" value="48"/>
+    holofan mode (0 is false 1 is true) <input type="text" id="holofanmode" value="0"/> -->
+
+    <!-- Hue cycle (changes how fast the hues change) <input type="text" id="hueoffsetspeed" value="0"/>
+
+    Refresh rate (changes how fast the audio signal updates ) <input type="text" id="refreshrate" value="0"/>
+
+    Base frequency (in Hz) <input type="text" id="baseFrequency" value="20"/>
+    Max frequency (in Hz) <input type="text" id="maxFrequency" value="20000"/> -->
+
+
+    <!-- image: <input type="file" id="folderInput" webkitdirectory directory multiple /> -->
+ <div class="input-group">
+        <div id="master-control">
+            <span>Master Volume Threshold: </span>
+            <input type="range" id="master" min="-100" max="355" value="150">
+            <br>
+        </div>    
+  </div>
+
+
+    <div class="input-group" id="otherOutputsDivider" style="grid-column: 1 / -1;">
+        <b>Other output windows</b>
+        <span style="color:rgba(207,233,255,0.5);font-size:10px;">the moon rig, hypermoon and the poem screen &mdash; separate surfaces, none of them the music-reactive visual</span>
     </div>
     <div class="input-group" id="projRigPanel" style="grid-column: 1 / -1;">
         Projection Rig (3-projector moon):
@@ -886,245 +1131,6 @@
         </div>
         <div id="poemReadout" style="font-size:10px;color:rgba(207,233,255,0.62);margin-top:6px;line-height:1.4;">no poem window connected yet — open one above</div>
     </div>
-    <div class="input-group" id="audioDeckPanel" style="grid-column: 1 / -1;">
-        <b>Audio deck</b>
-        <span style="color:rgba(207,233,255,0.5);font-size:10px;">looped bed + interjections on a period — plays from this window; feed the PA from here</span>
-        <span id="adCount" style="color:rgba(207,233,255,0.5);font-size:10px;"></span>
-        <datalist id="adAudioList"></datalist>
-        <div style="margin-top:4px;">
-          bed loop <input type="text" id="adBedInput" list="adAudioList" size="44" placeholder="type to search all audio…"/>
-          vol <input type="range" id="adBedVol" min="0" max="1" step="0.02" value="0.8" style="width:90px;vertical-align:middle;"/>
-          <input type="button" id="adBedButton" value="play bed"/>
-          <span id="adBedStatus" style="color:rgba(207,233,255,0.62);font-size:10px;">stopped</span>
-        </div>
-        <table style="border-collapse:collapse;font-size:11px;margin-top:4px;">
-          <tr style="color:rgba(207,233,255,0.45);">
-            <td style="padding:2px 6px;">interjection</td><td>file</td><td>every (s)</td>
-            <td>&#177; jitter (s)</td><td>vol</td><td>duck bed</td><td>on</td><td>next in</td>
-          </tr>
-          <tr>
-            <td style="padding:2px 6px;color:rgba(207,233,255,0.62);">A</td>
-            <td><input type="text" class="ad-slot-file" data-slot="0" list="adAudioList" size="40"/></td>
-            <td><input type="text" class="ad-slot-period" data-slot="0" value="60" size="4"/></td>
-            <td><input type="text" class="ad-slot-jitter" data-slot="0" value="0" size="4"/></td>
-            <td><input type="range" class="ad-slot-vol" data-slot="0" min="0" max="1" step="0.02" value="1" style="width:70px;"/></td>
-            <td style="text-align:center;"><input type="checkbox" class="ad-slot-duck" data-slot="0" checked/></td>
-            <td style="text-align:center;"><input type="checkbox" class="ad-slot-on" data-slot="0"/></td>
-            <td style="padding:2px 6px;"><span class="ad-slot-next" data-slot="0" style="color:rgba(207,233,255,0.62);">–</span></td>
-          </tr>
-          <tr>
-            <td style="padding:2px 6px;color:rgba(207,233,255,0.62);">B</td>
-            <td><input type="text" class="ad-slot-file" data-slot="1" list="adAudioList" size="40"/></td>
-            <td><input type="text" class="ad-slot-period" data-slot="1" value="120" size="4"/></td>
-            <td><input type="text" class="ad-slot-jitter" data-slot="1" value="20" size="4"/></td>
-            <td><input type="range" class="ad-slot-vol" data-slot="1" min="0" max="1" step="0.02" value="1" style="width:70px;"/></td>
-            <td style="text-align:center;"><input type="checkbox" class="ad-slot-duck" data-slot="1" checked/></td>
-            <td style="text-align:center;"><input type="checkbox" class="ad-slot-on" data-slot="1"/></td>
-            <td style="padding:2px 6px;"><span class="ad-slot-next" data-slot="1" style="color:rgba(207,233,255,0.62);">–</span></td>
-          </tr>
-          <tr>
-            <td style="padding:2px 6px;color:rgba(207,233,255,0.62);">C</td>
-            <td><input type="text" class="ad-slot-file" data-slot="2" list="adAudioList" size="40"/></td>
-            <td><input type="text" class="ad-slot-period" data-slot="2" value="300" size="4"/></td>
-            <td><input type="text" class="ad-slot-jitter" data-slot="2" value="60" size="4"/></td>
-            <td><input type="range" class="ad-slot-vol" data-slot="2" min="0" max="1" step="0.02" value="1" style="width:70px;"/></td>
-            <td style="text-align:center;"><input type="checkbox" class="ad-slot-duck" data-slot="2" checked/></td>
-            <td style="text-align:center;"><input type="checkbox" class="ad-slot-on" data-slot="2"/></td>
-            <td style="padding:2px 6px;"><span class="ad-slot-next" data-slot="2" style="color:rgba(207,233,255,0.62);">–</span></td>
-          </tr>
-        </table>
-        <div style="margin-top:2px;font-size:10px;color:rgba(207,233,255,0.45);">
-          "every" counts from the moment an interjection starts; "fire now" = <input type="button" id="adFireA" value="A"/> <input type="button" id="adFireB" value="B"/> <input type="button" id="adFireC" value="C"/>
-          &#183; duck lowers the bed to 25% while the interjection plays
-        </div>
-        <div style="margin-top:6px;border-top:1px solid rgba(207,233,255,0.15);padding-top:5px;">
-          <b style="font-size:11px;">music &#8594; moon</b>
-          <label style="font-size:11px;"><input type="checkbox" id="adReactOn" checked/> drive hypermoon</label>
-          source <select id="adAudioSource" title="what the beat analyser listens to">
-            <option value="deck">audio deck (this window)</option>
-            <option value="http://192.168.1.83:1984/api/webrtc?src=sentinel">camera: sentinel (go2rtc)</option>
-            <option value="http://192.168.1.83:1984/api/webrtc?src=sparkle">camera: sparkle (go2rtc)</option>
-            <option value="custom">custom go2rtc URL&#8230;</option>
-          </select>
-          <input type="text" id="adCamUrl" size="36" style="display:none;" placeholder="http://host:1984/api/webrtc?src=name"/>
-          <label style="font-size:11px;" title="also hear the camera audio in this window"><input type="checkbox" id="adCamListen"/> listen</label>
-          <span id="adCamStatus" style="font-size:10px;color:rgba(207,233,255,0.62);"></span>
-          intensity <input type="range" id="adReactAmt" min="0" max="2" step="0.05" value="1" style="width:110px;vertical-align:middle;"/>
-          <span id="adReactVal" style="font-size:10px;color:rgba(207,233,255,0.62);">1.00&#215;</span>
-          <label style="font-size:11px;" title="the moon output listens to its own microphone — for external / live music not played from this deck"><input type="checkbox" id="adMicOn"/> moon uses its mic</label>
-          <span id="adReactMeter" style="font-family:monospace;font-size:11px;color:rgba(140,220,255,0.85);letter-spacing:1px;"></span>
-        </div>
-        <div style="font-size:10px;color:rgba(207,233,255,0.45);">
-          bass beats flare the vajras, earthshine breathes with the bass, the window glow shimmers with the highs, letters shake faster when it's loud
-        </div>
-    </div>
-    <div class="input-group">
-        FX Mode:
-        <input type="button" id="modeClassicButton" value="classic"/>
-        <input type="button" id="modeLifeButton" value="life"/>
-        <input type="button" id="modeHierLifeButton" value="hier life"/>
-        <input type="button" id="modeHexLifeButton" value="hex life"/>
-        <input type="button" id="modeKuramotoButton" value="kuramoto"/>
-        <input type="button" id="modeGrayScottButton" value="gray-scott"/>
-        <input type="button" id="modePhysarumButton" value="physarum"/>
-        <input type="button" id="modeMoleculeButton" value="molecule"/>
-        <input type="button" id="modeNextButton" value="next mode"/>
-    </div>
-    <div class="input-group">
-        Hex CA:
-        speed <input type="text" id="hexSpeedInput" value="1.0" size="4"/>
-        sync audio <input type="checkbox" id="hexSyncInput" checked/>
-        sweep rows <input type="text" id="hexSweepRowsInput" value="2" size="3"/>
-        rule
-        <select id="hexRuleSelect">
-            <option value="hexlife">hexlife (B2/S34)</option>
-            <option value="bloom">bloom (B2/S3)</option>
-            <option value="maze">maze (B3/S12345)</option>
-            <option value="pulse">pulse (B13/S24)</option>
-            <option value="coral">coral (B2/S2)</option>
-        </select>
-        <input type="button" id="hexRuleCycleButton" value="cycle rule"/>
-        aperiodic <input type="text" id="hexAperiodicInput" value="0.0" size="4"/>
-        palette
-        <select id="hexPaletteSelect">
-            <option value="aurora">aurora</option>
-            <option value="magma">magma</option>
-            <option value="violet">violet</option>
-            <option value="mono">mono</option>
-            <option value="neon">neon</option>
-        </select>
-        <input type="button" id="applyHexCaButton" value="apply hex"/>
-    </div>
-    <div class="input-group">
-        Basic Video Mode:
-        <input type="button" id="basicVideoOnButton" value="basic on"/>
-        <input type="button" id="basicVideoOffButton" value="basic off"/>
-        <input type="button" id="basicVideoToggleButton" value="toggle basic"/>
-    </div>
-    <div class="input-group">
-        Loop Rating:
-        <input type="button" id="likeLoopButton" value="like loop"/>
-        <input type="button" id="dislikeLoopButton" value="dislike & skip"/>
-    </div>
-    <div class="input-group">
-        Recent Loop Rating:
-        loops back <input type="text" id="recentOffsetBack" value="1" size="3"/>
-        <input type="button" id="likeRecentLoopButton" value="like recent"/>
-        <input type="button" id="dislikeRecentLoopButton" value="dislike recent"/>
-    </div>
-    <div class="input-group">
-        Clip Drift (per-loop variation):
-        <input type="button" id="clipDriftOnButton" value="drift on"/>
-        <input type="button" id="clipDriftOffButton" value="drift off"/>
-        offset sec/visit <input type="text" id="clipDriftOffsetSec" value="1"/>
-        hold +ms/visit <input type="text" id="clipDriftHoldMs" value="350"/>
-    </div>
-
-     <!-- music add:  <input type="file" id="audioInput" multiple  accept="audio/*, .midi, .mid">
-     <input type="text" id="audiopop" value="pop"/>
-    video: <input type="file" id="videoInput" accept="video/*" multiple>
-     <input type="text" id="videopop" value="pop"/> -->
-
-    <!-- <audio id="audioElement" controls></audio> -->
-    <div class="input-group">
-        Hue is a degree on the color wheel from 0 to 360. 0 is red, 120 is green, and 240 is blue.
-        Hueoffset1: <input type="text" id="hueoffset" value="20"/>
-        Hueoffset2: <input type="text" id="hueoffset" value="20"/>
-        Hueoffset3: <input type="text" id="hueoffset" value="20"/>
-        Hueoffset4: <input type="text" id="hueoffset" value="20"/>
-        Hueoffset5: <input type="text" id="hueoffset" value="20"/>
-
-    </div>
-    <div class="input-group">
-        Loaded videos: <input  type="textarea"  id="loadedvideos" value=""/>
-    </div>
-
-    <div class="input-group">
-        Video change: <input  type="button"  id="videochange" value="change"/>
-    </div>
-    <div class="input-group">
-         Video loop change: <input  type="button"  id="videochangeloop" value="change"/>
-    </div>
-    <div class="input-group">    
-    Mode (classic/life/hierarchical-life/hex-life/kuramoto/gray-scott/physarum/morphospace): <input type="text" id="mode" value="classic"/>
-    </div>
-    <div class="input-group">
-    Xrotationspeed: <input type="text" id="xrotation" value="0.0001"/>
-    </div>
-    <div class="input-group">
-    Yrotationspeed: <input type="text" id="yrotation" value="0.0005"/>
-    </div>
-    <div class="input-group">
-    Saturation: <input type="text" id="saturation" value="100"/>
-     </div>
-    <div class="input-group">
-    Brightness: <input type="text" id="brightness" value="50"/>
-    </div>
-    <div class="input-group">
-        Volume magnifier: <input type="text" id="volumemagnification" value="1.2"/>
-    </div>
-    <div class="input-group">
-        Active Geometries limit: <input type="text" id="activegeometrieslimit" value="25"/>
-    </div>
-    <div class="input-group">
-         Playback speed (1 is normal) <input type="text" id="playbackrate" value="1"/>
-     </div>
-     <div class="input-group">
-        render density (1 is normal) <input type="text" id="renderdensity" value="1"/>
-    </div>
-     <div class="input-group">
-        Pointlight position x <input type="text" id="pointlightx" value="5"/>
-    </div>
-    <div class="input-group">
-        y <input type="text" id="pointlighty" value="5"/>
-    </div>
-    <div class="input-group">
-         z <input type="text" id="pointlightz" value="5"/>
-    </div>
-    <div class="input-group">
-        intensity <input type="text" id="pointlightintensity" value="5"/>
-    </div>
-    <div class="input-group">
-         Camera position x <input type="text" id="cxposition" value="1"/>
-    </div>
-    <div class="input-group">
-        y <input type="text" id="cyposition" value="0"/>
-    </div>
-    <div class="input-group">
-        z <input type="text" id="czposition" value="0"/>
-    </div>
-    <div class="input-group">
-
-        history:  <textarea id="changelog"  rows="8" cols="30">
-            </textarea>
-     </div>
-     <div class="input-group">
-
-        active videos:  <textarea id="videoList"  rows="8" cols="30">
-            </textarea>
-     </div>
-
-    <!-- Number of frequency bands <input type="text" id="numbands" value="48"/>
-    holofan mode (0 is false 1 is true) <input type="text" id="holofanmode" value="0"/> -->
-
-    <!-- Hue cycle (changes how fast the hues change) <input type="text" id="hueoffsetspeed" value="0"/>
-
-    Refresh rate (changes how fast the audio signal updates ) <input type="text" id="refreshrate" value="0"/>
-
-    Base frequency (in Hz) <input type="text" id="baseFrequency" value="20"/>
-    Max frequency (in Hz) <input type="text" id="maxFrequency" value="20000"/> -->
-
-
-    <!-- image: <input type="file" id="folderInput" webkitdirectory directory multiple /> -->
- <div class="input-group">
-        <div id="master-control">
-            <span>Master Volume Threshold: </span>
-            <input type="range" id="master" min="-100" max="355" value="150">
-            <br>
-        </div>    
-  </div>
-
-
 </div>
 
 <script>
@@ -1580,11 +1586,14 @@ function getNextImageTexture() {
 
 let visualWindow;
 
+// Classic, not a set: the controller opens this by itself on load, and loading a
+// set there means every lane sphere starts decoding video before anyone has
+// asked for it, which is what made the desk come up as a full-screen video wall.
 function getVisualUrlFromUi() {
     const input = document.getElementById('visualUrl');
     const raw = input && input.value ? String(input.value).trim() : '';
     if (raw) return raw;
-    return 'sonicsphere.html?demo=1&fullscreen=1&hideoverlay=1&basicvideo=1&fullbg=1&aspect=16x9&videofit=cover&set=sets/set-live-default-all-loops.json';
+    return 'sonicsphere.html?mode=classic&fxtimeline=0&mic=1';
 }
 
 function openVisualWindow() {
@@ -1781,6 +1790,8 @@ inputs.forEach(input => {
         input.id === 'presetCells12AutoplayButton' ||
         input.id === 'presetCells12NoLogoButton' ||
         input.id === 'presetClassicSoundButton' ||
+        input.id === 'presetClassicVideoSlicesButton' ||
+        input.id === 'presetVideoWallButton' ||
         input.id === 'logoShowButton' ||
         input.id === 'logoHideButton' ||
         input.id === 'logoPositionSelect' ||
@@ -2079,6 +2090,14 @@ const cells12LogoPresetUrl = cells12PresetUrl + '&logo=1&logoposition=top&logoop
 // No demo=1 either — with a set loaded it switches the visual to videos-only.
 // fxtimeline=0 keeps it in classic rather than moving on after sixteen seconds.
 const classicSoundPresetUrl = 'sonicsphere.html?mode=classic&fxtimeline=0&mic=1';
+// The same look with the slices textured from the set instead of coloured. A set is
+// the only way to get video onto the slices — the file picker that used to sit lower
+// down the panel is commented out and never had a handler. Note the absence of
+// basicvideo=1 and demo=1: either one turns this back into a plain video player.
+const classicVideoSlicesPresetUrl = classicSoundPresetUrl + '&set=sets/set-live-default-all-loops.json';
+// Was the field's default until it turned out to be an unwanted surprise on
+// load. Still one click away for when the wall is actually the thing you want.
+const videoWallPresetUrl = 'sonicsphere.html?demo=1&fullscreen=1&hideoverlay=1&basicvideo=1&fullbg=1&aspect=16x9&videofit=cover&set=sets/set-live-default-all-loops.json';
 
 function applyPresetUrl(url) {
     const input = document.getElementById('visualUrl');
@@ -2104,6 +2123,20 @@ const presetClassicSoundButton = document.getElementById('presetClassicSoundButt
 if (presetClassicSoundButton) {
     presetClassicSoundButton.addEventListener('click', function() {
         applyPresetUrl(classicSoundPresetUrl);
+    });
+}
+
+const presetClassicVideoSlicesButton = document.getElementById('presetClassicVideoSlicesButton');
+if (presetClassicVideoSlicesButton) {
+    presetClassicVideoSlicesButton.addEventListener('click', function() {
+        applyPresetUrl(classicVideoSlicesPresetUrl);
+    });
+}
+
+const presetVideoWallButton = document.getElementById('presetVideoWallButton');
+if (presetVideoWallButton) {
+    presetVideoWallButton.addEventListener('click', function() {
+        applyPresetUrl(videoWallPresetUrl);
     });
 }
 
