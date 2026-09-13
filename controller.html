@@ -1336,6 +1336,19 @@
         bandLevelSummary.textContent = 'Audio levels: waiting for the visual…';
         thresholdsDiv.appendChild(bandLevelSummary);
 
+        // Same idea for MIDI: without a readout there is no way to tell an unplugged
+        // cable from a device sending messages this build ignores.
+        const midiSummary = document.createElement('div');
+        midiSummary.className = 'input-group';
+        midiSummary.id = 'midiSummary';
+        midiSummary.textContent = 'MIDI: looking for inputs…';
+        thresholdsDiv.appendChild(midiSummary);
+        const midiActivity = document.createElement('div');
+        midiActivity.className = 'input-group';
+        midiActivity.id = 'midiActivity';
+        midiActivity.textContent = 'MIDI in: nothing received yet';
+        thresholdsDiv.appendChild(midiActivity);
+
         for(let i = 0; i < numBands; i++){
             let highEnd = 200; // maximum volume threshold for lowest frequency band
             let lowEnd = 10;   // minimum volume threshold for highest frequency band
@@ -3508,33 +3521,120 @@ if (navigator.requestMIDIAccess) {
     console.warn("WebMIDI is not supported in this browser.");
 }
 
-function onMIDISuccess(midiAccess) {
-    // MIDI devices that send you data.
-    const inputs = midiAccess.inputs.values();
+// Names of the ports we have bound, so the readout can distinguish "no cable" from
+// "cable, but this build ignores what it sends".
+const boundMidiInputs = new Set();
 
-    for (let input = inputs.next(); input && !input.done; input = inputs.next()) {
-        input.value.onmidimessage = onMIDIMessage;
-    }
+function setMidiSummary(text) {
+    const el = document.getElementById('midiSummary');
+    if (el) { el.textContent = text; }
 }
 
-function onMIDIFailure() {
-    console.warn("Could not access your MIDI devices.");
+function describeMidiInputs() {
+    if (!boundMidiInputs.size) {
+        setMidiSummary('MIDI: no inputs found — nothing plugged in, or the device is off');
+        return;
+    }
+    setMidiSummary('MIDI in (' + boundMidiInputs.size + '): ' + [...boundMidiInputs].join(', '));
+}
+
+function bindMidiInput(port) {
+    if (!port || port.type !== 'input') { return; }
+    // Rebinding the same port is harmless and necessary: a replugged device comes
+    // back as a fresh object with a dead handler.
+    port.onmidimessage = onMIDIMessage;
+    const name = port.name || port.id;
+    if (!boundMidiInputs.has(name)) {
+        console.log('[hypermuse] MIDI input connected:', name, '—', port.manufacturer || 'unknown maker');
+    }
+    boundMidiInputs.add(name);
+    describeMidiInputs();
+}
+
+function onMIDISuccess(midiAccess) {
+    for (const input of midiAccess.inputs.values()) {
+        bindMidiInput(input);
+    }
+    describeMidiInputs();
+
+    // Without this, only devices already powered on when the page loaded ever work —
+    // plug a synth in afterwards and it stays silent with no clue why.
+    midiAccess.onstatechange = function(event) {
+        const port = event.port;
+        if (!port || port.type !== 'input') { return; }
+        if (port.state === 'connected') {
+            bindMidiInput(port);
+        } else {
+            boundMidiInputs.delete(port.name || port.id);
+            console.log('[hypermuse] MIDI input disconnected:', port.name || port.id);
+            describeMidiInputs();
+        }
+    };
+}
+
+function onMIDIFailure(error) {
+    console.warn("Could not access your MIDI devices.", error);
+    setMidiSummary('MIDI: access denied or unavailable — check the browser permission');
+}
+
+// Every message to the console is useful when mapping a new controller and noise the
+// rest of the time, so it is opt-in via ?midilog=1.
+const midiLogVerbose = new URLSearchParams(window.location.search).get('midilog') === '1';
+
+// Clock ticks arrive 24 times a beat and active sensing every 300ms. Counting them
+// separately keeps the readout legible while still proving the cable is alive.
+let midiClockCount = 0;
+let midiMessageCount = 0;
+let lastMidiRenderMs = 0;
+let lastMidiDescription = '';
+
+function renderMidiActivity() {
+    const el = document.getElementById('midiActivity');
+    if (!el) { return; }
+    const nowMs = performance.now();
+    if (nowMs - lastMidiRenderMs < 100) { return; }
+    lastMidiRenderMs = nowMs;
+    el.textContent = 'MIDI in: ' + lastMidiDescription +
+        ' · ' + midiMessageCount + ' messages' +
+        (midiClockCount ? ' · ' + midiClockCount + ' clock ticks' : '');
 }
 
 function onMIDIMessage(event) {
     const [status, data1, data2] = event.data;
-    // console.log(event.data);
+
+    if (status >= 0xF8) { // clock, start/stop, active sensing
+        midiClockCount++;
+        if (!lastMidiDescription) { lastMidiDescription = 'clock only (transport running, no notes)'; }
+        renderMidiActivity();
+        return;
+    }
+
+    midiMessageCount++;
+    const channel = (status & 0x0F) + 1;
+    const kind = status & 0xF0;
 
     // Assuming note on/off messages (channel 1) for the APC Mini's buttons
     if (status === 0x90 && data2 > 0) { // Note on message on channel 1
+        lastMidiDescription = 'note ' + data1 + ' on, velocity ' + data2 + ' (ch ' + channel + ')';
         handleButtonPress(data1);
     } else if (status === 0x80 || (status === 0x90 && data2 === 0)) { // Note off message or note on with velocity 0
+        lastMidiDescription = 'note ' + data1 + ' off (ch ' + channel + ')';
         handleButtonRelease(data1);
     }  else if (status === 0xB0) {
+        lastMidiDescription = 'CC ' + data1 + ' = ' + data2 + ' (ch ' + channel + ')';
         handleFaderMove(data1, data2);
+    } else if (kind === 0x90 || kind === 0x80) {
+        // Right kind of message, wrong channel: the handlers above are hardcoded to
+        // channel 1, so say so rather than dropping it without a trace.
+        lastMidiDescription = 'note ' + data1 + ' on ch ' + channel + ' — ignored, only ch 1 is mapped';
+    } else if (kind === 0xB0) {
+        lastMidiDescription = 'CC ' + data1 + ' = ' + data2 + ' on ch ' + channel + ' — ignored, only ch 1 is mapped';
+    } else {
+        lastMidiDescription = 'status 0x' + status.toString(16) + ' — unmapped message type';
     }
 
-    // Handle other MIDI messages, like CC for the faders, etc.
+    if (midiLogVerbose) { console.log('[hypermuse] MIDI', lastMidiDescription, event.data); }
+    renderMidiActivity();
 }
 
 
