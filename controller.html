@@ -1328,6 +1328,14 @@
         let thresholdsDiv = document.getElementById('thresholds');
         let volumeThresholds = new Array(numBands).fill(40);
 
+        // Live readout of what the visual is actually hearing. Without it the sliders
+        // below are set blind, or by watching the other screen.
+        const bandLevelSummary = document.createElement('div');
+        bandLevelSummary.className = 'input-group';
+        bandLevelSummary.id = 'bandLevelSummary';
+        bandLevelSummary.textContent = 'Audio levels: waiting for the visual…';
+        thresholdsDiv.appendChild(bandLevelSummary);
+
         for(let i = 0; i < numBands; i++){
             let highEnd = 200; // maximum volume threshold for lowest frequency band
             let lowEnd = 10;   // minimum volume threshold for highest frequency band
@@ -3680,6 +3688,27 @@ openVisualWindow();
 // sendMessageToVisual({ type: "updateGeometry", payload: { /* your data here */ } });
 // sendMessageToVisual({ type: "playbackspeed", payload: {speed: 0.2 } });
 
+// Each band against the threshold it has to clear, coloured the way the visual
+// colours them: green means it is firing, red means it is not. That is the whole
+// point of having the numbers here — the sliders can be set while watching them.
+function renderBandLevels(data) {
+    const bands = Array.isArray(data.bands) ? data.bands : [];
+    const summary = document.getElementById('bandLevelSummary');
+    if (summary) {
+        const firing = bands.reduce((n, v, i) => n + (v >= Number(volumeThresholds[i]) ? 1 : 0), 0);
+        summary.textContent = `Audio levels — average ${Number(data.average).toFixed(2)} · ` +
+            `peak ${Number(data.peak).toFixed(2)} on band ${data.peakBand} · ` +
+            `${firing}/${bands.length} bands over threshold · ${data.profile || ''}`;
+    }
+    for (let i = 0; i < bands.length; i++) {
+        const el = document.getElementById('volume' + i);
+        if (!el) continue;
+        const threshold = Number(volumeThresholds[i]);
+        el.textContent = ' ' + Number(bands[i]).toFixed(2) + ' / ' + threshold;
+        el.style.color = bands[i] >= threshold ? '#00ff00' : '#ff5555';
+    }
+}
+
 window.addEventListener('message', function(event) {
     const data = event.data;
     if (data && data.type === 'vjLoopGroups') {
@@ -3692,6 +3721,10 @@ window.addEventListener('message', function(event) {
     }
     if (data && data.type === 'vjColorCubeStats') {
         renderColorCubeStatsPanel(data);
+        return;
+    }
+    if (data && data.type === 'vjBandLevels') {
+        renderBandLevels(data);
         return;
     }
     if (data && data.type === 'vj' && data.event === 'ready') {

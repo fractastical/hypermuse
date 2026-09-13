@@ -4687,6 +4687,49 @@ button:hover {
 
         });
 
+        // Band levels only existed in this window, so the controller's meters sat at
+        // zero and its threshold sliders had to be set by watching the visual on the
+        // other screen. The audio lives here, so it is reported from here.
+        const reportedBandVolumes = [];
+        const BAND_LEVEL_PUBLISH_MS = 66;
+        let lastBandLevelPublishMs = 0;
+
+        function publishBandLevels() {
+            // captureAudioData runs at 60Hz. Meters do not need that, and forty-eight
+            // numbers crossing postMessage sixty times a second is real work for the
+            // controller's main thread on top of everything else it is doing.
+            const nowMs = performance.now();
+            if (nowMs - lastBandLevelPublishMs < BAND_LEVEL_PUBLISH_MS) return;
+            lastBandLevelPublishMs = nowMs;
+            if (!reportedBandVolumes.length) return;
+            let sum = 0;
+            let peak = 0;
+            let peakBand = 0;
+            for (let i = 0; i < reportedBandVolumes.length; i++) {
+                const v = Number(reportedBandVolumes[i]) || 0;
+                sum += v;
+                if (v > peak) { peak = v; peakBand = i; }
+            }
+            const payload = {
+                type: 'vjBandLevels',
+                bands: reportedBandVolumes.map(v => Math.round((Number(v) || 0) * 100) / 100),
+                average: Math.round((sum / reportedBandVolumes.length) * 100) / 100,
+                peak: Math.round(peak * 100) / 100,
+                peakBand: peakBand,
+                profile: activeEffectProfile
+            };
+            try {
+                if (window.opener && !window.opener.closed) {
+                    window.opener.postMessage(payload, '*');
+                }
+            } catch (_) {}
+            try {
+                if (window.parent && window.parent !== window) {
+                    window.parent.postMessage(payload, '*');
+                }
+            } catch (_) {}
+        }
+
         function captureAudioData() {
 
 
@@ -4816,11 +4859,14 @@ button:hover {
 
 
 
+            reportedBandVolumes.length = numBands;
+
             for (let i = 0; i < numBands; i++) {
                 // TODO: this doesn't seem to be properly using the band frequency
 
                 let band = data.slice(i * bandSize, (i + 1) * bandSize);
                 let volume = getAverageVolume(band);
+                reportedBandVolumes[i] = volume;
                 let volumeDisplay = document.getElementById('volume' + i);
                 volumeDisplay.textContent = ' ' + volume.toFixed(2) + ' / ' + thresholds[i];
 
@@ -4980,6 +5026,8 @@ button:hover {
                     volumeDisplay.style.color = '#ff0000'; // red
                 }
             }
+
+            publishBandLevels();
 
             for (let i = geometries.length - 1; i >= 0; i--) {
                 geometries[i].age++;
