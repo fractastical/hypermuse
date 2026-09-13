@@ -277,7 +277,7 @@
         Presets:
         <input type="button" id="presetCells12AutoplayButton" value="cells1+cells2 autoplay (with logo)"/>
         <input type="button" id="presetCells12NoLogoButton" value="cells1+cells2 autoplay (no logo)"/>
-        <input type="button" id="presetClassicSoundButton" value="classic + sound" title="the original geometry, reacting to audio, pinned in classic — click Enable Mic in the visual"/>
+        <input type="button" id="presetClassicSoundButton" value="classic + sound" title="the original look — coloured polygon slices on the lane spheres, reacting to the mic, pinned in classic"/>
     </div>
     <div class="input-group">
         Controller style:
@@ -470,7 +470,7 @@
             <option value="cymatics">cymatics plate (sand on the nodal lines)</option>
             <option value="gifswarm">gifcities swarm (geocities gifs sync into words)</option>
             <option value="orbit:ankh">orbiting ankhs only (bare moon, no word — reloads)</option>
-            <option value="orbit:ankh|seahorse,jellyfish,seaweed|vajra|coral,starfish|condom,dildo,boobs|metavillan">orbiting acts: the show's run — ankhs, reef, vajras, starfish, drawer, marks (reloads)</option>
+            <option value="orbit:ankh|seahorse,jellyfish,seaweed|vajra|starfish|boobs|metavillan">orbiting acts: the show's run — ankhs, reef, vajras, starfish, boobs, marks (reloads)</option>
             <option value="orbit:metavillan">metavillan marks only (orbit, then mandala — reloads)</option>
             <option value="artifacts/sample-sonicsphere-silent.webm">sonicsphere (baked loop)</option>
             <option value="screen">another window (screen capture)</option>
@@ -2051,10 +2051,13 @@ if (clipDriftOffButton) {
 // Presets that overwrite the visualizer URL field, then open it.
 const cells12PresetUrl = 'sonicsphere.html?basicvideo=1&fullbg=1&aspect=16x9&videofit=cover&set=sets/set-cells1-cells2-autoplay.json';
 const cells12LogoPresetUrl = cells12PresetUrl + '&logo=1&logoposition=top&logoopacity=0.92';
-// Deliberately no demo=1: with a set loaded, demo mode switches the visual to
-// videos-only, which is the opposite of wanting to watch the geometry react.
+// No set and no backdrop, which is the original classic look: coloured polygon
+// slices on the lane spheres. Loading a set makes the slices take a video frame
+// as their texture instead of a colour, so they come back as moon and cell
+// imagery rather than the flat colour the profile picks from the band volume.
+// No demo=1 either — with a set loaded it switches the visual to videos-only.
 // fxtimeline=0 keeps it in classic rather than moving on after sixteen seconds.
-const classicSoundPresetUrl = 'sonicsphere.html?mode=classic&fxtimeline=0&audio=1&fullbg=1&aspect=16x9&videofit=cover&hideoverlay=1&set=sets/set-live-default-all-loops.json';
+const classicSoundPresetUrl = 'sonicsphere.html?mode=classic&fxtimeline=0&mic=1';
 
 function applyPresetUrl(url) {
     const input = document.getElementById('visualUrl');
