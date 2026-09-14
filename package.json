@@ -116,7 +116,9 @@
     "export:poem": "node scripts/export-trinity-poem.mjs",
     "gallery": "node scripts/make-gallery.mjs",
     "poster": "node scripts/make-poster.mjs",
-    "press": "node scripts/make-press-kit.mjs"
+    "press": "node scripts/make-press-kit.mjs",
+    "hermes:annals:photos": "node scripts/hermes-annals-photos.mjs",
+    "hermes:annals:reel": "node scripts/hermes-annals-reel.mjs"
   },
   "devDependencies": {
     "@playwright/test": "^1.44.0",
