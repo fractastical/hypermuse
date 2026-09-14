@@ -316,6 +316,8 @@ function filesUnder(dir) {
     const full = join(dir, name);
     if (statSync(full).isDirectory()) continue;
     if (!MEDIA_EXT.has(extname(name).toLowerCase())) continue;
+    // A clip's poster frame belongs to the clip, not beside it as another photograph.
+    if (/\.poster\.jpg$/i.test(name)) continue;
     out.push(full);
   }
   return out;
@@ -552,6 +554,18 @@ function mediaHref(entry) {
   return join("media", entry.name);
 }
 
+/** A clip's poster frame, if one was written beside it. Copied too when self-contained. */
+function posterAttr(entry) {
+  const poster = entry.src.replace(/\.[^.]+$/, "") + ".poster.jpg";
+  if (!existsSync(poster)) return "";
+  if (!copyMedia) return ` poster="${esc(relative(outDir, poster))}"`;
+  const name = basename(poster);
+  const dest = join(outDir, "media", name);
+  mkdirSync(dirname(dest), { recursive: true });
+  copyFileSync(poster, dest);
+  return ` poster="${esc(join("media", name))}"`;
+}
+
 const md = ["# The Annals of Hermes", "",
   `${entries.length} ${entries.length === 1 ? "day" : "days"} · times in ${TZ}`, ""];
 for (const { facts, media, written } of entries) {
@@ -643,7 +657,11 @@ ${media.length ? `<h3>Shoots</h3><div class="shots">${media.map((m) => {
   const href = esc(mediaHref(m));
   const cap = esc([m.art, m.caption, m.credit].filter(Boolean).join(" · ") || m.name);
   return m.shoot === "video"
-    ? `<figure><video src="${href}" muted loop playsinline controls preload="metadata"></video><figcaption>${cap}</figcaption></figure>`
+    // preload="none" because a day can hold a dozen clips and preloading even their
+    // metadata means a dozen requests before anything is on screen. The poster frame,
+    // written next to the clip by hermes-annals-photos.mjs, is what makes that free:
+    // the shoot is visible as a still and only fetches video when it is played.
+    ? `<figure><video src="${href}" muted loop playsinline controls preload="none"${posterAttr(m)}></video><figcaption>${cap}</figcaption></figure>`
     : `<figure><img src="${href}" alt="${cap}" loading="lazy" decoding="async"><figcaption>${cap}</figcaption></figure>`;
 }).join("")}</div>` : ""}
 </section>`).join("\n")}
