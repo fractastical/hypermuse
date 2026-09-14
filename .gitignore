@@ -17,6 +17,11 @@ loops/3d moon/*
 loops/VAJRA DORJE ANIMATIONS/*
 !loops/VAJRA DORJE ANIMATIONS/web/
 
+# Output of scripts/optimize-loops.mjs: browser-playable copies of the masters
+# above, a few gigabytes of them. Regenerable from the originals in one command,
+# so it is derived media rather than source.
+loops-web/
+
 assets/*
 !assets/esoteric-geometries-circles-warp.gif
 # Hand triage of the scraped GifCities library: a few hundred bytes of
