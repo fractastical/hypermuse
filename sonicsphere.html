@@ -336,6 +336,31 @@ button:hover {
       <div id="container"></div>
       
 <script>
+        // Controller link. Traffic normally rides on the opener/parent window
+        // reference, which only exists when the controller opened this page
+        // itself. A kiosk launch (chrome --kiosk) has no opener, so the same
+        // traffic also goes over a BroadcastChannel the controller can join —
+        // the way hypermoon.html has always been reachable.
+        const vjChannel = ('BroadcastChannel' in window) ? new BroadcastChannel('sonicsphere') : null;
+
+        function vjEmit(payload) {
+            try {
+                if (window.opener && !window.opener.closed) {
+                    window.opener.postMessage(payload, '*');
+                }
+            } catch (_) {}
+            try {
+                if (window.parent && window.parent !== window) {
+                    window.parent.postMessage(payload, '*');
+                }
+            } catch (_) {}
+            try {
+                if (vjChannel) {
+                    vjChannel.postMessage(payload);
+                }
+            } catch (_) {}
+        }
+
         let hueoffset = 20;
         let hueOffsetSpeed = 0;
         let startingVolumeThreshold = 5;
@@ -386,6 +411,9 @@ button:hover {
         let fibonacciMosaicTiles = [];
         let fibonacciMosaicLastSwapMs = 0;
         let fibonacciMosaicFxIndex = 0;
+        // What each tile shows, by index. An empty slot means 'auto', which is the
+        // original behaviour: a clip, or an effect on odd tiles when fx is on.
+        let fibonacciMosaicTileContent = [];
         let colorSnapshotTilerEnabled = false;
         let colorSnapshotTilerOpacity = 0.75;
         let colorSnapshotTileSize = 120;
@@ -726,6 +754,26 @@ button:hover {
         let demoMode = demoBootSearch.get('demo') === '1';
         /** Hide bottom debug ticker in demo (e.g. Playwright exports: ?demo=1&hideoverlay=1). */
         const hideDemoFxOverlay = demoBootSearch.get('hideoverlay') === '1';
+        /** The bottom ticker is a debugging aid that lands in shot, so it stays off
+         *  unless fxlabels=1 asks for it. hideoverlay=1 predates the flag and still
+         *  wins, so the FX tiles and the export URLs keep behaving as they did. */
+        const showDemoFxOverlay = demoBootSearch.get('fxlabels') === '1' && !hideDemoFxOverlay;
+        /** The lane spheres sit off-centre (x = ±1.18, y = -0.74) and the spin is
+         *  applied to the whole scene, so it swings them along a wide arc and out
+         *  of frame rather than turning them in place. Every effect profile sets a
+         *  rotation speed of its own, which is why zeroing the speed by hand never
+         *  held; this gate is what keeps them still. rotate=1 puts the motion back. */
+        let sceneRotationEnabled = demoBootSearch.get('rotate') === '1';
+        /** Scales the wireframe lane shells. Their opacity is re-targeted every frame
+         *  per effect profile, so a one-off material tweak gets overwritten; this
+         *  multiplier is the only thing that sticks. shells=0 hides them outright. */
+        let laneShellIntensity = (() => {
+            const raw = demoBootSearch.get('shells');
+            if (raw === null) return 1;
+            if (raw === '0' || raw === 'off') return 0;
+            const parsed = Number.parseFloat(raw);
+            return Number.isFinite(parsed) ? Math.max(0, Math.min(1, parsed)) : 1;
+        })();
         const forceFullscreenMode = demoBootSearch.get('fullscreen') === '1' || demoBootSearch.get('fs') === '1';
         const forceBasicVideoMode = demoBootSearch.get('basicvideo') === '1' || demoBootSearch.get('basic') === '1';
         const forceFullVideoBg = demoBootSearch.get('fullbg') === '1' || demoBootSearch.get('videobg') === '1';
@@ -1085,7 +1133,7 @@ button:hover {
             if (!laneBaseSpheres || laneBaseSpheres.length === 0) {
                 return;
             }
-            if (effectLayoutMode === 'thirds-2d') {
+            if (effectLayoutMode === 'thirds-2d' || laneShellIntensity <= 0) {
                 for (let i = 0; i < laneBaseSpheres.length; i++) {
                     laneBaseSpheres[i].visible = false;
                 }
@@ -1098,6 +1146,7 @@ button:hover {
             } else if (activeEffectProfile === 'stacked') {
                 targetOpacity = 0.026;
             }
+            targetOpacity *= laneShellIntensity;
             for (let i = 0; i < laneBaseSpheres.length; i++) {
                 laneBaseSpheres[i].visible = true;
                 const material = laneBaseSpheres[i].material;
@@ -1107,6 +1156,23 @@ button:hover {
                 material.opacity += (targetOpacity - material.opacity) * 0.08;
             }
         }
+
+        function setLaneShellIntensity(value) {
+            const parsed = Number.parseFloat(value);
+            laneShellIntensity = Number.isFinite(parsed) ? Math.max(0, Math.min(1, parsed)) : 0;
+            if (laneShellIntensity <= 0) {
+                // The per-frame fade never quite reaches zero, so clear it by hand or a
+                // faint outline lingers after switching them off.
+                for (let i = 0; i < laneBaseSpheres.length; i++) {
+                    laneBaseSpheres[i].visible = false;
+                    if (laneBaseSpheres[i].material) {
+                        laneBaseSpheres[i].material.opacity = 0;
+                    }
+                }
+            }
+            updateLaneShellOpacity();
+        }
+        window.setSphereOutlines = setLaneShellIntensity;
 
         function ensureWordCloudLayer() {
             if (wordCloudLayer) {
@@ -1817,7 +1883,7 @@ button:hover {
             if (!effectOverlayElement) {
                 return;
             }
-            effectOverlayElement.style.display = (demoMode && !hideDemoFxOverlay) ? 'block' : 'none';
+            effectOverlayElement.style.display = showDemoFxOverlay ? 'block' : 'none';
             const phase = String(activeEffectProfile || 'classic').toUpperCase();
             let details = `Effect: ${phase} | Lanes: HIGH MID LOW`;
             if (basicVideoModeEnabled) {
@@ -2334,6 +2400,16 @@ button:hover {
             }
         }
 
+        function setSceneRotationEnabled(enabled) {
+            sceneRotationEnabled = !!enabled;
+            if (!sceneRotationEnabled && scene) {
+                // Snap back to square, or the spheres stay wherever the spin left
+                // them — which for a scene-wide rotation can be off screen.
+                scene.rotation.x = 0;
+                scene.rotation.y = 0;
+            }
+        }
+
         function setBasicVideoMode(enabled) {
             const nextEnabled = !!enabled;
             if (nextEnabled === basicVideoModeEnabled) {
@@ -2446,6 +2522,10 @@ button:hover {
         }
 
         function getMosaicSources() {
+            // The mosaic must honour the same folder/colour ticks and dislikes as the
+            // main playback, otherwise unticking a folder leaves its clips on screen.
+            const eligible = typeof window.getEligibleSetUrls === 'function' ? window.getEligibleSetUrls() : [];
+            if (eligible.length > 0) return eligible;
             const setUrls = Array.isArray(window.__hypermuseSetUrls) ? window.__hypermuseSetUrls : [];
             if (setUrls.length > 0) return setUrls.slice();
             const activeSrc = window.__hypermuseCurrentLoopLabel;
@@ -2471,6 +2551,46 @@ button:hover {
             document.body.appendChild(fibonacciMosaicLayer);
         }
 
+        // Tiles can be pinned to particular content rather than taking whatever the
+        // alternating default hands them. Recognised tokens:
+        //
+        //   auto            a clip, or an effect on odd tiles when fx is on (the default)
+        //   video           always a clip from the set
+        //   fx              an effect, taking the next mode from the cycle
+        //   fx:kuramoto     that effect specifically
+        //   hypermoon       the moon page
+        //   page:<url>      anything else, for a tile that is really a second output
+        function mosaicContentForTile(tileIndex) {
+            const raw = String(fibonacciMosaicTileContent[tileIndex] || 'auto').trim().toLowerCase();
+            if (!raw || raw === 'auto') {
+                return fibonacciMosaicFxEnabled && (tileIndex % 2 === 1) ? { kind: 'fx' } : { kind: 'video' };
+            }
+            if (raw === 'video' || raw === 'clip') return { kind: 'video' };
+            if (raw === 'hypermoon' || raw === 'moon') return { kind: 'page', url: 'hypermoon.html?kiosk=1' };
+            if (raw.startsWith('page:')) return { kind: 'page', url: fibonacciMosaicTileContent[tileIndex].slice(5) };
+            if (raw === 'fx') return { kind: 'fx' };
+            if (raw.startsWith('fx:')) {
+                const wanted = raw.slice(3);
+                return getMosaicFxModes().includes(wanted) ? { kind: 'fx', mode: wanted } : { kind: 'fx' };
+            }
+            // A bare effect name, since that is what anyone would type first.
+            if (getMosaicFxModes().includes(raw)) return { kind: 'fx', mode: raw };
+            return { kind: 'video' };
+        }
+
+        function createMosaicTileFrame(tile, src, title) {
+            const iframe = document.createElement('iframe');
+            iframe.setAttribute('title', title);
+            iframe.setAttribute('allow', 'autoplay');
+            iframe.style.width = '100%';
+            iframe.style.height = '100%';
+            iframe.style.border = '0';
+            iframe.style.pointerEvents = 'none';
+            iframe.src = src;
+            tile.appendChild(iframe);
+            return iframe;
+        }
+
         function createMosaicTile(rect, sourceUrl, tileIndex) {
             const tile = document.createElement('div');
             tile.style.position = 'absolute';
@@ -2482,24 +2602,21 @@ button:hover {
             tile.style.border = '1px solid rgba(120,255,220,0.22)';
             tile.style.background = '#04080d';
             fibonacciMosaicLayer.appendChild(tile);
-            const useFxTile = fibonacciMosaicFxEnabled && (tileIndex % 2 === 1);
-            if (useFxTile) {
+            const content = mosaicContentForTile(tileIndex);
+            if (content.kind === 'page') {
+                const iframe = createMosaicTileFrame(tile, content.url, `Mosaic page ${content.url}`);
+                return { tile, iframe, isFx: true, page: content.url };
+            }
+            if (content.kind === 'fx') {
                 const modeList = getMosaicFxModes();
-                const mode = modeList[fibonacciMosaicFxIndex % modeList.length];
-                fibonacciMosaicFxIndex += 1;
-                const iframe = document.createElement('iframe');
-                iframe.setAttribute('title', `Mosaic FX ${mode}`);
-                iframe.setAttribute('allow', 'autoplay');
-                iframe.style.width = '100%';
-                iframe.style.height = '100%';
-                iframe.style.border = '0';
-                iframe.style.pointerEvents = 'none';
+                const mode = content.mode || modeList[fibonacciMosaicFxIndex % modeList.length];
+                if (!content.mode) fibonacciMosaicFxIndex += 1;
                 const modeParam = encodeURIComponent(mode);
                 // hideui=1 only hides the control panel. The debug ticker is a separate
                 // flag, and without it every FX tile prints "Effect: LIFE | Lanes: ..."
                 // across itself, which reads as a caption on the output.
-                iframe.src = `${window.location.origin}${window.location.pathname}?demo=1&hideui=1&hideoverlay=1&mode=${modeParam}&layout=thirds-2d`;
-                tile.appendChild(iframe);
+                const src = `${window.location.origin}${window.location.pathname}?demo=1&hideui=1&hideoverlay=1&mode=${modeParam}&layout=thirds-2d`;
+                const iframe = createMosaicTileFrame(tile, src, `Mosaic FX ${mode}`);
                 return { tile, iframe, isFx: true, mode };
             }
             const video = document.createElement('video');
@@ -2516,7 +2633,7 @@ button:hover {
             const tryPlay = () => video.play().catch(() => {});
             video.addEventListener('canplay', tryPlay, { once: true });
             tryPlay();
-            return { tile, video, isFx: false };
+            return { tile, video, isFx: false, src: sourceUrl || '' };
         }
 
         function rebuildFibonacciMosaicTiles() {
@@ -2533,6 +2650,24 @@ button:hover {
             }
         }
 
+        // Rebuilding restarts every tile, so only do it when a tile is showing a clip
+        // the filters no longer allow.
+        function refreshFibonacciMosaicForFilters() {
+            if (!fibonacciMosaicEnabled) return;
+            const allowed = new Set(getMosaicSources());
+            if (allowed.size === 0) return;
+            // Enabled before the set had loaded, so there was nothing to build from and
+            // the layer is still empty. This is the first moment it can be filled.
+            if (fibonacciMosaicTiles.length === 0) {
+                rebuildFibonacciMosaicTiles();
+                return;
+            }
+            const stale = fibonacciMosaicTiles.some((entry) => entry && !entry.isFx && !allowed.has(entry.src));
+            if (stale) rebuildFibonacciMosaicTiles();
+        }
+
+        window.__hypermuseOnLoopFiltersChanged = refreshFibonacciMosaicForFilters;
+
         function setFibonacciMosaicConfig(config = {}) {
             if (typeof config.enabled === 'boolean') {
                 fibonacciMosaicEnabled = !!config.enabled;
@@ -2540,6 +2675,16 @@ button:hover {
             if (typeof config.fx === 'boolean') {
                 fibonacciMosaicFxEnabled = !!config.fx;
                 fibonacciMosaicTiles = [];
+            }
+            if (config.tiles !== undefined) {
+                const list = Array.isArray(config.tiles)
+                    ? config.tiles
+                    : String(config.tiles).split(',');
+                fibonacciMosaicTileContent = list.map(v => String(v == null ? '' : v).trim());
+                // Emptying the list is how a rebuild is requested; the tiles are iframes
+                // and videos, so there is no way to change one in place.
+                fibonacciMosaicTiles = [];
+                fibonacciMosaicFxIndex = 0;
             }
             if (Number.isFinite(config.opacity)) {
                 fibonacciMosaicOpacity = Math.max(0, Math.min(1, Number(config.opacity)));
@@ -3154,16 +3299,7 @@ button:hover {
                 indexLoaded: !!colorCubeIndex,
                 revision: Date.now()
             };
-            try {
-                if (window.opener && !window.opener.closed) {
-                    window.opener.postMessage(payload, '*');
-                }
-            } catch (_) {}
-            try {
-                if (window.parent && window.parent !== window) {
-                    window.parent.postMessage(payload, '*');
-                }
-            } catch (_) {}
+            vjEmit(payload);
         }
 
         function setColorCubeBoardConfig(config = {}) {
@@ -4167,6 +4303,7 @@ button:hover {
         }
 
         window.setEffectTimelineConfig = setEffectTimelineConfig;
+        window.setFibonacciMosaicConfig = setFibonacciMosaicConfig;
         window.pinEffectTimelineOff = function pinEffectTimelineOff() {
             effectTimelinePinnedOff = true;
             setEffectTimelineConfig({ enabled: false }, false);
@@ -4721,16 +4858,7 @@ button:hover {
                 peakBand: peakBand,
                 profile: activeEffectProfile
             };
-            try {
-                if (window.opener && !window.opener.closed) {
-                    window.opener.postMessage(payload, '*');
-                }
-            } catch (_) {}
-            try {
-                if (window.parent && window.parent !== window) {
-                    window.parent.postMessage(payload, '*');
-                }
-            } catch (_) {}
+            vjEmit(payload);
         }
 
         function captureAudioData() {
@@ -5068,8 +5196,10 @@ button:hover {
 
 
 
-            scene.rotation.x += X_ROTATION_SPEED * vjSpeedMultiplier; 
-            scene.rotation.y += Y_ROTATION_SPEED * vjSpeedMultiplier;
+            if (sceneRotationEnabled) {
+                scene.rotation.x += X_ROTATION_SPEED * vjSpeedMultiplier;
+                scene.rotation.y += Y_ROTATION_SPEED * vjSpeedMultiplier;
+            }
             updateLaneShellOpacity();
             if (simCompositor && simCompositor.texture) {
                 const now = performance.now();
@@ -5683,11 +5813,39 @@ button:hover {
         if (cmd.toggle === 'basicVideo') {
             setBasicVideoMode(!basicVideoModeEnabled);
         }
+        // Jump straight to one clip of the loaded set. Deliberately ignores the
+        // loop filters: asking for a clip by hand outranks them.
+        if (cmd.playEntry !== undefined && cmd.playEntry !== null && typeof window.playSetEntryIndex === 'function') {
+            window.playSetEntryIndex(cmd.playEntry);
+        }
+        // Swap the playing set in place. Loading a set is what puts video on the
+        // polygon slices, so this is the live route to that look — no reload, no
+        // second window.
+        if (typeof cmd.loadSet === 'string' && cmd.loadSet.trim() && typeof window.loadVideoSetManifest === 'function') {
+            window.loadVideoSetManifest(cmd.loadSet.trim()).then(function() {
+                if (typeof window.ensureCurrentSetPlayback === 'function') {
+                    window.ensureCurrentSetPlayback();
+                }
+            }).catch(function(error) {
+                console.warn(error);
+            });
+        }
+        if (typeof cmd.rotate === 'boolean') {
+            setSceneRotationEnabled(cmd.rotate);
+        }
+        if (typeof cmd.shells === 'boolean') {
+            setLaneShellIntensity(cmd.shells ? 1 : 0);
+        } else if (Number.isFinite(cmd.shells)) {
+            setLaneShellIntensity(cmd.shells);
+        }
         if (typeof cmd.mosaic === 'boolean') {
             setFibonacciMosaicConfig({ enabled: cmd.mosaic });
         }
         if (typeof cmd.mosaicFx === 'boolean') {
             setFibonacciMosaicConfig({ fx: cmd.mosaicFx });
+        }
+        if (cmd.mosaicTiles !== undefined) {
+            setFibonacciMosaicConfig({ tiles: cmd.mosaicTiles });
         }
         if (Number.isFinite(cmd.mosaicOpacity)) {
             setFibonacciMosaicConfig({ opacity: cmd.mosaicOpacity });
@@ -5829,6 +5987,8 @@ button:hover {
                 : 'neutral',
             wordList: activeWordCloudListName,
             infinitestreams: infinitestreamsEmbedEnabled,
+            rotate: sceneRotationEnabled,
+            shells: laneShellIntensity,
             mosaic: fibonacciMosaicEnabled,
             mosaicFx: fibonacciMosaicFxEnabled,
             colorTiles: colorSnapshotTilerEnabled,
@@ -5842,48 +6002,59 @@ button:hover {
         return applyVjCommand(cmd);
     };
 
-    window.addEventListener('message', function(event) {
-        if (!event || !event.data) {
+    // The same commands arrive over two transports, so the reply route is passed
+    // in: a window message can answer its sender directly, while a broadcast has
+    // no sender to answer and has to go back out over the channel.
+    function handleVjMessage(data, reply) {
+        if (!data) {
             return;
         }
-        if (event.data.type === 'vj') {
-            applyVjCommand(event.data);
-            if (event.data.requestLoopGroups && typeof window.getLoopGroupsSnapshot === 'function') {
+        if (data.type === 'vj') {
+            applyVjCommand(data);
+            if (data.requestLoopGroups && typeof window.getLoopGroupsSnapshot === 'function') {
                 try {
-                    if (event.source && typeof event.source.postMessage === 'function') {
-                        event.source.postMessage({
-                            type: 'vjLoopGroups',
-                            groups: window.getLoopGroupsSnapshot(),
-                            revision: Date.now()
-                        }, '*');
-                    }
+                    reply({
+                        type: 'vjLoopGroups',
+                        groups: window.getLoopGroupsSnapshot(),
+                        revision: Date.now()
+                    });
                 } catch (error) {
                     console.warn(error);
                 }
             }
-            if (event.data.requestColorGroups && typeof window.getColorGroupsSnapshot === 'function') {
+            if (data.requestSetEntries && typeof window.getSetEntriesSnapshot === 'function') {
                 try {
-                    if (event.source && typeof event.source.postMessage === 'function') {
-                        event.source.postMessage({
-                            type: 'vjColorGroups',
-                            groups: window.getColorGroupsSnapshot(),
-                            revision: Date.now()
-                        }, '*');
-                    }
+                    reply({
+                        type: 'vjSetEntries',
+                        entries: window.getSetEntriesSnapshot(),
+                        revision: Date.now()
+                    });
                 } catch (error) {
                     console.warn(error);
                 }
             }
-            if (event.data.requestColorCubeStats && typeof window.getColorCubeBoardStats === 'function') {
+            if (data.requestColorGroups && typeof window.getColorGroupsSnapshot === 'function') {
                 try {
+                    reply({
+                        type: 'vjColorGroups',
+                        groups: window.getColorGroupsSnapshot(),
+                        revision: Date.now()
+                    });
+                } catch (error) {
+                    console.warn(error);
+                }
+            }
+            if (data.requestColorCubeStats && typeof window.getColorCubeBoardStats === 'function') {
+                try {
+                    // Already reaches every transport, replies included.
                     if (typeof broadcastColorCubeStats === 'function') {
                         broadcastColorCubeStats();
-                    } else if (event.source && typeof event.source.postMessage === 'function') {
-                        event.source.postMessage({
+                    } else {
+                        reply({
                             type: 'vjColorCubeStats',
                             stats: window.getColorCubeBoardStats(),
                             revision: Date.now()
-                        }, '*');
+                        });
                     }
                 } catch (error) {
                     console.warn(error);
@@ -5892,29 +6063,42 @@ button:hover {
             return;
         }
         // Compatibility bridge for legacy controller name/value messages.
-        if (event.data.name === 'bridgeFadeOutButton') {
+        if (data.name === 'bridgeFadeOutButton') {
             applyVjCommand({ type: 'vj', blackout: 1, blackoutFadeMs: 1400 });
             return;
         }
-        if (event.data.name === 'bridgeFadeInButton') {
+        if (data.name === 'bridgeFadeInButton') {
             applyVjCommand({ type: 'vj', blackout: 0, blackoutFadeMs: 1200 });
             return;
         }
-        if (event.data.name === 'videochange' || event.data.name === 'videochangeloop') {
+        if (data.name === 'videochange' || data.name === 'videochangeloop') {
             if (typeof window.playNextSetEntry === 'function') {
                 window.playNextSetEntry();
             }
         }
+    }
+
+    window.addEventListener('message', function(event) {
+        if (!event) {
+            return;
+        }
+        handleVjMessage(event.data, function(payload) {
+            if (event.source && typeof event.source.postMessage === 'function') {
+                event.source.postMessage(payload, '*');
+            }
+        });
     });
 
+    if (vjChannel) {
+        vjChannel.addEventListener('message', function(event) {
+            handleVjMessage(event.data, function(payload) {
+                vjChannel.postMessage(payload);
+            });
+        });
+    }
+
     function announceVjReady() {
-        const payload = { type: 'vj', event: 'ready', origin: location.origin };
-        if (window.parent && window.parent !== window) {
-            window.parent.postMessage(payload, '*');
-        }
-        if (window.opener) {
-            window.opener.postMessage(payload, '*');
-        }
+        vjEmit({ type: 'vj', event: 'ready', origin: location.origin });
     }
 
     function initVjWebSocket() {
@@ -6108,6 +6292,33 @@ button:hover {
     }
     if (bootFxTimeline === '0' || bootFxTimeline === 'false') {
         pinEffectTimelineOffWhenReady();
+    }
+
+    // mosaic=1 turns the tile layer on at boot, mosaictiles= says what goes in each
+    // tile, so a kiosk output can be a mosaic without anyone clicking anything. Polled
+    // for the same reason as the pin above.
+    const bootMosaic = vjBootParams.get('mosaic');
+    const bootMosaicTiles = vjBootParams.get('mosaictiles');
+    const bootMosaicFx = vjBootParams.get('mosaicfx');
+    function applyBootMosaicWhenReady(attempt = 0) {
+        // The tiles are built from the set, which loads asynchronously. Applying the
+        // moment the setter appears builds nothing, so wait for sources — but not
+        // forever, since a mosaic of pinned pages needs no clips at all.
+        const haveSources = Array.isArray(window.__hypermuseSetUrls) && window.__hypermuseSetUrls.length > 0;
+        if (typeof window.setFibonacciMosaicConfig === 'function' && (haveSources || attempt >= 40)) {
+            const config = {};
+            if (bootMosaic === '1' || bootMosaic === 'true') config.enabled = true;
+            if (bootMosaicFx === '1' || bootMosaicFx === 'true') config.fx = true;
+            if (bootMosaicTiles) config.tiles = bootMosaicTiles;
+            window.setFibonacciMosaicConfig(config);
+            return;
+        }
+        if (attempt < 80) {
+            setTimeout(function() { applyBootMosaicWhenReady(attempt + 1); }, 125);
+        }
+    }
+    if (bootMosaic || bootMosaicTiles || bootMosaicFx) {
+        applyBootMosaicWhenReady();
     }
     function loadBootSetWhenReady(manifestPath, attempt = 0) {
         if (!manifestPath) return;

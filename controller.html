@@ -120,6 +120,77 @@
         background: rgba(7, 16, 40, 0.58);
     }
 
+    /* The switches reached for mid-set lead the grid: which look is on the
+       polygons, the fibonacci mosaic, videos-only, and the preset that swaps
+       the whole show. Everything else keeps the default order of 0. */
+    #visualUrlGroup,
+    #presetsGroup,
+    #clipJumpGroup,
+    #mosaicGroup,
+    #fxModeGroup,
+    #basicVideoGroup {
+        order: -1;
+    }
+
+    .clip-jump {
+        margin-top: 8px;
+        max-height: 220px;
+        overflow-y: auto;
+        padding: 8px;
+        border-radius: 8px;
+        border: 1px solid rgba(118, 230, 255, 0.28);
+        background: rgba(4, 10, 28, 0.65);
+        font-size: 11px;
+        line-height: 1.35;
+    }
+
+    .clip-jump.empty {
+        color: rgba(207, 233, 255, 0.55);
+        font-style: italic;
+    }
+
+    .clip-jump button.clip-row {
+        display: block;
+        width: 100%;
+        text-align: left;
+        margin: 0 0 3px;
+        padding: 4px 6px;
+        cursor: pointer;
+        border-radius: 6px;
+        border: 1px solid rgba(118, 230, 255, 0.22);
+        background: rgba(7, 16, 40, 0.72);
+        color: inherit;
+        font: inherit;
+    }
+
+    .clip-jump button.clip-row:hover {
+        border-color: rgba(88, 246, 255, 0.7);
+        background: rgba(14, 32, 70, 0.85);
+    }
+
+    .clip-jump button.clip-row.is-current {
+        border-color: rgba(88, 246, 255, 0.9);
+        background: rgba(20, 54, 96, 0.9);
+    }
+
+    .clip-jump button.clip-row.is-skipped {
+        opacity: 0.45;
+    }
+
+    .clip-jump span.clip-meta {
+        color: rgba(207, 233, 255, 0.55);
+        margin-left: 6px;
+    }
+
+    /* The band meters and the MIDI readouts are appended to the grid at runtime,
+       so markup order alone can't keep these panels at the bottom. */
+    #otherOutputsDivider,
+    #projRigPanel,
+    #hypermoonPanel,
+    #poemPanel {
+        order: 2;
+    }
+
 
     .flash {
         animation: flash .15s;
@@ -268,18 +339,24 @@
 </head>
 <body>
     <div id="thresholds" class="input-grid">
-    <div class="input-group">
+    <div class="input-group" id="visualUrlGroup">
+        <div id="visualLinkStatus" style="font-size:11px;margin-bottom:6px;line-height:1.4;">checking for a visual…</div>
         Visualizer URL:
         <input type="text" id="visualUrl" size="80" value="sonicsphere.html?mode=classic&fxtimeline=0&mic=1"/>
         <input type="button" id="openVisualButton" value="open/reopen visual"/>
     </div>
-    <div class="input-group">
+    <div class="input-group" id="presetsGroup">
         Presets:
         <input type="button" id="presetCells12AutoplayButton" value="cells1+cells2 autoplay (with logo)"/>
         <input type="button" id="presetCells12NoLogoButton" value="cells1+cells2 autoplay (no logo)"/>
         <input type="button" id="presetClassicSoundButton" value="classic + sound" title="the original look — coloured polygon slices on the lane spheres, reacting to the mic, pinned in classic"/>
         <input type="button" id="presetClassicVideoSlicesButton" value="classic + sound + video slices" title="the sphere geometry, but each polygon slice takes a video frame as its texture instead of a flat colour — loading a set is what turns the slices into video"/>
         <input type="button" id="presetVideoWallButton" value="all-loops video wall" title="full-screen video backdrop with every loop in the default set — heavy, expect it to drop frames on a laptop"/>
+        <div class="muted" style="font-size:11px;color:rgba(207,233,255,0.62);margin:6px 0 0;line-height:1.4;">
+          Presets reload the visual, reusing the same window. To change the look without a
+          reload, use the live switches: FX Mode, Basic Video, Triangle (mosaic), and below.
+        </div>
+        <input type="button" id="liveVideoSlicesButton" value="video on slices (live)" title="loads the default loop set into the visual you are already running, so the polygon slices take a video frame as their texture — no reload and no new window"/>
     </div>
     <div class="input-group">
         Controller style:
@@ -303,11 +380,45 @@
         </select>
         opacity <input type="text" id="logoOpacityInput" value="0.92" size="4"/>
     </div>
-    <div class="input-group">
-        Triangle (mosaic) vids:
-        <input type="button" id="triangleOnButton" value="triangle on"/>
-        <input type="button" id="triangleFxButton" value="triangle + fx"/>
-        <input type="button" id="triangleOffButton" value="triangle off"/>
+    <div class="input-group" id="sphereMotionGroup">
+        Sphere motion:
+        <div class="muted" style="font-size:11px;color:rgba(207,233,255,0.62);margin:4px 0 8px;line-height:1.4;">
+          The spin is applied to the whole scene and the lane spheres sit off-centre, so
+          it swings them out of frame instead of turning them in place. Off by default;
+          turning it off also snaps them back to square.
+        </div>
+        <input type="button" id="rotateOffButton" value="rotation off"/>
+        <input type="button" id="rotateOnButton" value="rotation on"/>
+        <div class="muted" style="font-size:11px;color:rgba(207,233,255,0.62);margin:10px 0 8px;line-height:1.4;">
+          Sphere outlines are the faint wireframe shells around each lane. Their
+          brightness is re-set every frame per mode, so use these rather than expecting
+          one nudge to hold.
+        </div>
+        <input type="button" id="shellsOffButton" value="outlines off"/>
+        <input type="button" id="shellsFaintButton" value="outlines faint"/>
+        <input type="button" id="shellsOnButton" value="outlines on"/>
+    </div>
+    <div class="input-group" id="clipJumpGroup">
+        Clips (click to play):
+        <div class="muted" style="font-size:11px;color:rgba(207,233,255,0.62);margin:4px 0 8px;line-height:1.4;">
+          Every clip in the loaded set. Click one to cut to it now, which overrides the
+          folder and colour filters. Dimmed rows are ones auto-advance would skip.
+        </div>
+        <input type="text" id="clipJumpFilter" placeholder="filter by name…" style="width:100%;box-sizing:border-box;"/>
+        <div id="clipJumpHost" class="clip-jump empty"></div>
+    </div>
+    <div class="input-group" id="mosaicGroup">
+        Fibonacci mosaic (triangle vids):
+        <input type="button" id="triangleOnButton" value="fibonacci on"/>
+        <input type="button" id="triangleFxButton" value="fibonacci + fx"/>
+        <input type="button" id="triangleOffButton" value="fibonacci off"/>
+        <div class="muted" style="font-size:11px;color:rgba(207,233,255,0.62);margin:6px 0 4px;line-height:1.4;">
+          Per-tile content. <code>auto</code> keeps the alternating default; pick an effect or
+          the moon to pin a tile. Tiles are rebuilt on apply, so they all restart.
+        </div>
+        <div id="mosaicTileHost" style="display:flex;flex-wrap:wrap;gap:4px;"></div>
+        <input type="button" id="mosaicTilesApplyButton" value="apply tiles"/>
+        <input type="button" id="mosaicTilesResetButton" value="all auto"/>
     </div>
     <div class="input-group">
         Folder loops (playlist):
@@ -423,7 +534,7 @@
           bass beats flare the vajras, earthshine breathes with the bass, the window glow shimmers with the highs, letters shake faster when it's loud
         </div>
     </div>
-    <div class="input-group">
+    <div class="input-group" id="fxModeGroup">
         FX Mode:
         <input type="button" id="modeClassicButton" value="classic"/>
         <input type="button" id="modeLifeButton" value="life"/>
@@ -460,7 +571,7 @@
         </select>
         <input type="button" id="applyHexCaButton" value="apply hex"/>
     </div>
-    <div class="input-group">
+    <div class="input-group" id="basicVideoGroup">
         Basic Video Mode:
         <input type="button" id="basicVideoOnButton" value="basic on"/>
         <input type="button" id="basicVideoOffButton" value="basic off"/>
@@ -1597,21 +1708,37 @@ function getVisualUrlFromUi() {
 }
 
 function openVisualWindow() {
-    visualWindow = window.open(appUrl(getVisualUrlFromUi()), '_blank');
+    // Named, so reopening and the presets retarget the window already on screen
+    // instead of stacking a new one on every click. '_blank' was why a mid-set
+    // preset press sprouted another window. The rig, moon and poem outputs have
+    // always used named targets; this brings the visual in line with them.
+    visualWindow = window.open(appUrl(getVisualUrlFromUi()), 'hypermuseVisual');
     restartLoopGroupsPoller();
 }
 
-function sendMessageToVisual(data) {
-    if (visualWindow) {
-        visualWindow.postMessage(data, '*'); // Use '*' to send to any origin, but be aware of potential security issues.
+// ── Visual link (window we opened, or BroadcastChannel 'sonicsphere') ──
+// A visual launched on its own — npm run kiosk:slices, kiosk:classic — has no
+// opener, so there is no window to post to and the channel is the only way in.
+// Only one route is used per message: a visual we opened can hear both, and a
+// doubled command would fire relative controls like "next video" twice.
+const vjChannel = ('BroadcastChannel' in window) ? new BroadcastChannel('sonicsphere') : null;
+
+function vjSend(payload) {
+    if (visualWindow && !visualWindow.closed) {
+        visualWindow.postMessage(payload, '*'); // Use '*' to send to any origin, but be aware of potential security issues.
+        return;
+    }
+    if (vjChannel) {
+        vjChannel.postMessage(payload);
     }
 }
 
+function sendMessageToVisual(data) {
+    vjSend(data);
+}
+
 function sendMessage(name, value) {
-    // Handle the message sending here. For example:
-    if (visualWindow) {
-        visualWindow.postMessage({ name, value }, '*');
-    }
+    vjSend({ name, value });
     let val = document.getElementById("changelog").value;
     document.getElementById("changelog").value = val + "{ timestamp:" + new Date().getTime() + ", name:" + name + ", value:" + value + "},"; 
 
@@ -1630,12 +1757,15 @@ function restartLoopGroupsPoller() {
         __loopGroupsPollTimer = null;
     }
     const tick = function() {
-        if (!visualWindow || visualWindow.closed) {
+        // Having no window of our own is fine as long as the channel exists:
+        // that is the kiosk case, and this poll is how a visual which started
+        // before the desk gets found at all.
+        if ((!visualWindow || visualWindow.closed) && !vjChannel) {
             clearInterval(__loopGroupsPollTimer);
             __loopGroupsPollTimer = null;
             return;
         }
-        sendMessageToVisual({ type: 'vj', requestLoopGroups: true, requestColorGroups: true, requestColorCubeStats: true });
+        sendMessageToVisual({ type: 'vj', requestLoopGroups: true, requestColorGroups: true, requestColorCubeStats: true, requestSetEntries: true });
     };
     tick();
     __loopGroupsPollTimer = setInterval(tick, 2200);
@@ -1706,6 +1836,79 @@ function renderColorCubeStatsPanel(payload) {
         return '<span style="display:inline-block;margin:0 10px 4px 0;"><strong style="text-transform:capitalize;">'
             + key + '</strong>: ' + indexed + ' indexed' + (live ? (' + ' + live + ' live') : '') + '</span>';
     }).join('');
+}
+
+let __vjSetEntriesLast = [];
+
+function renderClipJumpPanel(entries) {
+    if (Array.isArray(entries)) {
+        __vjSetEntriesLast = entries.slice();
+    }
+    const host = document.getElementById('clipJumpHost');
+    if (!host) return;
+
+    host.classList.toggle('empty', __vjSetEntriesLast.length === 0);
+    if (__vjSetEntriesLast.length === 0) {
+        host.textContent = "No set loaded yet — open a visual with a set (e.g. the 'classic + sound + video slices' preset).";
+        return;
+    }
+
+    const filterInput = document.getElementById('clipJumpFilter');
+    const needle = filterInput ? String(filterInput.value || '').trim().toLowerCase() : '';
+    const rows = needle
+        ? __vjSetEntriesLast.filter(function(row) {
+            return String(row.label || '').toLowerCase().includes(needle)
+                || String(row.groupLabel || '').toLowerCase().includes(needle);
+        })
+        : __vjSetEntriesLast;
+
+    host.innerHTML = '';
+    if (rows.length === 0) {
+        host.textContent = 'Nothing matches "' + needle + '".';
+        return;
+    }
+
+    rows.forEach(function(row) {
+        const button = document.createElement('button');
+        button.type = 'button';
+        button.className = 'clip-row'
+            + (row.isCurrent ? ' is-current' : '')
+            + (row.eligible === false ? ' is-skipped' : '');
+        button.dataset.clipIndex = String(row.index);
+        button.title = row.url || '';
+
+        button.appendChild(document.createTextNode((row.isCurrent ? '\u25b8 ' : '') + (row.label || 'clip')));
+
+        const meta = document.createElement('span');
+        meta.className = 'clip-meta';
+        meta.textContent = row.groupLabel || '';
+        button.appendChild(meta);
+
+        host.appendChild(button);
+    });
+}
+
+const clipJumpHostRoot = document.getElementById('clipJumpHost');
+if (clipJumpHostRoot) {
+    clipJumpHostRoot.addEventListener('click', function(event) {
+        const button = event.target.closest('button.clip-row');
+        if (!button) return;
+        const idx = parseInt(button.dataset.clipIndex, 10);
+        if (!Number.isFinite(idx)) return;
+        sendMessageToVisual({ type: 'vj', playEntry: idx });
+        // Highlight immediately; the next poll confirms it from the visual.
+        __vjSetEntriesLast = __vjSetEntriesLast.map(function(row) {
+            return Object.assign({}, row, { isCurrent: row.index === idx });
+        });
+        renderClipJumpPanel();
+    });
+}
+
+const clipJumpFilterInput = document.getElementById('clipJumpFilter');
+if (clipJumpFilterInput) {
+    clipJumpFilterInput.addEventListener('input', function() {
+        renderClipJumpPanel();
+    });
 }
 
 function renderFolderLoopGroupPanel(groups) {
@@ -1799,6 +2002,9 @@ inputs.forEach(input => {
         input.id === 'triangleOnButton' ||
         input.id === 'triangleFxButton' ||
         input.id === 'triangleOffButton' ||
+        input.id === 'mosaicTilesApplyButton' ||
+        input.id === 'mosaicTilesResetButton' ||
+        (input.id && input.id.startsWith('mosaicTile')) ||
         input.id === 'loopGroupsRefreshButton' ||
         input.id === 'loopGroupsEnableAllButton' ||
         input.id === 'loopGroupsDisableAllButton' ||
@@ -2140,6 +2346,35 @@ if (presetVideoWallButton) {
     });
 }
 
+const liveVideoSlicesButton = document.getElementById('liveVideoSlicesButton');
+if (liveVideoSlicesButton) {
+    liveVideoSlicesButton.addEventListener('click', function() {
+        sendMessageToVisual({ type: 'vj', mode: 'classic', loadSet: 'sets/set-live-default-all-loops.json' });
+    });
+}
+
+const rotateOffButton = document.getElementById('rotateOffButton');
+if (rotateOffButton) {
+    rotateOffButton.addEventListener('click', function() {
+        sendMessageToVisual({ type: 'vj', rotate: false });
+    });
+}
+
+const rotateOnButton = document.getElementById('rotateOnButton');
+if (rotateOnButton) {
+    rotateOnButton.addEventListener('click', function() {
+        sendMessageToVisual({ type: 'vj', rotate: true });
+    });
+}
+
+[['shellsOffButton', 0], ['shellsFaintButton', 0.35], ['shellsOnButton', 1]].forEach(function(pair) {
+    const button = document.getElementById(pair[0]);
+    if (!button) return;
+    button.addEventListener('click', function() {
+        sendMessageToVisual({ type: 'vj', shells: pair[1] });
+    });
+});
+
 function readLogoOpacity() {
     const raw = parseFloat(document.getElementById('logoOpacityInput')?.value);
     return Number.isFinite(raw) ? Math.max(0, Math.min(1, raw)) : 0.92;
@@ -2192,6 +2427,75 @@ const triangleFxButton = document.getElementById('triangleFxButton');
 if (triangleFxButton) {
     triangleFxButton.addEventListener('click', function() {
         sendMessageToVisual({ type: 'vj', mosaic: true, mosaicFx: true });
+    });
+}
+
+// getFibonacciRects stops subdividing once a rectangle gets too small, so the layer
+// settles at six tiles in practice. Eight slots are offered because the cap is the
+// rect generator's, not a promise, and extra slots are simply ignored.
+const MOSAIC_TILE_SLOTS = 8;
+const MOSAIC_TILE_CHOICES = [
+    ['auto', 'auto'],
+    ['video', 'video clip'],
+    ['hypermoon', 'hypermoon'],
+    ['fx', 'effect (next in cycle)'],
+    ['fx:life', 'life'],
+    ['fx:hierarchical-life', 'hierarchical life'],
+    ['fx:hex-life', 'hex life'],
+    ['fx:kuramoto', 'kuramoto'],
+    ['fx:gray-scott', 'gray-scott'],
+    ['fx:physarum', 'physarum'],
+    ['fx:word-cloud', 'word cloud']
+];
+
+const mosaicTileHost = document.getElementById('mosaicTileHost');
+if (mosaicTileHost) {
+    for (let i = 0; i < MOSAIC_TILE_SLOTS; i++) {
+        const wrap = document.createElement('label');
+        wrap.style.fontSize = '11px';
+        wrap.style.display = 'inline-flex';
+        wrap.style.alignItems = 'center';
+        wrap.style.gap = '3px';
+        wrap.textContent = String(i + 1);
+        const select = document.createElement('select');
+        select.id = 'mosaicTile' + i;
+        select.title = 'what tile ' + (i + 1) + ' shows';
+        for (const [value, label] of MOSAIC_TILE_CHOICES) {
+            const option = document.createElement('option');
+            option.value = value;
+            option.textContent = label;
+            select.appendChild(option);
+        }
+        wrap.appendChild(select);
+        mosaicTileHost.appendChild(wrap);
+    }
+}
+
+function readMosaicTiles() {
+    const tiles = [];
+    for (let i = 0; i < MOSAIC_TILE_SLOTS; i++) {
+        tiles.push(document.getElementById('mosaicTile' + i)?.value || 'auto');
+    }
+    return tiles;
+}
+
+const mosaicTilesApplyButton = document.getElementById('mosaicTilesApplyButton');
+if (mosaicTilesApplyButton) {
+    mosaicTilesApplyButton.addEventListener('click', function() {
+        // mosaic: true as well, because pinning a tile is meaningless while the layer
+        // is hidden and it is the obvious thing to want.
+        sendMessageToVisual({ type: 'vj', mosaic: true, mosaicTiles: readMosaicTiles() });
+    });
+}
+
+const mosaicTilesResetButton = document.getElementById('mosaicTilesResetButton');
+if (mosaicTilesResetButton) {
+    mosaicTilesResetButton.addEventListener('click', function() {
+        for (let i = 0; i < MOSAIC_TILE_SLOTS; i++) {
+            const select = document.getElementById('mosaicTile' + i);
+            if (select) select.value = 'auto';
+        }
+        sendMessageToVisual({ type: 'vj', mosaicTiles: readMosaicTiles() });
     });
 }
 
@@ -3816,8 +4120,15 @@ function flashElement(element) {
 
 
 
-// Example usage:
-openVisualWindow();
+// The desk opens its own visual on load. ?novisual=1 skips that, for the kiosk
+// workflow where the visual is launched separately (npm run kiosk:slices) and
+// reached over the channel — otherwise you end up with two of them. The poller
+// still has to start, since that is what finds the visual already running.
+if (new URLSearchParams(location.search).get('novisual') === '1') {
+    restartLoopGroupsPoller();
+} else {
+    openVisualWindow();
+}
 // sendMessageToVisual({ type: "updateGeometry", payload: { /* your data here */ } });
 // sendMessageToVisual({ type: "playbackspeed", payload: {speed: 0.2 } });
 
@@ -3842,10 +4153,47 @@ function renderBandLevels(data) {
     }
 }
 
-window.addEventListener('message', function(event) {
-    const data = event.data;
+// ── Visual link indicator ───────────────────────────────────────────────
+// Every reply from a visual stamps this. Without it a desk that cannot reach
+// anything looks identical to one that can, and every button press is a silent
+// no-op — which is exactly what happens across two Chrome profiles.
+let __vjLastReplyAt = 0;
+
+function renderVisualLinkStatus() {
+    const el = document.getElementById('visualLinkStatus');
+    if (!el) return;
+    const ageMs = __vjLastReplyAt ? Date.now() - __vjLastReplyAt : Infinity;
+    const live = ageMs < 6000;
+    const ownWindow = !!(visualWindow && !visualWindow.closed);
+
+    if (live) {
+        el.textContent = ownWindow
+            ? '\u25b8 linked to the visual this desk opened'
+            : '\u25b8 linked over the channel (separately launched visual)';
+        el.style.color = 'rgba(140, 255, 190, 0.95)';
+        return;
+    }
+
+    el.textContent = ownWindow
+        ? '\u26a0 a visual window is open but not answering \u2014 reload it'
+        : '\u26a0 no visual is answering. Open one below, or if it was launched with'
+          + ' kiosk:slices it is in another Chrome profile and cannot be reached'
+          + ' \u2014 use kiosk:desk:attach + visual:slices in one profile.';
+    el.style.color = 'rgba(255, 170, 170, 0.95)';
+}
+
+setInterval(renderVisualLinkStatus, 1000);
+
+function handleVisualMessage(data) {
+    if (data && typeof data.type === 'string' && data.type.startsWith('vj')) {
+        __vjLastReplyAt = Date.now();
+    }
     if (data && data.type === 'vjLoopGroups') {
         renderFolderLoopGroupPanel(data.groups || []);
+        return;
+    }
+    if (data && data.type === 'vjSetEntries') {
+        renderClipJumpPanel(data.entries || []);
         return;
     }
     if (data && data.type === 'vjColorGroups') {
@@ -3861,22 +4209,33 @@ window.addEventListener('message', function(event) {
         return;
     }
     if (data && data.type === 'vj' && data.event === 'ready') {
-        sendMessageToVisual({ type: 'vj', requestLoopGroups: true, requestColorGroups: true, requestColorCubeStats: true });
+        sendMessageToVisual({ type: 'vj', requestLoopGroups: true, requestColorGroups: true, requestColorCubeStats: true, requestSetEntries: true });
         return;
     }
 
     console.log("message received");
 
-    console.log(event.data);
+    console.log(data);
 
-    if (event.data.name === "videolist") {
+    if (data && data.name === "videolist") {
 
-            document.getElementById('videoList').value = event.data.value;
+            document.getElementById('videoList').value = data.value;
 
     }
 
 
+}
+
+window.addEventListener('message', function(event) {
+    handleVisualMessage(event.data);
 });
+
+// A kiosk visual announces itself here rather than to an opener it hasn't got.
+if (vjChannel) {
+    vjChannel.addEventListener('message', function(event) {
+        handleVisualMessage(event.data);
+    });
+}
 
 // ── Controller color themes ─────────────────────────────────────────────
 // Recolors the control panel only (outputs untouched); the choice sticks
