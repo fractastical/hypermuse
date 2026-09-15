@@ -2575,9 +2575,11 @@ button:hover {
             const orbitMatch = /^(?:hypermoon|moon|orbit)[:=](.+)$/.exec(raw);
             if (orbitMatch) {
                 // content=orbit is the gif layer without anything cut into the disc, so the
-                // tile stays a moon with the gifs flying its lanes.
+                // tile stays a moon with the gifs flying its lanes. Eight orbiters rather
+                // than the page's own five, which is what the show uses and what it takes
+                // for the orbit to read as an orbit at tile size.
                 const seq = encodeURIComponent(orbitMatch[1].trim());
-                return { kind: 'page', url: 'hypermoon.html?kiosk=1&content=orbit&orbitseq=' + seq };
+                return { kind: 'page', url: 'hypermoon.html?kiosk=1&content=orbit&giforbit=8&orbitseq=' + seq };
             }
             if (raw.startsWith('page:')) return { kind: 'page', url: fibonacciMosaicTileContent[tileIndex].slice(5) };
             if (raw === 'fx') return { kind: 'fx' };
@@ -6321,6 +6323,9 @@ button:hover {
     const bootMosaic = vjBootParams.get('mosaic');
     const bootMosaicTiles = vjBootParams.get('mosaictiles');
     const bootMosaicFx = vjBootParams.get('mosaicfx');
+    // The tiles sit at 0.65 by default, so the lane spheres read through them. A kiosk
+    // showing the mosaic as the whole output wants them opaque instead.
+    const bootMosaicOpacity = vjBootParams.get('mosaicopacity');
     function applyBootMosaicWhenReady(attempt = 0) {
         // The tiles are built from the set, which loads asynchronously. Applying the
         // moment the setter appears builds nothing, so wait for sources — but not
@@ -6331,6 +6336,9 @@ button:hover {
             if (bootMosaic === '1' || bootMosaic === 'true') config.enabled = true;
             if (bootMosaicFx === '1' || bootMosaicFx === 'true') config.fx = true;
             if (bootMosaicTiles) config.tiles = bootMosaicTiles;
+            if (bootMosaicOpacity !== null && Number.isFinite(Number(bootMosaicOpacity))) {
+                config.opacity = Number(bootMosaicOpacity);
+            }
             window.setFibonacciMosaicConfig(config);
             return;
         }
@@ -6338,7 +6346,7 @@ button:hover {
             setTimeout(function() { applyBootMosaicWhenReady(attempt + 1); }, 125);
         }
     }
-    if (bootMosaic || bootMosaicTiles || bootMosaicFx) {
+    if (bootMosaic || bootMosaicTiles || bootMosaicFx || bootMosaicOpacity) {
         applyBootMosaicWhenReady();
     }
     function loadBootSetWhenReady(manifestPath, attempt = 0) {
