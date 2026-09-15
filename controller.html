@@ -415,8 +415,16 @@
         <div class="muted" style="font-size:11px;color:rgba(207,233,255,0.62);margin:6px 0 4px;line-height:1.4;">
           Per-tile content. <code>auto</code> keeps the alternating default; pick an effect or
           the moon to pin a tile. Tiles are rebuilt on apply, so they all restart.
+          The orbit gifs field feeds every tile set to <code>hypermoon + orbit gifs</code>.
         </div>
         <div id="mosaicTileHost" style="display:flex;flex-wrap:wrap;gap:4px;"></div>
+        <label style="font-size:11px;display:block;margin:6px 0 0;">
+          Orbit gifs
+          <input type="text" id="mosaicMoonOrbit" list="gifThemeList" value="wizard,wand,pyramid"
+                 style="width:100%;box-sizing:border-box;"
+                 title="which gifs circle the moon on any tile set to hypermoon + orbit gifs. Comma for one mixed orbit, | to make separate acts that hand over to each other."/>
+        </label>
+        <datalist id="gifThemeList"></datalist>
         <input type="button" id="mosaicTilesApplyButton" value="apply tiles"/>
         <input type="button" id="mosaicTilesResetButton" value="all auto"/>
     </div>
@@ -2433,11 +2441,22 @@ if (triangleFxButton) {
 // getFibonacciRects stops subdividing once a rectangle gets too small, so the layer
 // settles at six tiles in practice. Eight slots are offered because the cap is the
 // rect generator's, not a promise, and extra slots are simply ignored.
-const MOSAIC_TILE_SLOTS = 8;
+// How many tiles the mosaic actually has. Asking it for eight gives six: the
+// golden-ratio subdivision stops once the remainder is too thin to see, and the
+// remainder itself becomes the last tile. The visual reports its real count on every
+// rebuild and this row follows it, so this is only what is shown before one exists.
+let mosaicTileSlots = 6;
+// Stands in for whatever the orbit gifs field says at the moment apply is pressed,
+// so one field drives every tile that was set to take it.
+const MOON_ORBIT_FROM_FIELD = 'hypermoon:@field';
 const MOSAIC_TILE_CHOICES = [
     ['auto', 'auto'],
     ['video', 'video clip'],
     ['hypermoon', 'hypermoon'],
+    [MOON_ORBIT_FROM_FIELD, 'hypermoon + orbit gifs (field)'],
+    ['hypermoon:wizard', 'hypermoon + wizards'],
+    ['hypermoon:wand', 'hypermoon + wands'],
+    ['hypermoon:pyramid', 'hypermoon + pyramids'],
     ['fx', 'effect (next in cycle)'],
     ['fx:life', 'life'],
     ['fx:hierarchical-life', 'hierarchical life'],
@@ -2449,8 +2468,16 @@ const MOSAIC_TILE_CHOICES = [
 ];
 
 const mosaicTileHost = document.getElementById('mosaicTileHost');
-if (mosaicTileHost) {
-    for (let i = 0; i < MOSAIC_TILE_SLOTS; i++) {
+
+function buildMosaicTileSelects(count) {
+    if (!mosaicTileHost) return;
+    const previous = [];
+    for (let i = 0; i < mosaicTileSlots; i++) {
+        previous.push(document.getElementById('mosaicTile' + i)?.value);
+    }
+    mosaicTileSlots = count;
+    mosaicTileHost.innerHTML = '';
+    for (let i = 0; i < mosaicTileSlots; i++) {
         const wrap = document.createElement('label');
         wrap.style.fontSize = '11px';
         wrap.style.display = 'inline-flex';
@@ -2466,15 +2493,42 @@ if (mosaicTileHost) {
             option.textContent = label;
             select.appendChild(option);
         }
+        if (previous[i]) select.value = previous[i];
         wrap.appendChild(select);
         mosaicTileHost.appendChild(wrap);
     }
 }
 
+buildMosaicTileSelects(mosaicTileSlots);
+
+// The gif themes are the scraped library's own slugs, so offer them rather than
+// asking anyone to remember them. Silence on failure: typing into the field still
+// works, and hypermoon falls back to the whole library for a name it cannot place.
+fetch('assets/gifcities/index.json')
+    .then((r) => (r.ok ? r.json() : null))
+    .then((library) => {
+        const list = document.getElementById('gifThemeList');
+        if (!list || !library || !library.themes) return;
+        for (const slug of Object.keys(library.themes)) {
+            const option = document.createElement('option');
+            option.value = slug;
+            list.appendChild(option);
+        }
+    })
+    .catch(() => {});
+
 function readMosaicTiles() {
+    const orbit = (document.getElementById('mosaicMoonOrbit')?.value || '').trim();
     const tiles = [];
-    for (let i = 0; i < MOSAIC_TILE_SLOTS; i++) {
-        tiles.push(document.getElementById('mosaicTile' + i)?.value || 'auto');
+    for (let i = 0; i < mosaicTileSlots; i++) {
+        const value = document.getElementById('mosaicTile' + i)?.value || 'auto';
+        if (value !== MOON_ORBIT_FROM_FIELD) {
+            tiles.push(value);
+            continue;
+        }
+        // An empty field would ask for an orbit of nothing named, which draws from the
+        // whole library — a fair reading, but not what a blank box means.
+        tiles.push(orbit ? 'hypermoon:' + orbit : 'hypermoon');
     }
     return tiles;
 }
@@ -2491,7 +2545,7 @@ if (mosaicTilesApplyButton) {
 const mosaicTilesResetButton = document.getElementById('mosaicTilesResetButton');
 if (mosaicTilesResetButton) {
     mosaicTilesResetButton.addEventListener('click', function() {
-        for (let i = 0; i < MOSAIC_TILE_SLOTS; i++) {
+        for (let i = 0; i < mosaicTileSlots; i++) {
             const select = document.getElementById('mosaicTile' + i);
             if (select) select.value = 'auto';
         }
@@ -4206,6 +4260,11 @@ function handleVisualMessage(data) {
     }
     if (data && data.type === 'vjBandLevels') {
         renderBandLevels(data);
+        return;
+    }
+    if (data && data.type === 'vjMosaicTileCount') {
+        const count = Math.max(1, Math.min(12, Math.round(Number(data.count) || 0)));
+        if (count !== mosaicTileSlots) buildMosaicTileSelects(count);
         return;
     }
     if (data && data.type === 'vj' && data.event === 'ready') {

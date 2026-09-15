@@ -1663,9 +1663,25 @@
       const marks = await loadGifMarks();
       const theme = String(themeSpec || "");
       const themes = Object.entries(library.themes || {});
-      // Several themes can share one orbit — orbit:ankh,coral draws from both —
-      // so a want of nothing means the whole library.
-      const want = new Set(theme.split(",").map((s) => s.trim()).filter(Boolean));
+          const slugs = new Set(themes.map(([slug]) => slug));
+          // Themes get asked for the way they are spoken — wizards, pyramids, wands —
+          // while most library slugs are singular. Resolving against the slugs that
+          // are actually present keeps "boobs" and "lava-lamp" working too, and a name
+          // that resolves to nothing still falls through to the whole-library rescue
+          // below rather than being silently corrected into some other theme.
+          const resolveTheme = (name) => {
+            if (slugs.has(name)) return name;
+            const singular = name.replace(/s$/, "");
+            if (slugs.has(singular)) return singular;
+            const hyphenated = name.replace(/[\s_]+/g, "-");
+            if (slugs.has(hyphenated)) return hyphenated;
+            return name;
+          };
+          // Several themes can share one orbit — orbit:ankh,coral draws from both —
+          // so a want of nothing means the whole library.
+          const want = new Set(
+            theme.split(",").map((s) => resolveTheme(s.trim().toLowerCase())).filter(Boolean)
+          );
       const collect = (only) => {
         const out = [];
         for (const [slug, t] of themes) {

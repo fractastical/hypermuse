@@ -2559,7 +2559,12 @@ button:hover {
         //   fx              an effect, taking the next mode from the cycle
         //   fx:kuramoto     that effect specifically
         //   hypermoon       the moon page
+        //   hypermoon:wizard,wand   the moon with those gifs orbiting it, "|" between acts
+        //   orbit:pyramid   the same, since that is the shorter way to ask for it
         //   page:<url>      anything else, for a tile that is really a second output
+        //
+        // The orbit themes are the scraped gifcities library's slugs: wizard, wand,
+        // pyramid, ankh, ufo, coral and forty-odd others. Plurals are understood.
         function mosaicContentForTile(tileIndex) {
             const raw = String(fibonacciMosaicTileContent[tileIndex] || 'auto').trim().toLowerCase();
             if (!raw || raw === 'auto') {
@@ -2567,6 +2572,13 @@ button:hover {
             }
             if (raw === 'video' || raw === 'clip') return { kind: 'video' };
             if (raw === 'hypermoon' || raw === 'moon') return { kind: 'page', url: 'hypermoon.html?kiosk=1' };
+            const orbitMatch = /^(?:hypermoon|moon|orbit)[:=](.+)$/.exec(raw);
+            if (orbitMatch) {
+                // content=orbit is the gif layer without anything cut into the disc, so the
+                // tile stays a moon with the gifs flying its lanes.
+                const seq = encodeURIComponent(orbitMatch[1].trim());
+                return { kind: 'page', url: 'hypermoon.html?kiosk=1&content=orbit&orbitseq=' + seq };
+            }
             if (raw.startsWith('page:')) return { kind: 'page', url: fibonacciMosaicTileContent[tileIndex].slice(5) };
             if (raw === 'fx') return { kind: 'fx' };
             if (raw.startsWith('fx:')) {
@@ -2648,6 +2660,11 @@ button:hover {
                 const src = sources[i % sources.length];
                 fibonacciMosaicTiles.push(createMosaicTile(rects[i], src, i));
             }
+            // Asking for eight does not give eight: the subdivision stops once the
+            // remainder is too thin to see. The controller has a row of per-tile pickers
+            // and needs to know how many of them exist, or its last few silently do
+            // nothing.
+            vjEmit({ type: 'vjMosaicTileCount', count: fibonacciMosaicTiles.length });
         }
 
         // Rebuilding restarts every tile, so only do it when a tile is showing a clip
@@ -2677,9 +2694,13 @@ button:hover {
                 fibonacciMosaicTiles = [];
             }
             if (config.tiles !== undefined) {
-                const list = Array.isArray(config.tiles)
-                    ? config.tiles
-                    : String(config.tiles).split(',');
+                // A comma separates tiles in the string form, except that an orbit lists
+                // its gif themes with commas too (hypermoon:wizard,wand). A ";" anywhere
+                // means that is the tile separator instead, so both stay writable in a URL.
+                const raw = config.tiles;
+                const list = Array.isArray(raw)
+                    ? raw
+                    : String(raw).includes(';') ? String(raw).split(';') : String(raw).split(',');
                 fibonacciMosaicTileContent = list.map(v => String(v == null ? '' : v).trim());
                 // Emptying the list is how a rebuild is requested; the tiles are iframes
                 // and videos, so there is no way to change one in place.
