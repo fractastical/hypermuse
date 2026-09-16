@@ -2,6 +2,8 @@
   "note": "People and places named in the annals who should be linked when they appear. The publisher escapes the accounts before linking, so nothing here can inject markup — only the first mention in a paragraph becomes a link, since the same name linked three times reads as an advert rather than a credit.",
   "people": {
     "DJ Metavillan": "https://www.instagram.com/metavillan/",
-    "Coral Daddy": "https://www.instagram.com/stephen.rodan/"
+    "Coral Daddy": "https://www.instagram.com/stephen.rodan/",
+    "@flowpriestess": "https://www.instagram.com/flowpriestess/",
+    "@myhigherflow": "https://www.instagram.com/myhigherflow/"
   }
 }
