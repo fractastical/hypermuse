@@ -165,6 +165,25 @@ const programSource = join(repo, "assets", "hermes-annals", "program", "public-p
 const hasProgram = existsSync(programSource);
 if (hasProgram) copyFileSync(programSource, join(outDir, "public-program.png"));
 
+// Photographs of the art the days name, cached by hermes-art-photos.mjs. Named pieces
+// without a picture ask the reader to trust a name for a thing they have never seen.
+// These come from the 2025 archive because it is the last one published and the annals
+// are 2026 — so the page says which year they are, rather than letting a photograph
+// imply it was taken on the night described.
+const artSourceDir = join(repo, "assets", "hermes-annals", "art");
+const artManifestPath = join(artSourceDir, "manifest.json");
+const artPhotos = existsSync(artManifestPath)
+  ? JSON.parse(readFileSync(artManifestPath, "utf8"))
+  : { pieces: {}, year: null };
+const artOutDir = join(outDir, "art");
+if (existsSync(artOutDir)) rmSync(artOutDir, { recursive: true, force: true });
+if (Object.keys(artPhotos.pieces).length) {
+  mkdirSync(artOutDir, { recursive: true });
+  for (const piece of Object.values(artPhotos.pieces)) {
+    copyFileSync(join(artSourceDir, piece.file), join(artOutDir, piece.file));
+  }
+}
+
 async function encodeStill(item) {
   const dest = join(mediaDir, item.name);
   await execFileAsync("sips", ["-Z", String(STILL_MAX), "-s", "format", "jpeg",
@@ -272,13 +291,37 @@ function metaLine(facts) {
   return parts.join(" · ");
 }
 
+// Said once per day, under the list, because it qualifies every distance above it. Burning
+// Man publishes each year's art archive after the event, so 2026 does not exist yet and
+// these are matched to where things stood in 2025: most big pieces come back, some in the
+// same place, and a photograph will otherwise be read as taken on the night described.
+const artNote = artPhotos.year
+  ? `<p class="artnote">Photographs and placements from Burning Man's ${artPhotos.year} art
+archive, the most recent published. These are 2026 nights, so treat a distance as roughly
+where a piece stood the year before, and a picture as of the piece rather than of that
+night.</p>`
+  : "";
+
 function sectionFor({ day, media }) {
   const facts = day.facts || {};
   const shots = media.filter((m) => !m.failed);
   const stops = (facts.stops || []).map((s) =>
     `<li><strong>${esc(s.place)}</strong> — ${esc(s.dwell)} from ${esc(s.from)}${s.visits > 1 ? ` across ${s.visits} visits` : ""}</li>`).join("");
-  const art = (facts.art || []).map((a) =>
-    `<li><strong>${esc(a.name)}</strong> — within ${a.closestM} metres${a.artist ? `, by ${esc(a.artist)}` : ""}</li>`).join("");
+  // A picture where there is one, the name alone where there is not, rather than a broken
+  // frame or a grey box standing in for a thing that exists and simply was not photographed.
+  const art = (facts.art || []).map((a) => {
+    const photo = artPhotos.pieces[a.name];
+    const img = photo
+      ? `<img src="art/${esc(photo.file)}" alt="${esc(a.name)}" loading="lazy">`
+      : `<span class="nopic" aria-hidden="true"></span>`;
+    // The index's "artist" is the hometown — it carries "Rome, Italy" where the archive
+    // has "Pepemaniak" — so a credit taken from it names a city as the maker. The archive
+    // has both fields properly, so prefer it and keep the index only as a fallback.
+    const who = [photo && photo.artist, photo ? photo.hometown : a.artist]
+      .filter(Boolean).join(", ");
+    return `<li>${img}<span class="what"><strong>${esc(a.name)}</strong>` +
+      `<span class="how">within ${a.closestM} metres${who ? ` · ${esc(who)}` : ""}</span></span></li>`;
+  }).join("");
   const requests = withRequests ? (facts.requests || []).map((r) =>
     `<li><strong>${esc(r.who)}</strong> — ${esc(r.kind)}${r.place ? ` at ${esc(r.place)}` : ""}${r.intention ? ` — ${esc(r.intention)}` : ""}</li>`).join("") : "";
   // Prefixed, so #day-2026-09-02 both links to the day and can be selected in css;
@@ -295,7 +338,7 @@ ${lead ? figureFor(lead, true) : ""}
 ${mapFor(day.day)}
 <p class="meta">${metaLine(facts)}</p>
 ${stops ? `<h3>Stops</h3><ul>${stops}</ul>` : ""}
-${art ? `<h3>Art within reach</h3><ul>${art}</ul>` : ""}
+${art ? `<h3>Art within reach</h3><ul class="artlist">${art}</ul>${artNote}` : ""}
 ${requests ? `<h3>Asked of Hermes</h3><ul>${requests}</ul>` : ""}
 ${rest.length ? `<h3>Shoots</h3><div class="shots">${rest.map((s) => figureFor(s)).join("")}</div>` : ""}
 <div class="comments" data-day="${esc(day.day)}">
@@ -329,6 +372,20 @@ const html = `<!doctype html>
   .program { margin:0 0 26px; max-width:34em; }
   .program img { display:block; width:100%; max-width:420px; height:auto; border-radius:10px; border:1px solid #1d2937; }
   .program figcaption { color:#8fa3b8; font-size:13px; line-height:1.55; margin-top:8px; }
+  /* Art with a picture beside it. A plain list of names asks the reader to imagine a
+     thing they have never seen; a thumbnail costs 60 KB and does the work instead. */
+  .artlist { list-style:none; padding:0; margin:8px 0 0;
+    display:grid; grid-template-columns:repeat(auto-fill,minmax(220px,1fr)); gap:12px; }
+  .artlist li { display:flex; gap:10px; align-items:center; margin:0; }
+  .artlist img { width:72px; height:72px; object-fit:cover; border-radius:8px;
+    border:1px solid #1d2937; flex:none; background:#0b111a; }
+  /* Holds the row's shape for the three pieces the archive never photographed, so a
+     missing picture reads as absence rather than as a broken image. */
+  .artlist .nopic { width:72px; height:72px; border-radius:8px; flex:none;
+    border:1px dashed #223041; }
+  .artlist .what { display:flex; flex-direction:column; min-width:0; }
+  .artlist .how { color:#8fa3b8; font-size:13px; }
+  .artnote { color:#6f8296; font-size:12.5px; line-height:1.5; margin:12px 0 0; max-width:40em; }
   a { color:#7fd4ff; }
   .sub { color:#8fa3b8; font-size:14px; margin-bottom:28px; }
   section { border-top:1px solid #1d2937; padding:26px 0; }

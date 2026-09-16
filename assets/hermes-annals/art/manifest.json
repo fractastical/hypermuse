@@ -1,0 +1,154 @@
+{
+  "note": "Photographs and placements from Burning Man's 2025 art archive, which is the most recent one published. The annals describe 2026.",
+  "year": 2025,
+  "source": "https://bm-innovate.s3.amazonaws.com/archive/2025/art.json",
+  "pieces": {
+    "Small Beginnings": {
+      "file": "a2IVI000001KX5h2AG.jpg",
+      "artist": "Conor Murphy - The Snarchitect",
+      "hometown": "Reno, IL",
+      "where": "7:10 2300', Open Playa",
+      "bytes": 37309
+    },
+    "I Have Dust In Curious Places": {
+      "file": "a2IVI0000012hjR2AQ.jpg",
+      "artist": "Scott Copernicus",
+      "hometown": "Another Place, Another Time",
+      "where": "7:56 2340', Open Playa",
+      "bytes": 66578
+    },
+    "The Future Mirror": {
+      "file": "a2IVI000001KkHR2A0.jpg",
+      "artist": "Kyle Ruddick",
+      "hometown": "Topanga, CA",
+      "where": "7:23 2225', Open Playa",
+      "bytes": 65669
+    },
+    "As Above, So Cee Lo": {
+      "file": "a2IVI000001Cdg92AC.jpg",
+      "artist": "Zachary Caruso",
+      "hometown": "Black Rock City, NV",
+      "where": "11:15 4900', Open Playa",
+      "bytes": 22687
+    },
+    "Altar of Awen": {
+      "file": "a2IVI0000016tVt2AI.jpg",
+      "artist": "Kristin Wesley and Roosevelt Artworks",
+      "hometown": "Phoenix, AZ",
+      "where": "11:47 3400', Open Playa",
+      "bytes": 82069
+    },
+    "A Quiet Place to Scream": {
+      "file": "a2IVI000001H4jN2AS.jpg",
+      "artist": "Teri Bevelacqua",
+      "hometown": "Olympia, WA, Earth",
+      "where": "10:33 2700', Open Playa",
+      "bytes": 62658
+    },
+    "Polio Rodeo": {
+      "file": "a2IVI0000017CIP2A2.jpg",
+      "artist": "Elizabeth Lieb, Urbano Maher, Graham Clarke",
+      "hometown": "Fairfield, NJ",
+      "where": "9:00 3215', Plaza",
+      "bytes": 59465
+    },
+    "OVO Ignis": {
+      "file": "a2IVI000001Oqcn2AC.jpg",
+      "artist": "‭Cjay Roughgarden, Element 26 Studio",
+      "hometown": "‭Oakland, CA‭",
+      "where": "9:00 4815', Plaza",
+      "bytes": 98041
+    },
+    "Puzzling Evidence": {
+      "file": "a2IVI0000019Pxt2AE.jpg",
+      "artist": "Sharon Goldin & Lee Preimesberger",
+      "hometown": "San Diego, CA & Houston, TX",
+      "where": "12:17 3300', Open Playa",
+      "bytes": 28818
+    },
+    "Nova Heaven": {
+      "file": "a2IVI000001LNkD2AW.jpg",
+      "artist": "Omri Sasi and Sarel Botavia",
+      "hometown": "Israel",
+      "where": "10:53 5300', Open Playa",
+      "bytes": 55644
+    },
+    "VitalLink": {
+      "file": "a2IVI000001I6Kv2AK.jpg",
+      "artist": "Nebula Collective",
+      "hometown": "Austin, TX",
+      "where": "7:30 3215', Plaza",
+      "bytes": 49506
+    },
+    "The Lightning Tower": {
+      "file": "a2IVI0000015oJl2AI.jpg",
+      "artist": "Pepemaniak",
+      "hometown": "Rome, Italy",
+      "where": "10:45 3500', Open Playa",
+      "bytes": 50374
+    },
+    "G String": {
+      "file": "a2IVI000001KTTV2A4.jpg",
+      "artist": "Precious",
+      "hometown": "Boise, ID",
+      "where": "10:45 3000', Open Playa",
+      "bytes": 29656
+    },
+    "Island of Lost Buoys": {
+      "file": "a2IVI000001KEnp2AG.jpg",
+      "artist": "Lillian Byrne Heyward",
+      "hometown": "Bluffton, SC",
+      "where": "10:27 3400', Open Playa",
+      "bytes": 56916
+    },
+    "Saṃsāra": {
+      "file": "a2IVI00000160Ub2AI.jpg",
+      "artist": "Art with Arundo",
+      "hometown": "Nomadic; San Francisco Bay Area, CA",
+      "where": "11:11 2300', Open Playa",
+      "bytes": 67951
+    },
+    "As Above So Below": {
+      "file": "a2IVI000001LNsH2AW.jpg",
+      "artist": "Aequus Collective",
+      "hometown": "Charleston, SC",
+      "where": "6:42 2000', Open Playa",
+      "bytes": 21903
+    },
+    "Nora - Nonsense Observation & Reward Automaton": {
+      "file": "a2IVI000001LL0r2AG.jpg",
+      "artist": "Aliona Kuznetsova and Volodymyr Kuznetsov",
+      "hometown": "San Francisco, CA",
+      "where": "6:03 1330', Open Playa",
+      "bytes": 108335
+    },
+    "What Lies Beneath?": {
+      "file": "a2IVI0000015e7V2AQ.jpg",
+      "artist": "Reno Core Project",
+      "hometown": "Reno, NV",
+      "where": "5:15 1200', Open Playa",
+      "bytes": 99009
+    },
+    "Enceladus": {
+      "file": "a2IVI000001W7k92AC.jpg",
+      "artist": "Art of Sean T French - mechanized metal & fire featuring hand blown glass by Mikey Butzine",
+      "hometown": "Phoenix, AZ",
+      "where": "6:08 3000', Cafe Portal",
+      "bytes": 123525
+    },
+    "Message to the Parents We Should Have Had": {
+      "file": "a2IVI00000141D32AI.jpg",
+      "artist": "James Beach",
+      "hometown": "San Francisco, USA, Terra, Sol, Orion Arm, Milky Way, Local Group, Laniakea Supercluster, Universe A",
+      "where": "4:30 3215', Plaza",
+      "bytes": 73092
+    },
+    "Panopticonotopia 3.0!": {
+      "file": "a2IVI000001KZaX2AW.jpg",
+      "artist": "JJ Holoubek",
+      "hometown": "San Francisco, CA",
+      "where": "4:20 2240', Open Playa",
+      "bytes": 73732
+    }
+  }
+}

@@ -36,6 +36,11 @@ assets/*
 !assets/hermes-annals/
 assets/hermes-annals/*
 !assets/hermes-annals/program/
+# Cached photographs of the art the days name, from Burning Man's own archive. Kept in
+# the repo so a build is reproducible off a clone: without them the publisher drops the
+# pictures silently and the art lists go back to being bare names. `npm run
+# hermes:annals:art` refetches, but only while the archive still answers.
+!assets/hermes-annals/art/
 # Hand triage of the scraped GifCities library: a few hundred bytes of
 # judgement that would otherwise have to be made by eye again after every
 # scrape. The gifs themselves stay ignored — npm run gifs fetches them back,

@@ -124,7 +124,8 @@
     "hermes:annals:maps": "node scripts/hermes-day-maps.mjs",
     "hermes:annals:publish": "node scripts/hermes-annals-publish.mjs",
     "hermes:anon": "node scripts/hermes-anonymize-events.mjs",
-    "mosaic:check": "node scripts/check-orbit-tiles.mjs"
+    "mosaic:check": "node scripts/check-orbit-tiles.mjs",
+    "hermes:annals:art": "node scripts/hermes-art-photos.mjs"
   },
   "devDependencies": {
     "@playwright/test": "^1.44.0",

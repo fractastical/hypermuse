@@ -15,6 +15,20 @@
   .program { margin:0 0 26px; max-width:34em; }
   .program img { display:block; width:100%; max-width:420px; height:auto; border-radius:10px; border:1px solid #1d2937; }
   .program figcaption { color:#8fa3b8; font-size:13px; line-height:1.55; margin-top:8px; }
+  /* Art with a picture beside it. A plain list of names asks the reader to imagine a
+     thing they have never seen; a thumbnail costs 60 KB and does the work instead. */
+  .artlist { list-style:none; padding:0; margin:8px 0 0;
+    display:grid; grid-template-columns:repeat(auto-fill,minmax(220px,1fr)); gap:12px; }
+  .artlist li { display:flex; gap:10px; align-items:center; margin:0; }
+  .artlist img { width:72px; height:72px; object-fit:cover; border-radius:8px;
+    border:1px solid #1d2937; flex:none; background:#0b111a; }
+  /* Holds the row's shape for the three pieces the archive never photographed, so a
+     missing picture reads as absence rather than as a broken image. */
+  .artlist .nopic { width:72px; height:72px; border-radius:8px; flex:none;
+    border:1px dashed #223041; }
+  .artlist .what { display:flex; flex-direction:column; min-width:0; }
+  .artlist .how { color:#8fa3b8; font-size:13px; }
+  .artnote { color:#6f8296; font-size:12.5px; line-height:1.5; margin:12px 0 0; max-width:40em; }
   a { color:#7fd4ff; }
   .sub { color:#8fa3b8; font-size:14px; margin-bottom:28px; }
   section { border-top:1px solid #1d2937; padding:26px 0; }
@@ -240,7 +254,10 @@ moves between them — curved because what survives is where it stood, not the r
 to get there. The shaded ground is roughly the territory the day covered.</p>
 <p class="meta">Out from 12:49 AM until 9:06 PM · 10.4 km · 7 outings</p>
 <h3>Stops</h3><ul><li><strong>8:45 &amp; F</strong> — 8 minutes from 4:44 PM</li></ul>
-<h3>Art within reach</h3><ul><li><strong>Small Beginnings</strong> — within 6 metres, by Reno, IL</li><li><strong>I Have Dust In Curious Places</strong> — within 109 metres, by Another Place, Another Time</li><li><strong>The Future Mirror</strong> — within 266 metres, by Topanga, CA</li></ul>
+<h3>Art within reach</h3><ul class="artlist"><li><img src="art/a2IVI000001KX5h2AG.jpg" alt="Small Beginnings" loading="lazy"><span class="what"><strong>Small Beginnings</strong><span class="how">within 6 metres · Conor Murphy - The Snarchitect, Reno, IL</span></span></li><li><img src="art/a2IVI0000012hjR2AQ.jpg" alt="I Have Dust In Curious Places" loading="lazy"><span class="what"><strong>I Have Dust In Curious Places</strong><span class="how">within 109 metres · Scott Copernicus, Another Place, Another Time</span></span></li><li><img src="art/a2IVI000001KkHR2A0.jpg" alt="The Future Mirror" loading="lazy"><span class="what"><strong>The Future Mirror</strong><span class="how">within 266 metres · Kyle Ruddick, Topanga, CA</span></span></li></ul><p class="artnote">Photographs and placements from Burning Man's 2025 art
+archive, the most recent published. These are 2026 nights, so treat a distance as roughly
+where a piece stood the year before, and a picture as of the piece rather than of that
+night.</p>
 
 
 <div class="comments" data-day="2026-09-02">
@@ -269,7 +286,10 @@ moves between them — curved because what survives is where it stood, not the r
 to get there. The shaded ground is roughly the territory the day covered.</p>
 <p class="meta">Out from 1:16 AM until 8:33 PM · 1.9 km · 9 outings</p>
 <h3>Stops</h3><ul><li><strong>8:45 &amp; F</strong> — 1h 36m from 1:16 AM across 4 visits</li><li><strong>near Deep-Playa Music Zone (DMZ)</strong> — 9 minutes from 5:55 AM</li></ul>
-<h3>Art within reach</h3><ul><li><strong>As Above, So Cee Lo</strong> — within 49 metres, by Black Rock City, NV</li><li><strong>Altar of Awen</strong> — within 51 metres, by Phoenix, AZ</li><li><strong>A Quiet Place to Scream</strong> — within 85 metres, by Olympia, WA, Earth</li><li><strong>Polio Rodeo</strong> — within 153 metres, by Fairfield, NJ</li><li><strong>OVO Ignis</strong> — within 308 metres, by ‭Oakland, CA‭</li><li><strong>Puzzling Evidence</strong> — within 315 metres, by San Diego, CA &amp; Houston, TX</li><li><strong>Trash Fence Souvenirs</strong> — within 331 metres, by New Jersey</li><li><strong>Nova Heaven</strong> — within 333 metres, by Israel</li><li><strong>Hex-Pand</strong> — within 337 metres, by Sparks, NV</li><li><strong>VitalLink</strong> — within 662 metres, by Austin, TX</li><li><strong>The Future Mirror</strong> — within 778 metres, by Topanga, CA</li></ul>
+<h3>Art within reach</h3><ul class="artlist"><li><img src="art/a2IVI000001Cdg92AC.jpg" alt="As Above, So Cee Lo" loading="lazy"><span class="what"><strong>As Above, So Cee Lo</strong><span class="how">within 49 metres · Zachary Caruso, Black Rock City, NV</span></span></li><li><img src="art/a2IVI0000016tVt2AI.jpg" alt="Altar of Awen" loading="lazy"><span class="what"><strong>Altar of Awen</strong><span class="how">within 51 metres · Kristin Wesley and Roosevelt Artworks, Phoenix, AZ</span></span></li><li><img src="art/a2IVI000001H4jN2AS.jpg" alt="A Quiet Place to Scream" loading="lazy"><span class="what"><strong>A Quiet Place to Scream</strong><span class="how">within 85 metres · Teri Bevelacqua, Olympia, WA, Earth</span></span></li><li><img src="art/a2IVI0000017CIP2A2.jpg" alt="Polio Rodeo" loading="lazy"><span class="what"><strong>Polio Rodeo</strong><span class="how">within 153 metres · Elizabeth Lieb, Urbano Maher, Graham Clarke, Fairfield, NJ</span></span></li><li><img src="art/a2IVI000001Oqcn2AC.jpg" alt="OVO Ignis" loading="lazy"><span class="what"><strong>OVO Ignis</strong><span class="how">within 308 metres · ‭Cjay Roughgarden, Element 26 Studio, ‭Oakland, CA‭</span></span></li><li><img src="art/a2IVI0000019Pxt2AE.jpg" alt="Puzzling Evidence" loading="lazy"><span class="what"><strong>Puzzling Evidence</strong><span class="how">within 315 metres · Sharon Goldin &amp; Lee Preimesberger, San Diego, CA &amp; Houston, TX</span></span></li><li><span class="nopic" aria-hidden="true"></span><span class="what"><strong>Trash Fence Souvenirs</strong><span class="how">within 331 metres · New Jersey</span></span></li><li><img src="art/a2IVI000001LNkD2AW.jpg" alt="Nova Heaven" loading="lazy"><span class="what"><strong>Nova Heaven</strong><span class="how">within 333 metres · Omri Sasi and Sarel Botavia, Israel</span></span></li><li><span class="nopic" aria-hidden="true"></span><span class="what"><strong>Hex-Pand</strong><span class="how">within 337 metres · Sparks, NV</span></span></li><li><img src="art/a2IVI000001I6Kv2AK.jpg" alt="VitalLink" loading="lazy"><span class="what"><strong>VitalLink</strong><span class="how">within 662 metres · Nebula Collective, Austin, TX</span></span></li><li><img src="art/a2IVI000001KkHR2A0.jpg" alt="The Future Mirror" loading="lazy"><span class="what"><strong>The Future Mirror</strong><span class="how">within 778 metres · Kyle Ruddick, Topanga, CA</span></span></li></ul><p class="artnote">Photographs and placements from Burning Man's 2025 art
+archive, the most recent published. These are 2026 nights, so treat a distance as roughly
+where a piece stood the year before, and a picture as of the piece rather than of that
+night.</p>
 
 
 <div class="comments" data-day="2026-09-03">
@@ -298,7 +318,10 @@ moves between them — curved because what survives is where it stood, not the r
 to get there. The shaded ground is roughly the territory the day covered.</p>
 <p class="meta">Out from 6:09 PM until 10:22 PM · 3.1 km · 4 outings</p>
 <h3>Stops</h3><ul><li><strong>near Deep-Playa Music Zone (DMZ)</strong> — 32 minutes from 7:08 PM across 2 visits</li></ul>
-<h3>Art within reach</h3><ul><li><strong>The Lightning Tower</strong> — within 56 metres, by Rome, Italy</li><li><strong>G String</strong> — within 72 metres, by Boise, ID</li><li><strong>Island of Lost Buoys</strong> — within 99 metres, by Bluffton, SC</li><li><strong>Hex-Pand</strong> — within 135 metres, by Sparks, NV</li><li><strong>Polio Rodeo</strong> — within 247 metres, by Fairfield, NJ</li><li><strong>Saṃsāra</strong> — within 325 metres, by Nomadic; San Francisco Bay Area, CA</li><li><strong>Trash Fence Souvenirs</strong> — within 365 metres, by New Jersey</li><li><strong>OVO Ignis</strong> — within 501 metres, by ‭Oakland, CA‭</li><li><strong>VitalLink</strong> — within 664 metres, by Austin, TX</li><li><strong>The Future Mirror</strong> — within 933 metres, by Topanga, CA</li></ul>
+<h3>Art within reach</h3><ul class="artlist"><li><img src="art/a2IVI0000015oJl2AI.jpg" alt="The Lightning Tower" loading="lazy"><span class="what"><strong>The Lightning Tower</strong><span class="how">within 56 metres · Pepemaniak, Rome, Italy</span></span></li><li><img src="art/a2IVI000001KTTV2A4.jpg" alt="G String" loading="lazy"><span class="what"><strong>G String</strong><span class="how">within 72 metres · Precious, Boise, ID</span></span></li><li><img src="art/a2IVI000001KEnp2AG.jpg" alt="Island of Lost Buoys" loading="lazy"><span class="what"><strong>Island of Lost Buoys</strong><span class="how">within 99 metres · Lillian Byrne Heyward, Bluffton, SC</span></span></li><li><span class="nopic" aria-hidden="true"></span><span class="what"><strong>Hex-Pand</strong><span class="how">within 135 metres · Sparks, NV</span></span></li><li><img src="art/a2IVI0000017CIP2A2.jpg" alt="Polio Rodeo" loading="lazy"><span class="what"><strong>Polio Rodeo</strong><span class="how">within 247 metres · Elizabeth Lieb, Urbano Maher, Graham Clarke, Fairfield, NJ</span></span></li><li><img src="art/a2IVI00000160Ub2AI.jpg" alt="Saṃsāra" loading="lazy"><span class="what"><strong>Saṃsāra</strong><span class="how">within 325 metres · Art with Arundo, Nomadic; San Francisco Bay Area, CA</span></span></li><li><span class="nopic" aria-hidden="true"></span><span class="what"><strong>Trash Fence Souvenirs</strong><span class="how">within 365 metres · New Jersey</span></span></li><li><img src="art/a2IVI000001Oqcn2AC.jpg" alt="OVO Ignis" loading="lazy"><span class="what"><strong>OVO Ignis</strong><span class="how">within 501 metres · ‭Cjay Roughgarden, Element 26 Studio, ‭Oakland, CA‭</span></span></li><li><img src="art/a2IVI000001I6Kv2AK.jpg" alt="VitalLink" loading="lazy"><span class="what"><strong>VitalLink</strong><span class="how">within 664 metres · Nebula Collective, Austin, TX</span></span></li><li><img src="art/a2IVI000001KkHR2A0.jpg" alt="The Future Mirror" loading="lazy"><span class="what"><strong>The Future Mirror</strong><span class="how">within 933 metres · Kyle Ruddick, Topanga, CA</span></span></li></ul><p class="artnote">Photographs and placements from Burning Man's 2025 art
+archive, the most recent published. These are 2026 nights, so treat a distance as roughly
+where a piece stood the year before, and a picture as of the piece rather than of that
+night.</p>
 
 <h3>Shoots</h3><div class="shots"><figure><img src="media/2026-09-04-IMG_4441.jpg" alt="A photograph from the annals" loading="lazy"></figure><figure><img src="media/2026-09-04-IMG_4446.jpg" alt="A photograph from the annals" loading="lazy"></figure><figure><img src="media/2026-09-04-IMG_4448.jpg" alt="A photograph from the annals" loading="lazy"></figure><figure><img src="media/2026-09-04-IMG_4449.jpg" alt="A photograph from the annals" loading="lazy"></figure><figure><img src="media/2026-09-04-IMG_4467.jpg" alt="A photograph from the annals" loading="lazy"></figure><figure><img src="media/2026-09-04-IMG_4470.jpg" alt="A photograph from the annals" loading="lazy"></figure><figure><img src="media/2026-09-04-IMG_4474.jpg" alt="A photograph from the annals" loading="lazy"></figure><figure><img src="media/2026-09-04-IMG_4476.jpg" alt="A photograph from the annals" loading="lazy"></figure><figure><img src="media/2026-09-04-IMG_4480.jpg" alt="A photograph from the annals" loading="lazy"></figure></div>
 <div class="comments" data-day="2026-09-04">
@@ -327,7 +350,10 @@ moves between them — curved because what survives is where it stood, not the r
 to get there. The shaded ground is roughly the territory the day covered.</p>
 <p class="meta">Seen once, at 8:17 PM</p>
 
-<h3>Art within reach</h3><ul><li><strong>As Above So Below</strong> — within 16 metres, by Charleston, SC</li><li><strong>Nora - Nonsense Observation &amp; Reward Automaton</strong> — within 245 metres, by San Francisco, CA</li><li><strong>The Future Mirror</strong> — within 247 metres, by Topanga, CA</li></ul>
+<h3>Art within reach</h3><ul class="artlist"><li><img src="art/a2IVI000001LNsH2AW.jpg" alt="As Above So Below" loading="lazy"><span class="what"><strong>As Above So Below</strong><span class="how">within 16 metres · Aequus Collective, Charleston, SC</span></span></li><li><img src="art/a2IVI000001LL0r2AG.jpg" alt="Nora - Nonsense Observation &amp; Reward Automaton" loading="lazy"><span class="what"><strong>Nora - Nonsense Observation &amp; Reward Automaton</strong><span class="how">within 245 metres · Aliona Kuznetsova and Volodymyr Kuznetsov, San Francisco, CA</span></span></li><li><img src="art/a2IVI000001KkHR2A0.jpg" alt="The Future Mirror" loading="lazy"><span class="what"><strong>The Future Mirror</strong><span class="how">within 247 metres · Kyle Ruddick, Topanga, CA</span></span></li></ul><p class="artnote">Photographs and placements from Burning Man's 2025 art
+archive, the most recent published. These are 2026 nights, so treat a distance as roughly
+where a piece stood the year before, and a picture as of the piece rather than of that
+night.</p>
 
 <h3>Shoots</h3><div class="shots"><figure><img src="media/2026-09-05-IMG_4492.jpg" alt="A photograph from the annals" loading="lazy"></figure><figure><img src="media/2026-09-05-IMG_4503.jpg" alt="A photograph from the annals" loading="lazy"></figure><figure><img src="media/2026-09-05-IMG_4506.jpg" alt="A photograph from the annals" loading="lazy"></figure><figure><video src="media/2026-09-05-IMG_4509.mp4" controls playsinline preload="none" poster="media/2026-09-05-IMG_4509.poster.jpg"></video></figure></div>
 <div class="comments" data-day="2026-09-05">
@@ -356,7 +382,10 @@ moves between them — curved because what survives is where it stood, not the r
 to get there. The shaded ground is roughly the territory the day covered.</p>
 <p class="meta">Out from 1:12 AM until 4:22 AM · 1.8 km · 2 outings</p>
 
-<h3>Art within reach</h3><ul><li><strong>Plastic Planet</strong> — within 37 metres, by Santa Cruz, CA</li><li><strong>What Lies Beneath?</strong> — within 300 metres, by Reno, NV</li><li><strong>Enceladus</strong> — within 303 metres, by Phoenix, AZ</li><li><strong>OVO Ignis</strong> — within 338 metres, by ‭Oakland, CA‭</li><li><strong>The Future Mirror</strong> — within 455 metres, by Topanga, CA</li><li><strong>Trash Fence Souvenirs</strong> — within 892 metres, by New Jersey</li></ul>
+<h3>Art within reach</h3><ul class="artlist"><li><span class="nopic" aria-hidden="true"></span><span class="what"><strong>Plastic Planet</strong><span class="how">within 37 metres · Santa Cruz, CA</span></span></li><li><img src="art/a2IVI0000015e7V2AQ.jpg" alt="What Lies Beneath?" loading="lazy"><span class="what"><strong>What Lies Beneath?</strong><span class="how">within 300 metres · Reno Core Project, Reno, NV</span></span></li><li><img src="art/a2IVI000001W7k92AC.jpg" alt="Enceladus" loading="lazy"><span class="what"><strong>Enceladus</strong><span class="how">within 303 metres · Art of Sean T French - mechanized metal &amp; fire featuring hand blown glass by Mikey Butzine, Phoenix, AZ</span></span></li><li><img src="art/a2IVI000001Oqcn2AC.jpg" alt="OVO Ignis" loading="lazy"><span class="what"><strong>OVO Ignis</strong><span class="how">within 338 metres · ‭Cjay Roughgarden, Element 26 Studio, ‭Oakland, CA‭</span></span></li><li><img src="art/a2IVI000001KkHR2A0.jpg" alt="The Future Mirror" loading="lazy"><span class="what"><strong>The Future Mirror</strong><span class="how">within 455 metres · Kyle Ruddick, Topanga, CA</span></span></li><li><span class="nopic" aria-hidden="true"></span><span class="what"><strong>Trash Fence Souvenirs</strong><span class="how">within 892 metres · New Jersey</span></span></li></ul><p class="artnote">Photographs and placements from Burning Man's 2025 art
+archive, the most recent published. These are 2026 nights, so treat a distance as roughly
+where a piece stood the year before, and a picture as of the piece rather than of that
+night.</p>
 
 <h3>Shoots</h3><div class="shots"><figure><img src="media/2026-09-06-IMG_4520.jpg" alt="A photograph from the annals" loading="lazy"></figure><figure><video src="media/2026-09-06-IMG_4530.mp4" controls playsinline preload="none" poster="media/2026-09-06-IMG_4530.poster.jpg"></video></figure><figure><video src="media/2026-09-06-IMG_4531.mp4" controls playsinline preload="none" poster="media/2026-09-06-IMG_4531.poster.jpg"></video></figure><figure><img src="media/2026-09-06-IMG_4542.jpg" alt="A photograph from the annals" loading="lazy"></figure></div>
 <div class="comments" data-day="2026-09-06">
@@ -385,7 +414,10 @@ moves between them — curved because what survives is where it stood, not the r
 to get there. The shaded ground is roughly the territory the day covered.</p>
 <p class="meta">Seen once, at 9:36 PM</p>
 
-<h3>Art within reach</h3><ul><li><strong>Message to the Parents We Should Have Had</strong> — within 383 metres, by San Francisco, USA, Terra, Sol, Orion Arm, Milky Way, Local Group, Laniakea Supercluster, Universe A</li><li><strong>Panopticonotopia 3.0!</strong> — within 615 metres, by San Francisco, CA</li></ul>
+<h3>Art within reach</h3><ul class="artlist"><li><img src="art/a2IVI00000141D32AI.jpg" alt="Message to the Parents We Should Have Had" loading="lazy"><span class="what"><strong>Message to the Parents We Should Have Had</strong><span class="how">within 383 metres · James Beach, San Francisco, USA, Terra, Sol, Orion Arm, Milky Way, Local Group, Laniakea Supercluster, Universe A</span></span></li><li><img src="art/a2IVI000001KZaX2AW.jpg" alt="Panopticonotopia 3.0!" loading="lazy"><span class="what"><strong>Panopticonotopia 3.0!</strong><span class="how">within 615 metres · JJ Holoubek, San Francisco, CA</span></span></li></ul><p class="artnote">Photographs and placements from Burning Man's 2025 art
+archive, the most recent published. These are 2026 nights, so treat a distance as roughly
+where a piece stood the year before, and a picture as of the piece rather than of that
+night.</p>
 
 
 <div class="comments" data-day="2026-09-07">
