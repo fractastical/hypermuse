@@ -42,7 +42,9 @@
 <p class="standfirst">Hermes is an art car that spends the week crossing the playa, mostly at
 night. People play sets off its deck, it has been the stage for a Shabbat dinner, and it will
 come and collect you if you ask. If you want in on any of that next year, say so here.</p>
-<p class="muted">You can read <a href="/docs/annals/">what it did this year</a> first.</p>
+<p class="muted">You can read <a href="/docs/annals/">what it did this year</a> first, or follow
+<a href="https://www.instagram.com/hermesartcar/" rel="noopener">@hermesartcar</a> to hear where
+it is going next.</p>
 
 <form id="book" novalidate>
   <label>What are you asking for?
@@ -141,8 +143,12 @@ form.addEventListener("submit", async (event) => {
     if (!res.ok || !data.ok) throw new Error(data.error || "HTTP " + res.status);
     // Replaced rather than appended: leaving the filled form on screen invites a second
     // send, and every duplicate is another row someone has to read through by hand.
+    // The follow goes here rather than only at the top: this is the one moment we know
+    // the reader wants to hear from Hermes again, and the form they came for is gone.
     form.innerHTML = '<p class="status good">Sent — thank you. Someone will be in touch ' +
-      'about ' + data.year + '.</p>';
+      'about ' + data.year + '.</p>' +
+      '<p class="muted">Until then, Hermes is on Instagram as ' +
+      '<a href="https://www.instagram.com/hermesartcar/" rel="noopener">@hermesartcar</a>.</p>';
     tally();
   } catch (err) {
     status.textContent = err.message || "That did not go through.";

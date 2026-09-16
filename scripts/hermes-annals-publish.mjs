@@ -38,6 +38,7 @@ const COMMENT_API = arg("api", "https://returnofhermes.com/api/hermes/annals/com
 // Absolute, because this page is also served from GitHub Pages under /hypermuse/, where a
 // root-relative /book would land on github.io itself rather than on Hermes.
 const BOOK_URL = arg("book", "https://returnofhermes.com/book");
+const INSTAGRAM = arg("instagram", "https://www.instagram.com/hermesartcar/");
 
 const mb = (bytes) => (bytes / 1048576).toFixed(bytes >= 10485760 ? 0 : 1) + " MB";
 const esc = (s) => String(s == null ? "" : s)
@@ -464,7 +465,8 @@ the morning. This is what it did, day by day, as far as anyone was there to writ
 <a href="https://www.instagram.com/metavillan/" rel="noopener">DJ Metavillan</a>, who was
 aboard for every night in this book from the thirtieth of August on, with
 <a href="https://www.instagram.com/stephen.rodan/" rel="noopener">Coral Daddy</a> out with
-him for three of them.</p>
+him for three of them. Hermes is on Instagram as
+<a href="${esc(INSTAGRAM)}" rel="noopener">@hermesartcar</a>.</p>
 ${hasProgram ? `<figure class="program">
   <img src="public-program.png" alt="The Hermes public programme for Burning Man 2026, listing the week's planned events day by day" loading="lazy">
   <figcaption>The programme, as printed before the week began — Hermes at Axis Mundi, 31 August to
@@ -494,7 +496,8 @@ ${reading ? `<section class="reading">
   <h2>Next year</h2>
   <p>Hermes goes out again. If you want to play a set off the deck, host something on it, be
   collected by it, or help build the thing, you can
-  <a href="${esc(BOOK_URL)}">ask to be part of it</a>.</p>
+  <a href="${esc(BOOK_URL)}">ask to be part of it</a>. Wherever it goes between now and then
+  gets posted to <a href="${esc(INSTAGRAM)}" rel="noopener">@hermesartcar</a>.</p>
   <p class="mapnote">That form needs the Hermes server, so it works on returnofhermes.com
   rather than on this copy of the page.</p>
 </section>
