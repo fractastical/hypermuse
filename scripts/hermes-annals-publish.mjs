@@ -168,6 +168,16 @@ const programSource = join(repo, "assets", "hermes-annals", "program", "public-p
 const hasProgram = existsSync(programSource);
 if (hasProgram) copyFileSync(programSource, join(outDir, "public-program.png"));
 
+// The Source Library booklet on the god the car is named after: seven nested-circle
+// diagrams from 1540 to 2012, and an essay on why a messenger and thief is the right
+// patron for a vehicle that spent the week carrying people across the playa at night.
+// Offered as a download rather than summarised, because it is somebody else's work.
+const readingSource = join(repo, "assets", "hermes-annals", "reading", "seven-circles-of-hermes.pdf");
+const reading = existsSync(readingSource)
+  ? { file: "seven-circles-of-hermes.pdf", size: statSync(readingSource).size }
+  : null;
+if (reading) copyFileSync(readingSource, join(outDir, reading.file));
+
 // Photographs of the art the days name, cached by hermes-art-photos.mjs. Named pieces
 // without a picture ask the reader to trust a name for a thing they have never seen.
 // These come from the 2025 archive because it is the last one published and the annals
@@ -389,6 +399,11 @@ const html = `<!doctype html>
   .artlist .what { display:flex; flex-direction:column; min-width:0; }
   .artlist .how { color:#8fa3b8; font-size:13px; }
   .artnote { color:#6f8296; font-size:12.5px; line-height:1.5; margin:12px 0 0; max-width:40em; }
+  .reading p { max-width:34em; }
+  /* Sized like a thing to click rather than a word in a sentence, since the paragraphs
+     around it are also full of links and the download is the point of the section. */
+  .reading .dl { font-weight:650; font-size:17px; }
+  .reading .how { display:block; color:#8fa3b8; font-size:13px; line-height:1.55; margin-top:4px; }
   .next p { max-width:34em; }
   a { color:#7fd4ff; }
   .sub { color:#8fa3b8; font-size:14px; margin-bottom:28px; }
@@ -438,8 +453,10 @@ const html = `<!doctype html>
   .comment-status { color:#8fa3b8; font-size:13px; align-self:center; }
 </style></head><body><main>
 <h1>The Annals of Hermes</h1>
-<p class="standfirst">For three thousand years Hermes has been the god of roads, messengers
-and divine mischief. For one week in 2026 he was an art car, and it crossed Black Rock City
+<p class="standfirst">For three thousand years Hermes has been
+${reading ? `<a href="${esc(reading.file)}">the god of roads, messengers
+and divine mischief</a>` : "the god of roads, messengers and divine mischief"}. For one week
+in 2026 he was an art car, and it crossed Black Rock City
 mostly at night, mostly out past the edge of the streets where the city stops pretending to be
 a grid. People could send for it — for a ride home, or for a set played off its deck at four in
 the morning. This is what it did, day by day, as far as anyone was there to write it down.</p>
@@ -457,7 +474,23 @@ ${hasProgram ? `<figure class="program">
 </figure>` : ""}
 <div class="sub">${publishedDays.length} ${publishedDays.length === 1 ? "day" : "days"} on the playa · ${totalMedia} photograph${totalMedia === 1 ? "" : "s"} and clip${totalMedia === 1 ? "" : "s"} · anyone may comment</div>
 ${publishedDays.map(sectionFor).join("\n")}
-<section class="next">
+${reading ? `<section class="reading">
+  <h2>The seven circles</h2>
+  <p>Before he was a car, Hermes was the fastest of the Greek gods — the messenger, the
+  psychopomp, the only Olympian free to travel everywhere, and a thief by the evening of the
+  day he was born. Fused with Thoth in Egypt he became Hermes Trismegistus, whose
+  <em>Corpus Hermeticum</em> has the soul rising after death through seven planetary circles,
+  letting go of one earthly thing at each ring.</p>
+  <p>Source Library has collected seven versions of that gesture — the whole cosmos drawn as
+  nested rings — from a 1540 volvelle printed for Charles V through Fludd, Boehme, the
+  Rosicrucians, the <em>Bardo Thodol</em> and the crown chakra to a 2012 map of the observable
+  universe. Five centuries, and none of the makers ever saw each other's work.</p>
+  <p><a class="dl" href="${esc(reading.file)}">The Seven Circles of Hermes</a>
+  <span class="how">PDF, 11 pages, ${mb(reading.size)} · assembled from the collection of
+  <a href="https://sourcelibrary.org" rel="noopener">Source Library</a> · plates public domain
+  except the observable-universe map, &copy; Pablo Carlos Budassi, CC BY-SA</span></p>
+</section>
+` : ""}<section class="next">
   <h2>Next year</h2>
   <p>Hermes goes out again. If you want to play a set off the deck, host something on it, be
   collected by it, or help build the thing, you can

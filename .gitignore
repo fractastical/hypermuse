@@ -41,6 +41,10 @@ assets/hermes-annals/*
 # pictures silently and the art lists go back to being bare names. `npm run
 # hermes:annals:art` refetches, but only while the archive still answers.
 !assets/hermes-annals/art/
+# The Seven Circles of Hermes, the Source Library booklet the annals offer as a download.
+# It is 6.9 MB of somebody else's scanned plates and there is no script that can refetch
+# it, so unlike the art cache it has to live here or the download link goes nowhere.
+!assets/hermes-annals/reading/
 # Hand triage of the scraped GifCities library: a few hundred bytes of
 # judgement that would otherwise have to be made by eye again after every
 # scrape. The gifs themselves stay ignored — npm run gifs fetches them back,

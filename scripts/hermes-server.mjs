@@ -1244,7 +1244,10 @@ const mime = new Map([
   [".webm", "video/webm"],
   [".mp4", "video/mp4"],
   [".mp3", "audio/mpeg"],
-  [".wav", "audio/wav"]
+  [".wav", "audio/wav"],
+  // Without this the annals booklet goes out as octet-stream and every browser
+  // saves it to disk instead of opening it, which loses the plates it is made of.
+  [".pdf", "application/pdf"]
 ]);
 
 // Two different ages, and confusing them flatters the fix. updatedAt is when we
