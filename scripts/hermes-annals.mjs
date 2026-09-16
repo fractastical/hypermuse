@@ -394,11 +394,17 @@ function mediaEntriesFor(day, artNames) {
 
 const cache = readJson(cachePath, null) || { entries: {} };
 
+// What people who were there reported, which the positions cannot supply. Deliberately
+// not part of the facts digest: adding a note should not mark a written account stale,
+// it should just be there the next time one is written.
+const witnessedPath = process.env.HERMES_ANNALS_WITNESSED || join(dataDir, "annals-witnessed.json");
+const witnessed = readJson(witnessedPath, null)?.days || {};
+
 function factsDigest(facts) {
   return createHash("sha1").update(JSON.stringify(facts)).digest("hex").slice(0, 16);
 }
 
-function promptFor(facts, media) {
+function promptFor(facts, media, reported = []) {
   return [
     "You are writing one dated entry in the Annals of Hermes, the chronicle of an art car",
     "that roamed Black Rock City. Write it from the facts below and from nothing else.",
@@ -438,12 +444,22 @@ function promptFor(facts, media) {
     "The headline is at most 60 characters and names the day's one real event. It must not",
     "name an instrument: 'The first real night out', never 'First night on phone positions'.",
     "",
+    reported.length
+      ? [
+        "Reported by people who were there. These are true, they outrank the numbers, and",
+        "the entry must account for them — they are usually the reason the day has the",
+        "shape it has. Where a stop in the facts is plainly the event described here, say",
+        "so; a long stop and a dinner are the same data and only one of them is the story.",
+        ...reported.map((line) => "- " + line),
+        ""
+      ].join("\n")
+      : "",
     "Facts:",
     JSON.stringify(facts, null, 2)
   ].join("\n");
 }
 
-async function askClaude(facts, media) {
+async function askClaude(facts, media, reported) {
   const res = await fetch("https://api.anthropic.com/v1/messages", {
     method: "POST",
     headers: {
@@ -454,7 +470,7 @@ async function askClaude(facts, media) {
     body: JSON.stringify({
       model: CLAUDE_MODEL,
       max_tokens: 700,
-      messages: [{ role: "user", content: promptFor(facts, media) }]
+      messages: [{ role: "user", content: promptFor(facts, media, reported) }]
     }),
     signal: AbortSignal.timeout(60000)
   });
@@ -528,7 +544,7 @@ async function narrate(facts, media) {
     return { digest, by: "hermes-annals (no ANTHROPIC_API_KEY set)", headline: plainHeadline(facts), account: plainAccount(facts) };
   }
   try {
-    const written = await askClaude(facts, media);
+    const written = await askClaude(facts, media, witnessed[facts.day] || []);
     const entry = { digest, by: `claude (${CLAUDE_MODEL})`, writtenAt: new Date().toISOString(), ...written };
     cache.entries[facts.day] = entry;
     return entry;
