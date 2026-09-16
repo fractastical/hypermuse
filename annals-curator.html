@@ -12,6 +12,7 @@
     --text: #cfe9ff;
     --accent: #58f6ff;
     --publish: #7dffa8;
+    --lead: #ffd166;
 }
 * { box-sizing: border-box; }
 html { background: #04060c; }
@@ -112,6 +113,22 @@ section > p.none { opacity: 0.4; font-size: 12px; margin: 0 0 10px; }
 }
 .tile[data-publish="1"] { border-color: var(--publish); box-shadow: 0 0 0 1px var(--publish) inset; }
 .tile[data-publish="1"] .mark { color: var(--publish); }
+.tile[data-lead="1"] { border-color: var(--lead); box-shadow: 0 0 0 2px var(--lead) inset; }
+.tile[data-lead="1"] .mark { color: var(--lead); }
+.tile .best {
+    position: absolute;
+    bottom: 5px;
+    right: 5px;
+    font-size: 10px;
+    padding: 2px 6px;
+    border-radius: 4px;
+    border: 1px solid rgba(86, 214, 255, 0.3);
+    background: rgba(0, 0, 0, 0.72);
+    color: rgba(207, 233, 255, 0.55);
+    cursor: pointer;
+}
+.tile .best:hover { border-color: var(--lead); color: var(--lead); }
+.tile[data-lead="1"] .best { border-color: var(--lead); color: var(--lead); }
 .tile:not([data-publish="1"]) .art img, .tile:not([data-publish="1"]) .art video { opacity: 0.42; filter: grayscale(0.7); }
 .tile .meta { padding: 5px 7px 7px; display: flex; flex-direction: column; gap: 5px; }
 .tile .name { font-size: 10px; opacity: 0.55; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
@@ -134,10 +151,11 @@ section > p.none { opacity: 0.4; font-size: 12px; margin: 0 0 10px; }
 </header>
 <div id="hint">
     Click a photo to choose it for the public annals. Nothing is published unless you
-    choose it, so an empty page publishes nothing. Captions are optional and travel with
-    the choice. Choices save in this browser as you make them &mdash; press
-    <b>download annals-curation.json</b> and save it into <b>data/hermes/</b> to hand them
-    to the publisher.
+    choose it, so an empty page publishes nothing. <b>best of day</b> leads that day full
+    width, above the account, one per day. Shift-click a clip to watch it without choosing
+    it. Captions are optional and travel with the choice. Choices save in this browser as
+    you make them &mdash; press <b>download annals-curation.json</b> and save it into
+    <b>data/hermes/</b> to hand them to the publisher.
 </div>
 <main id="days"></main>
 <div id="empty" hidden>No annals index. Run <b>npm run hermes:annals:index</b> first.</div>
@@ -174,6 +192,34 @@ function persist() {
 }
 
 function isChosen(src) { return !!(marks[src] && marks[src].publish); }
+function isLead(src) { return !!(marks[src] && marks[src].lead); }
+
+/** The day a file belongs to, which is the folder it was filed into. */
+function dayOf(src) {
+    const match = /hermes-annals\/(\d{4}-\d{2}-\d{2})\//.exec(src);
+    return match ? match[1] : "";
+}
+
+// One best-of per day: naming a new one stands the old one down rather than leaving a
+// day with two leads and the publisher picking arbitrarily between them.
+function setLead(src, on) {
+    const day = dayOf(src);
+    for (const other of Object.keys(marks)) {
+        if (marks[other] && marks[other].lead && dayOf(other) === day) delete marks[other].lead;
+    }
+    if (on) {
+        marks[src] = Object.assign({}, marks[src], { publish: true, lead: true });
+    }
+    persist();
+    for (const tile of document.querySelectorAll(".tile")) {
+        if (dayOf(tile.dataset.src) !== day) continue;
+        const lead = isLead(tile.dataset.src);
+        const chosen = isChosen(tile.dataset.src);
+        tile.dataset.lead = lead ? "1" : "";
+        tile.dataset.publish = chosen ? "1" : "";
+        tile.querySelector(".mark").textContent = lead ? "best of" : (chosen ? "public" : "private");
+    }
+}
 
 function setChosen(src, on) {
     if (!on) { delete marks[src]; }
@@ -220,6 +266,7 @@ function tileFor(item) {
     tile.className = "tile";
     tile.dataset.src = src;
     if (isChosen(src)) tile.dataset.publish = "1";
+    if (isLead(src)) tile.dataset.lead = "1";
 
     const art = document.createElement("div");
     art.className = "art";
@@ -239,7 +286,7 @@ function tileFor(item) {
 
     const mark = document.createElement("span");
     mark.className = "mark";
-    mark.textContent = isChosen(src) ? "public" : "private";
+    mark.textContent = isLead(src) ? "best of" : (isChosen(src) ? "public" : "private");
     art.appendChild(mark);
 
     art.addEventListener("click", (event) => {
@@ -248,9 +295,21 @@ function tileFor(item) {
         const now = !isChosen(src);
         setChosen(src, now);
         tile.dataset.publish = now ? "1" : "";
+        if (!now) tile.dataset.lead = "";
         mark.textContent = now ? "public" : "private";
         applyFilters();
     });
+
+    const best = document.createElement("span");
+    best.className = "best";
+    best.textContent = "best of day";
+    best.title = "lead this day with this one — it goes above the account, full width";
+    best.addEventListener("click", (event) => {
+        event.stopPropagation();
+        setLead(src, !isLead(src));
+        applyFilters();
+    });
+    art.appendChild(best);
     tile.appendChild(art);
 
     const meta = document.createElement("div");
@@ -351,6 +410,7 @@ $("save").addEventListener("click", () => {
     for (const src of chosen) {
         publish[src] = { publish: true };
         if (marks[src].caption) publish[src].caption = marks[src].caption;
+        if (marks[src].lead) publish[src].lead = true;
     }
     const body = {
         note: "Which annals media may be published, chosen in annals-curator.html. " +
@@ -372,6 +432,7 @@ $("clear").addEventListener("click", () => {
     persist();
     for (const tile of document.querySelectorAll(".tile")) {
         tile.dataset.publish = "";
+        tile.dataset.lead = "";
         tile.querySelector(".mark").textContent = "private";
         const caption = tile.querySelector("input.caption");
         if (caption) caption.value = "";

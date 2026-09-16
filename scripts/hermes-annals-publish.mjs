@@ -12,7 +12,7 @@
 // Output is self-contained under docs/annals/, which GitHub Pages already serves from
 // main, so publishing is a commit and a push rather than a deploy.
 import { execFile } from "node:child_process";
-import { copyFileSync, existsSync, mkdirSync, readFileSync, rmSync, statSync, writeFileSync } from "node:fs";
+import { copyFileSync, existsSync, mkdirSync, readdirSync, readFileSync, rmSync, statSync, writeFileSync } from "node:fs";
 import { basename, dirname, extname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { promisify } from "node:util";
@@ -92,6 +92,7 @@ for (const day of days) {
       // while actually looking at the photograph.
       caption: mark.caption || item.caption || "",
       art: item.art || "",
+      lead: !!mark.lead,
       name: publishedName(day.day, item.src, video ? ".mp4" : ".jpg"),
       poster: video ? publishedName(day.day, item.src, ".poster.jpg") : "",
       posterAbs: video ? join(repo, posterSource(item.src)) : ""
@@ -117,11 +118,33 @@ if (!apply) {
   process.exit(0);
 }
 
+// The day maps, built separately by hermes-day-maps.mjs because they come from the track
+// log rather than from anything anyone chose. Missing is not an error: the annals read
+// perfectly well without them, and saying so beats failing the whole build.
+const mapSourceDir = join(repo, "artifacts", "hermes-annals", "maps");
+const mapDays = new Set();
+if (existsSync(join(mapSourceDir, "playa-streets.svg"))) {
+  for (const name of readdirSync(mapSourceDir)) {
+    const match = /^(\d{4}-\d{2}-\d{2})\.track\.svg$/.exec(name);
+    if (match) mapDays.add(match[1]);
+  }
+}
+
 const mediaDir = join(outDir, "media");
 // A rebuild after unchoosing something must not leave the old file behind, still
 // reachable by anyone who kept the link.
 if (existsSync(mediaDir)) rmSync(mediaDir, { recursive: true, force: true });
 mkdirSync(mediaDir, { recursive: true });
+
+const mapOutDir = join(outDir, "maps");
+if (existsSync(mapOutDir)) rmSync(mapOutDir, { recursive: true, force: true });
+if (mapDays.size) {
+  mkdirSync(mapOutDir, { recursive: true });
+  copyFileSync(join(mapSourceDir, "playa-streets.svg"), join(mapOutDir, "playa-streets.svg"));
+  for (const day of mapDays) {
+    copyFileSync(join(mapSourceDir, day + ".track.svg"), join(mapOutDir, day + ".track.svg"));
+  }
+}
 
 async function encodeStill(item) {
   const dest = join(mediaDir, item.name);
@@ -167,14 +190,29 @@ for (const { day, media } of plan) {
   }
 }
 
-function figureFor(item) {
+function figureFor(item, lead = false) {
   const caption = esc([item.art, item.caption].filter(Boolean).join(" · "));
   const cap = caption ? `<figcaption>${caption}</figcaption>` : "";
+  const cls = lead ? ' class="lead"' : "";
   if (!item.video) {
-    return `<figure><img src="media/${esc(item.name)}" alt="${caption || "A photograph from the annals"}" loading="lazy">${cap}</figure>`;
+    // The lead is the one image worth fetching before the reader scrolls to it.
+    const loading = lead ? "" : ' loading="lazy"';
+    return `<figure${cls}><img src="media/${esc(item.name)}" alt="${caption || "A photograph from the annals"}"${loading}>${cap}</figure>`;
   }
   const poster = item.poster ? ` poster="media/${esc(item.poster)}"` : "";
-  return `<figure><video src="media/${esc(item.name)}" controls playsinline preload="none"${poster}></video>${cap}</figure>`;
+  return `<figure${cls}><video src="media/${esc(item.name)}" controls playsinline preload="none"${poster}></video>${cap}</figure>`;
+}
+
+/** The day's map, if one was built for it: the track over the shared street plan. */
+function mapFor(day) {
+  if (!mapDays.has(day)) return "";
+  return `<div class="daymap">
+  <img src="maps/playa-streets.svg" alt="" aria-hidden="true">
+  <img src="maps/${esc(day)}.track.svg" alt="Where Hermes went on ${esc(day)}">
+</div>
+<p class="mapnote">Where it went. Green is the first fix of the day, red the last; the
+faint dots are every position reported, so a cluster is somewhere it stood still. Breaks
+in the line are the tracker being off rather than the car being lifted.</p>`;
 }
 
 function sectionFor({ day, media }) {
@@ -188,15 +226,21 @@ function sectionFor({ day, media }) {
     `<li><strong>${esc(r.who)}</strong> — ${esc(r.kind)}${r.place ? ` at ${esc(r.place)}` : ""}${r.intention ? ` — ${esc(r.intention)}` : ""}</li>`).join("") : "";
   // Prefixed, so #day-2026-09-02 both links to the day and can be selected in css;
   // a bare id starting with a digit is legal html but not a legal selector.
+  // The best-of leads, above the account, so a day opens on a photograph rather than on
+  // a paragraph. Nothing marked means no lead: a day is not obliged to have a best one.
+  const lead = shots.find((s) => s.lead);
+  const rest = shots.filter((s) => s !== lead);
   return `<section id="day-${esc(day.day)}">
 <h2><a href="#day-${esc(day.day)}">${esc(facts.dayName || day.day)}</a></h2>
 <p class="headline">${esc(day.headline || "")}</p>
+${lead ? figureFor(lead, true) : ""}
 <p>${esc(day.account || "")}</p>
+${mapFor(day.day)}
 <p class="meta">${facts.fixes || 0} ${facts.fixes === 1 ? "fix" : "fixes"}${facts.distance ? ` · ${esc(facts.distance)}` : ""}${facts.firstFix ? ` · ${esc(facts.firstFix)}–${esc(facts.lastFix)}` : ""}</p>
 ${stops ? `<h3>Stops</h3><ul>${stops}</ul>` : ""}
 ${art ? `<h3>Art within reach</h3><ul>${art}</ul>` : ""}
 ${requests ? `<h3>Asked of Hermes</h3><ul>${requests}</ul>` : ""}
-${shots.length ? `<h3>Shoots</h3><div class="shots">${shots.map(figureFor).join("")}</div>` : ""}
+${rest.length ? `<h3>Shoots</h3><div class="shots">${rest.map((s) => figureFor(s)).join("")}</div>` : ""}
 <div class="comments" data-day="${esc(day.day)}">
   <h3>Comments</h3>
   <div class="comment-list" hidden></div>
@@ -234,6 +278,17 @@ const html = `<!doctype html>
   figure { margin:0; }
   figure img, figure video { width:100%; border-radius:10px; display:block; background:#0b111a; }
   figcaption { color:#8fa3b8; font-size:12px; margin-top:6px; }
+  figure.lead { margin:14px 0 18px; }
+  /* Capped, because a portrait phone photograph at full column width is taller than the
+     screen and pushes the day's account off the bottom of it. */
+  figure.lead img, figure.lead video { max-height:70vh; width:100%; object-fit:contain; }
+  .daymap { position:relative; margin:18px 0 6px; background:#0b111a; border-radius:10px; overflow:hidden; }
+  .daymap img { display:block; width:100%; }
+  /* The streets sit under the track, dimmed, and both share one viewBox so they line up
+     at whatever width the column happens to be. */
+  .daymap img:first-child { opacity:0.45; }
+  .daymap img:last-child { position:absolute; inset:0; }
+  .mapnote { color:#8fa3b8; font-size:12px; margin:6px 0 0; }
   .comments { margin-top:22px; }
   .comment-list { margin:8px 0 12px; }
   .comment { border-left:2px solid #1d2937; padding:2px 0 2px 12px; margin:10px 0; }

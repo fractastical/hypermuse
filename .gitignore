@@ -96,6 +96,11 @@ data/hermes/art-closest*.jsonl
 data/hermes/people-graph-events.jsonl
 data/hermes/annals-comments.jsonl
 
+# The key that turns names into the pseudonyms in people-graph-events.anon.jsonl. Commit
+# this and the anonymised file stops being anonymous: anyone could HMAC a list of names
+# and read the mapping straight off. The anon file itself is meant to be committed.
+data/hermes/.anon-salt
+
 # Scraped copies of the official events listing, a few megabytes each and re-fetched
 # by `npm run hermes:events`. The timestamped ones are a scrape that was interrupted.
 data/hermes/activities.json
