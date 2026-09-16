@@ -210,11 +210,31 @@ function mapFor(day) {
   <img src="maps/playa-streets.svg" alt="" aria-hidden="true">
   <img src="maps/${esc(day)}.track.svg" alt="Where Hermes went on ${esc(day)}">
 </div>
-<p class="mapnote">Where it went. Each circle is somewhere it stopped, sized by how long it
-stayed; green is the first, red the last. The dashed curves are moves between them, drawn
-as curves because the tracker logged the stops and not the driving — the shape says it got
-from one to the other, not which way round. The shaded ground is roughly the day's
-territory.</p>`;
+<p class="mapnote">Where it went. Each circle is somewhere Hermes stopped, drawn larger the
+longer it stayed; green is the first of the day, red the last. The dashed curves are the
+moves between them — curved because what survives is where it stood, not the route it took
+to get there. The shaded ground is roughly the territory the day covered.</p>`;
+}
+
+/**
+ * The line under each day. It used to open with a count of GPS readings, which tells a
+ * reader nothing they can feel — nobody knows whether 677 is a lot. Hours and distance
+ * they can picture, and a day of one reading is better described than counted.
+ */
+function metaLine(facts) {
+  const parts = [];
+  if (facts.firstFix && facts.lastFix && facts.firstFix !== facts.lastFix) {
+    parts.push(`Out from ${esc(facts.firstFix)} until ${esc(facts.lastFix)}`);
+  } else if (facts.firstFix) {
+    parts.push(`Seen once, at ${esc(facts.firstFix)}`);
+  }
+  // Both gated on having actually gone somewhere. On 28 August the day is split into two
+  // "outings" across seventy metres of car park, and printing that beside an account of
+  // standing still just makes the page argue with itself.
+  const moved = facts.metres > 100;
+  if (facts.distance && moved) parts.push(esc(facts.distance));
+  if (facts.journeys > 1 && moved) parts.push(`${facts.journeys} outings`);
+  return parts.join(" · ");
 }
 
 function sectionFor({ day, media }) {
@@ -223,7 +243,7 @@ function sectionFor({ day, media }) {
   const stops = (facts.stops || []).map((s) =>
     `<li><strong>${esc(s.place)}</strong> — ${esc(s.dwell)} from ${esc(s.from)}${s.visits > 1 ? ` across ${s.visits} visits` : ""}</li>`).join("");
   const art = (facts.art || []).map((a) =>
-    `<li><strong>${esc(a.name)}</strong> — closest ${a.closestM} m${a.artist ? `, ${esc(a.artist)}` : ""}</li>`).join("");
+    `<li><strong>${esc(a.name)}</strong> — within ${a.closestM} metres${a.artist ? `, by ${esc(a.artist)}` : ""}</li>`).join("");
   const requests = withRequests ? (facts.requests || []).map((r) =>
     `<li><strong>${esc(r.who)}</strong> — ${esc(r.kind)}${r.place ? ` at ${esc(r.place)}` : ""}${r.intention ? ` — ${esc(r.intention)}` : ""}</li>`).join("") : "";
   // Prefixed, so #day-2026-09-02 both links to the day and can be selected in css;
@@ -238,7 +258,7 @@ function sectionFor({ day, media }) {
 ${lead ? figureFor(lead, true) : ""}
 <p>${esc(day.account || "")}</p>
 ${mapFor(day.day)}
-<p class="meta">${facts.fixes || 0} ${facts.fixes === 1 ? "fix" : "fixes"}${facts.distance ? ` · ${esc(facts.distance)}` : ""}${facts.firstFix ? ` · ${esc(facts.firstFix)}–${esc(facts.lastFix)}` : ""}</p>
+<p class="meta">${metaLine(facts)}</p>
 ${stops ? `<h3>Stops</h3><ul>${stops}</ul>` : ""}
 ${art ? `<h3>Art within reach</h3><ul>${art}</ul>` : ""}
 ${requests ? `<h3>Asked of Hermes</h3><ul>${requests}</ul>` : ""}
@@ -267,6 +287,7 @@ const html = `<!doctype html>
   body { margin:0; background:#06090f; color:#f4faff; font:16px/1.6 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif; }
   main { max-width: 860px; margin: 0 auto; padding: 32px 20px 80px; }
   h1 { font-size: 30px; margin: 0 0 6px; }
+  .standfirst { font-size:18px; line-height:1.65; color:#dce9f5; margin:10px 0 14px; max-width:34em; }
   .sub { color:#8fa3b8; font-size:14px; margin-bottom:28px; }
   section { border-top:1px solid #1d2937; padding:26px 0; }
   h2 { font-size:21px; margin:0 0 4px; }
@@ -314,6 +335,10 @@ const html = `<!doctype html>
   .comment-status { color:#8fa3b8; font-size:13px; align-self:center; }
 </style></head><body><main>
 <h1>The Annals of Hermes</h1>
+<p class="standfirst">Hermes was an art car that spent a week crossing Black Rock City,
+mostly at night, mostly out past the edge of the streets where the city stops. People could
+send for it — for a ride home, or for a set played off its deck at four in the morning. This
+is what it did, day by day, as far as anyone was there to write it down.</p>
 <div class="sub">${publishedDays.length} ${publishedDays.length === 1 ? "day" : "days"} on the playa · ${totalMedia} photograph${totalMedia === 1 ? "" : "s"} and clip${totalMedia === 1 ? "" : "s"} · anyone may comment</div>
 ${publishedDays.map(sectionFor).join("\n")}
 <script>
