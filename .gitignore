@@ -84,6 +84,25 @@ data/hermes/tls/
 data/hermes/faults.jsonl
 data/hermes/faults.jsonl.1
 
+# The rest of what the server writes while it runs. This repo is public, and every
+# one of these carries something that belongs to a person rather than to the project:
+# the phone token is a live credential, and the logs hold positions, names, the
+# messages people sent a pickup box, and the addresses they sent them from. The track
+# log above was already spoken for; these are the same argument.
+data/hermes/phone-token.txt
+data/hermes/location-feed*.jsonl
+data/hermes/pickup-requests.jsonl
+data/hermes/art-closest*.jsonl
+data/hermes/people-graph-events.jsonl
+data/hermes/annals-comments.jsonl
+
+# Scraped copies of the official events listing, a few megabytes each and re-fetched
+# by `npm run hermes:events`. The timestamped ones are a scrape that was interrupted.
+data/hermes/activities.json
+data/hermes/activities.*.json
+data/hermes/instagram-scrape.json
+data/hermes/art/2025-track-near-art*.json*
+
 video-manifest.json
 audio-manifest.json
 .pnpm-store/
