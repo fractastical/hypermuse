@@ -17,6 +17,11 @@ loops/3d moon/*
 loops/VAJRA DORJE ANIMATIONS/*
 !loops/VAJRA DORJE ANIMATIONS/web/
 
+# Derived from the track log and the day folders by `npm run hermes:annals:index`,
+# purely so annals-curator.html has something to fetch. Regenerated in a second, and
+# it lists every private file by name, so it does not belong in a public repo.
+data/hermes/annals-index.json
+
 # Output of scripts/optimize-loops.mjs: browser-playable copies of the masters
 # above, a few gigabytes of them. Regenerable from the originals in one command,
 # so it is derived media rather than source.

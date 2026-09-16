@@ -1,0 +1,406 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>Annals curator</title>
+<style>
+:root {
+    --bg0: #060813;
+    --bg1: #0d1230;
+    --panel: rgba(10, 18, 44, 0.86);
+    --panel-border: rgba(86, 214, 255, 0.35);
+    --text: #cfe9ff;
+    --accent: #58f6ff;
+    --publish: #7dffa8;
+}
+* { box-sizing: border-box; }
+html { background: #04060c; }
+body {
+    margin: 0;
+    min-height: 100vh;
+    color: var(--text);
+    font-family: "JetBrains Mono", "SF Mono", "Menlo", "Consolas", monospace;
+    font-size: 13px;
+    background:
+        radial-gradient(circle at 20% 0%, rgba(88, 246, 255, 0.14), transparent 40%),
+        radial-gradient(circle at 80% 0%, rgba(193, 125, 255, 0.16), transparent 45%),
+        linear-gradient(170deg, var(--bg0), var(--bg1));
+    background-attachment: fixed;
+}
+header {
+    position: sticky;
+    top: 0;
+    z-index: 5;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px 14px;
+    align-items: center;
+    padding: 12px 16px;
+    background: var(--panel);
+    border-bottom: 1px solid var(--panel-border);
+    backdrop-filter: blur(8px);
+}
+h1 { font-size: 14px; margin: 0 8px 0 0; letter-spacing: 0.08em; color: var(--accent); }
+select, input, button {
+    font: inherit;
+    color: var(--text);
+    background: rgba(6, 12, 30, 0.9);
+    border: 1px solid var(--panel-border);
+    border-radius: 5px;
+    padding: 5px 8px;
+}
+button { cursor: pointer; }
+button:hover { border-color: var(--accent); color: #fff; }
+button.warn:hover { border-color: #ff5c7a; color: #ff5c7a; }
+#stats { margin-left: auto; opacity: 0.85; text-align: right; line-height: 1.5; }
+#stats b { color: var(--accent); font-weight: 600; }
+#hint { padding: 8px 16px; opacity: 0.62; font-size: 12px; border-bottom: 1px solid rgba(86,214,255,0.12); line-height: 1.5; }
+main { padding: 4px 16px 80px; }
+section { margin: 22px 0 0; }
+section > h2 {
+    font-size: 13px;
+    margin: 0 0 2px;
+    color: var(--accent);
+    letter-spacing: 0.04em;
+}
+section > h2 .day { opacity: 0.55; color: var(--text); font-weight: 400; margin-left: 8px; }
+section > p.account {
+    margin: 0 0 10px;
+    max-width: 76ch;
+    opacity: 0.55;
+    font-size: 12px;
+    line-height: 1.55;
+}
+section > p.none { opacity: 0.4; font-size: 12px; margin: 0 0 10px; }
+.row { display: grid; grid-template-columns: repeat(auto-fill, minmax(190px, 1fr)); gap: 12px; }
+.tile {
+    border: 1px solid rgba(86, 214, 255, 0.2);
+    border-radius: 7px;
+    overflow: hidden;
+    background: rgba(4, 8, 20, 0.6);
+    display: flex;
+    flex-direction: column;
+}
+.tile .art {
+    position: relative;
+    height: 150px;
+    display: grid;
+    place-items: center;
+    background: #0a0f1e;
+    cursor: pointer;
+}
+.tile .art img, .tile .art video { max-width: 100%; max-height: 150px; display: block; }
+.tile .kind {
+    position: absolute;
+    top: 5px;
+    left: 5px;
+    font-size: 10px;
+    padding: 1px 5px;
+    border-radius: 4px;
+    background: rgba(0, 0, 0, 0.7);
+    opacity: 0.85;
+}
+.tile .mark {
+    position: absolute;
+    top: 5px;
+    right: 5px;
+    font-size: 11px;
+    padding: 1px 6px;
+    border-radius: 4px;
+    background: rgba(0, 0, 0, 0.7);
+    color: rgba(207, 233, 255, 0.4);
+}
+.tile[data-publish="1"] { border-color: var(--publish); box-shadow: 0 0 0 1px var(--publish) inset; }
+.tile[data-publish="1"] .mark { color: var(--publish); }
+.tile:not([data-publish="1"]) .art img, .tile:not([data-publish="1"]) .art video { opacity: 0.42; filter: grayscale(0.7); }
+.tile .meta { padding: 5px 7px 7px; display: flex; flex-direction: column; gap: 5px; }
+.tile .name { font-size: 10px; opacity: 0.55; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.tile input.caption { width: 100%; font-size: 11px; padding: 3px 5px; }
+#empty { padding: 40px 16px; opacity: 0.6; }
+</style>
+</head>
+<body>
+<header>
+    <h1>ANNALS CURATOR</h1>
+    <select id="dayFilter"><option value="">every day</option></select>
+    <select id="stateFilter">
+        <option value="">everything</option>
+        <option value="chosen">chosen only</option>
+        <option value="undecided">not chosen yet</option>
+    </select>
+    <button id="save">download annals-curation.json</button>
+    <button id="clear" class="warn">unchoose everything</button>
+    <span id="stats"></span>
+</header>
+<div id="hint">
+    Click a photo to choose it for the public annals. Nothing is published unless you
+    choose it, so an empty page publishes nothing. Captions are optional and travel with
+    the choice. Choices save in this browser as you make them &mdash; press
+    <b>download annals-curation.json</b> and save it into <b>data/hermes/</b> to hand them
+    to the publisher.
+</div>
+<main id="days"></main>
+<div id="empty" hidden>No annals index. Run <b>npm run hermes:annals:index</b> first.</div>
+
+<script>
+/*
+ * Which photographs go public, decided one at a time.
+ *
+ * The annals hold a camp's whole camera dump, and the published version is a
+ * subset someone chose on purpose — so this is opt-in: a file is private until
+ * it is clicked, and the publisher refuses to guess. Choices live in
+ * localStorage while the work is in progress and leave as a downloaded json,
+ * the same shape of workflow as gif-curator.html, because a page served by
+ * http-server cannot write to the repo it is served from.
+ */
+const INDEX = "data/hermes/annals-index.json";
+const CURATION = "data/hermes/annals-curation.json";
+const STORE_KEY = "hermes.annals.curation";
+
+/** path -> { publish: true, caption: string }. Absent means private. */
+let marks = {};
+/** path -> bytes, filled in by HEAD requests so the page can total what it costs. */
+const sizes = {};
+let index = null;
+
+const $ = (id) => document.getElementById(id);
+const posterFor = (src) => src.replace(/\.[^.]+$/, "") + ".poster.jpg";
+const fileName = (src) => src.split("/").pop();
+const mb = (bytes) => (bytes / 1048576).toFixed(bytes >= 10485760 ? 0 : 1) + " MB";
+
+function persist() {
+    try { localStorage.setItem(STORE_KEY, JSON.stringify(marks)); } catch (_) {}
+    renderStats();
+}
+
+function isChosen(src) { return !!(marks[src] && marks[src].publish); }
+
+function setChosen(src, on) {
+    if (!on) { delete marks[src]; }
+    else { marks[src] = Object.assign({}, marks[src], { publish: true }); }
+    persist();
+}
+
+function setCaption(src, text) {
+    const caption = text.trim();
+    // A caption on a photo nobody chose would be lost work, so writing one chooses it.
+    if (!caption && !isChosen(src)) { delete marks[src]; persist(); return; }
+    marks[src] = Object.assign({}, marks[src], { publish: true, caption });
+    persist();
+}
+
+function renderStats() {
+    const chosen = Object.keys(marks).filter(isChosen);
+    const known = chosen.filter((p) => sizes[p] !== undefined);
+    const bytes = known.reduce((n, p) => n + sizes[p], 0);
+    const total = index ? index.days.reduce((n, d) => n + d.media.length, 0) : 0;
+    const pending = chosen.length - known.length;
+    $("stats").innerHTML = "<b>" + chosen.length + "</b> of " + total + " chosen<br>" +
+        "<b>" + mb(bytes) + "</b> before re-encoding" + (pending ? " (+" + pending + " unmeasured)" : "");
+}
+
+/* Video tiles show their poster frame until asked, because nine days of clips
+   playing at once is both unwatchable and a few hundred megabytes. */
+function playInline(art, src) {
+    if (art.querySelector("video")) return;
+    art.innerHTML = "";
+    const video = document.createElement("video");
+    video.src = src;
+    video.controls = true;
+    video.muted = true;
+    video.loop = true;
+    video.playsInline = true;
+    video.play().catch(() => {});
+    art.appendChild(video);
+}
+
+function tileFor(item) {
+    const src = item.src;
+    const tile = document.createElement("div");
+    tile.className = "tile";
+    tile.dataset.src = src;
+    if (isChosen(src)) tile.dataset.publish = "1";
+
+    const art = document.createElement("div");
+    art.className = "art";
+    const isVideo = item.shoot === "video" || /\.(mp4|mov|m4v|webm)$/i.test(src);
+    const thumb = document.createElement("img");
+    thumb.loading = "lazy";
+    thumb.alt = fileName(src);
+    thumb.src = isVideo ? posterFor(src) : src;
+    // A clip that never got a poster frame still needs something to click.
+    thumb.addEventListener("error", () => { thumb.remove(); });
+    art.appendChild(thumb);
+
+    const kind = document.createElement("span");
+    kind.className = "kind";
+    kind.textContent = isVideo ? "clip" : "still";
+    art.appendChild(kind);
+
+    const mark = document.createElement("span");
+    mark.className = "mark";
+    mark.textContent = isChosen(src) ? "public" : "private";
+    art.appendChild(mark);
+
+    art.addEventListener("click", (event) => {
+        // Shift-click on a clip is how you watch it without choosing it.
+        if (isVideo && event.shiftKey) { playInline(art, src); return; }
+        const now = !isChosen(src);
+        setChosen(src, now);
+        tile.dataset.publish = now ? "1" : "";
+        mark.textContent = now ? "public" : "private";
+        applyFilters();
+    });
+    tile.appendChild(art);
+
+    const meta = document.createElement("div");
+    meta.className = "meta";
+    const name = document.createElement("div");
+    name.className = "name";
+    name.textContent = fileName(src);
+    meta.appendChild(name);
+
+    const caption = document.createElement("input");
+    caption.className = "caption";
+    caption.type = "text";
+    caption.placeholder = "caption (optional)";
+    caption.value = (marks[src] && marks[src].caption) || item.caption || "";
+    caption.addEventListener("change", () => {
+        setCaption(src, caption.value);
+        const on = isChosen(src);
+        tile.dataset.publish = on ? "1" : "";
+        mark.textContent = on ? "public" : "private";
+    });
+    meta.appendChild(caption);
+    tile.appendChild(meta);
+
+    // Size is only in the response header, and the total is the whole point of
+    // choosing a subset, so ask for it without downloading the file.
+    fetch(src, { method: "HEAD" }).then((r) => {
+        const length = Number(r.headers.get("content-length"));
+        if (Number.isFinite(length) && length > 0) {
+            sizes[src] = length;
+            name.textContent = fileName(src) + "  ·  " + mb(length);
+            renderStats();
+        }
+    }).catch(() => {});
+
+    return tile;
+}
+
+function applyFilters() {
+    const day = $("dayFilter").value;
+    const state = $("stateFilter").value;
+    for (const section of document.querySelectorAll("section")) {
+        let shown = 0;
+        for (const tile of section.querySelectorAll(".tile")) {
+            const chosen = isChosen(tile.dataset.src);
+            const ok = (!state || (state === "chosen" ? chosen : !chosen));
+            tile.hidden = !ok;
+            if (ok) shown++;
+        }
+        section.hidden = (day && section.dataset.day !== day) || (shown === 0 && !!state);
+    }
+}
+
+function render() {
+    const host = $("days");
+    host.innerHTML = "";
+    for (const entry of index.days) {
+        const section = document.createElement("section");
+        section.dataset.day = entry.day;
+
+        const heading = document.createElement("h2");
+        heading.textContent = entry.headline || entry.day;
+        const dayTag = document.createElement("span");
+        dayTag.className = "day";
+        dayTag.textContent = entry.day + " · " + entry.media.length + " file" + (entry.media.length === 1 ? "" : "s");
+        heading.appendChild(dayTag);
+        section.appendChild(heading);
+
+        const account = document.createElement("p");
+        account.className = "account";
+        account.textContent = entry.account || "";
+        section.appendChild(account);
+
+        if (!entry.media.length) {
+            const none = document.createElement("p");
+            none.className = "none";
+            none.textContent = "Nothing was photographed, or nothing has been filed into this day yet.";
+            section.appendChild(none);
+        } else {
+            const row = document.createElement("div");
+            row.className = "row";
+            for (const item of entry.media) row.appendChild(tileFor(item));
+            section.appendChild(row);
+        }
+        host.appendChild(section);
+
+        const option = document.createElement("option");
+        option.value = entry.day;
+        option.textContent = entry.day + (entry.headline ? " — " + entry.headline : "");
+        $("dayFilter").appendChild(option);
+    }
+    renderStats();
+    applyFilters();
+}
+
+$("save").addEventListener("click", () => {
+    const chosen = Object.keys(marks).filter(isChosen).sort();
+    const publish = {};
+    for (const src of chosen) {
+        publish[src] = { publish: true };
+        if (marks[src].caption) publish[src].caption = marks[src].caption;
+    }
+    const body = {
+        note: "Which annals media may be published, chosen in annals-curator.html. " +
+              "Anything absent stays private. Captions here win over annals-media.json.",
+        chosenAt: new Date().toISOString(),
+        publish
+    };
+    const blob = new Blob([JSON.stringify(body, null, 2) + "\n"], { type: "application/json" });
+    const a = document.createElement("a");
+    a.href = URL.createObjectURL(blob);
+    a.download = "annals-curation.json";
+    a.click();
+    URL.revokeObjectURL(a.href);
+});
+
+$("clear").addEventListener("click", () => {
+    if (!confirm("Unchoose every photo? The downloaded file is untouched.")) return;
+    marks = {};
+    persist();
+    for (const tile of document.querySelectorAll(".tile")) {
+        tile.dataset.publish = "";
+        tile.querySelector(".mark").textContent = "private";
+        const caption = tile.querySelector("input.caption");
+        if (caption) caption.value = "";
+    }
+    applyFilters();
+});
+
+$("dayFilter").addEventListener("change", applyFilters);
+$("stateFilter").addEventListener("change", applyFilters);
+
+(async function start() {
+    try {
+        index = await fetch(INDEX).then((r) => r.json());
+    } catch (_) {
+        $("empty").hidden = false;
+        return;
+    }
+    // localStorage is the work in progress; a curation.json already in the repo is
+    // where a previous session's work ended up, so fall back to it rather than
+    // starting from nothing on a different browser.
+    try { marks = JSON.parse(localStorage.getItem(STORE_KEY) || "null"); } catch (_) { marks = null; }
+    if (!marks) {
+        try {
+            const saved = await fetch(CURATION).then((r) => (r.ok ? r.json() : null));
+            marks = (saved && saved.publish) || {};
+        } catch (_) { marks = {}; }
+    }
+    render();
+})();
+</script>
+</body>
+</html>

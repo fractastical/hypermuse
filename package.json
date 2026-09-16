@@ -20,6 +20,7 @@
     "hermes:instagram": "node scripts/hermes-instagram.mjs",
     "hermes:story": "node scripts/hermes-story.mjs",
     "hermes:annals": "node scripts/hermes-annals.mjs",
+    "hermes:annals:index": "node scripts/hermes-annals.mjs --json > data/hermes/annals-index.json",
     "hermes:gif": "node scripts/hermes-trail-gif.mjs",
     "pixels:find": "node scripts/find-pixlite.mjs",
     "hermes:answers": "node scripts/check-answers.mjs",
