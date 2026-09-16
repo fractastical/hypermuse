@@ -156,6 +156,15 @@ if (mapDays.size) {
   }
 }
 
+// The public programme: what the week was meant to be, printed before it happened. It
+// belongs at the top rather than on any one day, because half of what it lists never got
+// recorded and a third of what the days describe is not on it. Its own hedge — a 30%
+// chance of finding Hermes anywhere named — is the honest part, and the reason the
+// accounts below are the record and this is only the intention.
+const programSource = join(repo, "assets", "hermes-annals", "program", "public-program.png");
+const hasProgram = existsSync(programSource);
+if (hasProgram) copyFileSync(programSource, join(outDir, "public-program.png"));
+
 async function encodeStill(item) {
   const dest = join(mediaDir, item.name);
   await execFileAsync("sips", ["-Z", String(STILL_MAX), "-s", "format", "jpeg",
@@ -315,6 +324,11 @@ const html = `<!doctype html>
   h1 { font-size: 30px; margin: 0 0 6px; }
   .standfirst { font-size:18px; line-height:1.65; color:#dce9f5; margin:10px 0 14px; max-width:34em; }
   .byline { font-size:15px; color:#b8cadb; margin:0 0 14px; max-width:34em; }
+  /* Tall and narrow — a poster, not a photograph — so it is capped by height rather than
+     width, or it runs off the bottom of a phone before the first day is reached. */
+  .program { margin:0 0 26px; max-width:34em; }
+  .program img { display:block; width:100%; max-width:420px; height:auto; border-radius:10px; border:1px solid #1d2937; }
+  .program figcaption { color:#8fa3b8; font-size:13px; line-height:1.55; margin-top:8px; }
   a { color:#7fd4ff; }
   .sub { color:#8fa3b8; font-size:14px; margin-bottom:28px; }
   section { border-top:1px solid #1d2937; padding:26px 0; }
@@ -372,6 +386,13 @@ is what it did, day by day, as far as anyone was there to write it down.</p>
 aboard for every night in this book from the thirtieth of August on, with
 <a href="https://www.instagram.com/stephen.rodan/" rel="noopener">Coral Daddy</a> out with
 him for three of them.</p>
+${hasProgram ? `<figure class="program">
+  <img src="public-program.png" alt="The Hermes public programme for Burning Man 2026, listing the week's planned events day by day" loading="lazy">
+  <figcaption>The programme, as printed before the week began — Hermes at Axis Mundi, 31 August to
+  6 September, draft 27. It promised at least a 30% chance of finding the car at any of these
+  places, which turned out to be about right. Some of it happened, some of it did not, and a
+  good deal of what follows is not on it at all.</figcaption>
+</figure>` : ""}
 <div class="sub">${publishedDays.length} ${publishedDays.length === 1 ? "day" : "days"} on the playa · ${totalMedia} photograph${totalMedia === 1 ? "" : "s"} and clip${totalMedia === 1 ? "" : "s"} · anyone may comment</div>
 ${publishedDays.map(sectionFor).join("\n")}
 <script>

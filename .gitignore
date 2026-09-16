@@ -29,6 +29,13 @@ loops-web/
 
 assets/*
 !assets/esoteric-geometries-circles-warp.gif
+# The public programme for the week, which the annals page embeds above the days. It is
+# the one thing under assets/hermes-annals/ meant to be seen: everything else in there is
+# other people's faces and 277 MB of source media. Without this exception the publisher
+# quietly drops the poster on any clone but this laptop, and the page loses it silently.
+!assets/hermes-annals/
+assets/hermes-annals/*
+!assets/hermes-annals/program/
 # Hand triage of the scraped GifCities library: a few hundred bytes of
 # judgement that would otherwise have to be made by eye again after every
 # scrape. The gifs themselves stay ignored — npm run gifs fetches them back,

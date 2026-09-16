@@ -1,18 +1,33 @@
 {
   "note": "Things that happened which no instrument could know, from people who were there. The day's facts are computed from positions and can only ever describe where the car was, not what it was for — a two-hour stop looks identical whether it was a breakdown or a dinner. Anything listed here is handed to the writer as true and outranking the numbers, so it survives a regeneration instead of being quietly dropped. One plain sentence per line.",
   "days": {
+    "2026-08-29": [
+      "The programme lists a pre-burn gathering this evening at 7 PM, Hermes at 7:15, at 7:15 and Esplanade."
+    ],
+    "2026-08-30": [
+      "The programme lists entry day: Church at the Port hub, time not set."
+    ],
     "2026-08-31": [
       "Hermes was at Mundara this day — the positions name the streets it drove but not the place it went for.",
-      "Two acts: Human Experience, who is David Block, and Playa Riders."
+      "Two acts: Human Experience, who is David Block, and Playa Riders.",
+      "The programme lists a 9:30 PM departure from Bisous at 8:45 & E."
+    ],
+    "2026-09-01": [
+      "The programme lists a link-up with the Gaian Airship Cloud, rendezvous and time not set."
+    ],
+    "2026-09-02": [
+      "The programme lists a melodic sunset at Soundgarden, 6:30 to 8 PM, SOL:.RIS back to back with OnTheFritz, then Hermes at Bisous 9 PM to midnight at 8:45 & E."
     ],
     "2026-09-03": [
-      "There was an opera late that night."
+      "There was an opera late that night.",
+      "The programme lists the Fire Gnome as a priority burn at sunset, window not set."
     ],
     "2026-09-04": [
       "It rained earlier in the day, which is why nothing moved until the evening.",
       "Hermes was asked to host the BRC Shabbat dinner and to be the stage for it.",
       "David Block, who performs as Human Experience, played the Shabbat dinner.",
-      "The TITANIC art piece burned this evening, and Hermes was out for it. The activity listings put the burn at 6:30 PM; the first position of the day is 6:09 PM and every one after it is deep playa."
+      "The TITANIC art piece burned this evening, and Hermes was out for it. The programme says arrive 6:45 and ignition about 7:30 PM; the first position of the day is 6:09 PM and every one after it is deep playa.",
+      "The programme called Friday the all-day programme, the only day it marked confirmed: a 5 AM set at 2:00 & E (Kuker, Lucy, Polaris, Double-D), Hermes with UFO and Sound Cabin at the Port, then the Titanic, then Hermes at Bisous 9 PM to midnight at 8:45 & E, then the Yggdrasil burn 11 PM to 1 AM."
     ],
     "2026-09-05": [
       "This was burn night.",
@@ -20,14 +35,16 @@
       "@flowpriestess appears in the footage shot that day.",
       "The positions gave out but the camera did not: the clips are the only record of Saturday.",
       "The one recorded minute is hours before the set, so nothing in the positions describes the night itself.",
-      "The cook-off and the link-up with the Serpent Queen art car (the steamboat) began this night and ran into Sunday morning, so they appear under Sunday, where the positions resume."
+      "The cook-off and the link-up with the Serpent Queen art car (the steamboat) began this night and ran into Sunday morning, so they appear under Sunday, where the positions resume.",
+      "The programme lists a circle for the Man burn, time and rendezvous not set."
     ],
     "2026-09-06": [
       "@myhigherflow was among those DJing that night.",
       "The hours after midnight were the cook-off and the link-up with the Serpent Queen art car (the steamboat), carrying on from Saturday's burn night.",
       "The evening ride was the poop cruise, with DJ Metavillan playing a set called Drop It Like It's Hot.",
       "Hermes was at the temple burn later that evening.",
-      "This is the closing Sunday. Nothing was recorded after 4:22 AM, so neither the cruise nor the burn is in the positions."
+      "This is the closing Sunday. Nothing was recorded after 4:22 AM, so neither the cruise nor the burn is in the positions.",
+      "The programme lists a mysterious exit around the temple burn, and a circle for the temple burn."
     ]
   }
 }
