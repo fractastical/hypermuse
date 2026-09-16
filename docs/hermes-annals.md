@@ -46,10 +46,23 @@ Output is one shared `playa-streets.svg` and a small transparent `<day>.track.sv
 which the page stacks. Inlining the streets into each day instead would have meant eleven
 copies of the same 112 KB of roads; this way the whole set is about 240 KB.
 
-Green is the day's first fix, red the last, faint dots every reported position — so a
-cluster is somewhere the car stood still. The line breaks wherever consecutive fixes are
-more than 400 metres apart, because that is the tracker having been off rather than a
-drive, and joining them would draw a road that never existed.
+### Stops, not a route
+
+The maps draw circles and arcs rather than a line, because a line was a lie. The log's
+median gap is two seconds and its median step four metres: the fixes arrive as dense
+bursts a few metres wide, and then jump a kilometre to the next burst with nothing
+recorded in between. On 28 August all forty-nine fixes sit inside forty-one metres across
+six hours — the car was parked, and what varied was the GPS.
+
+Joining those in order drew a scribble at every stop and an invented road between them.
+So each burst is collapsed into a stop instead: fixes within 120 metres of each other are
+one place, sized by how long it stayed, and revisiting a place draws one circle rather
+than two. Moves between stops are dashed curves, because the driving was never logged and
+a straight solid line would claim a route the data does not know. The faint shaded area is
+the convex hull of the stops — roughly the ground the day covered.
+
+Green is the day's first stop, red the last. A day with one stop gets no red, since
+there is nowhere for it to point.
 
 ## Choosing what is public
 

@@ -210,9 +210,11 @@ function mapFor(day) {
   <img src="maps/playa-streets.svg" alt="" aria-hidden="true">
   <img src="maps/${esc(day)}.track.svg" alt="Where Hermes went on ${esc(day)}">
 </div>
-<p class="mapnote">Where it went. Green is the first fix of the day, red the last; the
-faint dots are every position reported, so a cluster is somewhere it stood still. Breaks
-in the line are the tracker being off rather than the car being lifted.</p>`;
+<p class="mapnote">Where it went. Each circle is somewhere it stopped, sized by how long it
+stayed; green is the first, red the last. The dashed curves are moves between them, drawn
+as curves because the tracker logged the stops and not the driving — the shape says it got
+from one to the other, not which way round. The shaded ground is roughly the day's
+territory.</p>`;
 }
 
 function sectionFor({ day, media }) {
