@@ -438,10 +438,11 @@ const html = `<!doctype html>
   .comment-status { color:#8fa3b8; font-size:13px; align-self:center; }
 </style></head><body><main>
 <h1>The Annals of Hermes</h1>
-<p class="standfirst">Hermes was an art car that spent a week crossing Black Rock City,
-mostly at night, mostly out past the edge of the streets where the city stops. People could
-send for it — for a ride home, or for a set played off its deck at four in the morning. This
-is what it did, day by day, as far as anyone was there to write it down.</p>
+<p class="standfirst">For three thousand years Hermes has been the god of roads, messengers
+and divine mischief. For one week in 2026 he was an art car, and it crossed Black Rock City
+mostly at night, mostly out past the edge of the streets where the city stops pretending to be
+a grid. People could send for it — for a ride home, or for a set played off its deck at four in
+the morning. This is what it did, day by day, as far as anyone was there to write it down.</p>
 <p class="byline">Kept by
 <a href="https://www.instagram.com/metavillan/" rel="noopener">DJ Metavillan</a>, who was
 aboard for every night in this book from the thirtieth of August on, with
