@@ -113,6 +113,24 @@ export async function createHermesDb(connectionString) {
   `);
   await pool.query("create index if not exists hermes_annals_comments_day_idx on hermes_annals_comments (day, at);");
 
+  // People asking to be part of next year. Unlike comments these are never served back to
+  // anyone: they carry a name and a way to reach someone, so the read path exists for
+  // whoever is running Hermes and nothing else. Postgres for the same reason as comments —
+  // a container disk is discarded on deploy, and somebody's offer to play should not be.
+  await pool.query(`
+    create table if not exists hermes_bookings (
+      id bigserial primary key,
+      at timestamptz not null,
+      year integer not null,
+      kind text not null,
+      who text not null,
+      contact text not null,
+      about text not null default '',
+      handled boolean not null default false
+    );
+  `);
+  await pool.query("create index if not exists hermes_bookings_at_idx on hermes_bookings (year, at);");
+
   return {
     async close() {
       await pool.end();
@@ -155,6 +173,31 @@ export async function createHermesDb(connectionString) {
           String(entry.body)
         ]
       );
+    },
+    async saveBooking(entry) {
+      await pool.query(
+        `insert into hermes_bookings (at, year, kind, who, contact, about)
+         values ($1, $2, $3, $4, $5, $6)`,
+        [
+          asIso(entry.at) || new Date().toISOString(),
+          Number(entry.year),
+          String(entry.kind),
+          String(entry.who),
+          String(entry.contact),
+          String(entry.about || "")
+        ]
+      );
+    },
+    /** How many have asked, by kind. Counts only — the rows themselves are not served. */
+    async countBookings(year) {
+      const { rows } = await pool.query(
+        `select kind, count(*)::int as n
+         from hermes_bookings
+         where year = $1
+         group by kind`,
+        [Number(year)]
+      );
+      return rows.map((row) => ({ kind: String(row.kind), n: Number(row.n) }));
     },
     async loadTrack(limit) {
       const n = Math.max(1, Number(limit) || 20000);

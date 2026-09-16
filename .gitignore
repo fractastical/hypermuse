@@ -107,6 +107,10 @@ data/hermes/pickup-requests.jsonl
 data/hermes/art-closest*.jsonl
 data/hermes/people-graph-events.jsonl
 data/hermes/annals-comments.jsonl
+# Offers to be part of next year. The worst of the lot to leak: every line is a name
+# beside a working email or handle, given for one purpose. Nothing serves these back —
+# the endpoint returns counts — so this file and the Postgres table are the only copies.
+data/hermes/bookings.jsonl
 
 # The key that turns names into the pseudonyms in people-graph-events.anon.jsonl. Commit
 # this and the anonymised file stops being anonymous: anyone could HMAC a list of names

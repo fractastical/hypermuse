@@ -1,0 +1,157 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Be part of Hermes next year</title>
+<meta name="description" content="Ask to play a set, host something, ride along or help build Hermes for next year on the playa.">
+<style>
+  :root { color-scheme: dark; }
+  body { margin:0; background:#06090f; color:#f4faff;
+    font:16px/1.6 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif; }
+  main { max-width:640px; margin:0 auto; padding:40px 20px 80px; }
+  h1 { font-size:30px; margin:0 0 10px; }
+  p.standfirst { font-size:18px; color:#dce9f5; margin:0 0 18px; }
+  a { color:#7fd4ff; }
+  .muted { color:#8fa3b8; font-size:14px; }
+  form { margin:26px 0 0; display:grid; gap:16px; }
+  label { display:grid; gap:6px; font-size:15px; }
+  input, textarea, select {
+    font:inherit; color:#f4faff; background:#0b111a; border:1px solid #1d2937;
+    border-radius:8px; padding:10px 12px; width:100%; box-sizing:border-box;
+  }
+  textarea { min-height:110px; resize:vertical; }
+  button {
+    font:inherit; font-weight:600; color:#06090f; background:#7fd4ff; border:0;
+    border-radius:8px; padding:12px 18px; cursor:pointer; justify-self:start;
+  }
+  button:disabled { opacity:0.5; cursor:default; }
+  .status { font-size:15px; min-height:1.6em; }
+  .status.bad { color:#ff9db1; }
+  .status.good { color:#7dffa8; }
+  .tally { border-top:1px solid #1d2937; margin-top:30px; padding-top:18px; }
+  .tally ul { list-style:none; padding:0; margin:8px 0 0; display:flex; flex-wrap:wrap; gap:14px; }
+  .tally li { color:#b8cadb; font-size:14px; }
+  .tally strong { color:#f4faff; }
+  .privacy { color:#6f8296; font-size:13px; line-height:1.55; margin-top:26px; }
+</style>
+</head>
+<body>
+<main>
+<h1>Be part of Hermes next year</h1>
+<p class="standfirst">Hermes is an art car that spends the week crossing the playa, mostly at
+night. People play sets off its deck, it has been the stage for a Shabbat dinner, and it will
+come and collect you if you ask. If you want in on any of that next year, say so here.</p>
+<p class="muted">You can read <a href="/docs/annals/">what it did this year</a> first.</p>
+
+<form id="book" novalidate>
+  <label>What are you asking for?
+    <select name="kind" required>
+      <option value="set">To play a set off the deck</option>
+      <option value="host">To host something on it — a dinner, a ceremony, a talk</option>
+      <option value="ride">A ride, or to be collected</option>
+      <option value="build">To help build or crew it</option>
+      <option value="other">Something else</option>
+    </select>
+  </label>
+  <label>Your name or the name you go by
+    <input name="who" maxlength="80" autocomplete="name" required>
+  </label>
+  <label>How to reach you
+    <input name="contact" maxlength="160" placeholder="email, or an Instagram handle" required>
+  </label>
+  <label>Anything else worth knowing <span class="muted">— optional</span>
+    <textarea name="about" maxlength="1200" placeholder="What you play, when you're on playa, how many of you there are."></textarea>
+  </label>
+  <button type="submit">Send it</button>
+  <p class="status" id="status" role="status" aria-live="polite"></p>
+</form>
+
+<div class="tally" id="tally" hidden>
+  <div class="muted">Asked so far for <span id="year"></span></div>
+  <ul id="counts"></ul>
+</div>
+
+<p class="privacy">What you send goes to whoever is running Hermes and nowhere else. It is not
+published, it is not shown back to anyone on this page, and the only thing this site will ever
+say out loud is how many people have asked. Your address is used to stop the form being
+flooded and is not written down.</p>
+</main>
+
+<script>
+const KINDS = {
+  set: "to play", host: "to host", ride: "for a ride", build: "to build", other: "something else"
+};
+const form = document.getElementById("book");
+const status = document.getElementById("status");
+
+// The counts double as proof the endpoint is actually there. On GitHub Pages, or against a
+// container built before this existed, the fetch fails and the tally simply stays hidden —
+// but then the form would fail too, so say so up front rather than after someone has typed.
+async function tally() {
+  try {
+    const res = await fetch("/api/hermes/bookings", { headers: { accept: "application/json" } });
+    if (!res.ok) throw new Error("HTTP " + res.status);
+    const data = await res.json();
+    document.getElementById("year").textContent = data.year;
+    const counts = (data.counts || []).filter((c) => c.n > 0);
+    if (counts.length) {
+      document.getElementById("counts").innerHTML = counts
+        .map((c) => "<li><strong>" + c.n + "</strong> " + (KINDS[c.kind] || c.kind) + "</li>")
+        .join("");
+      document.getElementById("tally").hidden = false;
+    }
+    if (!data.open) {
+      status.textContent = "Bookings are closed at the moment.";
+      status.className = "status bad";
+      form.querySelector("button").disabled = true;
+    }
+  } catch (_) {
+    status.textContent = "This form needs the Hermes server, which is not answering here. " +
+      "Try returnofhermes.com.";
+    status.className = "status bad";
+    form.querySelector("button").disabled = true;
+  }
+}
+
+form.addEventListener("submit", async (event) => {
+  event.preventDefault();
+  const button = form.querySelector("button");
+  const body = {
+    kind: form.kind.value,
+    who: form.who.value.trim(),
+    contact: form.contact.value.trim(),
+    about: form.about.value.trim()
+  };
+  if (!body.who || !body.contact) {
+    status.textContent = "A name and some way to reach you, both.";
+    status.className = "status bad";
+    return;
+  }
+  button.disabled = true;
+  status.textContent = "Sending…";
+  status.className = "status";
+  try {
+    const res = await fetch("/api/hermes/bookings", {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify(body)
+    });
+    const data = await res.json().catch(() => ({}));
+    if (!res.ok || !data.ok) throw new Error(data.error || "HTTP " + res.status);
+    // Replaced rather than appended: leaving the filled form on screen invites a second
+    // send, and every duplicate is another row someone has to read through by hand.
+    form.innerHTML = '<p class="status good">Sent — thank you. Someone will be in touch ' +
+      'about ' + data.year + '.</p>';
+    tally();
+  } catch (err) {
+    status.textContent = err.message || "That did not go through.";
+    status.className = "status bad";
+    button.disabled = false;
+  }
+});
+
+tally();
+</script>
+</body>
+</html>

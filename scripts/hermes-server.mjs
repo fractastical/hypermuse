@@ -251,6 +251,17 @@ const pickupRecent = [];
   // Addresses are held only to rate limit, in memory, and are never written down: the
   // record is meant to say who chose to sign a comment, not where they were.
   const annalsCommentPosts = new Map();
+  // Offers to be part of next year. A separate file from everything else because it is the
+  // only one holding a way to contact somebody, which means it must never be served back or
+  // published — the read path here returns counts, never rows.
+  const bookingsPath = process.env.HERMES_BOOKINGS_LOG ||
+    join(root, "data", "hermes", "bookings.jsonl");
+  const BOOKINGS_OPEN = String(process.env.HERMES_BOOKINGS || "1") !== "0";
+  const BOOKING_YEAR = Math.max(2026, Number(process.env.HERMES_BOOKING_YEAR || 2027));
+  const BOOKING_KINDS = new Set(["set", "host", "ride", "build", "other"]);
+  const BOOKING_BURST = Math.max(1, Number(process.env.HERMES_BOOKING_BURST || 4));
+  const BOOKING_WINDOW_MS = Math.max(1000, Number(process.env.HERMES_BOOKING_WINDOW_MS || 900000));
+  const bookingPosts = new Map();
   const peopleGraphPath = join(root, "data", "hermes", "people-graph-events.jsonl");
 const PEOPLE_GRAPH_LIMIT = Math.max(100, Number(process.env.HERMES_PEOPLE_GRAPH_LIMIT || 5000));
 const peopleGraphRecent = [];
@@ -442,6 +453,42 @@ async function readAnnalsComments(day) {
     }
   }
   return annalsCommentsFromFile(day);
+}
+
+function persistBooking(entry) {
+  try {
+    mkdirSync(dirname(bookingsPath), { recursive: true });
+    appendFileSync(bookingsPath, JSON.stringify(entry) + "\n");
+  } catch (err) {
+    console.error(`[hermes] could not write booking: ${err.message}`);
+  }
+  if (db) db.saveBooking(entry).catch((err) =>
+    console.error(`[hermes] could not write booking to postgres: ${err.message}`));
+}
+
+/**
+ * How many have asked, by kind, and nothing else. Deliberately not a way to read the
+ * bookings: every row holds a name and a way to reach someone, so an endpoint that
+ * returned them would be a contact list behind a URL with no password on it.
+ */
+async function bookingCounts() {
+  if (db) {
+    try {
+      return await db.countBookings(BOOKING_YEAR);
+    } catch (err) {
+      console.error(`[hermes] could not count bookings in postgres: ${err.message}`);
+    }
+  }
+  if (!existsSync(bookingsPath)) return [];
+  const tally = new Map();
+  for (const line of readFileSync(bookingsPath, "utf8").split("\n")) {
+    if (!line.trim()) continue;
+    let row;
+    try { row = JSON.parse(line); } catch { continue; }
+    if (Number(row.year) !== BOOKING_YEAR) continue;
+    tally.set(row.kind, (tally.get(row.kind) || 0) + 1);
+  }
+  return [...tally].map(([kind, n]) => ({ kind, n }));
 }
 
 function persistAnnalsComment(entry) {
@@ -1960,6 +2007,13 @@ const handle = async (req, res) => {
       res.end("redirecting to /docs/annals/\n");
       return;
     }
+    // Short enough to say out loud on a deck at three in the morning, which is where
+    // somebody is most likely to ask how they get involved next year.
+    if (req.method === "GET" && (url.pathname === "/book" || url.pathname === "/book/")) {
+      res.writeHead(302, { location: "/hermes-book.html", "cache-control": "no-store" });
+      res.end("redirecting to /hermes-book.html\n");
+      return;
+    }
     if (req.method === "GET" && url.pathname === "/" && hermesHost) {
       res.writeHead(302, { location: "/docs/annals/", "cache-control": "no-store" });
       res.end("redirecting to /docs/annals/\n");
@@ -2426,6 +2480,57 @@ const handle = async (req, res) => {
       sendJson(res, 200, { ok: true, request: next });
       return;
     }
+    if (url.pathname === "/api/hermes/bookings" && (req.method === "GET" || req.method === "POST")) {
+      if (req.method === "GET") {
+        // Counts and the year, so the page can say what it is taking and how many have
+        // asked. Never the rows: see bookingCounts.
+        sendJson(res, 200, {
+          ok: true, year: BOOKING_YEAR, open: BOOKINGS_OPEN,
+          kinds: [...BOOKING_KINDS], counts: await bookingCounts()
+        });
+        return;
+      }
+      if (!BOOKINGS_OPEN) {
+        sendJson(res, 403, { ok: false, error: "bookings are closed" });
+        return;
+      }
+      let payload;
+      try {
+        payload = JSON.parse((await readBody(req)) || "{}");
+      } catch {
+        sendJson(res, 400, { ok: false, error: "expected json" });
+        return;
+      }
+      const kind = String(payload.kind || "").trim().toLowerCase();
+      if (!BOOKING_KINDS.has(kind)) {
+        sendJson(res, 400, { ok: false, error: "what are you asking for?" });
+        return;
+      }
+      const who = tidy(payload.who, 80);
+      const contact = tidy(payload.contact, 160);
+      const about = cleanComment(payload.about, 1200);
+      if (!who || !contact) {
+        sendJson(res, 400, { ok: false, error: "a name and some way to reach you, both" });
+        return;
+      }
+      const ip = clientIp(req);
+      const now = Date.now();
+      const recent = (bookingPosts.get(ip) || []).filter((at) => now - at < BOOKING_WINDOW_MS);
+      if (recent.length >= BOOKING_BURST) {
+        sendJson(res, 429, { ok: false, error: "that is a lot at once — come back in a little while" });
+        return;
+      }
+      recent.push(now);
+      bookingPosts.set(ip, recent);
+      persistBooking({
+        at: new Date(now).toISOString(), year: BOOKING_YEAR, kind, who, contact, about
+      });
+      // No echo of what was sent: a form that reflects a stranger's contact details back
+      // into the page is one screenshot away from publishing them.
+      sendJson(res, 200, { ok: true, year: BOOKING_YEAR });
+      return;
+    }
+
     if (url.pathname === "/api/hermes/annals/comments" && (req.method === "GET" || req.method === "POST")) {
       if (req.method === "GET") {
         const asked = String(url.searchParams.get("day") || "").trim();

@@ -35,6 +35,9 @@ const curationPath = resolve(repo, arg("curation", join("data", "hermes", "annal
 const STILL_MAX = Number(arg("still-max", 1600));
 const VIDEO_MAX_H = Number(arg("video-max", 720));
 const COMMENT_API = arg("api", "https://returnofhermes.com/api/hermes/annals/comments");
+// Absolute, because this page is also served from GitHub Pages under /hypermuse/, where a
+// root-relative /book would land on github.io itself rather than on Hermes.
+const BOOK_URL = arg("book", "https://returnofhermes.com/book");
 
 const mb = (bytes) => (bytes / 1048576).toFixed(bytes >= 10485760 ? 0 : 1) + " MB";
 const esc = (s) => String(s == null ? "" : s)
@@ -386,6 +389,7 @@ const html = `<!doctype html>
   .artlist .what { display:flex; flex-direction:column; min-width:0; }
   .artlist .how { color:#8fa3b8; font-size:13px; }
   .artnote { color:#6f8296; font-size:12.5px; line-height:1.5; margin:12px 0 0; max-width:40em; }
+  .next p { max-width:34em; }
   a { color:#7fd4ff; }
   .sub { color:#8fa3b8; font-size:14px; margin-bottom:28px; }
   section { border-top:1px solid #1d2937; padding:26px 0; }
@@ -452,6 +456,14 @@ ${hasProgram ? `<figure class="program">
 </figure>` : ""}
 <div class="sub">${publishedDays.length} ${publishedDays.length === 1 ? "day" : "days"} on the playa · ${totalMedia} photograph${totalMedia === 1 ? "" : "s"} and clip${totalMedia === 1 ? "" : "s"} · anyone may comment</div>
 ${publishedDays.map(sectionFor).join("\n")}
+<section class="next">
+  <h2>Next year</h2>
+  <p>Hermes goes out again. If you want to play a set off the deck, host something on it, be
+  collected by it, or help build the thing, you can
+  <a href="${esc(BOOK_URL)}">ask to be part of it</a>.</p>
+  <p class="mapnote">That form needs the Hermes server, so it works on returnofhermes.com
+  rather than on this copy of the page.</p>
+</section>
 <script>
 // Comments live on the hermes server rather than in this page, because the page is a
 // static file on GitHub Pages and cannot keep anything. A day with no comments and a
