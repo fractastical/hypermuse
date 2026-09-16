@@ -1880,13 +1880,32 @@ function staticPath(urlPath) {
 }
 
 function serveFile(req, res) {
-  const full = staticPath(req.url || "/");
+  let full = staticPath(req.url || "/");
   if (!full || !existsSync(full)) {
     res.writeHead(404, { "content-type": "text/plain; charset=utf-8" });
     res.end("not found\n");
     return;
   }
-  const st = statSync(full);
+  let st = statSync(full);
+  if (st.isDirectory()) {
+    // A directory means the index inside it. Only "/" used to resolve that way, so
+    // /docs/annals/ — the URL anyone would share, and the one "/" now redirects to —
+    // answered 403. Still 403 when there is no index: this serves a page, never a listing.
+    const index = join(full, "index.html");
+    const path = req.url.split("?")[0];
+    if (!path.endsWith("/")) {
+      // Without the trailing slash the browser resolves the page's relative media and
+      // maps against the parent directory, so the annals would load as text with every
+      // photograph broken.
+      res.writeHead(302, { location: path + "/", "cache-control": "no-store" });
+      res.end("redirecting to " + path + "/\n");
+      return;
+    }
+    if (existsSync(index) && statSync(index).isFile()) {
+      full = index;
+      st = statSync(full);
+    }
+  }
   if (!st.isFile()) {
     res.writeHead(403, { "content-type": "text/plain; charset=utf-8" });
     res.end("forbidden\n");
@@ -1915,17 +1934,29 @@ const handle = async (req, res) => {
     }
 
     const url = new URL(req.url || "/", `http://${req.headers.host || "localhost"}`);
-    // Every public Hermes hostname is for dispatch, not for the promo homepage,
-    // so landing on "/" should go straight to the form. The apex matters as much
-    // as the subdomain: it is what the QR code on the moon display points at, and
-    // serving it the HyperMuse page sends a scanned rider to the wrong product.
-    if (req.method === "GET" && url.pathname === "/") {
-      const hostOnly = String(req.headers.host || "").split(":")[0].toLowerCase();
-      if (hostOnly === "returnofhermes.com" || hostOnly.endsWith(".returnofhermes.com")) {
-        res.writeHead(302, { location: "/hermes-live.html", "cache-control": "no-store" });
-        res.end("redirecting to /hermes-live.html\n");
-        return;
-      }
+    // Every public Hermes hostname is for Hermes rather than for the HyperMuse promo
+    // page, so "/" has to go somewhere of its own. It used to go to the dispatch form,
+    // because during the burn the apex was what the QR code on the moon display pointed
+    // at and a scanned rider needed to be able to ask for a pickup. The week is over,
+    // so the same scan now wants the account of it, and "/" goes to the annals instead.
+    // The form is still at /hermes-live.html for anyone who wants it, and if Hermes
+    // rolls again this should be pointed back at it for the duration.
+    const hermesHost = (host) => {
+      const hostOnly = String(host || "").split(":")[0].toLowerCase();
+      return hostOnly === "returnofhermes.com" || hostOnly.endsWith(".returnofhermes.com");
+    };
+    // A readable way in, since the real path is an artefact of the site being served out
+    // of the repo. Redirected rather than aliased: the page loads its media and maps by
+    // relative path, so it has to be read from the directory it actually lives in.
+    if (req.method === "GET" && (url.pathname === "/annals" || url.pathname === "/annals/")) {
+      res.writeHead(302, { location: "/docs/annals/", "cache-control": "no-store" });
+      res.end("redirecting to /docs/annals/\n");
+      return;
+    }
+    if (req.method === "GET" && url.pathname === "/" && hermesHost(req.headers.host)) {
+      res.writeHead(302, { location: "/docs/annals/", "cache-control": "no-store" });
+      res.end("redirecting to /docs/annals/\n");
+      return;
     }
     // Readable over http because the times when this matters most are the times
     // there is no shell on the box: a Railway container, or a phone in the dust
