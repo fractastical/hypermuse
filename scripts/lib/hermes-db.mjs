@@ -98,9 +98,63 @@ export async function createHermesDb(connectionString) {
   await pool.query("create index if not exists hermes_people_graph_events_at_idx on hermes_people_graph_events (at);");
   await pool.query("alter table hermes_people_graph_events add column if not exists severity_rank integer;");
 
+  // What people write on the published annals. In Postgres rather than only the JSONL
+  // because a container's disk goes away on every deploy, and a comment somebody left
+  // about a night they were there is not a thing to lose to a redeploy.
+  await pool.query(`
+    create table if not exists hermes_annals_comments (
+      id bigserial primary key,
+      at timestamptz not null,
+      day text not null,
+      who text not null,
+      body text not null,
+      hidden boolean not null default false
+    );
+  `);
+  await pool.query("create index if not exists hermes_annals_comments_day_idx on hermes_annals_comments (day, at);");
+
   return {
     async close() {
       await pool.end();
+    },
+    /** Comments on one day, oldest first, or on every day when day is empty. */
+    async loadAnnalsComments(day, limit) {
+      const n = Math.max(1, Number(limit) || 500);
+      const { rows } = day
+        ? await pool.query(
+            `select at, day, who, body
+             from hermes_annals_comments
+             where hidden = false and day = $1
+             order by at asc
+             limit $2`,
+            [String(day), n]
+          )
+        : await pool.query(
+            `select at, day, who, body
+             from hermes_annals_comments
+             where hidden = false
+             order by at asc
+             limit $1`,
+            [n]
+          );
+      return rows.map((row) => ({
+        at: new Date(row.at).toISOString(),
+        day: String(row.day),
+        who: String(row.who),
+        body: String(row.body)
+      }));
+    },
+    async saveAnnalsComment(entry) {
+      await pool.query(
+        `insert into hermes_annals_comments (at, day, who, body)
+         values ($1, $2, $3, $4)`,
+        [
+          asIso(entry.at) || new Date().toISOString(),
+          String(entry.day),
+          String(entry.who),
+          String(entry.body)
+        ]
+      );
     },
     async loadTrack(limit) {
       const n = Math.max(1, Number(limit) || 20000);

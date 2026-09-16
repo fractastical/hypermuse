@@ -238,7 +238,20 @@ const PICKUP_REMOTE_WRITE = String(process.env.HERMES_PICKUP_REMOTE_WRITE || "1"
 // approved dj-set request overrides it either way.
 const NOW_PLAYING_DEFAULT = String(process.env.HERMES_NOW_PLAYING_DEFAULT || "").trim().slice(0, 80);
 const pickupRecent = [];
-const peopleGraphPath = join(root, "data", "hermes", "people-graph-events.jsonl");
+  // The annals' comment box. Open to anyone who gives a name, because the people who
+  // were there are a camp rather than a set of GitHub accounts, and a memory nobody
+  // can add to is not much of a record. Its own file, so the published page can be
+  // rebuilt and rehosted without touching what anyone wrote.
+  const annalsCommentsPath = process.env.HERMES_ANNALS_COMMENTS_LOG ||
+    join(root, "data", "hermes", "annals-comments.jsonl");
+  const ANNALS_COMMENTS_OPEN = String(process.env.HERMES_ANNALS_COMMENTS || "1") !== "0";
+  const ANNALS_COMMENT_BURST = Math.max(1, Number(process.env.HERMES_ANNALS_COMMENT_BURST || 6));
+  const ANNALS_COMMENT_WINDOW_MS = Math.max(1000,
+    Number(process.env.HERMES_ANNALS_COMMENT_WINDOW_MS || 600000));
+  // Addresses are held only to rate limit, in memory, and are never written down: the
+  // record is meant to say who chose to sign a comment, not where they were.
+  const annalsCommentPosts = new Map();
+  const peopleGraphPath = join(root, "data", "hermes", "people-graph-events.jsonl");
 const PEOPLE_GRAPH_LIMIT = Math.max(100, Number(process.env.HERMES_PEOPLE_GRAPH_LIMIT || 5000));
 const peopleGraphRecent = [];
 let pickupLastSyncAt = 0;
@@ -402,6 +415,63 @@ function saveArtClosest(entry) {
   } catch (err) {
     console.error(`[hermes] could not write nearest-art log: ${err.message}`);
   }
+}
+
+const DAY_KEY = /^\d{4}-\d{2}-\d{2}$/;
+// Unlike tidy(), this keeps the line breaks somebody typed, because a comment about a
+// night is often two thoughts rather than one sentence. Runs of blank lines collapse so
+// the layout cannot be shoved about from the box.
+const cleanComment = (s, n) => String(s || "")
+  .replace(/\r/g, "")
+  .replace(/[ \t]+/g, " ")
+  .replace(/\n{3,}/g, "\n\n")
+  .trim()
+  .slice(0, n);
+
+/**
+ * The comments on a day, oldest first, from Postgres when there is one and from the
+ * JSONL otherwise — the same two-store arrangement as the pickup requests, because a
+ * container's disk does not survive a deploy but a laptop has no database.
+ */
+async function readAnnalsComments(day) {
+  if (db) {
+    try {
+      return await db.loadAnnalsComments(day, 500);
+    } catch (err) {
+      console.error(`[hermes] could not read comments from postgres: ${err.message}`);
+    }
+  }
+  return annalsCommentsFromFile(day);
+}
+
+function persistAnnalsComment(entry) {
+  try {
+    mkdirSync(dirname(annalsCommentsPath), { recursive: true });
+    appendFileSync(annalsCommentsPath, JSON.stringify(entry) + "\n");
+  } catch (err) {
+    console.error(`[hermes] could not write comment: ${err.message}`);
+  }
+  if (db) db.saveAnnalsComment(entry).catch((err) =>
+    console.error(`[hermes] could not write comment to postgres: ${err.message}`));
+}
+
+/** The comments on a day, oldest first. A day of "" means every day. */
+function annalsCommentsFromFile(day) {
+  if (!existsSync(annalsCommentsPath)) return [];
+  const out = [];
+  for (const line of readFileSync(annalsCommentsPath, "utf8").split("\n")) {
+    if (!line.trim()) continue;
+    let row;
+    try { row = JSON.parse(line); } catch { continue; }
+    if (!row || !row.body) continue;
+    // hidden: true is how something gets taken down — edit the line, keep the record
+    // of it having been said. Which is also why the file is never served: reading it
+    // raw would hand back exactly what was withdrawn.
+    if (row.hidden) continue;
+    if (day && row.day !== day) continue;
+    out.push({ who: row.who, body: row.body, at: row.at, day: row.day });
+  }
+  return out;
 }
 
 function clientIp(req) {
@@ -1791,7 +1861,10 @@ const NEVER_SERVE = [
   join("data", "hermes", "location-feed.jsonl"),
   join("data", "hermes", "location-feed-mock.jsonl"),
   join("data", "hermes", "art-closest.jsonl"),
-  join("data", "hermes", "art-closest-mock.jsonl")
+  join("data", "hermes", "art-closest-mock.jsonl"),
+  // Read through the api instead, which drops anything marked hidden. Handing the raw
+  // file out would give back the comments that were taken down.
+  join("data", "hermes", "annals-comments.jsonl")
 ];
 
 function staticPath(urlPath) {
@@ -2315,6 +2388,51 @@ const handle = async (req, res) => {
       sendJson(res, 200, { ok: true, request: next });
       return;
     }
+    if (url.pathname === "/api/hermes/annals/comments" && (req.method === "GET" || req.method === "POST")) {
+      if (req.method === "GET") {
+        const asked = String(url.searchParams.get("day") || "").trim();
+        const day = DAY_KEY.test(asked) ? asked : "";
+        sendJson(res, 200, {
+          ok: true, day, open: ANNALS_COMMENTS_OPEN, comments: await readAnnalsComments(day)
+        });
+        return;
+      }
+      if (!ANNALS_COMMENTS_OPEN) {
+        sendJson(res, 403, { ok: false, error: "the comment box is closed" });
+        return;
+      }
+      let payload;
+      try {
+        payload = JSON.parse((await readBody(req)) || "{}");
+      } catch {
+        sendJson(res, 400, { ok: false, error: "expected json" });
+        return;
+      }
+      const day = String(payload.day || "").trim();
+      if (!DAY_KEY.test(day)) {
+        sendJson(res, 400, { ok: false, error: "which day is this about?" });
+        return;
+      }
+      const who = tidy(payload.who, 60);
+      const body = cleanComment(payload.body, 1200);
+      if (!who || !body) {
+        sendJson(res, 400, { ok: false, error: "a name and something to say, both" });
+        return;
+      }
+      const ip = clientIp(req);
+      const now = Date.now();
+      const recent = (annalsCommentPosts.get(ip) || []).filter((at) => now - at < ANNALS_COMMENT_WINDOW_MS);
+      if (recent.length >= ANNALS_COMMENT_BURST) {
+        sendJson(res, 429, { ok: false, error: "that is a lot at once — come back in a few minutes" });
+        return;
+      }
+      recent.push(now);
+      annalsCommentPosts.set(ip, recent);
+      persistAnnalsComment({ at: new Date(now).toISOString(), day, who, body });
+      sendJson(res, 200, { ok: true, day, comments: await readAnnalsComments(day) });
+      return;
+    }
+
     if (url.pathname === "/api/hermes/pickup" && (req.method === "POST" || req.method === "GET")) {
       if (req.method === "GET") {
         await syncPickupsFromUpstream(req);

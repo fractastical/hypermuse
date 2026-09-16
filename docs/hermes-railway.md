@@ -73,8 +73,20 @@ When `DATABASE_URL` is present, Hermes writes to Postgres:
 - `hermes_track_points`
 - `hermes_location_feed`
 - `hermes_pickup_requests`
+- `hermes_annals_comments`
 
 Local JSONL files remain as fallback and compatibility mode.
+
+`hermes_annals_comments` is what the published annals collect from readers, and it is
+the one table whose contents cannot be reconstructed from anything: a track point can
+be re-imported and a comment cannot. Without `DATABASE_URL` the comments live only in
+`data/hermes/annals-comments.jsonl`, which on Railway is a container disk that is
+discarded on every deploy — so on Railway the database is not optional for them.
+
+Taking a comment down means setting `hidden` on its row (or on its JSONL line); the
+read path filters those out, and the raw file is never served, so nothing withdrawn
+comes back through a different door. Set `HERMES_ANNALS_COMMENTS=0` to close the box
+altogether.
 
 ## 5) Point DNS off the tunnel
 
