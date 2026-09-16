@@ -1,0 +1,42 @@
+{
+  "note": "Captions and credits for the annals. Files are found by folder as well: assets/hermes-annals/<day>/ and assets/hermes-annals/art/<slug>/. Entries here may set src, caption, art, shoot (still|video) and credit.",
+  "days": {
+    "2026-08-28": [],
+    "2026-08-29": [],
+    "2026-08-30": [],
+    "2026-08-31": [],
+    "2026-09-01": [],
+    "2026-09-02": [],
+    "2026-09-03": [],
+    "2026-09-04": [],
+    "2026-09-05": [],
+    "2026-09-06": [],
+    "2026-09-07": []
+  },
+  "art": {
+    "small-beginnings": [],
+    "i-have-dust-in-curious-places": [],
+    "the-future-mirror": [],
+    "vitallink": [],
+    "polio-rodeo": [],
+    "ovo-ignis": [],
+    "trash-fence-souvenirs": [],
+    "hex-pand": [],
+    "altar-of-awen": [],
+    "puzzling-evidence": [],
+    "a-quiet-place-to-scream": [],
+    "as-above-so-cee-lo": [],
+    "nova-heaven": [],
+    "island-of-lost-buoys": [],
+    "the-lightning-tower": [],
+    "sa-s-ra": [],
+    "g-string": [],
+    "as-above-so-below": [],
+    "nora-nonsense-observation-reward-automaton": [],
+    "plastic-planet": [],
+    "what-lies-beneath": [],
+    "enceladus": [],
+    "message-to-the-parents-we-should-have-had": [],
+    "panopticonotopia-3-0": []
+  }
+}
