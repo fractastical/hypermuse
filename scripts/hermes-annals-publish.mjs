@@ -130,6 +130,16 @@ if (existsSync(join(mapSourceDir, "playa-streets.svg"))) {
   }
 }
 
+// Who gets a link when the copy names them. Kept out of the accounts themselves because
+// the accounts are escaped on the way out — which is what stops a narrative from being a
+// hole in the page — so a credit has to be reattached after escaping rather than typed in.
+const creditsPath = join(repo, "data", "hermes", "annals-credits.json");
+const credits = existsSync(creditsPath)
+  ? (JSON.parse(readFileSync(creditsPath, "utf8")).people || {})
+  : {};
+// Longest first, so someone whose name contains another's is linked as themselves.
+const creditNames = Object.keys(credits).sort((a, b) => b.length - a.length);
+
 const mediaDir = join(outDir, "media");
 // A rebuild after unchoosing something must not leave the old file behind, still
 // reachable by anyone who kept the link.
@@ -217,6 +227,22 @@ to get there. The shaded ground is roughly the territory the day covered.</p>`;
 }
 
 /**
+ * Turns the first mention of a credited name into a link. Runs on already-escaped text,
+ * so the only markup in the result is the anchor this function put there.
+ */
+function linkCredits(escaped) {
+  let out = escaped;
+  for (const name of creditNames) {
+    const safeName = esc(name);
+    if (!out.includes(safeName)) continue;
+    // String replace, not a regex, so it takes the first mention and leaves the rest.
+    out = out.replace(safeName,
+      `<a href="${esc(credits[name])}" rel="noopener">${safeName}</a>`);
+  }
+  return out;
+}
+
+/**
  * The line under each day. It used to open with a count of GPS readings, which tells a
  * reader nothing they can feel — nobody knows whether 677 is a lot. Hours and distance
  * they can picture, and a day of one reading is better described than counted.
@@ -256,7 +282,7 @@ function sectionFor({ day, media }) {
 <h2><a href="#day-${esc(day.day)}">${esc(facts.dayName || day.day)}</a></h2>
 <p class="headline">${esc(day.headline || "")}</p>
 ${lead ? figureFor(lead, true) : ""}
-<p>${esc(day.account || "")}</p>
+<p>${linkCredits(esc(day.account || ""))}</p>
 ${mapFor(day.day)}
 <p class="meta">${metaLine(facts)}</p>
 ${stops ? `<h3>Stops</h3><ul>${stops}</ul>` : ""}
@@ -288,6 +314,8 @@ const html = `<!doctype html>
   main { max-width: 860px; margin: 0 auto; padding: 32px 20px 80px; }
   h1 { font-size: 30px; margin: 0 0 6px; }
   .standfirst { font-size:18px; line-height:1.65; color:#dce9f5; margin:10px 0 14px; max-width:34em; }
+  .byline { font-size:15px; color:#b8cadb; margin:0 0 14px; max-width:34em; }
+  a { color:#7fd4ff; }
   .sub { color:#8fa3b8; font-size:14px; margin-bottom:28px; }
   section { border-top:1px solid #1d2937; padding:26px 0; }
   h2 { font-size:21px; margin:0 0 4px; }
@@ -339,6 +367,8 @@ const html = `<!doctype html>
 mostly at night, mostly out past the edge of the streets where the city stops. People could
 send for it — for a ride home, or for a set played off its deck at four in the morning. This
 is what it did, day by day, as far as anyone was there to write it down.</p>
+<p class="byline">Kept by <a href="https://www.instagram.com/metavillan/" rel="noopener">DJ
+Metavillan</a>, who was aboard for every night in this book from the thirtieth of August on.</p>
 <div class="sub">${publishedDays.length} ${publishedDays.length === 1 ? "day" : "days"} on the playa · ${totalMedia} photograph${totalMedia === 1 ? "" : "s"} and clip${totalMedia === 1 ? "" : "s"} · anyone may comment</div>
 ${publishedDays.map(sectionFor).join("\n")}
 <script>
