@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1400" height="900" viewBox="0 0 1400 900">
+<path d="M347.4 205.5 L773.2 307.4 L609.2 508.8 Z" fill="#ff9d3d" opacity="0.07" stroke="#ff9d3d" stroke-opacity="0.22" stroke-width="2" stroke-linejoin="round"/>
+<path d="M773.2 307.4 Q663.0 385.2 609.2 508.8" fill="none" stroke="#ff9d3d" stroke-width="2.4" stroke-dasharray="7 6" opacity="0.72" stroke-linecap="round"/>
+<path d="M609.2 508.8 Q520.8 320.5 347.4 205.5" fill="none" stroke="#ff9d3d" stroke-width="2.4" stroke-dasharray="7 6" opacity="0.72" stroke-linecap="round"/>
+<circle cx="773.2" cy="307.4" r="5.4" fill="#ffd166" fill-opacity="0.34" stroke="#ffd166" stroke-width="2"/>
+<circle cx="609.2" cy="508.8" r="6.5" fill="#ffd166" fill-opacity="0.34" stroke="#ffd166" stroke-width="2"/>
+<circle cx="347.4" cy="205.5" r="5.0" fill="#ffd166" fill-opacity="0.34" stroke="#ffd166" stroke-width="2"/>
+<circle cx="773.2" cy="307.4" r="5" fill="#7dffa8"/>
+<circle cx="347.4" cy="205.5" r="5" fill="#ff5c7a"/>
+
+<text x="785.2" y="333.4" font-size="19" font-family="Menlo, monospace" stroke="#06090f" stroke-width="4" paint-order="stroke" fill="rgba(255,255,255,0.94)">1:12 AM</text>
+<text x="359.4" y="231.5" font-size="19" font-family="Menlo, monospace" stroke="#06090f" stroke-width="4" paint-order="stroke" fill="rgba(255,255,255,0.94)">4:22 AM</text>
+</svg>

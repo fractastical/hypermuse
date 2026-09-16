@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1400" height="900" viewBox="0 0 1400 900">
+
+
+<circle cx="380.2" cy="472.5" r="26.0" fill="#ffd166" fill-opacity="0.34" stroke="#ffd166" stroke-width="2"/>
+<circle cx="380.2" cy="472.5" r="5" fill="#7dffa8"/>
+
+<text x="392.2" y="438.5" font-size="19" font-family="Menlo, monospace" stroke="#06090f" stroke-width="4" paint-order="stroke" fill="rgba(255,255,255,0.94)">5 h 54 min</text>
+<text x="392.2" y="498.5" font-size="19" font-family="Menlo, monospace" stroke="#06090f" stroke-width="4" paint-order="stroke" fill="rgba(255,255,255,0.94)">3:59 PM</text>
+
+</svg>

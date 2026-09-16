@@ -1,0 +1,182 @@
+{
+  "note": "Which media are public. Written by hand on 2026-09-16: everything, with each day s first clip as a placeholder lead. Mark a different best-of in annals-curator.html and re-export to change it.",
+  "publish": {
+    "assets/hermes-annals/2026-08-28/IMG_4261.mp4": {
+      "publish": true,
+      "lead": true
+    },
+    "assets/hermes-annals/2026-08-28/b7cbef24-ce41-4317-b780-3c2e33283a1a.mp4": {
+      "publish": true
+    },
+    "assets/hermes-annals/2026-08-29/IMG_4271.mp4": {
+      "publish": true,
+      "lead": true
+    },
+    "assets/hermes-annals/2026-08-29/IMG_4279.jpg": {
+      "publish": true
+    },
+    "assets/hermes-annals/2026-08-29/IMG_4282.jpg": {
+      "publish": true
+    },
+    "assets/hermes-annals/2026-08-29/IMG_4283.jpg": {
+      "publish": true
+    },
+    "assets/hermes-annals/2026-08-29/IMG_4293.jpg": {
+      "publish": true
+    },
+    "assets/hermes-annals/2026-08-30/IMG_4297.mp4": {
+      "publish": true,
+      "lead": true
+    },
+    "assets/hermes-annals/2026-08-30/IMG_4299.mp4": {
+      "publish": true
+    },
+    "assets/hermes-annals/2026-08-30/IMG_4300.mp4": {
+      "publish": true
+    },
+    "assets/hermes-annals/2026-08-30/IMG_8953.mp4": {
+      "publish": true
+    },
+    "assets/hermes-annals/2026-08-30/IMG_8954.jpg": {
+      "publish": true
+    },
+    "assets/hermes-annals/2026-08-30/IMG_8957.jpg": {
+      "publish": true
+    },
+    "assets/hermes-annals/2026-08-31/IMG_4325.jpg": {
+      "publish": true
+    },
+    "assets/hermes-annals/2026-08-31/IMG_4329.jpg": {
+      "publish": true
+    },
+    "assets/hermes-annals/2026-08-31/IMG_4330.mp4": {
+      "publish": true,
+      "lead": true
+    },
+    "assets/hermes-annals/2026-08-31/IMG_4331.mp4": {
+      "publish": true
+    },
+    "assets/hermes-annals/2026-08-31/IMG_4332.jpg": {
+      "publish": true
+    },
+    "assets/hermes-annals/2026-08-31/IMG_4334.jpg": {
+      "publish": true
+    },
+    "assets/hermes-annals/2026-08-31/IMG_4335.mp4": {
+      "publish": true
+    },
+    "assets/hermes-annals/2026-08-31/IMG_4337.jpg": {
+      "publish": true
+    },
+    "assets/hermes-annals/2026-08-31/IMG_4338.mp4": {
+      "publish": true
+    },
+    "assets/hermes-annals/2026-08-31/IMG_4339.jpg": {
+      "publish": true
+    },
+    "assets/hermes-annals/2026-08-31/IMG_4340.mp4": {
+      "publish": true
+    },
+    "assets/hermes-annals/2026-08-31/IMG_4345.mp4": {
+      "publish": true
+    },
+    "assets/hermes-annals/2026-08-31/IMG_8967.mp4": {
+      "publish": true
+    },
+    "assets/hermes-annals/2026-08-31/IMG_8973.jpg": {
+      "publish": true
+    },
+    "assets/hermes-annals/2026-08-31/IMG_8979.jpg": {
+      "publish": true
+    },
+    "assets/hermes-annals/2026-08-31/IMG_8990.mp4": {
+      "publish": true
+    },
+    "assets/hermes-annals/2026-09-01/IMG_4349.jpg": {
+      "publish": true
+    },
+    "assets/hermes-annals/2026-09-01/IMG_4350.mp4": {
+      "publish": true,
+      "lead": true
+    },
+    "assets/hermes-annals/2026-09-01/IMG_4351.jpg": {
+      "publish": true
+    },
+    "assets/hermes-annals/2026-09-01/IMG_4374.jpg": {
+      "publish": true
+    },
+    "assets/hermes-annals/2026-09-01/IMG_9011.mp4": {
+      "publish": true
+    },
+    "assets/hermes-annals/2026-09-01/IMG_9012.mp4": {
+      "publish": true
+    },
+    "assets/hermes-annals/2026-09-02/IMG_4390.jpg": {
+      "publish": true,
+      "lead": true
+    },
+    "assets/hermes-annals/2026-09-04/IMG_4441.jpg": {
+      "publish": true
+    },
+    "assets/hermes-annals/2026-09-04/IMG_4444.mp4": {
+      "publish": true,
+      "lead": true
+    },
+    "assets/hermes-annals/2026-09-04/IMG_4446.jpg": {
+      "publish": true
+    },
+    "assets/hermes-annals/2026-09-04/IMG_4448.jpg": {
+      "publish": true
+    },
+    "assets/hermes-annals/2026-09-04/IMG_4449.jpg": {
+      "publish": true
+    },
+    "assets/hermes-annals/2026-09-04/IMG_4467.jpg": {
+      "publish": true
+    },
+    "assets/hermes-annals/2026-09-04/IMG_4470.jpg": {
+      "publish": true
+    },
+    "assets/hermes-annals/2026-09-04/IMG_4474.jpg": {
+      "publish": true
+    },
+    "assets/hermes-annals/2026-09-04/IMG_4476.jpg": {
+      "publish": true
+    },
+    "assets/hermes-annals/2026-09-04/IMG_4480.jpg": {
+      "publish": true
+    },
+    "assets/hermes-annals/2026-09-05/IMG_4492.jpg": {
+      "publish": true
+    },
+    "assets/hermes-annals/2026-09-05/IMG_4503.jpg": {
+      "publish": true
+    },
+    "assets/hermes-annals/2026-09-05/IMG_4506.jpg": {
+      "publish": true
+    },
+    "assets/hermes-annals/2026-09-05/IMG_4508.mp4": {
+      "publish": true,
+      "lead": true
+    },
+    "assets/hermes-annals/2026-09-05/IMG_4509.mp4": {
+      "publish": true
+    },
+    "assets/hermes-annals/2026-09-06/160ff8a0-582e-4a4f-9a27-46a0580cb3f9.mp4": {
+      "publish": true,
+      "lead": true
+    },
+    "assets/hermes-annals/2026-09-06/IMG_4520.jpg": {
+      "publish": true
+    },
+    "assets/hermes-annals/2026-09-06/IMG_4530.mp4": {
+      "publish": true
+    },
+    "assets/hermes-annals/2026-09-06/IMG_4531.mp4": {
+      "publish": true
+    },
+    "assets/hermes-annals/2026-09-06/IMG_4542.jpg": {
+      "publish": true
+    }
+  }
+}

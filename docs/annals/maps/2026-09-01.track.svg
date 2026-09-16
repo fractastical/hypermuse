@@ -1,0 +1,49 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1400" height="900" viewBox="0 0 1400 900">
+<path d="M382.4 474.1 L514.6 100.6 L551.5 98.5 L962.8 455.9 L645.4 578.7 L495.7 620.6 L399.4 547.6 Z" fill="#ff9d3d" opacity="0.07" stroke="#ff9d3d" stroke-opacity="0.22" stroke-width="2" stroke-linejoin="round"/>
+<path d="M382.4 474.1 Q519.7 380.1 588.1 228.4" fill="none" stroke="#ff9d3d" stroke-width="2.4" stroke-dasharray="7 6" opacity="0.72" stroke-linecap="round"/>
+<path d="M588.1 228.4 Q588.7 181.5 564.8 141.0" fill="none" stroke="#ff9d3d" stroke-width="2.4" stroke-dasharray="7 6" opacity="0.72" stroke-linecap="round"/>
+<path d="M564.8 141.0 Q564.1 117.9 551.5 98.5" fill="none" stroke="#ff9d3d" stroke-width="2.4" stroke-dasharray="7 6" opacity="0.72" stroke-linecap="round"/>
+<path d="M551.5 98.5 Q532.7 94.4 514.6 100.6" fill="none" stroke="#ff9d3d" stroke-width="2.4" stroke-dasharray="7 6" opacity="0.72" stroke-linecap="round"/>
+<path d="M514.6 100.6 Q516.9 279.4 611.7 430.9" fill="none" stroke="#ff9d3d" stroke-width="2.4" stroke-dasharray="7 6" opacity="0.72" stroke-linecap="round"/>
+<path d="M611.7 430.9 Q490.6 419.9 381.4 473.3" fill="none" stroke="#ff9d3d" stroke-width="2.4" stroke-dasharray="7 6" opacity="0.72" stroke-linecap="round"/>
+<path d="M381.4 473.3 Q380.0 513.0 399.4 547.6" fill="none" stroke="#ff9d3d" stroke-width="2.4" stroke-dasharray="7 6" opacity="0.72" stroke-linecap="round"/>
+<path d="M399.4 547.6 Q400.8 507.9 381.4 473.3" fill="none" stroke="#ff9d3d" stroke-width="2.4" stroke-dasharray="7 6" opacity="0.72" stroke-linecap="round"/>
+<path d="M381.4 473.3 Q408.2 535.2 463.2 574.2" fill="none" stroke="#ff9d3d" stroke-width="2.4" stroke-dasharray="7 6" opacity="0.72" stroke-linecap="round"/>
+<path d="M463.2 574.2 Q451.1 559.3 433.0 552.8" fill="none" stroke="#ff9d3d" stroke-width="2.4" stroke-dasharray="7 6" opacity="0.72" stroke-linecap="round"/>
+<path d="M433.0 552.8 Q418.3 505.8 381.4 473.3" fill="none" stroke="#ff9d3d" stroke-width="2.4" stroke-dasharray="7 6" opacity="0.72" stroke-linecap="round"/>
+<path d="M381.4 473.3 Q417.9 563.0 495.7 620.6" fill="none" stroke="#ff9d3d" stroke-width="2.4" stroke-dasharray="7 6" opacity="0.72" stroke-linecap="round"/>
+<path d="M495.7 620.6 Q459.2 531.0 381.4 473.3" fill="none" stroke="#ff9d3d" stroke-width="2.4" stroke-dasharray="7 6" opacity="0.72" stroke-linecap="round"/>
+<path d="M381.4 473.3 Q436.3 553.1 524.7 592.8" fill="none" stroke="#ff9d3d" stroke-width="2.4" stroke-dasharray="7 6" opacity="0.72" stroke-linecap="round"/>
+<path d="M524.7 592.8 Q469.8 513.0 381.4 473.3" fill="none" stroke="#ff9d3d" stroke-width="2.4" stroke-dasharray="7 6" opacity="0.72" stroke-linecap="round"/>
+<path d="M381.4 473.3 Q475.1 532.8 586.0 535.1" fill="none" stroke="#ff9d3d" stroke-width="2.4" stroke-dasharray="7 6" opacity="0.72" stroke-linecap="round"/>
+<path d="M586.0 535.1 Q554.7 515.5 517.8 515.1" fill="none" stroke="#ff9d3d" stroke-width="2.4" stroke-dasharray="7 6" opacity="0.72" stroke-linecap="round"/>
+<path d="M517.8 515.1 Q549.1 534.6 586.0 535.1" fill="none" stroke="#ff9d3d" stroke-width="2.4" stroke-dasharray="7 6" opacity="0.72" stroke-linecap="round"/>
+<path d="M586.0 535.1 Q554.7 515.5 517.8 515.1" fill="none" stroke="#ff9d3d" stroke-width="2.4" stroke-dasharray="7 6" opacity="0.72" stroke-linecap="round"/>
+<path d="M517.8 515.1 Q560.7 549.6 615.2 556.9" fill="none" stroke="#ff9d3d" stroke-width="2.4" stroke-dasharray="7 6" opacity="0.72" stroke-linecap="round"/>
+<path d="M615.2 556.9 Q627.3 572.0 645.4 578.7" fill="none" stroke="#ff9d3d" stroke-width="2.4" stroke-dasharray="7 6" opacity="0.72" stroke-linecap="round"/>
+<path d="M645.4 578.7 Q587.7 537.2 516.9 531.8" fill="none" stroke="#ff9d3d" stroke-width="2.4" stroke-dasharray="7 6" opacity="0.72" stroke-linecap="round"/>
+<path d="M516.9 531.8 Q575.3 578.4 649.4 587.9" fill="none" stroke="#ff9d3d" stroke-width="2.4" stroke-dasharray="7 6" opacity="0.72" stroke-linecap="round"/>
+<path d="M649.4 587.9 Q824.6 565.8 962.8 455.9" fill="none" stroke="#ff9d3d" stroke-width="2.4" stroke-dasharray="7 6" opacity="0.72" stroke-linecap="round"/>
+<circle cx="382.4" cy="474.1" r="17.8" fill="#ffd166" fill-opacity="0.34" stroke="#ffd166" stroke-width="2"/>
+<circle cx="588.1" cy="228.4" r="9.0" fill="#ffd166" fill-opacity="0.34" stroke="#ffd166" stroke-width="2"/>
+<circle cx="564.8" cy="141.0" r="6.7" fill="#ffd166" fill-opacity="0.34" stroke="#ffd166" stroke-width="2"/>
+<circle cx="551.5" cy="98.5" r="17.6" fill="#ffd166" fill-opacity="0.34" stroke="#ffd166" stroke-width="2"/>
+<circle cx="514.6" cy="100.6" r="6.2" fill="#ffd166" fill-opacity="0.34" stroke="#ffd166" stroke-width="2"/>
+<circle cx="611.7" cy="430.9" r="5.0" fill="#ffd166" fill-opacity="0.34" stroke="#ffd166" stroke-width="2"/>
+<circle cx="399.4" cy="547.6" r="6.1" fill="#ffd166" fill-opacity="0.34" stroke="#ffd166" stroke-width="2"/>
+<circle cx="463.2" cy="574.2" r="5.0" fill="#ffd166" fill-opacity="0.34" stroke="#ffd166" stroke-width="2"/>
+<circle cx="433.0" cy="552.8" r="5.4" fill="#ffd166" fill-opacity="0.34" stroke="#ffd166" stroke-width="2"/>
+<circle cx="495.7" cy="620.6" r="5.3" fill="#ffd166" fill-opacity="0.34" stroke="#ffd166" stroke-width="2"/>
+<circle cx="524.7" cy="592.8" r="7.3" fill="#ffd166" fill-opacity="0.34" stroke="#ffd166" stroke-width="2"/>
+<circle cx="586.0" cy="535.1" r="5.0" fill="#ffd166" fill-opacity="0.34" stroke="#ffd166" stroke-width="2"/>
+<circle cx="517.8" cy="515.1" r="5.0" fill="#ffd166" fill-opacity="0.34" stroke="#ffd166" stroke-width="2"/>
+<circle cx="615.2" cy="556.9" r="6.4" fill="#ffd166" fill-opacity="0.34" stroke="#ffd166" stroke-width="2"/>
+<circle cx="645.4" cy="578.7" r="9.8" fill="#ffd166" fill-opacity="0.34" stroke="#ffd166" stroke-width="2"/>
+<circle cx="962.8" cy="455.9" r="6.0" fill="#ffd166" fill-opacity="0.34" stroke="#ffd166" stroke-width="2"/>
+<circle cx="382.4" cy="474.1" r="5" fill="#7dffa8"/>
+<circle cx="962.8" cy="455.9" r="5" fill="#ff5c7a"/>
+<text x="394.4" y="448.4" font-size="19" font-family="Menlo, monospace" stroke="#06090f" stroke-width="4" paint-order="stroke" fill="rgba(255,255,255,0.94)">57 min</text>
+<text x="563.5" y="72.9" font-size="19" font-family="Menlo, monospace" stroke="#06090f" stroke-width="4" paint-order="stroke" fill="rgba(255,255,255,0.94)">55 min</text>
+<text x="394.4" y="500.1" font-size="19" font-family="Menlo, monospace" stroke="#06090f" stroke-width="4" paint-order="stroke" fill="rgba(255,255,255,0.94)">2:01 AM</text>
+<text x="974.8" y="481.9" font-size="19" font-family="Menlo, monospace" stroke="#06090f" stroke-width="4" paint-order="stroke" fill="rgba(255,255,255,0.94)">10:51 PM</text>
+</svg>

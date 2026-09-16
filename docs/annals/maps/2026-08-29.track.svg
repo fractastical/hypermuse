@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1400" height="900" viewBox="0 0 1400 900">
+<path d="M381.3 471.5 L529.0 463.4 L586.6 462.2 L637.9 468.7 L691.0 484.5 L727.2 529.0 Z" fill="#ff9d3d" opacity="0.07" stroke="#ff9d3d" stroke-opacity="0.22" stroke-width="2" stroke-linejoin="round"/>
+<path d="M381.3 471.5 Q456.3 488.1 529.0 463.4" fill="none" stroke="#ff9d3d" stroke-width="2.4" stroke-dasharray="7 6" opacity="0.72" stroke-linecap="round"/>
+<path d="M529.0 463.4 Q558.0 470.9 586.6 462.2" fill="none" stroke="#ff9d3d" stroke-width="2.4" stroke-dasharray="7 6" opacity="0.72" stroke-linecap="round"/>
+<path d="M586.6 462.2 Q611.4 472.7 637.9 468.7" fill="none" stroke="#ff9d3d" stroke-width="2.4" stroke-dasharray="7 6" opacity="0.72" stroke-linecap="round"/>
+<path d="M637.9 468.7 Q662.3 484.0 691.0 484.5" fill="none" stroke="#ff9d3d" stroke-width="2.4" stroke-dasharray="7 6" opacity="0.72" stroke-linecap="round"/>
+<path d="M691.0 484.5 Q702.9 511.8 727.2 529.0" fill="none" stroke="#ff9d3d" stroke-width="2.4" stroke-dasharray="7 6" opacity="0.72" stroke-linecap="round"/>
+<circle cx="381.3" cy="471.5" r="26.0" fill="#ffd166" fill-opacity="0.34" stroke="#ffd166" stroke-width="2"/>
+<circle cx="529.0" cy="463.4" r="7.0" fill="#ffd166" fill-opacity="0.34" stroke="#ffd166" stroke-width="2"/>
+<circle cx="586.6" cy="462.2" r="7.2" fill="#ffd166" fill-opacity="0.34" stroke="#ffd166" stroke-width="2"/>
+<circle cx="637.9" cy="468.7" r="7.0" fill="#ffd166" fill-opacity="0.34" stroke="#ffd166" stroke-width="2"/>
+<circle cx="691.0" cy="484.5" r="7.3" fill="#ffd166" fill-opacity="0.34" stroke="#ffd166" stroke-width="2"/>
+<circle cx="727.2" cy="529.0" r="12.5" fill="#ffd166" fill-opacity="0.34" stroke="#ffd166" stroke-width="2"/>
+<circle cx="381.3" cy="471.5" r="5" fill="#7dffa8"/>
+<circle cx="727.2" cy="529.0" r="5" fill="#ff5c7a"/>
+<text x="393.3" y="437.5" font-size="19" font-family="Menlo, monospace" stroke="#06090f" stroke-width="4" paint-order="stroke" fill="rgba(255,255,255,0.94)">10 h 35 min</text>
+<text x="739.2" y="508.5" font-size="19" font-family="Menlo, monospace" stroke="#06090f" stroke-width="4" paint-order="stroke" fill="rgba(255,255,255,0.94)">19 min</text>
+<text x="393.3" y="497.5" font-size="19" font-family="Menlo, monospace" stroke="#06090f" stroke-width="4" paint-order="stroke" fill="rgba(255,255,255,0.94)">3:38 AM</text>
+<text x="739.2" y="555.0" font-size="19" font-family="Menlo, monospace" stroke="#06090f" stroke-width="4" paint-order="stroke" fill="rgba(255,255,255,0.94)">3:19 PM</text>
+</svg>

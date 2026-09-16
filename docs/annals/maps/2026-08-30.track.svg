@@ -1,0 +1,23 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1400" height="900" viewBox="0 0 1400 900">
+<path d="M382.8 472.4 L649.1 334.3 L672.1 434.9 L631.2 675.9 L406.4 613.8 Z" fill="#ff9d3d" opacity="0.07" stroke="#ff9d3d" stroke-opacity="0.22" stroke-width="2" stroke-linejoin="round"/>
+<path d="M649.1 334.3 Q496.6 366.1 382.8 472.4" fill="none" stroke="#ff9d3d" stroke-width="2.4" stroke-dasharray="7 6" opacity="0.72" stroke-linecap="round"/>
+<path d="M382.8 472.4 Q415.2 552.9 484.7 604.8" fill="none" stroke="#ff9d3d" stroke-width="2.4" stroke-dasharray="7 6" opacity="0.72" stroke-linecap="round"/>
+<path d="M484.7 604.8 Q451.7 523.7 381.3 471.5" fill="none" stroke="#ff9d3d" stroke-width="2.4" stroke-dasharray="7 6" opacity="0.72" stroke-linecap="round"/>
+<path d="M381.3 471.5 Q373.9 546.1 406.4 613.8" fill="none" stroke="#ff9d3d" stroke-width="2.4" stroke-dasharray="7 6" opacity="0.72" stroke-linecap="round"/>
+<path d="M406.4 613.8 Q413.3 538.4 380.1 470.4" fill="none" stroke="#ff9d3d" stroke-width="2.4" stroke-dasharray="7 6" opacity="0.72" stroke-linecap="round"/>
+<path d="M380.1 470.4 Q476.9 608.3 631.2 675.9" fill="none" stroke="#ff9d3d" stroke-width="2.4" stroke-dasharray="7 6" opacity="0.72" stroke-linecap="round"/>
+<path d="M631.2 675.9 Q552.9 583.7 438.2 545.4" fill="none" stroke="#ff9d3d" stroke-width="2.4" stroke-dasharray="7 6" opacity="0.72" stroke-linecap="round"/>
+<path d="M438.2 545.4 Q570.6 522.9 672.1 434.9" fill="none" stroke="#ff9d3d" stroke-width="2.4" stroke-dasharray="7 6" opacity="0.72" stroke-linecap="round"/>
+<circle cx="649.1" cy="334.3" r="5.0" fill="#ffd166" fill-opacity="0.34" stroke="#ffd166" stroke-width="2"/>
+<circle cx="382.8" cy="472.4" r="26.0" fill="#ffd166" fill-opacity="0.34" stroke="#ffd166" stroke-width="2"/>
+<circle cx="484.7" cy="604.8" r="5.0" fill="#ffd166" fill-opacity="0.34" stroke="#ffd166" stroke-width="2"/>
+<circle cx="406.4" cy="613.8" r="5.0" fill="#ffd166" fill-opacity="0.34" stroke="#ffd166" stroke-width="2"/>
+<circle cx="631.2" cy="675.9" r="5.0" fill="#ffd166" fill-opacity="0.34" stroke="#ffd166" stroke-width="2"/>
+<circle cx="438.2" cy="545.4" r="5.5" fill="#ffd166" fill-opacity="0.34" stroke="#ffd166" stroke-width="2"/>
+<circle cx="672.1" cy="434.9" r="5.0" fill="#ffd166" fill-opacity="0.34" stroke="#ffd166" stroke-width="2"/>
+<circle cx="649.1" cy="334.3" r="5" fill="#7dffa8"/>
+<circle cx="672.1" cy="434.9" r="5" fill="#ff5c7a"/>
+<text x="394.8" y="438.4" font-size="19" font-family="Menlo, monospace" stroke="#06090f" stroke-width="4" paint-order="stroke" fill="rgba(255,255,255,0.94)">5 h 34 min</text>
+<text x="661.1" y="360.3" font-size="19" font-family="Menlo, monospace" stroke="#06090f" stroke-width="4" paint-order="stroke" fill="rgba(255,255,255,0.94)">5:46 PM</text>
+<text x="684.1" y="460.9" font-size="19" font-family="Menlo, monospace" stroke="#06090f" stroke-width="4" paint-order="stroke" fill="rgba(255,255,255,0.94)">11:48 PM</text>
+</svg>
