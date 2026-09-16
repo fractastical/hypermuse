@@ -27,6 +27,11 @@ closes, and it is the only gap left.
 1. Push this repo to GitHub.
 2. In Railway, create a new project from the repo. It picks up `railway.json`
    for the start command and healthcheck.
+   Turn on **auto-deploy from the connected branch** while you are in here. With
+   it off, a push changes nothing that anyone can see: the annals are static
+   files served out of the image, so the repo and the live site drift apart
+   silently and the only symptom is old writing on a URL you have already handed
+   out. Every publish then needs a manual redeploy that is easy to forget.
 3. Add a **Postgres** service in the same project. This is not optional: the
    container filesystem is ephemeral, so without it every redeploy discards the
    track log, the location feed and the pickup requests.
@@ -121,7 +126,14 @@ pkill -f 'cloudflared tunnel run hermes-return'
 Check the apex, not just the subdomain — the apex is what the QR code on the
 moon display points at:
 
-- `https://returnofhermes.com/` should redirect to `/hermes-live.html`.
+- `https://returnofhermes.com/` should redirect to `/docs/annals/`, and
+  `https://returnofhermes.com/docs/annals/` should return the page itself. A
+  redirect to `/hermes-live.html` here is the signature of a container built
+  before the annals existed — the apex led to the tracker until the annals
+  became the front door, so this check used to assert the opposite.
+- `https://request.returnofhermes.com/` should still reach `/hermes-live.html`.
+  This is the hostname riders are given, and it is the one that must never
+  follow the apex to the annals.
 - `https://returnofhermes.com/api/hermes/state` should return JSON.
 - `https://returnofhermes.com/api/hermes/pickup` should return requests.
 - The startup log should say `art: 341 pieces` and `city: 308 corners`. Zero of
