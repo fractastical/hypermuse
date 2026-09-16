@@ -367,8 +367,11 @@ const html = `<!doctype html>
 mostly at night, mostly out past the edge of the streets where the city stops. People could
 send for it — for a ride home, or for a set played off its deck at four in the morning. This
 is what it did, day by day, as far as anyone was there to write it down.</p>
-<p class="byline">Kept by <a href="https://www.instagram.com/metavillan/" rel="noopener">DJ
-Metavillan</a>, who was aboard for every night in this book from the thirtieth of August on.</p>
+<p class="byline">Kept by
+<a href="https://www.instagram.com/metavillan/" rel="noopener">DJ Metavillan</a>, who was
+aboard for every night in this book from the thirtieth of August on, with
+<a href="https://www.instagram.com/stephen.rodan/" rel="noopener">Coral Daddy</a> out with
+him for three of them.</p>
 <div class="sub">${publishedDays.length} ${publishedDays.length === 1 ? "day" : "days"} on the playa · ${totalMedia} photograph${totalMedia === 1 ? "" : "s"} and clip${totalMedia === 1 ? "" : "s"} · anyone may comment</div>
 ${publishedDays.map(sectionFor).join("\n")}
 <script>
