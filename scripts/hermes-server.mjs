@@ -1935,16 +1935,23 @@ const handle = async (req, res) => {
 
     const url = new URL(req.url || "/", `http://${req.headers.host || "localhost"}`);
     // Every public Hermes hostname is for Hermes rather than for the HyperMuse promo
-    // page, so "/" has to go somewhere of its own. It used to go to the dispatch form,
-    // because during the burn the apex was what the QR code on the moon display pointed
-    // at and a scanned rider needed to be able to ask for a pickup. The week is over,
-    // so the same scan now wants the account of it, and "/" goes to the annals instead.
-    // The form is still at /hermes-live.html for anyone who wants it, and if Hermes
-    // rolls again this should be pointed back at it for the duration.
-    const hermesHost = (host) => {
-      const hostOnly = String(host || "").split(":")[0].toLowerCase();
-      return hostOnly === "returnofhermes.com" || hostOnly.endsWith(".returnofhermes.com");
-    };
+    // page, so "/" has to go somewhere of its own — but not all of them want the same
+    // thing. The apex used to lead to the dispatch form, because during the burn it was
+    // what the QR code on the moon display pointed at and a scanned rider needed to ask
+    // for a pickup. The week is over, so the apex now leads to the account of it.
+    //
+    // request.returnofhermes.com is exempt. It exists to take pickups and nothing else,
+    // so it keeps going to the form however the apex is pointed, and it is what a QR
+    // code or HERMES_PICKUP_URL should use — that way asking for a ride and reading
+    // about the week never have to be the same decision again.
+    const hostOnly = String(req.headers.host || "").split(":")[0].toLowerCase();
+    const hermesHost = hostOnly === "returnofhermes.com" || hostOnly.endsWith(".returnofhermes.com");
+    const dispatchHost = hostOnly.startsWith("request.");
+    if (req.method === "GET" && url.pathname === "/" && hermesHost && dispatchHost) {
+      res.writeHead(302, { location: "/hermes-live.html", "cache-control": "no-store" });
+      res.end("redirecting to /hermes-live.html\n");
+      return;
+    }
     // A readable way in, since the real path is an artefact of the site being served out
     // of the repo. Redirected rather than aliased: the page loads its media and maps by
     // relative path, so it has to be read from the directory it actually lives in.
@@ -1953,7 +1960,7 @@ const handle = async (req, res) => {
       res.end("redirecting to /docs/annals/\n");
       return;
     }
-    if (req.method === "GET" && url.pathname === "/" && hermesHost(req.headers.host)) {
+    if (req.method === "GET" && url.pathname === "/" && hermesHost) {
       res.writeHead(302, { location: "/docs/annals/", "cache-control": "no-store" });
       res.end("redirecting to /docs/annals/\n");
       return;
