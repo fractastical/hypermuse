@@ -269,6 +269,45 @@ for (const { day, media } of plan) {
   }
 }
 
+// Tiles for the contents: three per day, so a headline comes with a glimpse of what
+// clicking it gets you. Encoded small on purpose rather than the day's photographs
+// shrunk by the browser — thirty-odd full-size jpegs above the fold would cost more
+// than the eleven days below them, which is the opposite of what a contents list is for.
+const TILE_PX = 72;
+const TILES_PER_DAY = 3;
+const tileDir = join(outDir, "tiles");
+if (existsSync(tileDir)) rmSync(tileDir, { recursive: true, force: true });
+mkdirSync(tileDir, { recursive: true });
+let tileBytes = 0;
+for (const entry of plan) {
+  entry.tiles = [];
+  // The lead first, since it is the shot already judged best; a clip contributes the
+  // poster frame, and one without a poster has nothing to show and is passed over.
+  const shots = entry.media.filter((m) => !m.failed);
+  const ordered = [...shots.filter((m) => m.lead), ...shots.filter((m) => !m.lead)];
+  for (const item of ordered) {
+    if (entry.tiles.length >= TILES_PER_DAY) break;
+    const from = item.video ? item.poster : item.name;
+    if (!from) continue;
+    const source = join(mediaDir, from);
+    if (!existsSync(source)) continue;
+    const file = `${entry.day.day}-${entry.tiles.length + 1}.jpg`;
+    try {
+      // ffmpeg rather than sips, which wrote 8 KB for a 72 by 54 tile — over two bytes
+      // a pixel, nearly all of it metadata it will not leave out. Same picture comes
+      // out of here at 2 KB. Scale to cover then crop, so a tile is a true square and
+      // both the tag and the layout can say so without the css cropping anything.
+      await execFileAsync("ffmpeg", ["-y", "-nostdin", "-loglevel", "error", "-i", source,
+        "-vf", `scale=${TILE_PX}:${TILE_PX}:force_original_aspect_ratio=increase,crop=${TILE_PX}:${TILE_PX}`,
+        "-q:v", "6", join(tileDir, file)]);
+    } catch (_) {
+      continue;
+    }
+    tileBytes += statSync(join(tileDir, file)).size;
+    entry.tiles.push({ file });
+  }
+}
+
 function figureFor(item, lead = false) {
   const caption = esc([item.art, item.caption].filter(Boolean).join(" · "));
   const cap = caption ? `<figcaption>${caption}</figcaption>` : "";
@@ -444,9 +483,19 @@ const html = `<!doctype html>
      rather than stepping in and out with the length of each date. */
   .toc .when { flex:none; width:6.2em; color:#8fa3b8; font-size:13px; font-variant-numeric:tabular-nums; }
   .toc .what { color:#a6e2ff; }
+  /* margin-left:auto pushes the strip to the right edge, so the tiles line up in a
+     column of their own however long the headline runs. */
+  .toc .tiles { flex:none; display:flex; gap:4px; margin-left:auto; padding-left:14px; }
+  /* The tiles are cropped square at build time, so this only sets how big they sit;
+     cover is kept as a guard in case a tile is ever regenerated at another shape. */
+  .toc .tiles img { width:34px; height:34px; object-fit:cover; border-radius:5px;
+    border:1px solid #1d2937; background:#0b111a; display:block; }
+  .toc a:hover .tiles img { border-color:#37506a; }
   @media (max-width:520px) {
     .toc a { display:block; }
     .toc .when { width:auto; display:block; margin-bottom:1px; }
+    /* Back under the headline on a phone, where there is no room beside it. */
+    .toc .tiles { margin:6px 0 0; padding-left:0; }
   }
   .reading p { max-width:34em; }
   /* Sized like a thing to click rather than a word in a sentence, since the paragraphs
@@ -528,7 +577,15 @@ ${hasProgram ? `<figure class="program">
 <nav class="toc" aria-label="Contents">
   <h2>Contents</h2>
   <ol>
-${publishedDays.map(({ day }) => `    <li><a href="#day-${esc(day.day)}"><span class="when">${esc(shortDay(day.day))}</span><span class="what">${esc(day.headline || (day.facts || {}).dayName || day.day)}</span></a></li>`).join("\n")}
+${publishedDays.map(({ day, tiles }) => {
+  // Decorative: the link already says the date and the headline, so announcing three
+  // unnamed photographs after it would only make the contents longer to listen to.
+  const strip = (tiles || []).length
+    ? `<span class="tiles" aria-hidden="true">${tiles.map((t) =>
+        `<img src="tiles/${esc(t.file)}" alt="" width="${TILE_PX}" height="${TILE_PX}">`).join("")}</span>`
+    : "";
+  return `    <li><a href="#day-${esc(day.day)}"><span class="when">${esc(shortDay(day.day))}</span><span class="what">${esc(day.headline || (day.facts || {}).dayName || day.day)}</span>${strip}</a></li>`;
+}).join("\n")}
 ${reading ? `    <li><a href="#reading"><span class="when">Read</span><span class="what">The seven circles of Hermes</span></a></li>\n` : ""}    <li><a href="#next"><span class="when">Next</span><span class="what">Be part of it next year</span></a></li>
   </ol>
 </nav>
