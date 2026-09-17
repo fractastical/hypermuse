@@ -2,6 +2,35 @@
 
 This deploy keeps the site online even when the laptop is off.
 
+## Where this got to (17 September 2026)
+
+Steps 1 to 4 below are **done**, so read them as history rather than as a
+checklist. Do not ask whether the project exists, whether the repo is connected
+or whether Postgres was added — the running server answers all three from
+outside, without a dashboard or a login:
+
+```
+curl -s https://returnofhermes.com/api/hermes/faults |
+  node -e 'let s="";process.stdin.on("data",d=>s+=d).on("end",()=>{const j=JSON.parse(s);
+    console.log("postgres:", j.faults.at(-1).postgres, "degraded:", j.degraded.length)})'
+```
+
+`postgres: true` means it found `DATABASE_URL` and the connection actually
+opened, which is a stronger claim than the variable being set; an empty
+`degraded` list means nothing else came up short at boot. The custom domains
+answer, and `/book`, `/annals` and both APIs return.
+
+One thing is **not** done: **auto-deploy does not fire**. A push lands on GitHub
+Pages by itself but does nothing to `returnofhermes.com` until someone triggers
+a build by hand, which is the drift step 2 warns about. The last four pushes all
+needed a manual refresh. Confirm the live site matches the repo with:
+
+```
+curl -sL https://returnofhermes.com/docs/annals/ | grep -c 'class="toc"'
+```
+
+Zero means the container is behind and a manual deploy is owed.
+
 Until this is done, the laptop *is* the origin. Two processes have to be up, and
 both are launchd agents with `KeepAlive` and `RunAtLoad`, so they start at login
 and come back on their own if they crash or are killed:
