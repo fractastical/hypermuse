@@ -29,6 +29,23 @@
   .artlist .what { display:flex; flex-direction:column; min-width:0; }
   .artlist .how { color:#8fa3b8; font-size:13px; }
   .artnote { color:#6f8296; font-size:12.5px; line-height:1.5; margin:12px 0 0; max-width:40em; }
+  /* The headlines double as the contents, so a reader can see the shape of the week — the
+     badges, the burns, the night nothing was recorded — without scrolling eleven days to
+     find it. Built from the same strings the days print, so it cannot drift out of step. */
+  .toc { border-top:1px solid #1d2937; padding:22px 0 4px; margin:0 0 4px; }
+  .toc h2 { font-size:13px; text-transform:uppercase; letter-spacing:1.4px; color:#8fa3b8; margin:0 0 12px; }
+  .toc ol { list-style:none; padding:0; margin:0; }
+  .toc li { margin:0 0 8px; }
+  .toc a { display:flex; gap:12px; align-items:baseline; text-decoration:none; }
+  .toc a:hover .what { text-decoration:underline; }
+  /* Fixed width and tabular figures so the headlines start on one line down the page
+     rather than stepping in and out with the length of each date. */
+  .toc .when { flex:none; width:6.2em; color:#8fa3b8; font-size:13px; font-variant-numeric:tabular-nums; }
+  .toc .what { color:#a6e2ff; }
+  @media (max-width:520px) {
+    .toc a { display:block; }
+    .toc .when { width:auto; display:block; margin-bottom:1px; }
+  }
   .reading p { max-width:34em; }
   /* Sized like a thing to click rather than a word in a sentence, since the paragraphs
      around it are also full of links and the download is the point of the section. */
@@ -47,7 +64,9 @@
   h3 { font-size:13px; text-transform:uppercase; letter-spacing:1.4px; color:#8fa3b8; margin:20px 0 4px; }
   .shots { display:grid; grid-template-columns:repeat(auto-fill,minmax(220px,1fr)); gap:12px; margin-top:10px; }
   figure { margin:0; }
-  figure img, figure video { width:100%; border-radius:10px; display:block; background:#0b111a; }
+  /* height:auto is what turns the width and height attributes into an aspect ratio the
+     browser can reserve, rather than a fixed size it stretches the picture into. */
+  figure img, figure video { width:100%; height:auto; border-radius:10px; display:block; background:#0b111a; }
   figcaption { color:#8fa3b8; font-size:12px; margin-top:6px; }
   figure.lead { margin:14px 0 18px; }
   /* Capped, because a portrait phone photograph at full column width is taller than the
@@ -97,22 +116,40 @@ aboard for every night in this book from the thirtieth of August on, with
 him for three of them. Hermes is on Instagram as
 <a href="https://www.instagram.com/hermesartcar/" rel="noopener">@hermesartcar</a>.</p>
 <figure class="program">
-  <img src="public-program.png" alt="The Hermes public programme for Burning Man 2026, listing the week's planned events day by day" loading="lazy">
+  <img src="public-program.png" alt="The Hermes public programme for Burning Man 2026, listing the week's planned events day by day" width="576" height="1024" loading="lazy">
   <figcaption>The programme, as printed before the week began — Hermes at Axis Mundi, 31 August to
   6 September, draft 27. It promised at least a 30% chance of finding the car at any of these
   places, which turned out to be about right. Some of it happened, some of it did not, and a
   good deal of what follows is not on it at all.</figcaption>
 </figure>
 <div class="sub">11 days on the playa · 56 photographs and clips · anyone may comment</div>
+<nav class="toc" aria-label="Contents">
+  <h2>Contents</h2>
+  <ol>
+    <li><a href="#day-2026-08-28"><span class="when">Fri 28 Aug</span><span class="what">The first two hours, spent standing still</span></a></li>
+    <li><a href="#day-2026-08-29"><span class="when">Sat 29 Aug</span><span class="what">Out before dawn, home before the heat</span></a></li>
+    <li><a href="#day-2026-08-30"><span class="when">Sun 30 Aug</span><span class="what">The first real night out</span></a></li>
+    <li><a href="#day-2026-08-31"><span class="when">Mon 31 Aug</span><span class="what">Twenty-six kilometres, and Mundara</span></a></li>
+    <li><a href="#day-2026-09-01"><span class="when">Tue 1 Sept</span><span class="what">The night the box opened, and nobody knocked</span></a></li>
+    <li><a href="#day-2026-09-02"><span class="when">Wed 2 Sept</span><span class="what">A badge for best sunrise, and the night strangers started asking</span></a></li>
+    <li><a href="#day-2026-09-03"><span class="when">Thu 3 Sept</span><span class="what">A late-night opera, and never once back in the city</span></a></li>
+    <li><a href="#day-2026-09-04"><span class="when">Fri 4 Sept</span><span class="what">Rain, Shabbat aboard, and the Titanic at eleven</span></a></li>
+    <li><a href="#day-2026-09-05"><span class="when">Sat 5 Sept</span><span class="what">Best burn night, and a set shared with Robot Heart</span></a></li>
+    <li><a href="#day-2026-09-06"><span class="when">Sun 6 Sept</span><span class="what">From the cook-off to the temple burn</span></a></li>
+    <li><a href="#day-2026-09-07"><span class="when">Mon 7 Sept</span><span class="what">Where it stopped</span></a></li>
+    <li><a href="#reading"><span class="when">Read</span><span class="what">The seven circles of Hermes</span></a></li>
+    <li><a href="#next"><span class="when">Next</span><span class="what">Be part of it next year</span></a></li>
+  </ol>
+</nav>
 <section id="day-2026-08-28">
 <h2><a href="#day-2026-08-28">Friday, August 28</a></h2>
 <p class="headline">The first two hours, spent standing still</p>
-<figure class="lead"><video src="media/2026-08-28-IMG_4261.mp4" controls playsinline preload="none" poster="media/2026-08-28-IMG_4261.poster.jpg"></video></figure>
+<figure class="lead"><video src="media/2026-08-28-IMG_4261.mp4" controls playsinline preload="none" poster="media/2026-08-28-IMG_4261.poster.jpg" width="900" height="1600"></video></figure>
 <p>Every story about Hermes begins with him already in motion, which makes this a strange first page: the god of the road spent his opening afternoon standing perfectly still. From four until six on Friday it stood at 8:45 and F, out where the streets thin and the city stops pretending to be a grid, and in two hours it covered seventy metres — roughly the width of its own parking spot. The camp had been pitched more than a kilometre from the Man, a long walk from the centre of everything, which says nothing about wandering and everything about where its people chose to sleep. Nobody had asked it for a ride. Nobody knew it was there. It sat in the heat with its lights off, waiting to be sent for — which is the one thing a messenger cannot do for himself.</p>
 <div class="daymap">
-  <img src="maps/playa-streets.svg" alt="" aria-hidden="true">
-  <img src="maps/2026-08-28.track.svg" alt="Where Hermes went on 2026-08-28">
-</div>
+    <img src="maps/playa-streets.svg" alt="" aria-hidden="true" width="1400" height="900">
+    <img src="maps/2026-08-28.track.svg" alt="Where Hermes went on 2026-08-28" width="1400" height="900">
+  </div>
 <p class="mapnote">Where it went. Each circle is somewhere Hermes stopped, drawn larger the
 longer it stayed; green is the first of the day, red the last. The dashed curves are the
 moves between them — curved because what survives is where it stood, not the route it took
@@ -121,7 +158,7 @@ to get there. The shaded ground is roughly the territory the day covered.</p>
 <h3>Stops</h3><ul><li><strong>8:45 &amp; F</strong> — 31 minutes from 3:59 PM</li></ul>
 
 
-<h3>Shoots</h3><div class="shots"><figure><video src="media/2026-08-28-b7cbef24-ce41-4317-b780-3c2e33283a1a.mp4" controls playsinline preload="none" poster="media/2026-08-28-b7cbef24-ce41-4317-b780-3c2e33283a1a.poster.jpg"></video></figure></div>
+<h3>Shoots</h3><div class="shots"><figure><video src="media/2026-08-28-b7cbef24-ce41-4317-b780-3c2e33283a1a.mp4" controls playsinline preload="none" poster="media/2026-08-28-b7cbef24-ce41-4317-b780-3c2e33283a1a.poster.jpg" width="900" height="1600"></video></figure></div>
 <div class="comments" data-day="2026-08-28">
   <h3>Comments</h3>
   <div class="comment-list" hidden></div>
@@ -136,12 +173,12 @@ to get there. The shaded ground is roughly the territory the day covered.</p>
 <section id="day-2026-08-29">
 <h2><a href="#day-2026-08-29">Saturday, August 29</a></h2>
 <p class="headline">Out before dawn, home before the heat</p>
-<figure class="lead"><video src="media/2026-08-29-IMG_4271.mp4" controls playsinline preload="none" poster="media/2026-08-29-IMG_4271.poster.jpg"></video></figure>
+<figure class="lead"><video src="media/2026-08-29-IMG_4271.mp4" controls playsinline preload="none" poster="media/2026-08-29-IMG_4271.poster.jpg" width="900" height="1600"></video></figure>
 <p>Saturday began at twenty to four in the morning, in the dark, at the hour that would come to own the whole week. Two outings, about two kilometres, finished by the early afternoon — and then twelve hours in which Hermes was somewhere nobody wrote down. It came back to 8:45 and F and stayed forty minutes, the corner already behaving like a home rather than an address. Half the day went outside the city and half on the streets. What is written here is the ground between one sighting and the next, not every turn the wheels took, and the gaps are wide enough that most of Saturday belongs to the people who were inside it and to nobody else. The god of crossings spent his second day learning where his own doorstep was.</p>
 <div class="daymap">
-  <img src="maps/playa-streets.svg" alt="" aria-hidden="true">
-  <img src="maps/2026-08-29.track.svg" alt="Where Hermes went on 2026-08-29">
-</div>
+    <img src="maps/playa-streets.svg" alt="" aria-hidden="true" width="1400" height="900">
+    <img src="maps/2026-08-29.track.svg" alt="Where Hermes went on 2026-08-29" width="1400" height="900">
+  </div>
 <p class="mapnote">Where it went. Each circle is somewhere Hermes stopped, drawn larger the
 longer it stayed; green is the first of the day, red the last. The dashed curves are the
 moves between them — curved because what survives is where it stood, not the route it took
@@ -150,7 +187,7 @@ to get there. The shaded ground is roughly the territory the day covered.</p>
 <h3>Stops</h3><ul><li><strong>8:45 &amp; F</strong> — 42 minutes from 3:38 AM</li></ul>
 
 
-<h3>Shoots</h3><div class="shots"><figure><img src="media/2026-08-29-IMG_4279.jpg" alt="A photograph from the annals" loading="lazy"></figure><figure><img src="media/2026-08-29-IMG_4282.jpg" alt="A photograph from the annals" loading="lazy"></figure><figure><img src="media/2026-08-29-IMG_4283.jpg" alt="A photograph from the annals" loading="lazy"></figure><figure><img src="media/2026-08-29-IMG_4293.jpg" alt="A photograph from the annals" loading="lazy"></figure></div>
+<h3>Shoots</h3><div class="shots"><figure><img src="media/2026-08-29-IMG_4279.jpg" alt="A photograph from the annals" width="1600" height="1200" loading="lazy"></figure><figure><img src="media/2026-08-29-IMG_4282.jpg" alt="A photograph from the annals" width="1600" height="1200" loading="lazy"></figure><figure><img src="media/2026-08-29-IMG_4283.jpg" alt="A photograph from the annals" width="1600" height="1200" loading="lazy"></figure><figure><img src="media/2026-08-29-IMG_4293.jpg" alt="A photograph from the annals" width="1200" height="1600" loading="lazy"></figure></div>
 <div class="comments" data-day="2026-08-29">
   <h3>Comments</h3>
   <div class="comment-list" hidden></div>
@@ -165,12 +202,12 @@ to get there. The shaded ground is roughly the territory the day covered.</p>
 <section id="day-2026-08-30">
 <h2><a href="#day-2026-08-30">Sunday, August 30</a></h2>
 <p class="headline">The first real night out</p>
-<figure class="lead"><video src="media/2026-08-30-IMG_4297.mp4" controls playsinline preload="none" poster="media/2026-08-30-IMG_4297.poster.jpg"></video></figure>
+<figure class="lead"><video src="media/2026-08-30-IMG_4297.mp4" controls playsinline preload="none" poster="media/2026-08-30-IMG_4297.poster.jpg" width="1600" height="901"></video></figure>
 <p>On Sunday evening Hermes finally went out, and <a href="https://www.instagram.com/metavillan/" rel="noopener">DJ Metavillan</a> was aboard — the first of the nights he would see through to the end of the week. It left at a quarter to six and did not come back until nearly midnight, and almost all of those six hours were spent beyond the edge of the city, out on the open playa where there are no streets to be on and no reason to keep to them. Something close to eight kilometres of ground, as far as a kilometre and a half from the Man at the farthest — though on a night this thinly witnessed that figure is the distance between glimpses rather than a route. One pause worth the name: nine minutes back at 8:45 and F at about half past ten, long enough to collect somebody or hand something over, and then it was gone again into the dark, which is where this story properly starts.</p>
 <div class="daymap">
-  <img src="maps/playa-streets.svg" alt="" aria-hidden="true">
-  <img src="maps/2026-08-30.track.svg" alt="Where Hermes went on 2026-08-30">
-</div>
+    <img src="maps/playa-streets.svg" alt="" aria-hidden="true" width="1400" height="900">
+    <img src="maps/2026-08-30.track.svg" alt="Where Hermes went on 2026-08-30" width="1400" height="900">
+  </div>
 <p class="mapnote">Where it went. Each circle is somewhere Hermes stopped, drawn larger the
 longer it stayed; green is the first of the day, red the last. The dashed curves are the
 moves between them — curved because what survives is where it stood, not the route it took
@@ -179,7 +216,7 @@ to get there. The shaded ground is roughly the territory the day covered.</p>
 <h3>Stops</h3><ul><li><strong>8:45 &amp; F</strong> — 9 minutes from 10:35 PM</li></ul>
 
 
-<h3>Shoots</h3><div class="shots"><figure><video src="media/2026-08-30-IMG_4299.mp4" controls playsinline preload="none" poster="media/2026-08-30-IMG_4299.poster.jpg"></video></figure><figure><video src="media/2026-08-30-IMG_4300.mp4" controls playsinline preload="none" poster="media/2026-08-30-IMG_4300.poster.jpg"></video></figure><figure><video src="media/2026-08-30-IMG_8953.mp4" controls playsinline preload="none" poster="media/2026-08-30-IMG_8953.poster.jpg"></video></figure><figure><img src="media/2026-08-30-IMG_8954.jpg" alt="A photograph from the annals" loading="lazy"></figure><figure><img src="media/2026-08-30-IMG_8957.jpg" alt="A photograph from the annals" loading="lazy"></figure></div>
+<h3>Shoots</h3><div class="shots"><figure><video src="media/2026-08-30-IMG_4299.mp4" controls playsinline preload="none" poster="media/2026-08-30-IMG_4299.poster.jpg" width="1600" height="901"></video></figure><figure><video src="media/2026-08-30-IMG_4300.mp4" controls playsinline preload="none" poster="media/2026-08-30-IMG_4300.poster.jpg" width="900" height="1600"></video></figure><figure><video src="media/2026-08-30-IMG_8953.mp4" controls playsinline preload="none" poster="media/2026-08-30-IMG_8953.poster.jpg" width="900" height="1600"></video></figure><figure><img src="media/2026-08-30-IMG_8954.jpg" alt="A photograph from the annals" width="1600" height="1200" loading="lazy"></figure><figure><img src="media/2026-08-30-IMG_8957.jpg" alt="A photograph from the annals" width="1600" height="1200" loading="lazy"></figure></div>
 <div class="comments" data-day="2026-08-30">
   <h3>Comments</h3>
   <div class="comment-list" hidden></div>
@@ -194,12 +231,12 @@ to get there. The shaded ground is roughly the territory the day covered.</p>
 <section id="day-2026-08-31">
 <h2><a href="#day-2026-08-31">Monday, August 31</a></h2>
 <p class="headline">Twenty-six kilometres, and Mundara</p>
-<figure class="lead"><video src="media/2026-08-31-IMG_4330.mp4" controls playsinline preload="none" poster="media/2026-08-31-IMG_4330.poster.jpg"></video></figure>
+<figure class="lead"><video src="media/2026-08-31-IMG_4330.mp4" controls playsinline preload="none" poster="media/2026-08-31-IMG_4330.poster.jpg" width="900" height="1600"></video></figure>
 <p>Monday is the farthest Hermes ever travelled in a day, and it travelled like something with an errand: twenty-six kilometres, four separate outings, twenty-two hours between the first move at ten past midnight and the last at ten at night. It opened the night at the Deep-Playa Music Zone, arriving just after one and staying twenty-three minutes — about as long as it takes to decide a party is not yours. Somewhere in the hours after that sits Mundara, where Human Experience — David Block — and Playa Riders both played. Unusually for that week the rest of the day was spent inside the city rather than out past the fence: a day of streets and corners and being seen rather than of disappearing. Twenty-two hours is a long time to be moving, and much of it went unwatched. The distance is only the sum of what was witnessed.</p>
 <div class="daymap">
-  <img src="maps/playa-streets.svg" alt="" aria-hidden="true">
-  <img src="maps/2026-08-31.track.svg" alt="Where Hermes went on 2026-08-31">
-</div>
+    <img src="maps/playa-streets.svg" alt="" aria-hidden="true" width="1400" height="900">
+    <img src="maps/2026-08-31.track.svg" alt="Where Hermes went on 2026-08-31" width="1400" height="900">
+  </div>
 <p class="mapnote">Where it went. Each circle is somewhere Hermes stopped, drawn larger the
 longer it stayed; green is the first of the day, red the last. The dashed curves are the
 moves between them — curved because what survives is where it stood, not the route it took
@@ -208,7 +245,7 @@ to get there. The shaded ground is roughly the territory the day covered.</p>
 <h3>Stops</h3><ul><li><strong>near Deep-Playa Music Zone (DMZ)</strong> — 23 minutes from 1:02 AM</li></ul>
 
 
-<h3>Shoots</h3><div class="shots"><figure><img src="media/2026-08-31-IMG_4325.jpg" alt="A photograph from the annals" loading="lazy"></figure><figure><img src="media/2026-08-31-IMG_4329.jpg" alt="A photograph from the annals" loading="lazy"></figure><figure><video src="media/2026-08-31-IMG_4331.mp4" controls playsinline preload="none" poster="media/2026-08-31-IMG_4331.poster.jpg"></video></figure><figure><img src="media/2026-08-31-IMG_4332.jpg" alt="A photograph from the annals" loading="lazy"></figure><figure><img src="media/2026-08-31-IMG_4334.jpg" alt="A photograph from the annals" loading="lazy"></figure><figure><video src="media/2026-08-31-IMG_4335.mp4" controls playsinline preload="none" poster="media/2026-08-31-IMG_4335.poster.jpg"></video></figure><figure><img src="media/2026-08-31-IMG_4337.jpg" alt="A photograph from the annals" loading="lazy"></figure><figure><video src="media/2026-08-31-IMG_4338.mp4" controls playsinline preload="none" poster="media/2026-08-31-IMG_4338.poster.jpg"></video></figure><figure><img src="media/2026-08-31-IMG_4339.jpg" alt="A photograph from the annals" loading="lazy"></figure><figure><video src="media/2026-08-31-IMG_4340.mp4" controls playsinline preload="none" poster="media/2026-08-31-IMG_4340.poster.jpg"></video></figure><figure><video src="media/2026-08-31-IMG_4345.mp4" controls playsinline preload="none" poster="media/2026-08-31-IMG_4345.poster.jpg"></video></figure><figure><video src="media/2026-08-31-IMG_8967.mp4" controls playsinline preload="none" poster="media/2026-08-31-IMG_8967.poster.jpg"></video></figure><figure><img src="media/2026-08-31-IMG_8973.jpg" alt="A photograph from the annals" loading="lazy"></figure><figure><img src="media/2026-08-31-IMG_8979.jpg" alt="A photograph from the annals" loading="lazy"></figure><figure><video src="media/2026-08-31-IMG_8990.mp4" controls playsinline preload="none" poster="media/2026-08-31-IMG_8990.poster.jpg"></video></figure></div>
+<h3>Shoots</h3><div class="shots"><figure><img src="media/2026-08-31-IMG_4325.jpg" alt="A photograph from the annals" width="1600" height="1200" loading="lazy"></figure><figure><img src="media/2026-08-31-IMG_4329.jpg" alt="A photograph from the annals" width="1600" height="1200" loading="lazy"></figure><figure><video src="media/2026-08-31-IMG_4331.mp4" controls playsinline preload="none" poster="media/2026-08-31-IMG_4331.poster.jpg" width="900" height="1600"></video></figure><figure><img src="media/2026-08-31-IMG_4332.jpg" alt="A photograph from the annals" width="1600" height="1200" loading="lazy"></figure><figure><img src="media/2026-08-31-IMG_4334.jpg" alt="A photograph from the annals" width="1600" height="1200" loading="lazy"></figure><figure><video src="media/2026-08-31-IMG_4335.mp4" controls playsinline preload="none" poster="media/2026-08-31-IMG_4335.poster.jpg" width="900" height="1600"></video></figure><figure><img src="media/2026-08-31-IMG_4337.jpg" alt="A photograph from the annals" width="1600" height="1200" loading="lazy"></figure><figure><video src="media/2026-08-31-IMG_4338.mp4" controls playsinline preload="none" poster="media/2026-08-31-IMG_4338.poster.jpg" width="900" height="1600"></video></figure><figure><img src="media/2026-08-31-IMG_4339.jpg" alt="A photograph from the annals" width="1600" height="1200" loading="lazy"></figure><figure><video src="media/2026-08-31-IMG_4340.mp4" controls playsinline preload="none" poster="media/2026-08-31-IMG_4340.poster.jpg" width="900" height="1600"></video></figure><figure><video src="media/2026-08-31-IMG_4345.mp4" controls playsinline preload="none" poster="media/2026-08-31-IMG_4345.poster.jpg" width="900" height="1600"></video></figure><figure><video src="media/2026-08-31-IMG_8967.mp4" controls playsinline preload="none" poster="media/2026-08-31-IMG_8967.poster.jpg" width="900" height="1600"></video></figure><figure><img src="media/2026-08-31-IMG_8973.jpg" alt="A photograph from the annals" width="1600" height="1200" loading="lazy"></figure><figure><img src="media/2026-08-31-IMG_8979.jpg" alt="A photograph from the annals" width="1600" height="1200" loading="lazy"></figure><figure><video src="media/2026-08-31-IMG_8990.mp4" controls playsinline preload="none" poster="media/2026-08-31-IMG_8990.poster.jpg" width="900" height="1600"></video></figure></div>
 <div class="comments" data-day="2026-08-31">
   <h3>Comments</h3>
   <div class="comment-list" hidden></div>
@@ -223,12 +260,12 @@ to get there. The shaded ground is roughly the territory the day covered.</p>
 <section id="day-2026-09-01">
 <h2><a href="#day-2026-09-01">Tuesday, September 1</a></h2>
 <p class="headline">The night the box opened, and nobody knocked</p>
-<figure class="lead"><video src="media/2026-09-01-IMG_4350.mp4" controls playsinline preload="none" poster="media/2026-09-01-IMG_4350.poster.jpg"></video></figure>
+<figure class="lead"><video src="media/2026-09-01-IMG_4350.mp4" controls playsinline preload="none" poster="media/2026-09-01-IMG_4350.poster.jpg" width="1600" height="901"></video></figure>
 <p>Six outings on Tuesday, twelve kilometres, from two in the morning until nearly eleven at night, most of it out beyond the streets — and for the first time there were two of them aboard, <a href="https://www.instagram.com/stephen.rodan/" rel="noopener">Coral Daddy</a> out with it now as well. It came back to the Deep-Playa Music Zone at ten past two and gave it seventeen minutes, then stopped at 8:45 and F for twelve more before the night ended. It went by the Gaian Airship at 3:30 and D, which is the one thing all week that happened on the night the programme said it would. And this was the day Hermes started taking requests: a form anybody could use to ask for a ride, or for a set played off the deck. A messenger god opened a door and stood behind it. Exactly one message came through, and it was from itself — a test pickup at Center Camp, filed to prove the thing worked. It did work. It sat there all day with nobody on the other end of it.</p>
 <div class="daymap">
-  <img src="maps/playa-streets.svg" alt="" aria-hidden="true">
-  <img src="maps/2026-09-01.track.svg" alt="Where Hermes went on 2026-09-01">
-</div>
+    <img src="maps/playa-streets.svg" alt="" aria-hidden="true" width="1400" height="900">
+    <img src="maps/2026-09-01.track.svg" alt="Where Hermes went on 2026-09-01" width="1400" height="900">
+  </div>
 <p class="mapnote">Where it went. Each circle is somewhere Hermes stopped, drawn larger the
 longer it stayed; green is the first of the day, red the last. The dashed curves are the
 moves between them — curved because what survives is where it stood, not the route it took
@@ -237,7 +274,7 @@ to get there. The shaded ground is roughly the territory the day covered.</p>
 <h3>Stops</h3><ul><li><strong>near Deep-Playa Music Zone (DMZ)</strong> — 17 minutes from 2:09 AM</li><li><strong>8:45 &amp; F</strong> — 12 minutes from 8:55 PM</li></ul>
 
 
-<h3>Shoots</h3><div class="shots"><figure><img src="media/2026-09-01-IMG_4349.jpg" alt="A photograph from the annals" loading="lazy"></figure><figure><img src="media/2026-09-01-IMG_4351.jpg" alt="A photograph from the annals" loading="lazy"></figure><figure><img src="media/2026-09-01-IMG_4374.jpg" alt="A photograph from the annals" loading="lazy"></figure><figure><video src="media/2026-09-01-IMG_9011.mp4" controls playsinline preload="none" poster="media/2026-09-01-IMG_9011.poster.jpg"></video></figure><figure><video src="media/2026-09-01-IMG_9012.mp4" controls playsinline preload="none" poster="media/2026-09-01-IMG_9012.poster.jpg"></video></figure></div>
+<h3>Shoots</h3><div class="shots"><figure><img src="media/2026-09-01-IMG_4349.jpg" alt="A photograph from the annals" width="1600" height="1200" loading="lazy"></figure><figure><img src="media/2026-09-01-IMG_4351.jpg" alt="A photograph from the annals" width="736" height="1600" loading="lazy"></figure><figure><img src="media/2026-09-01-IMG_4374.jpg" alt="A photograph from the annals" width="1600" height="1200" loading="lazy"></figure><figure><video src="media/2026-09-01-IMG_9011.mp4" controls playsinline preload="none" poster="media/2026-09-01-IMG_9011.poster.jpg" width="900" height="1600"></video></figure><figure><video src="media/2026-09-01-IMG_9012.mp4" controls playsinline preload="none" poster="media/2026-09-01-IMG_9012.poster.jpg" width="900" height="1600"></video></figure></div>
 <div class="comments" data-day="2026-09-01">
   <h3>Comments</h3>
   <div class="comment-list" hidden></div>
@@ -252,12 +289,12 @@ to get there. The shaded ground is roughly the territory the day covered.</p>
 <section id="day-2026-09-02">
 <h2><a href="#day-2026-09-02">Wednesday, September 2</a></h2>
 <p class="headline">A badge for best sunrise, and the night strangers started asking</p>
-<figure class="lead"><img src="media/2026-09-02-IMG_4390.jpg" alt="A photograph from the annals"></figure>
+<figure class="lead"><img src="media/2026-09-02-IMG_4390.jpg" alt="A photograph from the annals" width="1600" height="1200"></figure>
 <p>Wednesday is the day it all came together, and it came together in the right order. It opened at ten to one in the morning with two strangers asking to be collected, one from 2 and E and one from 12 and D. It is also the day Hermes won its badge for best sunrise — the god of boundaries at his oldest work, standing on the line between the night and the day. By late afternoon three more people wanted the deck rather than a lift: Unitone asked for two until four in the morning out of Bisou, with a ride into deep playa; Justin asked for the sunrise; Anton asked for house, bright major tones. At nine in the evening the car passed within six metres of Small Beginnings, near enough to read, and inside the same few minutes went by I Have Dust In Curious Places and the art car The Future Mirror. This is the day it stopped being a thing people saw and became a thing people sent for, which is the whole of what Hermes is for. It took five days.</p>
 <div class="daymap">
-  <img src="maps/playa-streets.svg" alt="" aria-hidden="true">
-  <img src="maps/2026-09-02.track.svg" alt="Where Hermes went on 2026-09-02">
-</div>
+    <img src="maps/playa-streets.svg" alt="" aria-hidden="true" width="1400" height="900">
+    <img src="maps/2026-09-02.track.svg" alt="Where Hermes went on 2026-09-02" width="1400" height="900">
+  </div>
 <p class="mapnote">Where it went. Each circle is somewhere Hermes stopped, drawn larger the
 longer it stayed; green is the first of the day, red the last. The dashed curves are the
 moves between them — curved because what survives is where it stood, not the route it took
@@ -287,9 +324,9 @@ night.</p>
 
 <p>On Thursday night Hermes did not set foot in the city. Not once, not for a minute — the whole night was spent out past the fence, and at its farthest it stood two kilometres from the Man, deeper into the open than it ever went again. Nine outings adding up to under two kilometres, because it was not going anywhere so much as returning: an hour and a half at 8:45 and F across four separate visits, leaving and coming back and leaving again, like something pacing a boundary it had chosen for itself. Late in the night there was an opera. The hours worth having were between three and six in the morning, out among Altar of Awen, A Quiet Place to Scream and Polio Rodeo, with Puzzling Evidence and Trash Fence Souvenirs somewhere alongside in the dark. <a href="https://www.instagram.com/stephen.rodan/" rel="noopener">Coral Daddy</a> was aboard for all of it, and so was <a href="https://www.instagram.com/metavillan/" rel="noopener">DJ Metavillan</a>. Nobody asked it for anything all day. It went anyway.</p>
 <div class="daymap">
-  <img src="maps/playa-streets.svg" alt="" aria-hidden="true">
-  <img src="maps/2026-09-03.track.svg" alt="Where Hermes went on 2026-09-03">
-</div>
+    <img src="maps/playa-streets.svg" alt="" aria-hidden="true" width="1400" height="900">
+    <img src="maps/2026-09-03.track.svg" alt="Where Hermes went on 2026-09-03" width="1400" height="900">
+  </div>
 <p class="mapnote">Where it went. Each circle is somewhere Hermes stopped, drawn larger the
 longer it stayed; green is the first of the day, red the last. The dashed curves are the
 moves between them — curved because what survives is where it stood, not the route it took
@@ -316,12 +353,12 @@ night.</p>
 <section id="day-2026-09-04">
 <h2><a href="#day-2026-09-04">Friday, September 4</a></h2>
 <p class="headline">Rain, Shabbat aboard, and the Titanic at eleven</p>
-<figure class="lead"><video src="media/2026-09-04-IMG_4444.mp4" controls playsinline preload="none" poster="media/2026-09-04-IMG_4444.poster.jpg"></video></figure>
+<figure class="lead"><video src="media/2026-09-04-IMG_4444.mp4" controls playsinline preload="none" poster="media/2026-09-04-IMG_4444.poster.jpg" width="1600" height="901"></video></figure>
 <p>It rained on Friday, and rain on the playa stops everything: the dust turns to a mud no wheel will turn in, and the city sits down to wait. So Friday does not begin until ten past six in the evening — and when it did, Hermes went straight out past the fence and stayed; not one position that night is inside the city. It had been asked to be a stage: the BRC Shabbat dinner needed one, and David Block played it as Human Experience — from seven until quarter past nine the car stood within sixty metres of The Lightning Tower while the dinner went on around it, a trickster's vehicle holding still to keep a Sabbath. Then forty minutes near G String, and on to the TITANIC: nine thousand hours of building, two hundred people, and a fire about eleven, a good hour past the last position of the night. Every request that day came from Minerva, four times over: from 8:45 and G, from the helicopter at BRC Metro Chop, once for a set for herself and Digital. Roaming around, party hopping, anytime you want to pick us up. For that night the crew came away playa heroes, which for a god of the road means being where you said you would be.</p>
 <div class="daymap">
-  <img src="maps/playa-streets.svg" alt="" aria-hidden="true">
-  <img src="maps/2026-09-04.track.svg" alt="Where Hermes went on 2026-09-04">
-</div>
+    <img src="maps/playa-streets.svg" alt="" aria-hidden="true" width="1400" height="900">
+    <img src="maps/2026-09-04.track.svg" alt="Where Hermes went on 2026-09-04" width="1400" height="900">
+  </div>
 <p class="mapnote">Where it went. Each circle is somewhere Hermes stopped, drawn larger the
 longer it stayed; green is the first of the day, red the last. The dashed curves are the
 moves between them — curved because what survives is where it stood, not the route it took
@@ -333,7 +370,7 @@ archive, the most recent published. These are 2026 nights, so treat a distance a
 where a piece stood the year before, and a picture as of the piece rather than of that
 night.</p>
 
-<h3>Shoots</h3><div class="shots"><figure><img src="media/2026-09-04-IMG_4441.jpg" alt="A photograph from the annals" loading="lazy"></figure><figure><img src="media/2026-09-04-IMG_4446.jpg" alt="A photograph from the annals" loading="lazy"></figure><figure><img src="media/2026-09-04-IMG_4448.jpg" alt="A photograph from the annals" loading="lazy"></figure><figure><img src="media/2026-09-04-IMG_4449.jpg" alt="A photograph from the annals" loading="lazy"></figure><figure><img src="media/2026-09-04-IMG_4467.jpg" alt="A photograph from the annals" loading="lazy"></figure><figure><img src="media/2026-09-04-IMG_4470.jpg" alt="A photograph from the annals" loading="lazy"></figure><figure><img src="media/2026-09-04-IMG_4474.jpg" alt="A photograph from the annals" loading="lazy"></figure><figure><img src="media/2026-09-04-IMG_4476.jpg" alt="A photograph from the annals" loading="lazy"></figure><figure><img src="media/2026-09-04-IMG_4480.jpg" alt="A photograph from the annals" loading="lazy"></figure></div>
+<h3>Shoots</h3><div class="shots"><figure><img src="media/2026-09-04-IMG_4441.jpg" alt="A photograph from the annals" width="1600" height="1200" loading="lazy"></figure><figure><img src="media/2026-09-04-IMG_4446.jpg" alt="A photograph from the annals" width="1600" height="1200" loading="lazy"></figure><figure><img src="media/2026-09-04-IMG_4448.jpg" alt="A photograph from the annals" width="1600" height="1200" loading="lazy"></figure><figure><img src="media/2026-09-04-IMG_4449.jpg" alt="A photograph from the annals" width="1600" height="1200" loading="lazy"></figure><figure><img src="media/2026-09-04-IMG_4467.jpg" alt="A photograph from the annals" width="1600" height="1200" loading="lazy"></figure><figure><img src="media/2026-09-04-IMG_4470.jpg" alt="A photograph from the annals" width="1600" height="1200" loading="lazy"></figure><figure><img src="media/2026-09-04-IMG_4474.jpg" alt="A photograph from the annals" width="1600" height="1200" loading="lazy"></figure><figure><img src="media/2026-09-04-IMG_4476.jpg" alt="A photograph from the annals" width="1600" height="1200" loading="lazy"></figure><figure><img src="media/2026-09-04-IMG_4480.jpg" alt="A photograph from the annals" width="1600" height="1200" loading="lazy"></figure></div>
 <div class="comments" data-day="2026-09-04">
   <h3>Comments</h3>
   <div class="comment-list" hidden></div>
@@ -348,12 +385,12 @@ night.</p>
 <section id="day-2026-09-05">
 <h2><a href="#day-2026-09-05">Saturday, September 5</a></h2>
 <p class="headline">Best burn night, and a set shared with Robot Heart</p>
-<figure class="lead"><video src="media/2026-09-05-IMG_4508.mp4" controls playsinline preload="none" poster="media/2026-09-05-IMG_4508.poster.jpg"></video></figure>
+<figure class="lead"><video src="media/2026-09-05-IMG_4508.mp4" controls playsinline preload="none" poster="media/2026-09-05-IMG_4508.poster.jpg" width="900" height="1600"></video></figure>
 <p>Saturday was burn night, and it is the night Hermes shared a set with Robot Heart — Seth Schwarz playing Hermes, Edward Castillo playing Robot Heart, two decks run as one, and a badge for best burn night between them. Of that, the positions know nothing whatsoever. They give a single minute at seventeen minutes past eight in the evening, sixteen metres from As Above So Below and still inside the city, with the art cars Nora and The Future Mirror a couple of hundred metres off, and then they stop — hours before the part anybody would want described. So Saturday is the day the camera does the remembering instead, and <a href="https://www.instagram.com/flowpriestess/" rel="noopener">@flowpriestess</a> is in the footage. The night that won the badge is the thinnest night in the record: the city's largest fire, a prize for it, and nothing at all keeping count, which is the ordinary condition of a good night. Nor did it end on Saturday: the cook-off and the link-up with the Serpent Queen ran on past midnight, and the record only picks the night back up as Sunday.</p>
 <div class="daymap">
-  <img src="maps/playa-streets.svg" alt="" aria-hidden="true">
-  <img src="maps/2026-09-05.track.svg" alt="Where Hermes went on 2026-09-05">
-</div>
+    <img src="maps/playa-streets.svg" alt="" aria-hidden="true" width="1400" height="900">
+    <img src="maps/2026-09-05.track.svg" alt="Where Hermes went on 2026-09-05" width="1400" height="900">
+  </div>
 <p class="mapnote">Where it went. Each circle is somewhere Hermes stopped, drawn larger the
 longer it stayed; green is the first of the day, red the last. The dashed curves are the
 moves between them — curved because what survives is where it stood, not the route it took
@@ -365,7 +402,7 @@ archive, the most recent published. These are 2026 nights, so treat a distance a
 where a piece stood the year before, and a picture as of the piece rather than of that
 night.</p>
 
-<h3>Shoots</h3><div class="shots"><figure><img src="media/2026-09-05-IMG_4492.jpg" alt="A photograph from the annals" loading="lazy"></figure><figure><img src="media/2026-09-05-IMG_4503.jpg" alt="A photograph from the annals" loading="lazy"></figure><figure><img src="media/2026-09-05-IMG_4506.jpg" alt="A photograph from the annals" loading="lazy"></figure><figure><video src="media/2026-09-05-IMG_4509.mp4" controls playsinline preload="none" poster="media/2026-09-05-IMG_4509.poster.jpg"></video></figure></div>
+<h3>Shoots</h3><div class="shots"><figure><img src="media/2026-09-05-IMG_4492.jpg" alt="A photograph from the annals" width="1200" height="1600" loading="lazy"></figure><figure><img src="media/2026-09-05-IMG_4503.jpg" alt="A photograph from the annals" width="1600" height="1200" loading="lazy"></figure><figure><img src="media/2026-09-05-IMG_4506.jpg" alt="A photograph from the annals" width="1600" height="1200" loading="lazy"></figure><figure><video src="media/2026-09-05-IMG_4509.mp4" controls playsinline preload="none" poster="media/2026-09-05-IMG_4509.poster.jpg" width="1600" height="901"></video></figure></div>
 <div class="comments" data-day="2026-09-05">
   <h3>Comments</h3>
   <div class="comment-list" hidden></div>
@@ -380,12 +417,12 @@ night.</p>
 <section id="day-2026-09-06">
 <h2><a href="#day-2026-09-06">Sunday, September 6</a></h2>
 <p class="headline">From the cook-off to the temple burn</p>
-<figure class="lead"><video src="media/2026-09-06-160ff8a0-582e-4a4f-9a27-46a0580cb3f9.mp4" controls playsinline preload="none" poster="media/2026-09-06-160ff8a0-582e-4a4f-9a27-46a0580cb3f9.poster.jpg"></video></figure>
+<figure class="lead"><video src="media/2026-09-06-160ff8a0-582e-4a4f-9a27-46a0580cb3f9.mp4" controls playsinline preload="none" poster="media/2026-09-06-160ff8a0-582e-4a4f-9a27-46a0580cb3f9.poster.jpg" width="899" height="1600"></video></figure>
 <p>Sunday starts where Saturday refused to finish. The three hours after midnight are the only stretch of the whole day the positions caught, and they hold the cook-off and the link-up with the Serpent Queen — the steamboat — burn night still running on. Just after one, Hermes was thirty-seven metres from Plastic Planet. By four in the morning it had found OVO Ignis, almost two kilometres out from the Man, with Enceladus a few hundred metres behind it. <a href="https://www.instagram.com/myhigherflow/" rel="noopener">@myhigherflow</a> was among those playing off its deck while it went. Then nothing for sixteen hours, which is not to say nothing happened. The nude cruise went out in the daytime. The evening was the poop cruise, with <a href="https://www.instagram.com/metavillan/" rel="noopener">DJ Metavillan</a> playing a set called Drop It Like It's Hot. And after that the temple burn: the quiet fire, the one the city watches without a sound, and the one the old stories would have sent Hermes to, since guiding the dead was always part of the job. Three of the four things the last Sunday was for are missing from the record of it entirely.</p>
 <div class="daymap">
-  <img src="maps/playa-streets.svg" alt="" aria-hidden="true">
-  <img src="maps/2026-09-06.track.svg" alt="Where Hermes went on 2026-09-06">
-</div>
+    <img src="maps/playa-streets.svg" alt="" aria-hidden="true" width="1400" height="900">
+    <img src="maps/2026-09-06.track.svg" alt="Where Hermes went on 2026-09-06" width="1400" height="900">
+  </div>
 <p class="mapnote">Where it went. Each circle is somewhere Hermes stopped, drawn larger the
 longer it stayed; green is the first of the day, red the last. The dashed curves are the
 moves between them — curved because what survives is where it stood, not the route it took
@@ -397,7 +434,7 @@ archive, the most recent published. These are 2026 nights, so treat a distance a
 where a piece stood the year before, and a picture as of the piece rather than of that
 night.</p>
 
-<h3>Shoots</h3><div class="shots"><figure><img src="media/2026-09-06-IMG_4520.jpg" alt="A photograph from the annals" loading="lazy"></figure><figure><video src="media/2026-09-06-IMG_4530.mp4" controls playsinline preload="none" poster="media/2026-09-06-IMG_4530.poster.jpg"></video></figure><figure><video src="media/2026-09-06-IMG_4531.mp4" controls playsinline preload="none" poster="media/2026-09-06-IMG_4531.poster.jpg"></video></figure><figure><img src="media/2026-09-06-IMG_4542.jpg" alt="A photograph from the annals" loading="lazy"></figure></div>
+<h3>Shoots</h3><div class="shots"><figure><img src="media/2026-09-06-IMG_4520.jpg" alt="A photograph from the annals" width="1600" height="1200" loading="lazy"></figure><figure><video src="media/2026-09-06-IMG_4530.mp4" controls playsinline preload="none" poster="media/2026-09-06-IMG_4530.poster.jpg" width="1600" height="901"></video></figure><figure><video src="media/2026-09-06-IMG_4531.mp4" controls playsinline preload="none" poster="media/2026-09-06-IMG_4531.poster.jpg" width="900" height="1600"></video></figure><figure><img src="media/2026-09-06-IMG_4542.jpg" alt="A photograph from the annals" width="1600" height="1200" loading="lazy"></figure></div>
 <div class="comments" data-day="2026-09-06">
   <h3>Comments</h3>
   <div class="comment-list" hidden></div>
@@ -415,9 +452,9 @@ night.</p>
 
 <p>It ends at twenty-five to ten on Monday evening, inside the city, three-quarters of a kilometre from the Man. Message to the Parents We Should Have Had stood a few hundred metres away and the art car Panopticonotopia 3.0! somewhere beyond it. Hermes moved about thirty metres, the length of itself and a little more, and stopped. There is no last journey and no drive home, because nobody was writing by then — the week simply runs out mid-sentence, the way they always do. Everything after this happened, and happened to people who were there for it, and is not in this book. Gods of the road do not get endings, only the next crossing.</p>
 <div class="daymap">
-  <img src="maps/playa-streets.svg" alt="" aria-hidden="true">
-  <img src="maps/2026-09-07.track.svg" alt="Where Hermes went on 2026-09-07">
-</div>
+    <img src="maps/playa-streets.svg" alt="" aria-hidden="true" width="1400" height="900">
+    <img src="maps/2026-09-07.track.svg" alt="Where Hermes went on 2026-09-07" width="1400" height="900">
+  </div>
 <p class="mapnote">Where it went. Each circle is somewhere Hermes stopped, drawn larger the
 longer it stayed; green is the first of the day, red the last. The dashed curves are the
 moves between them — curved because what survives is where it stood, not the route it took
@@ -441,7 +478,7 @@ night.</p>
   </form>
 </div>
 </section>
-<section class="reading">
+<section class="reading" id="reading">
   <h2>The seven circles</h2>
   <p>Before he was a car, Hermes was the fastest of the Greek gods — the messenger, the
   psychopomp, the only Olympian free to travel everywhere, and a thief by the evening of the
@@ -457,7 +494,7 @@ night.</p>
   <a href="https://sourcelibrary.org" rel="noopener">Source Library</a> · plates public domain
   except the observable-universe map, &copy; Pablo Carlos Budassi, CC BY-SA</span></p>
 </section>
-<section class="next">
+<section class="next" id="next">
   <h2>Next year</h2>
   <p>Hermes goes out again. If you want to play a set off the deck, host something on it, be
   collected by it, or help build the thing, you can

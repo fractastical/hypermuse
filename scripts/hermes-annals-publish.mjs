@@ -41,6 +41,10 @@ const BOOK_URL = arg("book", "https://returnofhermes.com/book");
 const INSTAGRAM = arg("instagram", "https://www.instagram.com/hermesartcar/");
 
 const mb = (bytes) => (bytes / 1048576).toFixed(bytes >= 10485760 ? 0 : 1) + " MB";
+// Midday UTC and a UTC formatter, because a bare date parsed as local and printed as local
+// is fine here and wrong on a machine east of the meridian, where it lands on the day before.
+const shortDay = (iso) => new Date(iso + "T12:00:00Z").toLocaleDateString("en-GB",
+  { weekday: "short", day: "numeric", month: "short", timeZone: "UTC" });
 const esc = (s) => String(s == null ? "" : s)
   .replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
 
@@ -127,11 +131,18 @@ if (!apply) {
 // perfectly well without them, and saying so beats failing the whole build.
 const mapSourceDir = join(repo, "artifacts", "hermes-annals", "maps");
 const mapDays = new Set();
+let mapDim = "";
 if (existsSync(join(mapSourceDir, "playa-streets.svg"))) {
   for (const name of readdirSync(mapSourceDir)) {
     const match = /^(\d{4}-\d{2}-\d{2})\.track\.svg$/.exec(name);
     if (match) mapDays.add(match[1]);
   }
+  // Read off the base map rather than written down here, so the tags follow the map
+  // generator if its canvas ever changes size.
+  const head = readFileSync(join(mapSourceDir, "playa-streets.svg"), "utf8").slice(0, 400);
+  const w = (head.match(/width="(\d+)"/) || [])[1];
+  const h = (head.match(/height="(\d+)"/) || [])[1];
+  if (w && h) mapDim = ` width="${w}" height="${h}"`;
 }
 
 // Who gets a link when the copy names them. Kept out of the accounts themselves because
@@ -168,6 +179,7 @@ if (mapDays.size) {
 const programSource = join(repo, "assets", "hermes-annals", "program", "public-program.png");
 const hasProgram = existsSync(programSource);
 if (hasProgram) copyFileSync(programSource, join(outDir, "public-program.png"));
+const programSize = hasProgram ? await pixelSize(programSource) : null;
 
 // The Source Library booklet on the god the car is named after: seven nested-circle
 // diagrams from 1540 to 2012, and an essay on why a messenger and thief is the right
@@ -198,10 +210,22 @@ if (Object.keys(artPhotos.pieces).length) {
   }
 }
 
+// Every figure needs its finished pixel size on the tag. Without it the browser gives a
+// lazy image no room until it arrives, so the page grows under the reader as photographs
+// load — and an anchor from the contents lands wherever the page happened to be a moment
+// ago. Sixty-one lazy images put the Saturday link 1,118 pixels wide of Saturday.
+async function pixelSize(file) {
+  const { stdout } = await execFileAsync("sips", ["-g", "pixelWidth", "-g", "pixelHeight", file]);
+  const width = Number((stdout.match(/pixelWidth:\s*(\d+)/) || [])[1]);
+  const height = Number((stdout.match(/pixelHeight:\s*(\d+)/) || [])[1]);
+  return width && height ? { width, height } : null;
+}
+
 async function encodeStill(item) {
   const dest = join(mediaDir, item.name);
   await execFileAsync("sips", ["-Z", String(STILL_MAX), "-s", "format", "jpeg",
     "-s", "formatOptions", "80", item.abs, "--out", dest]);
+  item.size = await pixelSize(dest);
   return statSync(dest).size;
 }
 
@@ -221,6 +245,9 @@ async function encodeVideo(item) {
     await execFileAsync("sips", ["-Z", String(STILL_MAX), "-s", "format", "jpeg",
       "-s", "formatOptions", "72", item.posterAbs, "--out", posterDest]);
     bytes += statSync(posterDest).size;
+    // The poster's shape is the video's shape, and it is the one the browser has to
+    // reserve room for while preload="none" keeps the clip itself off the wire.
+    item.size = await pixelSize(posterDest);
   } else {
     item.poster = "";
   }
@@ -246,22 +273,26 @@ function figureFor(item, lead = false) {
   const caption = esc([item.art, item.caption].filter(Boolean).join(" · "));
   const cap = caption ? `<figcaption>${caption}</figcaption>` : "";
   const cls = lead ? ' class="lead"' : "";
+  const dim = item.size ? ` width="${item.size.width}" height="${item.size.height}"` : "";
   if (!item.video) {
     // The lead is the one image worth fetching before the reader scrolls to it.
     const loading = lead ? "" : ' loading="lazy"';
-    return `<figure${cls}><img src="media/${esc(item.name)}" alt="${caption || "A photograph from the annals"}"${loading}>${cap}</figure>`;
+    return `<figure${cls}><img src="media/${esc(item.name)}" alt="${caption || "A photograph from the annals"}"${dim}${loading}>${cap}</figure>`;
   }
   const poster = item.poster ? ` poster="media/${esc(item.poster)}"` : "";
-  return `<figure${cls}><video src="media/${esc(item.name)}" controls playsinline preload="none"${poster}></video>${cap}</figure>`;
+  return `<figure${cls}><video src="media/${esc(item.name)}" controls playsinline preload="none"${poster}${dim}></video>${cap}</figure>`;
 }
 
 /** The day's map, if one was built for it: the track over the shared street plan. */
 function mapFor(day) {
   if (!mapDays.has(day)) return "";
+  // The base map sets the box the track is laid over, so it is the one image on a day
+  // whose height everything below depends on. An svg has no size until it is fetched,
+  // which is eleven map-shaped jumps down the page if the tag does not say.
   return `<div class="daymap">
-  <img src="maps/playa-streets.svg" alt="" aria-hidden="true">
-  <img src="maps/${esc(day)}.track.svg" alt="Where Hermes went on ${esc(day)}">
-</div>
+    <img src="maps/playa-streets.svg" alt="" aria-hidden="true"${mapDim}>
+    <img src="maps/${esc(day)}.track.svg" alt="Where Hermes went on ${esc(day)}"${mapDim}>
+  </div>
 <p class="mapnote">Where it went. Each circle is somewhere Hermes stopped, drawn larger the
 longer it stayed; green is the first of the day, red the last. The dashed curves are the
 moves between them — curved because what survives is where it stood, not the route it took
@@ -400,6 +431,23 @@ const html = `<!doctype html>
   .artlist .what { display:flex; flex-direction:column; min-width:0; }
   .artlist .how { color:#8fa3b8; font-size:13px; }
   .artnote { color:#6f8296; font-size:12.5px; line-height:1.5; margin:12px 0 0; max-width:40em; }
+  /* The headlines double as the contents, so a reader can see the shape of the week — the
+     badges, the burns, the night nothing was recorded — without scrolling eleven days to
+     find it. Built from the same strings the days print, so it cannot drift out of step. */
+  .toc { border-top:1px solid #1d2937; padding:22px 0 4px; margin:0 0 4px; }
+  .toc h2 { font-size:13px; text-transform:uppercase; letter-spacing:1.4px; color:#8fa3b8; margin:0 0 12px; }
+  .toc ol { list-style:none; padding:0; margin:0; }
+  .toc li { margin:0 0 8px; }
+  .toc a { display:flex; gap:12px; align-items:baseline; text-decoration:none; }
+  .toc a:hover .what { text-decoration:underline; }
+  /* Fixed width and tabular figures so the headlines start on one line down the page
+     rather than stepping in and out with the length of each date. */
+  .toc .when { flex:none; width:6.2em; color:#8fa3b8; font-size:13px; font-variant-numeric:tabular-nums; }
+  .toc .what { color:#a6e2ff; }
+  @media (max-width:520px) {
+    .toc a { display:block; }
+    .toc .when { width:auto; display:block; margin-bottom:1px; }
+  }
   .reading p { max-width:34em; }
   /* Sized like a thing to click rather than a word in a sentence, since the paragraphs
      around it are also full of links and the download is the point of the section. */
@@ -418,7 +466,9 @@ const html = `<!doctype html>
   h3 { font-size:13px; text-transform:uppercase; letter-spacing:1.4px; color:#8fa3b8; margin:20px 0 4px; }
   .shots { display:grid; grid-template-columns:repeat(auto-fill,minmax(220px,1fr)); gap:12px; margin-top:10px; }
   figure { margin:0; }
-  figure img, figure video { width:100%; border-radius:10px; display:block; background:#0b111a; }
+  /* height:auto is what turns the width and height attributes into an aspect ratio the
+     browser can reserve, rather than a fixed size it stretches the picture into. */
+  figure img, figure video { width:100%; height:auto; border-radius:10px; display:block; background:#0b111a; }
   figcaption { color:#8fa3b8; font-size:12px; margin-top:6px; }
   figure.lead { margin:14px 0 18px; }
   /* Capped, because a portrait phone photograph at full column width is taller than the
@@ -468,15 +518,22 @@ aboard for every night in this book from the thirtieth of August on, with
 him for three of them. Hermes is on Instagram as
 <a href="${esc(INSTAGRAM)}" rel="noopener">@hermesartcar</a>.</p>
 ${hasProgram ? `<figure class="program">
-  <img src="public-program.png" alt="The Hermes public programme for Burning Man 2026, listing the week's planned events day by day" loading="lazy">
+  <img src="public-program.png" alt="The Hermes public programme for Burning Man 2026, listing the week's planned events day by day"${programSize ? ` width="${programSize.width}" height="${programSize.height}"` : ""} loading="lazy">
   <figcaption>The programme, as printed before the week began — Hermes at Axis Mundi, 31 August to
   6 September, draft 27. It promised at least a 30% chance of finding the car at any of these
   places, which turned out to be about right. Some of it happened, some of it did not, and a
   good deal of what follows is not on it at all.</figcaption>
 </figure>` : ""}
 <div class="sub">${publishedDays.length} ${publishedDays.length === 1 ? "day" : "days"} on the playa · ${totalMedia} photograph${totalMedia === 1 ? "" : "s"} and clip${totalMedia === 1 ? "" : "s"} · anyone may comment</div>
+<nav class="toc" aria-label="Contents">
+  <h2>Contents</h2>
+  <ol>
+${publishedDays.map(({ day }) => `    <li><a href="#day-${esc(day.day)}"><span class="when">${esc(shortDay(day.day))}</span><span class="what">${esc(day.headline || (day.facts || {}).dayName || day.day)}</span></a></li>`).join("\n")}
+${reading ? `    <li><a href="#reading"><span class="when">Read</span><span class="what">The seven circles of Hermes</span></a></li>\n` : ""}    <li><a href="#next"><span class="when">Next</span><span class="what">Be part of it next year</span></a></li>
+  </ol>
+</nav>
 ${publishedDays.map(sectionFor).join("\n")}
-${reading ? `<section class="reading">
+${reading ? `<section class="reading" id="reading">
   <h2>The seven circles</h2>
   <p>Before he was a car, Hermes was the fastest of the Greek gods — the messenger, the
   psychopomp, the only Olympian free to travel everywhere, and a thief by the evening of the
@@ -492,7 +549,7 @@ ${reading ? `<section class="reading">
   <a href="https://sourcelibrary.org" rel="noopener">Source Library</a> · plates public domain
   except the observable-universe map, &copy; Pablo Carlos Budassi, CC BY-SA</span></p>
 </section>
-` : ""}<section class="next">
+` : ""}<section class="next" id="next">
   <h2>Next year</h2>
   <p>Hermes goes out again. If you want to play a set off the deck, host something on it, be
   collected by it, or help build the thing, you can
