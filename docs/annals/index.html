@@ -10,11 +10,21 @@
   h1 { font-size: 30px; margin: 0 0 6px; }
   .standfirst { font-size:18px; line-height:1.65; color:#dce9f5; margin:10px 0 14px; max-width:34em; }
   .byline { font-size:15px; color:#b8cadb; margin:0 0 14px; max-width:34em; }
-  /* Tall and narrow — a poster, not a photograph — so it is capped by height rather than
-     width, or it runs off the bottom of a phone before the first day is reached. */
-  .program { margin:0 0 26px; max-width:34em; }
-  .program img { display:block; width:100%; max-width:420px; height:auto; border-radius:10px; border:1px solid #1d2937; }
-  .program figcaption { color:#8fa3b8; font-size:13px; line-height:1.55; margin-top:8px; }
+  /* Tall and narrow — a poster, not a photograph. Set as a column beside its caption and
+     kept small, because it sits under the contents now: a reader arriving at the page wants
+     the list of days first, and a full-width poster pushed the first of them off the screen.
+     Small enough to be legible as an object, not as a document — it is a plate here, and
+     anyone who wants to read it can open the file. */
+  .program { margin:18px 0 30px; display:grid; grid-template-columns:190px minmax(0,1fr);
+    gap:18px; align-items:start; max-width:46em; }
+  .program img { display:block; width:100%; height:auto; border-radius:10px; border:1px solid #1d2937; }
+  .program figcaption { color:#8fa3b8; font-size:13px; line-height:1.55; }
+  /* One column on a narrow screen: 190px of poster beside a caption leaves the caption in
+     a gutter four words wide. */
+  @media (max-width:560px) {
+    .program { grid-template-columns:minmax(0,1fr); gap:10px; max-width:34em; }
+    .program img { max-width:260px; }
+  }
   /* Art with a picture beside it. A plain list of names asks the reader to imagine a
      thing they have never seen; a thumbnail costs 60 KB and does the work instead. */
   .artlist { list-style:none; padding:0; margin:8px 0 0;
@@ -125,20 +135,13 @@ aboard for every night in this book from the thirtieth of August on, with
 <a href="https://www.instagram.com/stephen.rodan/" rel="noopener">Coral Daddy</a> out with
 him for three of them. Hermes is on Instagram as
 <a href="https://www.instagram.com/hermesartcar/" rel="noopener">@hermesartcar</a>.</p>
-<figure class="program">
-  <img src="public-program.png" alt="The Hermes public programme for Burning Man 2026, listing the week's planned events day by day" width="576" height="1024" loading="lazy">
-  <figcaption>The programme, as printed before the week began — Hermes at Axis Mundi, 31 August to
-  6 September, draft 27. It promised at least a 30% chance of finding the car at any of these
-  places, which turned out to be about right. Some of it happened, some of it did not, and a
-  good deal of what follows is not on it at all.</figcaption>
-</figure>
-<div class="sub">11 days on the playa · 56 photographs and clips · anyone may comment</div>
+<div class="sub">11 days on the playa · 55 photographs and clips · anyone may comment</div>
 <nav class="toc" aria-label="Contents">
   <h2>Contents</h2>
   <ol>
     <li><a href="#day-2026-08-28"><span class="when">Fri 28 Aug</span><span class="what">The first two hours, spent standing still</span><span class="tiles" aria-hidden="true"><img src="tiles/2026-08-28-1.jpg" alt="" width="72" height="72"><img src="tiles/2026-08-28-2.jpg" alt="" width="72" height="72"></span></a></li>
     <li><a href="#day-2026-08-29"><span class="when">Sat 29 Aug</span><span class="what">Out before dawn, home before the heat</span><span class="tiles" aria-hidden="true"><img src="tiles/2026-08-29-1.jpg" alt="" width="72" height="72"><img src="tiles/2026-08-29-2.jpg" alt="" width="72" height="72"><img src="tiles/2026-08-29-3.jpg" alt="" width="72" height="72"></span></a></li>
-    <li><a href="#day-2026-08-30"><span class="when">Sun 30 Aug</span><span class="what">The first real night out</span><span class="tiles" aria-hidden="true"><img src="tiles/2026-08-30-1.jpg" alt="" width="72" height="72"><img src="tiles/2026-08-30-2.jpg" alt="" width="72" height="72"><img src="tiles/2026-08-30-3.jpg" alt="" width="72" height="72"></span></a></li>
+    <li><a href="#day-2026-08-30"><span class="when">Sun 30 Aug</span><span class="what">The DPW party, then Spanky's opening night</span><span class="tiles" aria-hidden="true"><img src="tiles/2026-08-30-1.jpg" alt="" width="72" height="72"><img src="tiles/2026-08-30-2.jpg" alt="" width="72" height="72"><img src="tiles/2026-08-30-3.jpg" alt="" width="72" height="72"></span></a></li>
     <li><a href="#day-2026-08-31"><span class="when">Mon 31 Aug</span><span class="what">Twenty-six kilometres, and Mundara</span><span class="tiles" aria-hidden="true"><img src="tiles/2026-08-31-1.jpg" alt="" width="72" height="72"><img src="tiles/2026-08-31-2.jpg" alt="" width="72" height="72"><img src="tiles/2026-08-31-3.jpg" alt="" width="72" height="72"></span></a></li>
     <li><a href="#day-2026-09-01"><span class="when">Tue 1 Sept</span><span class="what">The night the box opened, and nobody knocked</span><span class="tiles" aria-hidden="true"><img src="tiles/2026-09-01-1.jpg" alt="" width="72" height="72"><img src="tiles/2026-09-01-2.jpg" alt="" width="72" height="72"><img src="tiles/2026-09-01-3.jpg" alt="" width="72" height="72"></span></a></li>
     <li><a href="#day-2026-09-02"><span class="when">Wed 2 Sept</span><span class="what">A badge for best sunrise, and the night strangers started asking</span><span class="tiles" aria-hidden="true"><img src="tiles/2026-09-02-1.jpg" alt="" width="72" height="72"></span></a></li>
@@ -151,6 +154,13 @@ him for three of them. Hermes is on Instagram as
     <li><a href="#next"><span class="when">Next</span><span class="what">Be part of it next year</span></a></li>
   </ol>
 </nav>
+<figure class="program">
+  <img src="public-program.png" alt="The Hermes public programme for Burning Man 2026, listing the week's planned events day by day" width="576" height="1024" loading="lazy">
+  <figcaption>The programme, as printed before the week began — Hermes at Axis Mundi, 31 August to
+  6 September, draft 27. It promised at least a 30% chance of finding the car at any of these
+  places, which turned out to be about right. Some of it happened, some of it did not, and a
+  good deal of what follows is not on it at all.</figcaption>
+</figure>
 <section id="day-2026-08-28">
 <h2><a href="#day-2026-08-28">Friday, August 28</a></h2>
 <p class="headline">The first two hours, spent standing still</p>
@@ -211,9 +221,9 @@ to get there. The shaded ground is roughly the territory the day covered.</p>
 </section>
 <section id="day-2026-08-30">
 <h2><a href="#day-2026-08-30">Sunday, August 30</a></h2>
-<p class="headline">The first real night out</p>
+<p class="headline">The DPW party, then Spanky's opening night</p>
 <figure class="lead"><video src="media/2026-08-30-IMG_4297.mp4" controls playsinline preload="none" poster="media/2026-08-30-IMG_4297.poster.jpg" width="1600" height="901"></video></figure>
-<p>On Sunday evening Hermes finally went out, and <a href="https://www.instagram.com/metavillan/" rel="noopener">DJ Metavillan</a> was aboard — the first of the nights he would see through to the end of the week. It left at a quarter to six and did not come back until nearly midnight, and almost all of those six hours were spent beyond the edge of the city, out on the open playa where there are no streets to be on and no reason to keep to them. Something close to eight kilometres of ground, as far as a kilometre and a half from the Man at the farthest — though on a night this thinly witnessed that figure is the distance between glimpses rather than a route. One pause worth the name: nine minutes back at 8:45 and F at about half past ten, long enough to collect somebody or hand something over, and then it was gone again into the dark, which is where this story properly starts.</p>
+<p>On Sunday evening Hermes finally went out, and it went out with somewhere to be: the DPW pre-event party first, the people who build the city before anyone arrives to see it, and then Spanky's opening night. <a href="https://www.instagram.com/metavillan/" rel="noopener">DJ Metavillan</a> was aboard, the first of the nights he would see through to the end of the week. It left at a quarter to six and did not come back until nearly midnight, and the positions put almost all of those six hours beyond the edge of the city, out where there are no streets to be on. That is where the instruments had it, which is not the same as what it was out for. Something close to eight kilometres of ground, as far as a kilometre and a half from the Man at the farthest — though on a night this thinly witnessed that figure is the distance between glimpses rather than a route. One pause worth the name: nine minutes back at 8:45 and F at about half past ten, long enough to collect somebody or hand something over, and then it was gone again into the dark, which is where this story properly starts.</p>
 <div class="daymap">
     <img src="maps/playa-streets.svg" alt="" aria-hidden="true" width="1400" height="900">
     <img src="maps/2026-08-30.track.svg" alt="Where Hermes went on 2026-08-30" width="1400" height="900">
@@ -255,7 +265,7 @@ to get there. The shaded ground is roughly the territory the day covered.</p>
 <h3>Stops</h3><ul><li><strong>near Deep-Playa Music Zone (DMZ)</strong> — 23 minutes from 1:02 AM</li></ul>
 
 
-<h3>Shoots</h3><div class="shots"><figure><img src="media/2026-08-31-IMG_4325.jpg" alt="A photograph from the annals" width="1600" height="1200" loading="lazy"></figure><figure><img src="media/2026-08-31-IMG_4329.jpg" alt="A photograph from the annals" width="1600" height="1200" loading="lazy"></figure><figure><video src="media/2026-08-31-IMG_4331.mp4" controls playsinline preload="none" poster="media/2026-08-31-IMG_4331.poster.jpg" width="900" height="1600"></video></figure><figure><img src="media/2026-08-31-IMG_4332.jpg" alt="A photograph from the annals" width="1600" height="1200" loading="lazy"></figure><figure><img src="media/2026-08-31-IMG_4334.jpg" alt="A photograph from the annals" width="1600" height="1200" loading="lazy"></figure><figure><video src="media/2026-08-31-IMG_4335.mp4" controls playsinline preload="none" poster="media/2026-08-31-IMG_4335.poster.jpg" width="900" height="1600"></video></figure><figure><img src="media/2026-08-31-IMG_4337.jpg" alt="A photograph from the annals" width="1600" height="1200" loading="lazy"></figure><figure><video src="media/2026-08-31-IMG_4338.mp4" controls playsinline preload="none" poster="media/2026-08-31-IMG_4338.poster.jpg" width="900" height="1600"></video></figure><figure><img src="media/2026-08-31-IMG_4339.jpg" alt="A photograph from the annals" width="1600" height="1200" loading="lazy"></figure><figure><video src="media/2026-08-31-IMG_4340.mp4" controls playsinline preload="none" poster="media/2026-08-31-IMG_4340.poster.jpg" width="900" height="1600"></video></figure><figure><video src="media/2026-08-31-IMG_4345.mp4" controls playsinline preload="none" poster="media/2026-08-31-IMG_4345.poster.jpg" width="900" height="1600"></video></figure><figure><video src="media/2026-08-31-IMG_8967.mp4" controls playsinline preload="none" poster="media/2026-08-31-IMG_8967.poster.jpg" width="900" height="1600"></video></figure><figure><img src="media/2026-08-31-IMG_8973.jpg" alt="A photograph from the annals" width="1600" height="1200" loading="lazy"></figure><figure><img src="media/2026-08-31-IMG_8979.jpg" alt="A photograph from the annals" width="1600" height="1200" loading="lazy"></figure><figure><video src="media/2026-08-31-IMG_8990.mp4" controls playsinline preload="none" poster="media/2026-08-31-IMG_8990.poster.jpg" width="900" height="1600"></video></figure></div>
+<h3>Shoots</h3><div class="shots"><figure><img src="media/2026-08-31-IMG_4325.jpg" alt="A photograph from the annals" width="1600" height="1200" loading="lazy"></figure><figure><img src="media/2026-08-31-IMG_4329.jpg" alt="A photograph from the annals" width="1600" height="1200" loading="lazy"></figure><figure><video src="media/2026-08-31-IMG_4331.mp4" controls playsinline preload="none" poster="media/2026-08-31-IMG_4331.poster.jpg" width="900" height="1600"></video></figure><figure><img src="media/2026-08-31-IMG_4332.jpg" alt="A photograph from the annals" width="1600" height="1200" loading="lazy"></figure><figure><img src="media/2026-08-31-IMG_4334.jpg" alt="A photograph from the annals" width="1600" height="1200" loading="lazy"></figure><figure><video src="media/2026-08-31-IMG_4335.mp4" controls playsinline preload="none" poster="media/2026-08-31-IMG_4335.poster.jpg" width="900" height="1600"></video></figure><figure><img src="media/2026-08-31-IMG_4337.jpg" alt="A photograph from the annals" width="1600" height="1200" loading="lazy"></figure><figure><video src="media/2026-08-31-IMG_4338.mp4" controls playsinline preload="none" poster="media/2026-08-31-IMG_4338.poster.jpg" width="900" height="1600"></video></figure><figure><img src="media/2026-08-31-IMG_4339.jpg" alt="A photograph from the annals" width="1600" height="1200" loading="lazy"></figure><figure><video src="media/2026-08-31-IMG_4340.mp4" controls playsinline preload="none" poster="media/2026-08-31-IMG_4340.poster.jpg" width="900" height="1600"></video></figure><figure><video src="media/2026-08-31-IMG_4345.mp4" controls playsinline preload="none" poster="media/2026-08-31-IMG_4345.poster.jpg" width="900" height="1600"></video></figure><figure><img src="media/2026-08-31-IMG_4351.jpg" alt="A photograph from the annals" width="736" height="1600" loading="lazy"></figure><figure><video src="media/2026-08-31-IMG_8967.mp4" controls playsinline preload="none" poster="media/2026-08-31-IMG_8967.poster.jpg" width="900" height="1600"></video></figure><figure><img src="media/2026-08-31-IMG_8973.jpg" alt="A photograph from the annals" width="1600" height="1200" loading="lazy"></figure><figure><img src="media/2026-08-31-IMG_8979.jpg" alt="A photograph from the annals" width="1600" height="1200" loading="lazy"></figure><figure><video src="media/2026-08-31-IMG_8990.mp4" controls playsinline preload="none" poster="media/2026-08-31-IMG_8990.poster.jpg" width="900" height="1600"></video></figure></div>
 <div class="comments" data-day="2026-08-31">
   <h3>Comments</h3>
   <div class="comment-list" hidden></div>
@@ -284,7 +294,7 @@ to get there. The shaded ground is roughly the territory the day covered.</p>
 <h3>Stops</h3><ul><li><strong>near Deep-Playa Music Zone (DMZ)</strong> — 17 minutes from 2:09 AM</li><li><strong>8:45 &amp; F</strong> — 12 minutes from 8:55 PM</li></ul>
 
 
-<h3>Shoots</h3><div class="shots"><figure><img src="media/2026-09-01-IMG_4349.jpg" alt="A photograph from the annals" width="1600" height="1200" loading="lazy"></figure><figure><img src="media/2026-09-01-IMG_4351.jpg" alt="A photograph from the annals" width="736" height="1600" loading="lazy"></figure><figure><img src="media/2026-09-01-IMG_4374.jpg" alt="A photograph from the annals" width="1600" height="1200" loading="lazy"></figure><figure><video src="media/2026-09-01-IMG_9011.mp4" controls playsinline preload="none" poster="media/2026-09-01-IMG_9011.poster.jpg" width="900" height="1600"></video></figure><figure><video src="media/2026-09-01-IMG_9012.mp4" controls playsinline preload="none" poster="media/2026-09-01-IMG_9012.poster.jpg" width="900" height="1600"></video></figure></div>
+<h3>Shoots</h3><div class="shots"><figure><img src="media/2026-09-01-IMG_4349.jpg" alt="A photograph from the annals" width="1600" height="1200" loading="lazy"></figure><figure><img src="media/2026-09-01-IMG_4374.jpg" alt="A photograph from the annals" width="1600" height="1200" loading="lazy"></figure><figure><video src="media/2026-09-01-IMG_9011.mp4" controls playsinline preload="none" poster="media/2026-09-01-IMG_9011.poster.jpg" width="900" height="1600"></video></figure><figure><video src="media/2026-09-01-IMG_9012.mp4" controls playsinline preload="none" poster="media/2026-09-01-IMG_9012.poster.jpg" width="900" height="1600"></video></figure></div>
 <div class="comments" data-day="2026-09-01">
   <h3>Comments</h3>
   <div class="comment-list" hidden></div>
@@ -444,7 +454,7 @@ archive, the most recent published. These are 2026 nights, so treat a distance a
 where a piece stood the year before, and a picture as of the piece rather than of that
 night.</p>
 
-<h3>Shoots</h3><div class="shots"><figure><img src="media/2026-09-06-IMG_4520.jpg" alt="A photograph from the annals" width="1600" height="1200" loading="lazy"></figure><figure><video src="media/2026-09-06-IMG_4530.mp4" controls playsinline preload="none" poster="media/2026-09-06-IMG_4530.poster.jpg" width="1600" height="901"></video></figure><figure><video src="media/2026-09-06-IMG_4531.mp4" controls playsinline preload="none" poster="media/2026-09-06-IMG_4531.poster.jpg" width="900" height="1600"></video></figure><figure><img src="media/2026-09-06-IMG_4542.jpg" alt="A photograph from the annals" width="1600" height="1200" loading="lazy"></figure></div>
+<h3>Shoots</h3><div class="shots"><figure><video src="media/2026-09-06-IMG_4530.mp4" controls playsinline preload="none" poster="media/2026-09-06-IMG_4530.poster.jpg" width="1600" height="901"></video></figure><figure><video src="media/2026-09-06-IMG_4531.mp4" controls playsinline preload="none" poster="media/2026-09-06-IMG_4531.poster.jpg" width="900" height="1600"></video></figure><figure><img src="media/2026-09-06-IMG_4542.jpg" alt="A photograph from the annals" width="1600" height="1200" loading="lazy"></figure></div>
 <div class="comments" data-day="2026-09-06">
   <h3>Comments</h3>
   <div class="comment-list" hidden></div>

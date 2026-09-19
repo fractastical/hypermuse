@@ -80,6 +80,9 @@
     "assets/hermes-annals/2026-08-31/IMG_4345.mp4": {
       "publish": true
     },
+    "assets/hermes-annals/2026-08-31/IMG_4351.jpg": {
+      "publish": true
+    },
     "assets/hermes-annals/2026-08-31/IMG_8967.mp4": {
       "publish": true
     },
@@ -98,9 +101,6 @@
     "assets/hermes-annals/2026-09-01/IMG_4350.mp4": {
       "publish": true,
       "lead": true
-    },
-    "assets/hermes-annals/2026-09-01/IMG_4351.jpg": {
-      "publish": true
     },
     "assets/hermes-annals/2026-09-01/IMG_4374.jpg": {
       "publish": true
@@ -167,7 +167,8 @@
       "lead": true
     },
     "assets/hermes-annals/2026-09-06/IMG_4520.jpg": {
-      "publish": true
+      "publish": true,
+      "explicit": true
     },
     "assets/hermes-annals/2026-09-06/IMG_4530.mp4": {
       "publish": true

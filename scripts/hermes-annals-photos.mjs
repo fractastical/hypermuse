@@ -9,10 +9,10 @@
 // assets/hermes-annals/<day>/. Three things have to be true before a photograph shows
 // up in a day's entry:
 //
-//   The day has to be the day it was taken, in playa time. Capture dates come back
-//   from Spotlight in UTC, and the nights matter here — a photo taken at nine in the
-//   evening is already tomorrow in UTC, so binning on the UTC date moves half the
-//   night's photographs into the next day's entry.
+//   The day has to be the day it was taken, in playa time. Capture dates come back in
+//   UTC, and the nights matter here — a photo taken at nine in the evening is already
+//   tomorrow in UTC, so binning on the UTC date moves half the night's photographs into
+//   the next day's entry. See captureDay: EXIF is the one source that is not UTC.
 //
 //   HEIC has to go. Chrome answers an <img> pointing at one with an error and nothing
 //   else, and .heic is not in the annals' own list of media extensions either, so the
@@ -45,17 +45,50 @@ const VIDEO_MAX = 1600;
 const ANNALS_FIRST = '2026-08-28';
 const ANNALS_LAST = '2026-09-07';
 
-async function captureDate(file) {
-  const { stdout } = await execFileAsync('mdls', ['-name', 'kMDItemContentCreationDate', '-raw', file]);
-  const raw = stdout.trim();
-  if (!raw || raw === '(null)') return null;
-  const parsed = new Date(raw.replace(' +0000', 'Z').replace(' ', 'T'));
-  return Number.isNaN(parsed.getTime()) ? null : parsed;
-}
-
 /** The date as it was lived, not as UTC recorded it. */
 function playaDay(date) {
   return date.toLocaleDateString('en-CA', { timeZone: 'America/Los_Angeles' });
+}
+
+// Three sources, in order of how little work they are.
+//
+// Spotlight first, because it answers for any kind of file at once. It cannot be relied
+// on though: it went silent for this repository at some point and now reports "could not
+// find" for files that are plainly on disk, which used to kill the whole run on the first
+// one. Falling back matters more than being fast.
+//
+// Then the file itself. ffprobe reads a clip's QuickTime creation_time, which is UTC and
+// says so, and converts like any other instant. sips reads a still's EXIF, and EXIF has
+// no timezone in it at all: it is the camera's own wall clock, which on this trip was
+// already playa time. Shifting that by seven hours would move an evening photograph back
+// into the afternoon, so it is taken as the day it claims and not converted.
+async function captureDay(file, isVideo) {
+  try {
+    const { stdout } = await execFileAsync('mdls',
+      ['-name', 'kMDItemContentCreationDate', '-raw', file]);
+    const raw = stdout.trim();
+    if (raw && raw !== '(null)' && !raw.includes('could not find')) {
+      const parsed = new Date(raw.replace(' +0000', 'Z').replace(' ', 'T'));
+      if (!Number.isNaN(parsed.getTime())) return playaDay(parsed);
+    }
+  } catch { /* no Spotlight record, or no index at all */ }
+
+  if (isVideo) {
+    try {
+      const { stdout } = await execFileAsync('ffprobe', ['-v', 'quiet', '-show_entries',
+        'format_tags=creation_time', '-of', 'default=nw=1:nk=1', file]);
+      const parsed = new Date(stdout.trim());
+      if (!Number.isNaN(parsed.getTime())) return playaDay(parsed);
+    } catch { /* not every container carries one */ }
+    return null;
+  }
+
+  try {
+    const { stdout } = await execFileAsync('sips', ['-g', 'creation', file]);
+    const found = stdout.match(/creation:\s*(\d{4}):(\d{2}):(\d{2})/);
+    if (found) return `${found[1]}-${found[2]}-${found[3]}`;
+  } catch { /* nothing readable in it */ }
+  return null;
 }
 
 const files = readdirSync(sourceDir).filter(name => {
@@ -67,14 +100,13 @@ const files = readdirSync(sourceDir).filter(name => {
 const plan = [];
 for (const name of files) {
   const source = path.join(sourceDir, name);
-  const date = await captureDate(source);
   const ext = path.extname(name).toLowerCase();
   const isVideo = VIDEO_EXT.has(ext);
-  const day = date ? playaDay(date) : 'undated';
+  const day = (await captureDay(source, isVideo)) || 'undated';
   const stem = path.basename(name, path.extname(name));
   const outName = stem + (isVideo ? '.mp4' : '.jpg');
   plan.push({
-    name, source, date, day, isVideo,
+    name, source, day, isVideo,
     size: statSync(source).size,
     dest: path.join(annalsRoot, day, outName),
     // A jpg or png that is already small enough only needs copying.
