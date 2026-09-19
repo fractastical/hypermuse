@@ -31,6 +31,139 @@ curl -sL https://returnofhermes.com/docs/annals/ | grep -c 'class="toc"'
 
 Zero means the container is behind and a manual deploy is owed.
 
+## Step 5 was only half done: two names are still the laptop (19 September 2026)
+
+`www` and `request` are **served by this laptop**, through the cloudflared tunnel
+that step 5 says to stop. Only the apex was moved to Railway. That is why the
+site "only works when the laptop is open" — for two of the three names, it
+literally does.
+
+Status codes hide this, because the laptop answers 200 just as happily as Railway
+does. Ask each name which process replied instead: every one serves
+`/api/hermes/faults`, and the start record names the port it is listening on.
+
+```
+for h in returnofhermes.com www.returnofhermes.com request.returnofhermes.com; do
+  printf '%-30s ' "$h"
+  curl -s "https://$h/api/hermes/faults" | node -e 'let s="";process.stdin.on("data",d=>s+=d).on("end",()=>{
+    const f=JSON.parse(s).faults.find(x=>x.kind==="start");console.log(f.at, f.message)})'
+done
+```
+
+**8124 is this laptop. 8080 is Railway.** On 19 September that gave:
+
+| Name | Answers on | Origin | Dies with the lid |
+| --- | --- | --- | --- |
+| `returnofhermes.com` | `0.0.0.0:8080` | Railway | no |
+| `www` | `0.0.0.0:8124` | this laptop | **yes** |
+| `request` | `0.0.0.0:8124` | this laptop | **yes** |
+
+Two different start times across the three names is the same evidence from
+another angle: they are two different servers, not one behind three aliases.
+`~/.cloudflared/config.yml` still routes all three hostnames to
+`http://127.0.0.1:8124`, and the tunnel and the local server are both still
+running, so the apex is only off the laptop because its DNS was repointed — the
+tunnel would still serve it otherwise.
+
+What this does *not* affect: booking. The annals link out to
+`https://returnofhermes.com/book`, on the apex, which Railway serves — so the form
+people are being asked to fill in for next year stays up with the lid closed.
+
+What it does affect is smaller but not nothing. Anyone who types `www` gets the
+laptop. `request` serves the pickup form, whose season is over, but
+`hermes-live.html` still gives `request.returnofhermes.com` as its canonical URL,
+its `og:url` and its JSON-LD logo, so link previews and anything crawling the
+tracker resolve against a host that is only up sometimes.
+
+### Finishing it, in an order that does not break the site
+
+The two names have to exist in Railway *before* Cloudflare has anywhere to point
+them, and the tunnel has to keep running until they do.
+
+To ask whether Railway knows a name, ask its router, not its certificate. Point
+curl at the Railway edge with `--resolve`, and use `-k` so the wrong certificate
+does not stop the request before the answer comes back:
+
+```
+for h in returnofhermes.com www.returnofhermes.com request.returnofhermes.com; do
+  printf '%-30s ' "$h"
+  curl -sk -o /dev/null -w '%{http_code}\n' --resolve "$h:443:69.46.46.79" \
+    "https://$h/api/hermes/faults"
+done
+```
+
+`200` means a service claims that hostname. `404` with a body of
+`{"status":"error","code":404,"message":"Application not found"}` means nothing on
+Railway does, whatever the dashboard appears to show — that is the router saying
+it has no route, and it is the check to trust. On 19 September the apex gave 200
+and the other two gave 404 even after an attempt to add them, which is what
+"added to the wrong service" looks like from outside.
+
+Do **not** use the certificate as the test of whether a domain was added:
+
+```
+echo | openssl s_client -connect 69.46.46.79:443 -servername www.returnofhermes.com 2>/dev/null |
+  openssl x509 -noout -subject
+```
+
+A subject of `*.up.railway.app` only means no certificate has been issued for that
+name yet, and that is also the normal state of a domain that *has* been added and
+is still waiting for DNS to point at Railway so the check can pass. It tells you
+about step 3, not about step 1.
+
+1. **Railway** → the project → the service already serving the apex → Settings →
+   Networking → Custom Domain. Add `www.returnofhermes.com`, then
+   `request.returnofhermes.com`. It must be the same service, or the names will
+   resolve to something that is not this app. Railway prints a CNAME target per
+   domain; keep it for step 2.
+
+2. **Cloudflare** → `returnofhermes.com` → DNS → Records. The `www` and `request`
+   records currently point at
+   `4cbac6f0-8dac-4a8f-b53b-2293f25bb891.cfargotunnel.com`, which is this laptop.
+   Edit each to the Railway target from step 1, and set **Proxy status to DNS only
+   (grey cloud)**. Proxied hides the origin from the certificate check and the
+   domain sits pending forever — this is the step that most likely caused the
+   original drift.
+
+3. **Wait for the certificates.** Re-run the loop above until `www` and `request`
+   report their own names rather than `*.up.railway.app`. Railway's dashboard says
+   the same thing.
+
+4. **Cloudflare** → flip both back to **Proxied (orange cloud)**, with SSL/TLS
+   mode **Full (strict)**.
+
+5. **Confirm before touching the tunnel**, with `npm run check:live`. It has to say
+   `up, all off the laptop` and show all three names `from railway`. While any name
+   still says `from laptop`, `cloudflared` is load-bearing and stopping it takes
+   that name down.
+
+6. **Then stop the tunnel.** It is a launchd agent with `KeepAlive`, so `pkill`
+   only gets it restarted; unload the agent instead:
+
+```
+launchctl bootout gui/$(id -u)/com.hypermuse.hermes-cloudflared
+```
+
+   Leave `com.hypermuse.hermes-server` alone if you still want a local copy on
+   8124 for development; nothing public depends on it once step 5 passes.
+
+Do not start at step 6. Removing the tunnel first takes `www` and `request` down
+until steps 1 to 4 are finished, and `request` is the pickup form.
+
+One caveat on the apex, which is now a bare `A` record at `69.46.46.79` (the
+address is Railway's; `whois` gives `NetName: RLWY-HIKARI-01`, and replies carry
+`server: railway-hikari` with no `cf-ray`). It works and it does not depend on
+the laptop, but step 5 asked for a proxied CNAME, and Railway hands out a CNAME
+target rather than an IP because those edge addresses are not promised to stay
+put. A pinned IP is worth revisiting once the other two names are moved.
+
+`npm run check:live` checks all of this on every pass: it reports the origin per
+name, warns while any name is still on the laptop, exits non-zero so it cannot be
+ignored, and appends each pass to `artifacts/live-log.jsonl` so the next "it went
+down" has a record behind it. It also catches a restart between passes and a name
+that serves pages while its API does not. `WATCH=60 npm run check:live` leaves it
+running.
+
 Until this is done, the laptop *is* the origin. Two processes have to be up, and
 both are launchd agents with `KeepAlive` and `RunAtLoad`, so they start at login
 and come back on their own if they crash or are killed:
