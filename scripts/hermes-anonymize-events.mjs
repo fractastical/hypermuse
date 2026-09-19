@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 // Turns the people-graph log into something that can live in a public repo: the events
-// and their shape, with every name replaced by a stable pseudonym.
+// and their shape, with every name replaced by a stable pseudonym and every hand-written
+// note replaced by a fixed phrase for its kind.
 //
 //   node scripts/hermes-anonymize-events.mjs             # what it would write
 //   node scripts/hermes-anonymize-events.mjs --apply
@@ -25,6 +26,24 @@ const saltPath = join(repo, "data", "hermes", ".anon-salt");
 const apply = process.argv.includes("--apply");
 const showMap = process.argv.includes("--show-map");
 
+// Why the notes do not survive either. Replacing a name with a pseudonym only helps if
+// the sentence around it could have been about anybody, and these sentences cannot: one
+// of them describes broken bottles, two abandoned bikes and a bag of urine, and everyone
+// who was in camp that week can name that person from the description alone. The
+// pseudonym is then worse than useless, because it reads as protection while providing
+// none. So the public file carries the *shape* of each event — what kind, how severe,
+// when, between which pseudonyms — and a fixed phrase in place of the prose. The prose
+// stays in the gitignored original, which is where anybody entitled to read it can.
+const SUMMARY = new Map([
+  ["intro", "Introduction recorded"],
+  ["ethical-breach", "Conduct complaint recorded"],
+  ["restitution", "Restitution recorded"],
+  ["no-show", "Did not attend as expected"],
+]);
+// A kind nobody has written a phrase for yet still must not leak its note, so the
+// fallback says nothing rather than falling back to the original text.
+const SUMMARY_FALLBACK = "Event recorded";
+
 // Fields that name a person. Anything here becomes a pseudonym, and anything matching
 // one of these values inside free text is rewritten too.
 const PERSON_FIELDS = ["person", "fromPerson", "toPerson", "withPerson", "subject", "reporter"];
@@ -32,8 +51,11 @@ const PERSON_FIELDS = ["person", "fromPerson", "toPerson", "withPerson", "subjec
 const NOT_PEOPLE = new Set(["admin", "crew", "system", "hermes", "anonymous", "unknown", ""]);
 // Structural, and none of it identifies anyone, so it survives intact.
 const KEEP = new Set(["id", "at", "type", "kind", "severity", "severityRank", "verdict", "source"]);
-// Deliberately dropped. An address is an identifier even when the name beside it is gone.
-const DROP = new Set(["ip", "ua", "userAgent", "email", "phone", "handle", "instagram"]);
+// Deliberately dropped. An address is an identifier even when the name beside it is gone,
+// and so is a camp or a street corner; a requestId links this row to whatever other log
+// holds the same id, which undoes the pseudonym by joining rather than by reading.
+const DROP = new Set(["ip", "ua", "userAgent", "email", "phone", "handle", "instagram",
+  "place", "requestId"]);
 
 if (!existsSync(inPath)) {
   console.error("no log at " + inPath.replace(repo + "/", ""));
@@ -107,6 +129,13 @@ const out = rows.map((row, index) => {
     if (DROP.has(key)) { dropped.add(key); continue; }
     if (PERSON_FIELDS.includes(key)) { clean[key] = pseudonym(value); continue; }
     if (key === "by") { clean[key] = pseudonym(value); continue; }
+    // Never the written note, however harmless this particular one looks: the whole point
+    // is that no hand-written sentence reaches the public file, so there is no judgement
+    // call to get wrong later when somebody adds a row in a hurry.
+    if (key === "note") {
+      if (String(value || "").trim()) clean[key] = SUMMARY.get(row.kind) || SUMMARY_FALLBACK;
+      continue;
+    }
     if (KEEP.has(key)) { clean[key] = value; continue; }
     if (typeof value === "string") {
       clean[key] = scrubText(value);
