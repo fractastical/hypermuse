@@ -29,6 +29,12 @@ const apply = process.argv.includes("--apply");
 // The people who asked Hermes for a ride gave their names to a pickup box, not to a
 // public page, so their requests stay out unless someone decides otherwise.
 const withRequests = process.argv.includes("--with-requests");
+// Some of what was photographed is topless, which is unremarkable on the playa and a
+// different thing entirely on a page a stranger might open at work or hand to a relative.
+// So the default build leaves those out and --explicit puts them back: the censored
+// version is the one you get by forgetting to think about it, which is the right way
+// round for a mistake that cannot be taken back once it is indexed.
+const withExplicit = process.argv.includes("--explicit");
 // resolve rather than join, so --out and --curation accept an absolute path.
 const outDir = resolve(repo, arg("out", join("docs", "annals")));
 const curationPath = resolve(repo, arg("curation", join("data", "hermes", "annals-curation.json")));
@@ -80,11 +86,17 @@ const publishedName = (day, src, ext) =>
 const days = await annalsJson();
 const plan = [];
 let sourceBytes = 0;
+const heldBack = [];
+const explicitMarked = [];
 for (const day of days) {
   const media = [];
   for (const item of day.media || []) {
     const mark = chosen.get(item.src);
     if (!mark) continue;
+    if (mark.explicit) {
+      explicitMarked.push(item.src);
+      if (!withExplicit) { heldBack.push(item.src); continue; }
+    }
     const abs = join(repo, item.src);
     if (!existsSync(abs)) {
       console.warn("  chosen but missing, skipping: " + item.src);
@@ -113,8 +125,22 @@ for (const day of days) {
 const totalMedia = plan.reduce((n, p) => n + p.media.length, 0);
 console.log("  " + chosen.size + " chosen · " + totalMedia + " publishable across " +
   plan.filter((p) => p.media.length).length + " days · " + mb(sourceBytes) + " of source");
-if (chosen.size !== totalMedia) {
-  console.log("  " + (chosen.size - totalMedia) + " chosen file(s) are not in any day of the annals");
+// Counted separately from the line above, which would otherwise report them as chosen
+// files missing from the annals and read like a curation mistake rather than a decision.
+if (chosen.size - heldBack.length !== totalMedia) {
+  console.log("  " + (chosen.size - heldBack.length - totalMedia) +
+    " chosen file(s) are not in any day of the annals");
+}
+if (heldBack.length) {
+  console.log("  " + heldBack.length + " held back as explicit (--explicit includes them):");
+  for (const src of heldBack) console.log("      " + src);
+} else if (withExplicit && explicitMarked.length) {
+  // Worth saying out loud rather than building quietly, because this is the build that
+  // puts them on a public page and the flag is easy to leave in a shell history.
+  console.log("  --explicit: publishing " + explicitMarked.length + " explicit file(s):");
+  for (const src of explicitMarked) console.log("      " + src);
+} else if (withExplicit) {
+  console.log("  --explicit given, but nothing is marked explicit in the curation file");
 }
 
 if (!apply) {
@@ -451,11 +477,21 @@ const html = `<!doctype html>
   h1 { font-size: 30px; margin: 0 0 6px; }
   .standfirst { font-size:18px; line-height:1.65; color:#dce9f5; margin:10px 0 14px; max-width:34em; }
   .byline { font-size:15px; color:#b8cadb; margin:0 0 14px; max-width:34em; }
-  /* Tall and narrow — a poster, not a photograph — so it is capped by height rather than
-     width, or it runs off the bottom of a phone before the first day is reached. */
-  .program { margin:0 0 26px; max-width:34em; }
-  .program img { display:block; width:100%; max-width:420px; height:auto; border-radius:10px; border:1px solid #1d2937; }
-  .program figcaption { color:#8fa3b8; font-size:13px; line-height:1.55; margin-top:8px; }
+  /* Tall and narrow — a poster, not a photograph. Set as a column beside its caption and
+     kept small, because it sits under the contents now: a reader arriving at the page wants
+     the list of days first, and a full-width poster pushed the first of them off the screen.
+     Small enough to be legible as an object, not as a document — it is a plate here, and
+     anyone who wants to read it can open the file. */
+  .program { margin:18px 0 30px; display:grid; grid-template-columns:190px minmax(0,1fr);
+    gap:18px; align-items:start; max-width:46em; }
+  .program img { display:block; width:100%; height:auto; border-radius:10px; border:1px solid #1d2937; }
+  .program figcaption { color:#8fa3b8; font-size:13px; line-height:1.55; }
+  /* One column on a narrow screen: 190px of poster beside a caption leaves the caption in
+     a gutter four words wide. */
+  @media (max-width:560px) {
+    .program { grid-template-columns:minmax(0,1fr); gap:10px; max-width:34em; }
+    .program img { max-width:260px; }
+  }
   /* Art with a picture beside it. A plain list of names asks the reader to imagine a
      thing they have never seen; a thumbnail costs 60 KB and does the work instead. */
   .artlist { list-style:none; padding:0; margin:8px 0 0;
@@ -566,13 +602,6 @@ aboard for every night in this book from the thirtieth of August on, with
 <a href="https://www.instagram.com/stephen.rodan/" rel="noopener">Coral Daddy</a> out with
 him for three of them. Hermes is on Instagram as
 <a href="${esc(INSTAGRAM)}" rel="noopener">@hermesartcar</a>.</p>
-${hasProgram ? `<figure class="program">
-  <img src="public-program.png" alt="The Hermes public programme for Burning Man 2026, listing the week's planned events day by day"${programSize ? ` width="${programSize.width}" height="${programSize.height}"` : ""} loading="lazy">
-  <figcaption>The programme, as printed before the week began — Hermes at Axis Mundi, 31 August to
-  6 September, draft 27. It promised at least a 30% chance of finding the car at any of these
-  places, which turned out to be about right. Some of it happened, some of it did not, and a
-  good deal of what follows is not on it at all.</figcaption>
-</figure>` : ""}
 <div class="sub">${publishedDays.length} ${publishedDays.length === 1 ? "day" : "days"} on the playa · ${totalMedia} photograph${totalMedia === 1 ? "" : "s"} and clip${totalMedia === 1 ? "" : "s"} · anyone may comment</div>
 <nav class="toc" aria-label="Contents">
   <h2>Contents</h2>
@@ -589,6 +618,13 @@ ${publishedDays.map(({ day, tiles }) => {
 ${reading ? `    <li><a href="#reading"><span class="when">Read</span><span class="what">The seven circles of Hermes</span></a></li>\n` : ""}    <li><a href="#next"><span class="when">Next</span><span class="what">Be part of it next year</span></a></li>
   </ol>
 </nav>
+${hasProgram ? `<figure class="program">
+  <img src="public-program.png" alt="The Hermes public programme for Burning Man 2026, listing the week's planned events day by day"${programSize ? ` width="${programSize.width}" height="${programSize.height}"` : ""} loading="lazy">
+  <figcaption>The programme, as printed before the week began — Hermes at Axis Mundi, 31 August to
+  6 September, draft 27. It promised at least a 30% chance of finding the car at any of these
+  places, which turned out to be about right. Some of it happened, some of it did not, and a
+  good deal of what follows is not on it at all.</figcaption>
+</figure>` : ""}
 ${publishedDays.map(sectionFor).join("\n")}
 ${reading ? `<section class="reading" id="reading">
   <h2>The seven circles</h2>

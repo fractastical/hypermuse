@@ -81,6 +81,16 @@ in a place with no signal.
 Ride requests are left out by default. `--with-requests` includes them, and it publishes
 the names of the people who asked, which is why it is not the default.
 
+Some of what was photographed is topless. **18+** on a tile holds that one back: it stays
+chosen, and the ordinary build leaves it out. `--explicit` puts it in. The default is the
+censored build, deliberately — the uncensored one should need somebody to type a flag,
+because it is the build that cannot be taken back once a crawler has been round. Both runs
+say what they did, so a held-back file is never silently held back or silently published.
+
+In the curator a held-back tile is blurred and badged; hovering its **18+** badge uncovers
+it, which is a small target on purpose. The flag rides in `annals-curation.json` next to
+`publish` and `lead`, so it survives the download the same way a caption does.
+
 **The accounts name people.** The narratives mention DJs and guests by name. That is a
 choice worth making deliberately before the page goes public, and it is not something the
 publisher can decide for you.
@@ -113,10 +123,17 @@ hundred names, hash each, and read off who was censored. Keyed, that attack need
 Keep the salt. Losing it means the next run invents different pseudonyms for the same
 people, and the committed file's history stops lining up with itself.
 
-Two things it cannot fix. Notes are prose and can name somebody who appears nowhere as a
-person field, so the script flags any text that still looks like a name and asks you to
-read it. And a date plus a severity in a small community is itself a clue — anonymised is
-not anonymous when the reader was there.
+Notes do not survive either, and that is the point. Swapping a name for a pseudonym only
+helps if the sentence around it could have been about anybody, and these sentences cannot:
+one described broken bottles, two abandoned bikes and a bag of urine, and anybody who was
+in camp can name that person from the description alone. So the public file carries a fixed
+phrase per kind — "Conduct complaint recorded", "Did not attend as expected" — and the prose
+stays in the gitignored original. There is no judgement call left to get wrong when somebody
+adds a row in a hurry. `place` and `requestId` are dropped for the same reason: a corner of
+the city identifies a person, and an id lets two files be joined back together.
+
+One thing it cannot fix. A date plus a severity in a small community is itself a clue —
+anonymised is not anonymous when the reader was there.
 
 ## Still open
 

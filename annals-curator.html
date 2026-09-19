@@ -13,6 +13,7 @@
     --accent: #58f6ff;
     --publish: #7dffa8;
     --lead: #ffd166;
+    --explicit: #ff8fa3;
 }
 * { box-sizing: border-box; }
 html { background: #04060c; }
@@ -129,6 +130,30 @@ section > p.none { opacity: 0.4; font-size: 12px; margin: 0 0 10px; }
 }
 .tile .best:hover { border-color: var(--lead); color: var(--lead); }
 .tile[data-lead="1"] .best { border-color: var(--lead); color: var(--lead); }
+.tile .adult {
+    position: absolute;
+    bottom: 5px;
+    left: 5px;
+    font-size: 10px;
+    padding: 2px 6px;
+    border-radius: 4px;
+    border: 1px solid rgba(86, 214, 255, 0.3);
+    background: rgba(0, 0, 0, 0.72);
+    color: rgba(207, 233, 255, 0.55);
+    cursor: pointer;
+}
+.tile .adult:hover { border-color: var(--explicit); color: var(--explicit); }
+.tile[data-explicit="1"] .adult { border-color: var(--explicit); color: var(--explicit); }
+.tile[data-explicit="1"] { border-color: var(--explicit); box-shadow: 0 0 0 2px var(--explicit) inset; }
+.tile[data-explicit="1"] .mark { color: var(--explicit); }
+/* Blurred in the curator too. The point of marking it is that it is not for every
+   pair of eyes, and a grid of thumbnails is the easiest place to forget that.
+   Revealed by hovering the 18+ badge rather than the tile: a tile is a big target and
+   the pointer comes to rest on one constantly while scrolling, which would uncover the
+   thing a moment after it was covered. The badge has to be aimed at. */
+.tile[data-explicit="1"] .art img, .tile[data-explicit="1"] .art video { filter: blur(14px); }
+.tile[data-explicit="1"] .art:has(.adult:hover) img,
+.tile[data-explicit="1"] .art:has(.adult:hover) video { filter: none; }
 .tile:not([data-publish="1"]) .art img, .tile:not([data-publish="1"]) .art video { opacity: 0.42; filter: grayscale(0.7); }
 .tile .meta { padding: 5px 7px 7px; display: flex; flex-direction: column; gap: 5px; }
 .tile .name { font-size: 10px; opacity: 0.55; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
@@ -152,8 +177,9 @@ section > p.none { opacity: 0.4; font-size: 12px; margin: 0 0 10px; }
 <div id="hint">
     Click a photo to choose it for the public annals. Nothing is published unless you
     choose it, so an empty page publishes nothing. <b>best of day</b> leads that day full
-    width, above the account, one per day. Shift-click a clip to watch it without choosing
-    it. Captions are optional and travel with the choice. Choices save in this browser as
+    width, above the account, one per day. <b>18+</b> holds one back: it stays chosen, but
+    the ordinary build leaves it out and only <b>--explicit</b> puts it in. Shift-click a
+    clip to watch it without choosing it. Captions are optional and travel with the choice. Choices save in this browser as
     you make them &mdash; press <b>download annals-curation.json</b> and save it into
     <b>data/hermes/</b> to hand them to the publisher.
 </div>
@@ -193,6 +219,24 @@ function persist() {
 
 function isChosen(src) { return !!(marks[src] && marks[src].publish); }
 function isLead(src) { return !!(marks[src] && marks[src].lead); }
+function isExplicit(src) { return !!(marks[src] && marks[src].explicit); }
+
+// One place, because the badge is set from three (first render, choosing, naming a lead)
+// and three copies of the same precedence is how they drift apart.
+function markText(src) {
+    if (isExplicit(src)) return "18+ held back";
+    if (isLead(src)) return "best of";
+    return isChosen(src) ? "public" : "private";
+}
+
+// Marked explicit means the ordinary build leaves it out and only --explicit puts it in.
+// It is kept separate from unchoosing so the decision survives: unchoose and the file goes
+// back to being merely unpublished, and next year somebody re-reads the grid and wonders.
+function setExplicit(src, on) {
+    if (on) marks[src] = Object.assign({}, marks[src], { publish: true, explicit: true });
+    else if (marks[src]) delete marks[src].explicit;
+    persist();
+}
 
 /** The day a file belongs to, which is the folder it was filed into. */
 function dayOf(src) {
@@ -217,7 +261,7 @@ function setLead(src, on) {
         const chosen = isChosen(tile.dataset.src);
         tile.dataset.lead = lead ? "1" : "";
         tile.dataset.publish = chosen ? "1" : "";
-        tile.querySelector(".mark").textContent = lead ? "best of" : (chosen ? "public" : "private");
+        tile.querySelector(".mark").textContent = markText(tile.dataset.src);
     }
 }
 
@@ -267,6 +311,7 @@ function tileFor(item) {
     tile.dataset.src = src;
     if (isChosen(src)) tile.dataset.publish = "1";
     if (isLead(src)) tile.dataset.lead = "1";
+    if (isExplicit(src)) tile.dataset.explicit = "1";
 
     const art = document.createElement("div");
     art.className = "art";
@@ -286,7 +331,7 @@ function tileFor(item) {
 
     const mark = document.createElement("span");
     mark.className = "mark";
-    mark.textContent = isLead(src) ? "best of" : (isChosen(src) ? "public" : "private");
+    mark.textContent = markText(src);
     art.appendChild(mark);
 
     art.addEventListener("click", (event) => {
@@ -295,8 +340,8 @@ function tileFor(item) {
         const now = !isChosen(src);
         setChosen(src, now);
         tile.dataset.publish = now ? "1" : "";
-        if (!now) tile.dataset.lead = "";
-        mark.textContent = now ? "public" : "private";
+        if (!now) { tile.dataset.lead = ""; tile.dataset.explicit = ""; }
+        mark.textContent = markText(src);
         applyFilters();
     });
 
@@ -310,6 +355,21 @@ function tileFor(item) {
         applyFilters();
     });
     art.appendChild(best);
+
+    const adult = document.createElement("span");
+    adult.className = "adult";
+    adult.textContent = "18+";
+    adult.title = "hold this one back: the ordinary build leaves it out, only --explicit includes it";
+    adult.addEventListener("click", (event) => {
+        event.stopPropagation();
+        const now = !isExplicit(src);
+        setExplicit(src, now);
+        tile.dataset.explicit = now ? "1" : "";
+        if (now) tile.dataset.publish = "1";
+        mark.textContent = markText(src);
+        applyFilters();
+    });
+    art.appendChild(adult);
     tile.appendChild(art);
 
     const meta = document.createElement("div");
@@ -411,10 +471,15 @@ $("save").addEventListener("click", () => {
         publish[src] = { publish: true };
         if (marks[src].caption) publish[src].caption = marks[src].caption;
         if (marks[src].lead) publish[src].lead = true;
+        // Must be written out, not merely held in localStorage: dropping it here would put
+        // a photograph that was deliberately held back straight back into the next build,
+        // and the file is the only thing the publisher reads.
+        if (marks[src].explicit) publish[src].explicit = true;
     }
     const body = {
         note: "Which annals media may be published, chosen in annals-curator.html. " +
-              "Anything absent stays private. Captions here win over annals-media.json.",
+              "Anything absent stays private. Captions here win over annals-media.json. " +
+              "explicit: true is held back unless the publisher is run with --explicit.",
         chosenAt: new Date().toISOString(),
         publish
     };
