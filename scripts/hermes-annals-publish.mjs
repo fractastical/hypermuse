@@ -88,9 +88,10 @@ const plan = [];
 let sourceBytes = 0;
 const heldBack = [];
 const explicitMarked = [];
-for (const day of days) {
+
+function mediaFor(dayKey, items) {
   const media = [];
-  for (const item of day.media || []) {
+  for (const item of items || []) {
     const mark = chosen.get(item.src);
     if (!mark) continue;
     if (mark.explicit) {
@@ -113,18 +114,51 @@ for (const day of days) {
       caption: mark.caption || item.caption || "",
       art: item.art || "",
       lead: !!mark.lead,
-      name: publishedName(day.day, item.src, video ? ".mp4" : ".jpg"),
-      poster: video ? publishedName(day.day, item.src, ".poster.jpg") : "",
+      name: publishedName(dayKey, item.src, video ? ".mp4" : ".jpg"),
+      poster: video ? publishedName(dayKey, item.src, ".poster.jpg") : "",
       posterAbs: video ? join(repo, posterSource(item.src)) : ""
     });
   }
+  return media;
+}
+
+for (const day of days) {
+  const media = mediaFor(day.day, day.media);
   if (media.length === 0 && !(day.account || "").trim()) continue;
   plan.push({ day, media });
 }
 
-const totalMedia = plan.reduce((n, p) => n + p.media.length, 0);
+// What was photographed before the tracker was running: Hermes on the playa at Juplaya in
+// July, and the build days before the first logged one. hermes-annals.mjs takes its days
+// from the GPS log, so these dates are not days of the annals at all and choosing them in
+// the curator was never going to put them on the page — the publisher never saw them.
+//
+// They go in a prologue rather than into the sequence. A day there carries a map, a list of
+// stops and an account read off the track, and these have no track to read: dropped into
+// the sequence they would be three days arguing that nothing happened, with July sitting
+// seven weeks up the page from August and a gap in the contents where the summer was.
+const trackedDays = new Set(days.map((d) => d.day));
+const dayOfSource = (src) => (src.match(/hermes-annals\/(\d{4}-\d{2}-\d{2})\//) || [])[1] || "";
+const beforeDays = new Map();
+for (const src of chosen.keys()) {
+  const day = dayOfSource(src);
+  if (!day || trackedDays.has(day)) continue;
+  if (!beforeDays.has(day)) beforeDays.set(day, []);
+  beforeDays.get(day).push({ src });
+}
+const prologue = [...beforeDays.keys()].sort()
+  .map((day) => ({ day: { day }, media: mediaFor(day, beforeDays.get(day)) }))
+  .filter((entry) => entry.media.length);
+
+const totalMedia = plan.reduce((n, p) => n + p.media.length, 0) +
+  prologue.reduce((n, p) => n + p.media.length, 0);
 console.log("  " + chosen.size + " chosen · " + totalMedia + " publishable across " +
   plan.filter((p) => p.media.length).length + " days · " + mb(sourceBytes) + " of source");
+if (prologue.length) {
+  console.log("  " + prologue.reduce((n, p) => n + p.media.length, 0) +
+    " of them before the log starts, going in the prologue: " +
+    prologue.map((p) => p.day.day).join(", "));
+}
 // Counted separately from the line above, which would otherwise report them as chosen
 // files missing from the annals and read like a curation mistake rather than a decision.
 if (chosen.size - heldBack.length !== totalMedia) {
@@ -144,7 +178,7 @@ if (heldBack.length) {
 }
 
 if (!apply) {
-  for (const { day, media } of plan) {
+  for (const { day, media } of [...prologue, ...plan]) {
     console.log("  " + day.day + "  " + (media.length || "no") + " shot(s)" +
       (media.length ? "  " + media.map((m) => (m.video ? "clip" : "still")).join(", ") : ""));
   }
@@ -255,15 +289,35 @@ async function encodeStill(item) {
   return statSync(dest).size;
 }
 
+/** Seconds, or 0 when ffprobe cannot say — treated as short, which is the common case. */
+async function clipSeconds(file) {
+  try {
+    const { stdout } = await execFileAsync("ffprobe", ["-v", "error",
+      "-show_entries", "format=duration", "-of", "csv=p=0", file]);
+    return Number(stdout.trim()) || 0;
+  } catch {
+    return 0;
+  }
+}
+
+// Most clips here run ten or twenty seconds, and one runs five minutes. At the settings
+// that suit the short ones that single clip encoded to 57 MB — as much as the rest of the
+// annals put together, committed to the repository for good. A long handheld clip is
+// watched for the moment in it rather than for its detail, so length buys a smaller frame
+// and a looser quantiser instead of a bigger file.
+const LONG_CLIP_S = 90;
+
 async function encodeVideo(item) {
   const dest = join(mediaDir, item.name);
+  const long = await clipSeconds(item.abs) > LONG_CLIP_S;
+  const height = long ? 540 : VIDEO_MAX_H;
   // 720p and crf 28: these are handheld night clips on a phone screen, where the
   // grain costs more bits than the detail is worth. Audio kept, because people talk
   // in them, but mono at 96k since nothing here is music.
   await execFileAsync("ffmpeg", ["-y", "-nostdin", "-loglevel", "error", "-i", item.abs,
-    "-vf", "scale=-2:'min(" + VIDEO_MAX_H + ",ih)'",
-    "-c:v", "libx264", "-preset", "veryfast", "-crf", "28", "-pix_fmt", "yuv420p",
-    "-c:a", "aac", "-b:a", "96k", "-ac", "1",
+    "-vf", "scale=-2:'min(" + height + ",ih)'",
+    "-c:v", "libx264", "-preset", "veryfast", "-crf", long ? "33" : "28", "-pix_fmt", "yuv420p",
+    "-c:a", "aac", "-b:a", long ? "64k" : "96k", "-ac", "1",
     "-movflags", "+faststart", dest]);
   let bytes = statSync(dest).size;
   if (item.posterAbs && existsSync(item.posterAbs)) {
@@ -281,7 +335,7 @@ async function encodeVideo(item) {
 }
 
 let outBytes = 0;
-for (const { day, media } of plan) {
+for (const { day, media } of [...prologue, ...plan]) {
   for (const item of media) {
     process.stdout.write("  " + day.day + " " + item.name + " … ");
     try {
@@ -305,7 +359,7 @@ const tileDir = join(outDir, "tiles");
 if (existsSync(tileDir)) rmSync(tileDir, { recursive: true, force: true });
 mkdirSync(tileDir, { recursive: true });
 let tileBytes = 0;
-for (const entry of plan) {
+for (const entry of [...prologue, ...plan]) {
   entry.tiles = [];
   // The lead first, since it is the shot already judged best; a clip contributes the
   // poster frame, and one without a poster has nothing to show and is passed over.
@@ -464,6 +518,32 @@ ${rest.length ? `<h3>Shoots</h3><div class="shots">${rest.map((s) => figureFor(s
 </section>`;
 }
 
+/**
+ * The prologue: what there is from before the log begins. No map, no stops and no meta
+ * line, because there is no track behind any of it — saying so once at the top is honester
+ * than printing three empty day frames and leaving the reader to wonder what is missing.
+ */
+function prologueSection() {
+  if (!prologue.length) return "";
+  const blocks = prologue.map(({ day, media }) => {
+    const shots = media.filter((m) => !m.failed);
+    if (!shots.length) return "";
+    return `<h3>${esc(shortDay(day.day))}</h3>\n<div class="shots">` +
+      shots.map((s) => figureFor(s)).join("") + "</div>";
+  }).filter(Boolean).join("\n");
+  return `<section id="before">
+<h2><a href="#before">Before</a></h2>
+<p class="headline">Juplaya in July, and the build days before the log starts</p>
+<p>The track begins on the twenty-eighth of August, so none of this is a day in the account
+below: there is nothing to draw and no stops to list. It is here because it happened. Hermes
+was out on the Black Rock playa in July, two months early — parked at Spanky's Wine Bar after
+dark, and out on open ground at golden hour — and the same propeller and rope-wound lamps
+turn up again in the build days at the end of August, when the car stood unlit in the daylight
+and the first sets were played off its deck before there was a week to play them in.</p>
+${blocks}
+</section>`;
+}
+
 const publishedDays = plan.filter((p) => p.media.length || (p.day.account || "").trim());
 const html = `<!doctype html>
 <html lang="en"><head><meta charset="utf-8">
@@ -606,7 +686,16 @@ him for three of them. Hermes is on Instagram as
 <nav class="toc" aria-label="Contents">
   <h2>Contents</h2>
   <ol>
-${publishedDays.map(({ day, tiles }) => {
+${prologue.length ? `    <li><a href="#before"><span class="when">Before</span><span class="what">Juplaya in July, and the build days</span>${
+  // The strip is taken across the whole prologue rather than per date, since it is one
+  // entry in the contents however many dates it gathers.
+  (() => {
+    const tiles = prologue.flatMap((p) => p.tiles || []).slice(0, TILES_PER_DAY);
+    return tiles.length
+      ? `<span class="tiles" aria-hidden="true">${tiles.map((t) =>
+          `<img src="tiles/${esc(t.file)}" alt="" width="${TILE_PX}" height="${TILE_PX}">`).join("")}</span>`
+      : "";
+  })()}</a></li>\n` : ""}${publishedDays.map(({ day, tiles }) => {
   // Decorative: the link already says the date and the headline, so announcing three
   // unnamed photographs after it would only make the contents longer to listen to.
   const strip = (tiles || []).length
@@ -625,6 +714,7 @@ ${hasProgram ? `<figure class="program">
   places, which turned out to be about right. Some of it happened, some of it did not, and a
   good deal of what follows is not on it at all.</figcaption>
 </figure>` : ""}
+${prologueSection()}
 ${publishedDays.map(sectionFor).join("\n")}
 ${reading ? `<section class="reading" id="reading">
   <h2>The seven circles</h2>

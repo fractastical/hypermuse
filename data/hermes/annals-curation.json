@@ -1,6 +1,38 @@
 {
   "note": "Which media are public. Written by hand on 2026-09-16: everything, with each day s first clip as a placeholder lead. Mark a different best-of in annals-curator.html and re-export to change it.",
   "publish": {
+    "assets/hermes-annals/2026-07-05/IMG_2826.mp4": {
+      "publish": true,
+      "caption": "Juplaya, parked at Spanky's Wine Bar after dark"
+    },
+    "assets/hermes-annals/2026-07-05/IMG_2833.mp4": {
+      "publish": true,
+      "caption": "Out on open playa at golden hour, two months early"
+    },
+    "assets/hermes-annals/2026-08-26/IMG_4195.mp4": {
+      "publish": true,
+      "caption": "Unlit in daylight, propeller and fin bare to the dust"
+    },
+    "assets/hermes-annals/2026-08-26/IMG_4203.jpg": {
+      "publish": true,
+      "caption": "Carrying rebar on the build days"
+    },
+    "assets/hermes-annals/2026-08-26/IMG_4205.jpg": {
+      "publish": true,
+      "caption": "The same car after dark, lit for the first time that week"
+    },
+    "assets/hermes-annals/2026-08-27/IMG_4222.jpg": {
+      "publish": true,
+      "caption": "The deck, empty and lit"
+    },
+    "assets/hermes-annals/2026-08-27/IMG_4226.jpg": {
+      "publish": true,
+      "caption": "A set off the deck before the week began"
+    },
+    "assets/hermes-annals/2026-08-27/IMG_4239.mp4": {
+      "publish": true,
+      "caption": "And the same again in daylight, playing to the dust"
+    },
     "assets/hermes-annals/2026-08-28/IMG_4261.mp4": {
       "publish": true,
       "lead": true
