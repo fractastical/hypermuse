@@ -600,6 +600,9 @@ const html = `<!doctype html>
   body { margin:0; background:#06090f; color:#f4faff; font:16px/1.6 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif; }
   main { max-width: 860px; margin: 0 auto; padding: 32px 20px 80px; }
   h1 { font-size: 30px; margin: 0 0 6px; }
+  .route { margin: 12px 0 22px; }
+  .route img { display:block; width:min(100%, 720px); height:auto; border-radius:10px; border:1px solid #1d2937; }
+  .route figcaption { color:#8fa3b8; font-size:13px; line-height:1.55; margin-top:8px; max-width:34em; }
   .standfirst { font-size:18px; line-height:1.65; color:#dce9f5; margin:10px 0 14px; max-width:34em; }
   .byline { font-size:15px; color:#b8cadb; margin:0 0 14px; max-width:34em; }
   /* Tall and narrow — a poster, not a photograph. Set as a column beside its caption and
@@ -774,6 +777,10 @@ const html = `<!doctype html>
   }
 </style></head><body><main>
 <h1>The Annals of Hermes</h1>
+<figure class="route">
+  <img src="hermes-route.gif" alt="Hermes across the week, each picture set down on a satellite view of the city where it was taken." width="840" height="840" fetchpriority="high">
+  <figcaption>The week, picture by picture. Saturday night is the Man. Sunday evening is the temple.</figcaption>
+</figure>
 <p class="standfirst">For three thousand years Hermes has been
 ${reading ? `<a href="${esc(reading.file)}">the god of roads, messengers
 and divine mischief</a>` : "the god of roads, messengers and divine mischief"}. For one week
