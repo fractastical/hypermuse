@@ -540,12 +540,11 @@ function prologueSection() {
   return `<section id="before">
 <h2><a href="#before">Before</a></h2>
 <p class="headline">Juplaya in July, and the build days before the log starts</p>
-<p>The track begins on the twenty-eighth of August, so none of this is a day in the account
-below: there is nothing to draw and no stops to list. It is here because it happened. Hermes
-was out on the Black Rock playa in July, two months early — parked at Spanky's Wine Bar after
-dark, and out on open ground at golden hour — and the same propeller and rope-wound lamps
-turn up again in the build days at the end of August, when the car stood unlit in the daylight
-and the first sets were played off its deck before there was a week to play them in.</p>
+<p>The track begins on the twenty-eighth of August, so none of this is a day below.
+Hermes was out on the playa in July, two months early — at Spanky's after dark, and on open
+ground at golden hour — and the same propeller and rope-wound lamps turn up in the build days
+at the end of August, when the car stood unlit and the first sets were played off the deck
+before there was a week to play them in.</p>
 ${blocks}
 </section>`;
 }
@@ -770,10 +769,9 @@ const html = `<!doctype html>
 <p class="standfirst">For three thousand years Hermes has been
 ${reading ? `<a href="${esc(reading.file)}">the god of roads, messengers
 and divine mischief</a>` : "the god of roads, messengers and divine mischief"}. For one week
-in 2026 he was an art car, and it crossed Black Rock City
-mostly at night, mostly out past the edge of the streets where the city stops pretending to be
-a grid. People could send for it — for a ride home, or for a set played off its deck at four in
-the morning. This is what it did, day by day, as far as anyone was there to write it down.</p>
+in 2026 he was an art car, crossing Black Rock City
+mostly at night, mostly out past the streets. People could send for it — a ride home, or a set
+off the deck at four in the morning. This is what it did, day by day.</p>
 <p class="byline">Kept by
 <a href="https://www.instagram.com/metavillan/" rel="noopener">DJ Metavillan</a>, who was
 aboard for every night in this book from the thirtieth of August on, with
@@ -807,24 +805,22 @@ ${reading ? `    <li><a href="#reading"><span class="when">Read</span><span clas
 </nav>
 ${hasProgram ? `<figure class="program">
   <img src="public-program.png" alt="The Hermes public programme for Burning Man 2026, listing the week's planned events day by day"${programSize ? ` width="${programSize.width}" height="${programSize.height}"` : ""} loading="lazy">
-  <figcaption>The programme, as printed before the week began — Hermes at Axis Mundi, 31 August to
+  <figcaption>The programme, printed before the week — Hermes at Axis Mundi, 31 August to
   6 September, draft 27. It promised at least a 30% chance of finding the car at any of these
-  places, which turned out to be about right. Some of it happened, some of it did not, and a
-  good deal of what follows is not on it at all.</figcaption>
+  places. Some of it happened. A good deal of what follows is not on it at all.</figcaption>
 </figure>` : ""}
 ${prologueSection()}
 ${publishedDays.map(sectionFor).join("\n")}
 ${reading ? `<section class="reading" id="reading">
   <h2>The seven circles</h2>
-  <p>Before he was a car, Hermes was the fastest of the Greek gods — the messenger, the
-  psychopomp, the only Olympian free to travel everywhere, and a thief by the evening of the
-  day he was born. Fused with Thoth in Egypt he became Hermes Trismegistus, whose
-  <em>Corpus Hermeticum</em> has the soul rising after death through seven planetary circles,
-  letting go of one earthly thing at each ring.</p>
-  <p>Source Library has collected seven versions of that gesture — the whole cosmos drawn as
-  nested rings — from a 1540 volvelle printed for Charles V through Fludd, Boehme, the
-  Rosicrucians, the <em>Bardo Thodol</em> and the crown chakra to a 2012 map of the observable
-  universe. Five centuries, and none of the makers ever saw each other's work.</p>
+  <p>Before he was a car, Hermes was the fastest of the Greek gods — messenger, psychopomp,
+  the only Olympian free to go anywhere, and a thief by the evening he was born. Fused with
+  Thoth he became Hermes Trismegistus, whose <em>Corpus Hermeticum</em> has the soul rising
+  through seven planetary circles, letting go of one earthly thing at each ring.</p>
+  <p>Source Library collected seven versions of that gesture — the cosmos as nested rings —
+  from a 1540 volvelle printed for Charles V through Fludd, Boehme, the Rosicrucians, the
+  <em>Bardo Thodol</em> and the crown chakra to a 2012 map of the observable universe. Five
+  centuries, and none of the makers saw each other's work.</p>
   <p><a class="dl" href="${esc(reading.file)}">The Seven Circles of Hermes</a>
   <span class="how">PDF, 11 pages, ${mb(reading.size)} · assembled from the collection of
   <a href="https://sourcelibrary.org" rel="noopener">Source Library</a> · plates public domain
