@@ -2,10 +2,10 @@
   "note": "One GeoCities sprite per classic orbit theme, shown beside the visitor counter. The visitor number picks which, so the same count always gets the same picture. Explicit themes are not in this set.",
   "gifs": [
     {
-      "file": "wizard.gif",
-      "theme": "wizard",
-      "w": 50,
-      "h": 50
+      "file": "castle.gif",
+      "theme": "castle",
+      "w": 62,
+      "h": 47
     },
     {
       "file": "wand.gif",
@@ -76,8 +76,8 @@
     {
       "file": "fairy.gif",
       "theme": "fairy",
-      "w": 50,
-      "h": 50
+      "w": 107,
+      "h": 117
     },
     {
       "file": "butterfly.gif",
