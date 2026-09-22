@@ -588,8 +588,16 @@ def main():
         "-lavfi", "paletteuse=dither=bayer:bayer_scale=3",
         "-loop", "0", str(gif),
     ])
+    mp4 = OUT_DIR / "hermes-route.mp4"
+    subprocess.check_call([
+        "ffmpeg", "-y", "-hide_banner", "-loglevel", "error",
+        "-framerate", str(FPS), "-i", str(frame_dir / "%04d.png"),
+        "-c:v", "libx264", "-pix_fmt", "yuv420p", "-crf", "18",
+        "-movflags", "+faststart", str(mp4),
+    ])
     shutil.rmtree(frame_dir, ignore_errors=True)
     print(f"\n  {len(sequence)} pictured stops  {gif.relative_to(ROOT)}  {gif.stat().st_size/1024:.0f} KB")
+    print(f"  {mp4.relative_to(ROOT)}  {mp4.stat().st_size/1024:.0f} KB")
 
 
 if __name__ == "__main__":
