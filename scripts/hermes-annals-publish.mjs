@@ -673,7 +673,6 @@ const html = `<!doctype html>
      browser can reserve, rather than a fixed size it stretches the picture into. */
   figure img, figure video { width:100%; height:auto; border-radius:10px; display:block; background:#0b111a; }
   figcaption { color:#8fa3b8; font-size:12px; margin-top:6px; }
-  figure.city { max-width:440px; margin:4px auto 28px; }
   figure.lead { margin:14px 0 18px; }
   /* Capped, because a portrait phone photograph at full column width is taller than the
      screen and pushes the day's account off the bottom of it. */
@@ -782,14 +781,10 @@ aboard for every night in this book from the thirtieth of August on, with
 him for three of them. Hermes is on Instagram as
 <a href="${esc(INSTAGRAM)}" rel="noopener">@hermesartcar</a>.</p>
 <div class="sub">${publishedDays.length} ${publishedDays.length === 1 ? "day" : "days"} on the playa · ${totalMedia} photograph${totalMedia === 1 ? "" : "s"} and clip${totalMedia === 1 ? "" : "s"} · anyone may comment</div>
-${hasCity ? `<figure class="city">
-  <img src="city-season.gif" alt="Black Rock City from above, one day at a time, from July through the burn. The open end of the city is at the top." width="1240" height="1480">
-  <figcaption>The city, one day at a time, from the first of July through the burn. Twelve o'clock is at the top, the same way the maps are drawn. Days the satellite could not see for cloud are left out. Imagery © Planet Labs.</figcaption>
-</figure>
-` : ""}<nav class="toc" aria-label="Contents">
+<nav class="toc" aria-label="Contents">
   <h2>Contents</h2>
   <ol>
-${prologue.length ? `    <li><a href="#before"><span class="when">Before</span><span class="what">Juplaya in July, and the build days</span>${
+${hasCity ? `    <li><a href="city.html"><span class="when">City</span><span class="what">One day at a time, from July through the burn</span></a></li>\n` : ""}${prologue.length ? `    <li><a href="#before"><span class="when">Before</span><span class="what">Juplaya in July, and the build days</span>${
   // The strip is taken across the whole prologue rather than per date, since it is one
   // entry in the contents however many dates it gathers.
   (() => {
@@ -981,6 +976,35 @@ for (const section of document.querySelectorAll(".comments")) {
 
 mkdirSync(outDir, { recursive: true });
 writeFileSync(join(outDir, "index.html"), html);
+if (hasCity) {
+  writeFileSync(join(outDir, "city.html"), `<!doctype html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>The city — The Annals of Hermes</title>
+<meta name="description" content="Black Rock City from above, one day at a time, from July through the burn.">
+<style>
+  :root { color-scheme: dark; }
+  body { margin:0; background:#06090f; color:#f4faff; font:16px/1.6 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif; }
+  main { max-width: 860px; margin: 0 auto; padding: 32px 20px 80px; }
+  h1 { font-size: 30px; margin: 0 0 6px; }
+  a { color:#7fd4ff; }
+  .back { color:#8fa3b8; font-size:14px; margin:0 0 18px; }
+  .back a { color:#8fa3b8; }
+  p { max-width:34em; color:#dce9f5; }
+  figure { max-width:520px; margin:18px auto 0; }
+  figure img { width:100%; height:auto; border-radius:10px; display:block; background:#0b111a; }
+  figcaption { color:#8fa3b8; font-size:13px; line-height:1.55; margin-top:8px; }
+</style></head><body><main>
+<p class="back"><a href="./">The Annals of Hermes</a></p>
+<h1>The city</h1>
+<p>One day at a time, from the first of July through the burn. Twelve o'clock is at the top, the same way the maps in the annals are drawn. Days the satellite could not see for cloud are left out.</p>
+<figure>
+  <img src="city-season.gif" alt="Black Rock City from above, one day at a time, from July through the burn. The open end of the city is at the top." width="1240" height="1480">
+  <figcaption>Imagery © Planet Labs.</figcaption>
+</figure>
+</main></body></html>
+`);
+}
 const pageBytes = statSync(join(outDir, "index.html")).size;
 
 console.log("\n  " + outDir.replace(repo + "/", "") + "/index.html  " + mb(pageBytes));
