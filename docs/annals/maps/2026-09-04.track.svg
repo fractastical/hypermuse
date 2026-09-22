@@ -22,4 +22,8 @@
 <text x="557.1" y="106.1" font-size="19" font-family="Menlo, monospace" stroke="#06090f" stroke-width="4" paint-order="stroke" fill="rgba(255,255,255,0.94)">41 min</text>
 <text x="392.6" y="489.1" font-size="19" font-family="Menlo, monospace" stroke="#06090f" stroke-width="4" paint-order="stroke" fill="rgba(255,255,255,0.94)">6:09 PM</text>
 <text x="557.1" y="156.0" font-size="19" font-family="Menlo, monospace" stroke="#06090f" stroke-width="4" paint-order="stroke" fill="rgba(255,255,255,0.94)">10:22 PM</text>
+<circle cx="554.0" cy="68.7" r="5.5" fill="#7fd4ff" stroke="#06090f" stroke-width="1.6"/>
+<text x="421.6" y="72.7" font-size="15" font-family="Menlo, monospace" stroke="#06090f" stroke-width="4" paint-order="stroke" fill="#7fd4ff">9:10–9:27 PM</text>
+<circle cx="382.1" cy="471.6" r="5.5" fill="#7fd4ff" stroke="#06090f" stroke-width="1.6"/>
+<text x="295.7" y="475.6" font-size="15" font-family="Menlo, monospace" stroke="#06090f" stroke-width="4" paint-order="stroke" fill="#7fd4ff">4:07 PM</text>
 </svg>

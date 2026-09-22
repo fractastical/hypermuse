@@ -193,6 +193,8 @@ if (!apply) {
 // log rather than from anything anyone chose. Missing is not an error: the annals read
 // perfectly well without them, and saying so beats failing the whole build.
 const mapSourceDir = join(repo, "artifacts", "hermes-annals", "maps");
+const shotMarksPath = join(mapSourceDir, "shot-marks.json");
+const shotMarks = existsSync(shotMarksPath) ? JSON.parse(readFileSync(shotMarksPath, "utf8")) : {};
 const mapDays = new Set();
 let mapDim = "";
 if (existsSync(join(mapSourceDir, "playa-streets.svg"))) {
@@ -395,7 +397,10 @@ for (const entry of [...prologue, ...plan]) {
 }
 
 function figureFor(item, lead = false) {
-  const caption = esc([item.art, item.caption].filter(Boolean).join(" · "));
+  // The clock is how a shot is found on that day's map. Only shots the track could
+  // place have one; a caption the curator wrote still comes first.
+  const clock = (shotMarks[item.name] || {}).clock || "";
+  const caption = esc([item.art, item.caption, clock].filter(Boolean).join(" · "));
   const cap = caption ? `<figcaption>${caption}</figcaption>` : "";
   const cls = lead ? ' class="lead"' : "";
   const dim = item.size ? ` width="${item.size.width}" height="${item.size.height}"` : "";
@@ -421,7 +426,10 @@ function mapFor(day) {
 <p class="mapnote">Where it went. Each circle is somewhere Hermes stopped, drawn larger the
 longer it stayed; green is the first of the day, red the last. The dashed curves are the
 moves between them — curved because what survives is where it stood, not the route it took
-to get there. The shaded ground is roughly the territory the day covered.</p>`;
+to get there. The shaded ground is roughly the territory the day covered.${
+  Object.values(shotMarks).some((s) => s.day === day)
+    ? " A blue mark is a photograph or clip, set down at the minute it was taken."
+    : ""}</p>`;
 }
 
 /**

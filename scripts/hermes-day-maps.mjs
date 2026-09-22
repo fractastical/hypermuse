@@ -8,8 +8,9 @@
 // map and left its origin, rotation, bounds, scale and offset in the metadata beside
 // it, so reading those back is the only way an overlay is guaranteed to sit on the
 // streets rather than near them.
-import { copyFileSync, existsSync, mkdirSync, readFileSync, statSync, writeFileSync } from "node:fs";
-import { dirname, join } from "node:path";
+import { execFileSync } from "node:child_process";
+import { copyFileSync, existsSync, mkdirSync, readFileSync, readdirSync, statSync, writeFileSync } from "node:fs";
+import { basename, dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 
 const here = dirname(fileURLToPath(import.meta.url));
@@ -58,15 +59,18 @@ const clock = (t) => new Date(t).toLocaleTimeString("en-US",
   { timeZone: TZ, hour: "numeric", minute: "2-digit" });
 
 const byDay = new Map();
+const allFixes = [];
 for (const line of readFileSync(trackPath, "utf8").split("\n")) {
   if (!line.trim()) continue;
   let row;
   try { row = JSON.parse(line); } catch { continue; }
   if (!row || !Number.isFinite(Number(row.lat)) || !Number.isFinite(Number(row.lon))) continue;
+  const fix = { t: row.t, ms: new Date(row.t).getTime(), lat: Number(row.lat), lon: Number(row.lon) };
+  allFixes.push(fix);
   const day = dayOf(row.t);
   if (onlyDay && day !== onlyDay) continue;
   if (!byDay.has(day)) byDay.set(day, []);
-  byDay.get(day).push({ t: row.t, lat: Number(row.lat), lon: Number(row.lon) });
+  byDay.get(day).push(fix);
 }
 
 if (byDay.size === 0) {
@@ -148,6 +152,113 @@ function hull(points) {
   return lower.slice(0, -1).concat(upper.slice(0, -1));
 }
 
+// A shot can be pinned only when the track knows where the car was at that minute.
+// Within twenty minutes of a fix, it had not had time to be somewhere else. Across a
+// longer quiet stretch it can still be pinned when the fix before it and the fix after
+// it are the same spot — the logger slept, the car did not leave. A photograph taken
+// in the middle of a move that was never logged is left off the map: the nearest fix
+// would be a confident-looking lie.
+const NEAR_MS = 20 * 60 * 1000;
+const SAME_SPOT_M = 120;
+const photosDir = join(repo, "assets", "hermes-annals", "photos");
+const curationPath = join(repo, "data", "hermes", "annals-curation.json");
+
+function zonedToMs(y, mo, d, h, mi, s) {
+  let guess = Date.UTC(y, mo - 1, d, h, mi, s);
+  const parts = new Intl.DateTimeFormat("en-US", {
+    timeZone: TZ, hourCycle: "h23",
+    year: "numeric", month: "2-digit", day: "2-digit",
+    hour: "2-digit", minute: "2-digit", second: "2-digit"
+  }).formatToParts(new Date(guess));
+  const n = (type) => Number(parts.find((p) => p.type === type).value);
+  const shown = Date.UTC(n("year"), n("month") - 1, n("day"), n("hour"), n("minute"), n("second"));
+  return guess - (shown - guess);
+}
+
+function wallClock(ms) {
+  return new Date(ms).toLocaleTimeString("en-US", { timeZone: TZ, hour: "numeric", minute: "2-digit" });
+}
+
+function stillTaken(file) {
+  try {
+    const out = execFileSync("sips", ["-g", "creation", file], { encoding: "utf8" });
+    const found = out.match(/creation:\s*(\d{4}):(\d{2}):(\d{2})\s+(\d{2}):(\d{2}):(\d{2})/);
+    if (!found) return null;
+    // EXIF is the camera's own clock, which on this trip was already playa time, and it
+    // carries no zone. Read the numbers as playa local and turn them into an instant.
+    const [y, mo, d, h, mi, s] = found.slice(1).map(Number);
+    return zonedToMs(y, mo, d, h, mi, s);
+  } catch {
+    return null;
+  }
+}
+
+function videoTaken(file) {
+  try {
+    const out = execFileSync("ffprobe", ["-v", "quiet", "-show_entries", "format_tags", "-of", "json", file],
+      { encoding: "utf8" });
+    const tags = JSON.parse(out).format?.tags || {};
+    // creationdate is the camera's local time. creation_time on a re-export is the
+    // export, which can be a week after the shot, so it is not used.
+    let raw = tags["com.apple.quicktime.creationdate"];
+    if (!raw) return null;
+    raw = String(raw).trim();
+    if (/[+-]\d{4}$/.test(raw)) raw = raw.slice(0, -2) + ":" + raw.slice(-2);
+    const t = new Date(raw).getTime();
+    return Number.isFinite(t) ? t : null;
+  } catch {
+    return null;
+  }
+}
+
+function originalVideo(stem) {
+  if (!existsSync(photosDir)) return null;
+  for (const name of readdirSync(photosDir)) {
+    if (name.startsWith(stem + ".") && /\.(mov|mp4|m4v)$/i.test(name)) return join(photosDir, name);
+  }
+  return null;
+}
+
+/** Published shots whose minute can be stood on the track. Keyed by the page's filename. */
+function shotsOnTrack(fixes) {
+  const curation = existsSync(curationPath) ? JSON.parse(readFileSync(curationPath, "utf8")).publish || {} : {};
+  const placed = {};
+  const sorted = [...fixes].sort((a, b) => a.ms - b.ms);
+  for (const [src, mark] of Object.entries(curation)) {
+    if (!mark || mark.publish === false || mark.explicit) continue;
+    const file = join(repo, src);
+    if (!existsSync(file)) continue;
+    const day = (src.match(/(\d{4}-\d{2}-\d{2})/) || [])[1];
+    if (!day) continue;
+    const stem = basename(src).replace(/\.[^.]+$/, "");
+    const video = /\.(mp4|mov|m4v)$/i.test(src);
+    const taken = video ? videoTaken(originalVideo(stem) || file) : stillTaken(file);
+    if (!taken || !sorted.length || taken < sorted[0].ms || taken > sorted[sorted.length - 1].ms) continue;
+    let lo = 0;
+    let hi = sorted.length;
+    while (lo < hi) {
+      const mid = (lo + hi) >> 1;
+      if (sorted[mid].ms < taken) lo = mid + 1;
+      else hi = mid;
+    }
+    const next = sorted[Math.min(lo, sorted.length - 1)];
+    const prev = sorted[Math.max(lo - 1, 0)];
+    const nearer = Math.abs(taken - prev.ms) <= Math.abs(next.ms - taken) ? prev : next;
+    const sameSpot = prev !== next && metres(prev, next) <= SAME_SPOT_M;
+    if (Math.abs(taken - nearer.ms) > NEAR_MS && !sameSpot) continue;
+    const at = nearer;
+    const ext = video ? ".mp4" : ".jpg";
+    placed[`${day}-${stem}${ext}`] = {
+      day: dayOf(taken),
+      clock: wallClock(taken),
+      ms: taken,
+      lat: at.lat,
+      lon: at.lon
+    };
+  }
+  return placed;
+}
+
 const spell = (seconds) => {
   const mins = Math.round(seconds / 60);
   if (mins < 1) return "a moment";
@@ -212,6 +323,51 @@ function mapFor(day, fixes) {
     .map((p) => label(p, spell(p.seconds), -radius(p.seconds) - 8))
     .join("\n");
 
+  // Shots taken while this day's track knows where the car was. Several frames from
+  // one stop become one mark, or the map grows a stack of the same minute.
+  const marks = Object.values(shotPlaces).filter((s) => s.day === day)
+    .map((s) => ({ ...s, ...screen(s.lon, s.lat) }))
+    .sort((a, b) => a.ms - b.ms);
+  const clusters = [];
+  for (const shot of marks) {
+    const hit = clusters.find((c) => Math.hypot(c.x - shot.x, c.y - shot.y) < 24);
+    if (hit) {
+      hit.x = (hit.x * hit.n + shot.x) / (hit.n + 1);
+      hit.y = (hit.y * hit.n + shot.y) / (hit.n + 1);
+      hit.n += 1;
+      hit.end = shot.clock;
+      continue;
+    }
+    clusters.push({ x: shot.x, y: shot.y, n: 1, start: shot.clock, end: shot.clock });
+  }
+  // To the left of the mark. Stop durations and the day's first and last clocks sit to
+  // the right, and on the scaled map a small offset still lands on top of them.
+  for (const c of clusters) {
+    const text = c.start === c.end ? c.start
+      : (c.start.slice(-2) === c.end.slice(-2) ? c.start.slice(0, -3) + "–" + c.end : c.start + "–" + c.end);
+    c.text = text;
+    const width = text.length * 9.2;
+    c.lx = c.x - width - 22;
+    c.ly = c.y + 4;
+    if (c.lx < 8) {
+      c.lx = c.x + 14;
+      c.ly = c.y + 40;
+    }
+  }
+  clusters.sort((a, b) => a.ly - b.ly || a.lx - b.lx);
+  for (let i = 1; i < clusters.length; i++) {
+    const prev = clusters[i - 1];
+    if (Math.abs(clusters[i].lx - prev.lx) < 120 && clusters[i].ly - prev.ly < 18) clusters[i].ly = prev.ly + 18;
+  }
+  const shotLabel = (c) =>
+    `<text x="${c.lx.toFixed(1)}" y="${c.ly.toFixed(1)}" font-size="15" ` +
+    `font-family="Menlo, monospace" stroke="#06090f" stroke-width="4" paint-order="stroke" ` +
+    `fill="#7fd4ff">${c.text}</text>`;
+  const shotDots = clusters.map((c) =>
+    `<circle cx="${c.x.toFixed(1)}" cy="${c.y.toFixed(1)}" r="5.5" fill="#7fd4ff" stroke="#06090f" stroke-width="1.6"/>\n` +
+    shotLabel(c)
+  ).join("\n");
+
   const first = route[0];
   const last = route[route.length - 1];
   // Only the day. The streets are one shared file the page puts underneath, because
@@ -226,11 +382,16 @@ ${route.length > 1 ? `<circle cx="${last.x.toFixed(1)}" cy="${last.y.toFixed(1)}
 ${named}
 ${label(first, clock(first.start), 26)}
 ${route.length > 1 ? label(last, clock(last.end), 26) : ""}
+${shotDots}
 </svg>
 `;
 }
 
+const shotPlaces = shotsOnTrack(allFixes);
+const shotCount = Object.keys(shotPlaces).length;
+
 mkdirSync(outDir, { recursive: true });
+writeFileSync(join(outDir, "shot-marks.json"), JSON.stringify(shotPlaces, null, 2) + "\n");
 // The base goes next to the overlays so the two travel together and the publisher has
 // one folder to copy. Left as svg: it is 112 KB, and it is a line drawing, which is
 // the case where svg both looks better and weighs less than a raster of it.
@@ -249,6 +410,7 @@ for (const [day, fixes] of [...byDay.entries()].sort()) {
     String(places.length).padStart(2) + " place(s), " + String(visits.length - 1).padStart(2) +
     " move(s), longest stay " + spell(longest).padEnd(9) + " " + (size / 1024).toFixed(1) + " KB");
 }
-console.log("\n  " + byDay.size + " overlay(s) + the base map in " + outDir.replace(repo + "/", "") +
+console.log("\n  " + shotCount + " shot(s) placed on the track, the rest left off — taken while nothing was logging");
+console.log("  " + byDay.size + " overlay(s) + the base map in " + outDir.replace(repo + "/", "") +
   "  (" + (bytes / 1024).toFixed(0) + " KB of track, " +
   (statSync(join(outDir, "playa-streets.svg")).size / 1024).toFixed(0) + " KB of streets shared)");
