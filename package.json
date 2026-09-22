@@ -123,6 +123,7 @@
     "hermes:annals:photos": "node scripts/hermes-annals-photos.mjs",
     "hermes:annals:reel": "node scripts/hermes-annals-reel.mjs",
     "hermes:annals:maps": "node scripts/hermes-day-maps.mjs",
+    "hermes:annals:gifs": "python3 scripts/hermes-route-gifs.py",
     "hermes:annals:publish": "node scripts/hermes-annals-publish.mjs",
     "hermes:anon": "node scripts/hermes-anonymize-events.mjs",
     "mosaic:check": "node scripts/check-orbit-tiles.mjs",
