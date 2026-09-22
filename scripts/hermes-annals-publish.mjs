@@ -554,18 +554,23 @@ const guestManifestPath = join(repo, "docs", "annals", "gifs", "manifest.json");
 const guests = existsSync(guestManifestPath)
   ? (JSON.parse(readFileSync(guestManifestPath, "utf8")).gifs || [])
   : [];
-// 111 opens the count. Each of its six digits carries a sprite, and the digit's
-// value plus its place picks which, so three zeroes are not the same picture.
+// 111 opens the count, shown as seven digits. The leading place was added after
+// the other six and opens on the fairy; the six behind it keep their sprites.
 const GUEST_FROM = 111;
+const PLACES = 7;
+const fairyAt = Math.max(0, guests.findIndex((g) => g.theme === "fairy"));
 function guestFor(n, digit, place) {
   if (!guests.length) return null;
   const span = guests.length;
   const shift = Math.floor(Number(n) || 0) - GUEST_FROM;
-  const i = ((Number(digit) + place + shift) % span + span) % span;
+  const raw = place === 0
+    ? fairyAt + Number(digit) + shift
+    : Number(digit) + (place - 1) + shift;
+  const i = ((raw % span) + span) % span;
   return guests[i];
 }
 function digitCells(n) {
-  const digits = String(Math.max(0, Number(n) || 0)).padStart(6, "0").slice(-6);
+  const digits = String(Math.max(0, Number(n) || 0)).padStart(PLACES, "0").slice(-PLACES);
   return digits.split("").map((d, i) => {
     const g = guestFor(n, d, i);
     const img = g
@@ -708,8 +713,14 @@ const html = `<!doctype html>
     text-transform:uppercase; color:#8a8a8a; }
   .odometer .digits { display:flex; gap:8px; align-items:flex-end; background:transparent;
     padding:0; letter-spacing:0; text-shadow:none; }
-  .odometer .cell { display:flex; flex-direction:column; align-items:center; gap:4px; width:48px; }
-  .odometer .cell img { height:42px; width:auto; max-width:48px; object-fit:contain; image-rendering:pixelated; }
+  .odometer .cell { display:flex; flex-direction:column; align-items:center; gap:4px; width:44px; }
+  .odometer .cell img { height:38px; width:auto; max-width:44px; object-fit:contain; image-rendering:pixelated; }
+  @media (max-width:420px) {
+    .odometer { padding:8px 8px 10px; }
+    .odometer .digits { gap:3px; }
+    .odometer .cell { width:34px; }
+    .odometer .cell img { height:30px; max-width:34px; }
+  }
   /* Seven bars, the way a 1990s hit counter drew a numeral: the dark ones are the
      segments that are off, still visible so it reads as a display and not as type. */
   .odometer .cell .n { position:relative; display:block; width:22px; height:36px;
@@ -828,7 +839,7 @@ ${reading ? `<section class="reading" id="reading">
 <div class="guestbook">
 <div class="odometer" id="odometer">
   <span class="label">you are visitor</span>
-  <div class="digits" aria-live="polite" aria-label="000111">${digitCells(GUEST_FROM)}</div>
+  <div class="digits" aria-live="polite" aria-label="0000111">${digitCells(GUEST_FROM)}</div>
 </div>
 </div>
 <script>
@@ -845,16 +856,18 @@ const counter = document.querySelector("#odometer .digits");
 const GUESTS = ${JSON.stringify(guests.map((g) => ({ file: g.file, theme: g.theme, w: g.w, h: g.h })))};
 const GUEST_FROM = 111;
 function showCount(n) {
-  const digits = String(Math.max(0, Number(n) || 0)).padStart(6, "0").slice(-6);
+  const digits = String(Math.max(0, Number(n) || 0)).padStart(7, "0").slice(-7);
   const span = GUESTS.length;
   const shift = Math.floor(Number(n) || 0) - GUEST_FROM;
+  const fairyAt = Math.max(0, GUESTS.findIndex((g) => g.theme === "fairy"));
   counter.setAttribute("aria-label", digits);
   counter.replaceChildren();
   digits.split("").forEach((d, place) => {
     const cell = document.createElement("span");
     cell.className = "cell";
     if (span) {
-      const i = ((Number(d) + place + shift) % span + span) % span;
+      const raw = place === 0 ? fairyAt + Number(d) + shift : Number(d) + (place - 1) + shift;
+      const i = ((raw % span) + span) % span;
       const g = GUESTS[i];
       const img = document.createElement("img");
       img.src = "gifs/" + g.file;
