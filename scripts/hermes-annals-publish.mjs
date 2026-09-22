@@ -41,6 +41,9 @@ const curationPath = resolve(repo, arg("curation", join("data", "hermes", "annal
 const STILL_MAX = Number(arg("still-max", 1600));
 const VIDEO_MAX_H = Number(arg("video-max", 720));
 const COMMENT_API = arg("api", "https://returnofhermes.com/api/hermes/annals/comments");
+// Same host as the comments: the page is a static file and the only thing that can
+// remember a visitor is the server that already keeps what people write.
+const VISITS_API = COMMENT_API.replace(/\/comments$/, "/visits");
 // Absolute, because this page is also served from GitHub Pages under /hypermuse/, where a
 // root-relative /book would land on github.io itself rather than on Hermes.
 const BOOK_URL = arg("book", "https://returnofhermes.com/book");
@@ -545,6 +548,33 @@ ${blocks}
 }
 
 const publishedDays = plan.filter((p) => p.media.length || (p.day.account || "").trim());
+// One GeoCities sprite per classic orbit theme, beside the counter. The visitor
+// number picks which, so a reload of the same count shows the same picture.
+const guestManifestPath = join(repo, "docs", "annals", "gifs", "manifest.json");
+const guests = existsSync(guestManifestPath)
+  ? (JSON.parse(readFileSync(guestManifestPath, "utf8")).gifs || [])
+  : [];
+// 111 opens the count. Each of its six digits carries a sprite, and the digit's
+// value plus its place picks which, so three zeroes are not the same picture.
+const GUEST_FROM = 111;
+function guestFor(n, digit, place) {
+  if (!guests.length) return null;
+  const span = guests.length;
+  const shift = Math.floor(Number(n) || 0) - GUEST_FROM;
+  const i = ((Number(digit) + place + shift) % span + span) % span;
+  return guests[i];
+}
+function digitCells(n) {
+  const digits = String(Math.max(0, Number(n) || 0)).padStart(6, "0").slice(-6);
+  return digits.split("").map((d, i) => {
+    const g = guestFor(n, d, i);
+    const img = g
+      ? `<img src="gifs/${esc(g.file)}" alt="${esc(g.theme)}" width="${Number(g.w) || 48}" height="${Number(g.h) || 48}">`
+      : "";
+    return `<span class="cell">${img}<span class="n" data-d="${d}" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i><i></i></span></span>`;
+  }).join("");
+}
+
 const html = `<!doctype html>
 <html lang="en"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -667,6 +697,60 @@ const html = `<!doctype html>
   }
   .comment-form button:disabled { opacity:0.5; cursor:default; }
   .comment-status { color:#8fa3b8; font-size:13px; align-self:center; }
+  /* The 1990s hit counter: a black bezel, a caption in the plastic, and digits that
+     glow because the page is dark and a flat number would disappear into it. */
+  .guestbook { display:flex; justify-content:center; margin:36px 0 8px; }
+  .odometer { display:flex; flex-direction:column; align-items:center; gap:8px; width:fit-content;
+    margin:0; padding:10px 12px 12px;
+    background:linear-gradient(#3a3a3a,#1a1a1a); border:1px solid #555;
+    border-radius:8px; box-shadow:inset 0 0 0 2px #0a0a0a, inset 0 8px 12px rgba(0,0,0,.45); }
+  .odometer .label { font:10px/1 ui-monospace,Menlo,Consolas,monospace; letter-spacing:.22em;
+    text-transform:uppercase; color:#8a8a8a; }
+  .odometer .digits { display:flex; gap:8px; align-items:flex-end; background:transparent;
+    padding:0; letter-spacing:0; text-shadow:none; }
+  .odometer .cell { display:flex; flex-direction:column; align-items:center; gap:4px; width:48px; }
+  .odometer .cell img { height:42px; width:auto; max-width:48px; object-fit:contain; image-rendering:pixelated; }
+  /* Seven bars, the way a 1990s hit counter drew a numeral: the dark ones are the
+     segments that are off, still visible so it reads as a display and not as type. */
+  .odometer .cell .n { position:relative; display:block; width:22px; height:36px;
+    background:#050805; border-radius:2px; box-shadow:inset 0 0 3px #000; }
+  .odometer .cell .n i { position:absolute; background:#12321c; border-radius:2px; }
+  .odometer .cell .n i:nth-child(1) { left:4px; top:2px; width:14px; height:3px; }
+  .odometer .cell .n i:nth-child(2) { right:2px; top:5px; width:3px; height:12px; }
+  .odometer .cell .n i:nth-child(3) { right:2px; bottom:5px; width:3px; height:12px; }
+  .odometer .cell .n i:nth-child(4) { left:4px; bottom:2px; width:14px; height:3px; }
+  .odometer .cell .n i:nth-child(5) { left:2px; bottom:5px; width:3px; height:12px; }
+  .odometer .cell .n i:nth-child(6) { left:2px; top:5px; width:3px; height:12px; }
+  .odometer .cell .n i:nth-child(7) { left:4px; top:16px; width:14px; height:3px; }
+  .odometer .n[data-d="0"] i:nth-child(1), .odometer .n[data-d="0"] i:nth-child(2),
+  .odometer .n[data-d="0"] i:nth-child(3), .odometer .n[data-d="0"] i:nth-child(4),
+  .odometer .n[data-d="0"] i:nth-child(5), .odometer .n[data-d="0"] i:nth-child(6),
+  .odometer .n[data-d="1"] i:nth-child(2), .odometer .n[data-d="1"] i:nth-child(3),
+  .odometer .n[data-d="2"] i:nth-child(1), .odometer .n[data-d="2"] i:nth-child(2),
+  .odometer .n[data-d="2"] i:nth-child(4), .odometer .n[data-d="2"] i:nth-child(5),
+  .odometer .n[data-d="2"] i:nth-child(7),
+  .odometer .n[data-d="3"] i:nth-child(1), .odometer .n[data-d="3"] i:nth-child(2),
+  .odometer .n[data-d="3"] i:nth-child(3), .odometer .n[data-d="3"] i:nth-child(4),
+  .odometer .n[data-d="3"] i:nth-child(7),
+  .odometer .n[data-d="4"] i:nth-child(2), .odometer .n[data-d="4"] i:nth-child(3),
+  .odometer .n[data-d="4"] i:nth-child(6), .odometer .n[data-d="4"] i:nth-child(7),
+  .odometer .n[data-d="5"] i:nth-child(1), .odometer .n[data-d="5"] i:nth-child(3),
+  .odometer .n[data-d="5"] i:nth-child(4), .odometer .n[data-d="5"] i:nth-child(6),
+  .odometer .n[data-d="5"] i:nth-child(7),
+  .odometer .n[data-d="6"] i:nth-child(1), .odometer .n[data-d="6"] i:nth-child(3),
+  .odometer .n[data-d="6"] i:nth-child(4), .odometer .n[data-d="6"] i:nth-child(5),
+  .odometer .n[data-d="6"] i:nth-child(6), .odometer .n[data-d="6"] i:nth-child(7),
+  .odometer .n[data-d="7"] i:nth-child(1), .odometer .n[data-d="7"] i:nth-child(2),
+  .odometer .n[data-d="7"] i:nth-child(3),
+  .odometer .n[data-d="8"] i:nth-child(1), .odometer .n[data-d="8"] i:nth-child(2),
+  .odometer .n[data-d="8"] i:nth-child(3), .odometer .n[data-d="8"] i:nth-child(4),
+  .odometer .n[data-d="8"] i:nth-child(5), .odometer .n[data-d="8"] i:nth-child(6),
+  .odometer .n[data-d="8"] i:nth-child(7),
+  .odometer .n[data-d="9"] i:nth-child(1), .odometer .n[data-d="9"] i:nth-child(2),
+  .odometer .n[data-d="9"] i:nth-child(3), .odometer .n[data-d="9"] i:nth-child(4),
+  .odometer .n[data-d="9"] i:nth-child(6), .odometer .n[data-d="9"] i:nth-child(7) {
+    background:#5dff6a; box-shadow:0 0 5px #3dff6a;
+  }
 </style></head><body><main>
 <h1>The Annals of Hermes</h1>
 <p class="standfirst">For three thousand years Hermes has been
@@ -741,11 +825,68 @@ ${reading ? `<section class="reading" id="reading">
   <p class="mapnote">That form needs the Hermes server, so it works on returnofhermes.com
   rather than on this copy of the page.</p>
 </section>
+<div class="guestbook">
+<div class="odometer" id="odometer">
+  <span class="label">you are visitor</span>
+  <div class="digits" aria-live="polite" aria-label="000111">${digitCells(GUEST_FROM)}</div>
+</div>
+</div>
 <script>
 // Comments live on the hermes server rather than in this page, because the page is a
 // static file on GitHub Pages and cannot keep anything. A day with no comments and a
 // server that is down look the same from here on purpose: the annals still read.
 const API = ${JSON.stringify(COMMENT_API)};
+const VISITS = ${JSON.stringify(VISITS_API)};
+
+// One count per browser, kept in localStorage, because a reload is not a new visitor
+// and the server cannot tell a person from a refresh. A server that is down leaves the
+// zeroes where they are: the page still reads, and a missing number is not a zero.
+const counter = document.querySelector("#odometer .digits");
+const GUESTS = ${JSON.stringify(guests.map((g) => ({ file: g.file, theme: g.theme, w: g.w, h: g.h })))};
+const GUEST_FROM = 111;
+function showCount(n) {
+  const digits = String(Math.max(0, Number(n) || 0)).padStart(6, "0").slice(-6);
+  const span = GUESTS.length;
+  const shift = Math.floor(Number(n) || 0) - GUEST_FROM;
+  counter.setAttribute("aria-label", digits);
+  counter.replaceChildren();
+  digits.split("").forEach((d, place) => {
+    const cell = document.createElement("span");
+    cell.className = "cell";
+    if (span) {
+      const i = ((Number(d) + place + shift) % span + span) % span;
+      const g = GUESTS[i];
+      const img = document.createElement("img");
+      img.src = "gifs/" + g.file;
+      img.alt = g.theme;
+      img.width = g.w;
+      img.height = g.h;
+      cell.append(img);
+    }
+    const num = document.createElement("span");
+    num.className = "n";
+    num.dataset.d = d;
+    num.setAttribute("aria-hidden", "true");
+    for (let s = 0; s < 7; s++) num.append(document.createElement("i"));
+    cell.append(num);
+    counter.append(cell);
+  });
+}
+showCount(GUEST_FROM);
+(async function countVisit() {
+  const key = "hermes-annals-visitor";
+  let seen = false;
+  try { seen = localStorage.getItem(key) === "1"; } catch (_) {}
+  try {
+    const res = await fetch(VISITS, seen ? { cache: "no-store" } : { method: "POST" });
+    if (!res.ok) return;
+    const data = await res.json();
+    if (typeof data.n === "number") showCount(data.n);
+    if (!seen && data.counted) {
+      try { localStorage.setItem(key, "1"); } catch (_) {}
+    }
+  } catch (_) {}
+})();
 
 function when(iso) {
   try { return new Date(iso).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" }); }

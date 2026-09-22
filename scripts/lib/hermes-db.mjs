@@ -131,6 +131,16 @@ export async function createHermesDb(connectionString) {
   `);
   await pool.query("create index if not exists hermes_bookings_at_idx on hermes_bookings (year, at);");
 
+  // One number for the visitor counter on the annals. A row rather than a file because
+  // the page is served from GitHub Pages, whose disk cannot count, and a container's
+  // disk is thrown away on every deploy.
+  await pool.query(`
+    create table if not exists hermes_annals_visits (
+      name text primary key,
+      n bigint not null
+    );
+  `);
+
   return {
     async close() {
       await pool.end();
@@ -187,6 +197,23 @@ export async function createHermesDb(connectionString) {
           String(entry.about || "")
         ]
       );
+    },
+    /** The visitor count, or one higher when increment is set. An empty table reads as start. */
+    async bumpAnnalsVisits(increment, start) {
+      const base = Math.max(0, Number(start) || 0);
+      if (increment) {
+        const { rows } = await pool.query(
+          `insert into hermes_annals_visits (name, n) values ('annals', $1)
+           on conflict (name) do update set n = hermes_annals_visits.n + 1
+           returning n`,
+          [base + 1]
+        );
+        return Number(rows[0].n);
+      }
+      const { rows } = await pool.query(
+        "select n from hermes_annals_visits where name = 'annals'"
+      );
+      return rows.length ? Number(rows[0].n) : base;
     },
     /** How many have asked, by kind. Counts only — the rows themselves are not served. */
     async countBookings(year) {

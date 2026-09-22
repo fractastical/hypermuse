@@ -245,6 +245,17 @@ const pickupRecent = [];
   const annalsCommentsPath = process.env.HERMES_ANNALS_COMMENTS_LOG ||
     join(root, "data", "hermes", "annals-comments.jsonl");
   const ANNALS_COMMENTS_OPEN = String(process.env.HERMES_ANNALS_COMMENTS || "1") !== "0";
+  // The odometer on the annals. One number, kept here because the page itself is a
+  // static file and cannot remember who has been. A browser only asks to be counted
+  // once; the address limit is what stops a script from sitting on the endpoint.
+  const annalsVisitsPath = process.env.HERMES_ANNALS_VISITS ||
+    join(root, "data", "hermes", "annals-visits.json");
+  // The counter went on after the page had already been read, so it opens on the
+  // visitors who were here before it could count them, and the next one is 112.
+  const ANNALS_VISITS_START = 111;
+  const ANNALS_VISIT_WINDOW_MS = Math.max(1000,
+    Number(process.env.HERMES_ANNALS_VISIT_WINDOW_MS || 12 * 60 * 60 * 1000));
+  const annalsVisitSeen = new Map();
   const ANNALS_COMMENT_BURST = Math.max(1, Number(process.env.HERMES_ANNALS_COMMENT_BURST || 6));
   const ANNALS_COMMENT_WINDOW_MS = Math.max(1000,
     Number(process.env.HERMES_ANNALS_COMMENT_WINDOW_MS || 600000));
@@ -519,6 +530,40 @@ function annalsCommentsFromFile(day) {
     out.push({ who: row.who, body: row.body, at: row.at, day: row.day });
   }
   return out;
+}
+
+function readAnnalsVisitsFile() {
+  try {
+    const raw = JSON.parse(readFileSync(annalsVisitsPath, "utf8"));
+    const n = Number(raw && raw.n);
+    if (Number.isFinite(n) && n >= ANNALS_VISITS_START) return Math.floor(n);
+  } catch {
+    /* no file yet: the count is the visitors who came before the counter did */
+  }
+  return ANNALS_VISITS_START;
+}
+
+function writeAnnalsVisitsFile(n) {
+  mkdirSync(dirname(annalsVisitsPath), { recursive: true });
+  writeFileSync(annalsVisitsPath, JSON.stringify({ n }) + "\n");
+}
+
+/**
+ * The visitor count. Postgres when there is one, the JSON file otherwise — a laptop
+ * has no database and a container has no disk that survives a deploy, so each keeps
+ * the number the way it can keep anything else.
+ */
+async function annalsVisits(increment) {
+  if (db) {
+    try {
+      return await db.bumpAnnalsVisits(increment, ANNALS_VISITS_START);
+    } catch (err) {
+      console.error(`[hermes] could not update the visitor count in postgres: ${err.message}`);
+    }
+  }
+  const n = readAnnalsVisitsFile() + (increment ? 1 : 0);
+  if (increment) writeAnnalsVisitsFile(n);
+  return n;
 }
 
 function clientIp(req) {
@@ -2531,6 +2576,24 @@ const handle = async (req, res) => {
       // No echo of what was sent: a form that reflects a stranger's contact details back
       // into the page is one screenshot away from publishing them.
       sendJson(res, 200, { ok: true, year: BOOKING_YEAR });
+      return;
+    }
+
+    if (url.pathname === "/api/hermes/annals/visits" && (req.method === "GET" || req.method === "POST")) {
+      // GET only reads. POST counts this visitor, unless this address was already
+      // counted inside the window, in which case it reads too — a reload is not a
+      // new person, and neither is a loop hitting the endpoint.
+      let counted = false;
+      if (req.method === "POST") {
+        const ip = clientIp(req);
+        const now = Date.now();
+        const last = annalsVisitSeen.get(ip) || 0;
+        if (now - last >= ANNALS_VISIT_WINDOW_MS) {
+          annalsVisitSeen.set(ip, now);
+          counted = true;
+        }
+      }
+      sendJson(res, 200, { ok: true, n: await annalsVisits(counted), counted });
       return;
     }
 

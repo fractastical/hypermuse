@@ -1,0 +1,137 @@
+{
+  "note": "One GeoCities sprite per classic orbit theme, shown beside the visitor counter. The visitor number picks which, so the same count always gets the same picture. Explicit themes are not in this set.",
+  "gifs": [
+    {
+      "file": "wizard.gif",
+      "theme": "wizard",
+      "w": 50,
+      "h": 50
+    },
+    {
+      "file": "wand.gif",
+      "theme": "wand",
+      "w": 32,
+      "h": 32
+    },
+    {
+      "file": "pyramid.gif",
+      "theme": "pyramid",
+      "w": 55,
+      "h": 55
+    },
+    {
+      "file": "ankh.gif",
+      "theme": "ankh",
+      "w": 60,
+      "h": 60
+    },
+    {
+      "file": "ufo.gif",
+      "theme": "ufo",
+      "w": 32,
+      "h": 32
+    },
+    {
+      "file": "coral.gif",
+      "theme": "coral",
+      "w": 49,
+      "h": 40
+    },
+    {
+      "file": "dragon.gif",
+      "theme": "dragon",
+      "w": 71,
+      "h": 71
+    },
+    {
+      "file": "moon.gif",
+      "theme": "moon",
+      "w": 84,
+      "h": 84
+    },
+    {
+      "file": "alien.gif",
+      "theme": "alien",
+      "w": 54,
+      "h": 54
+    },
+    {
+      "file": "crystal.gif",
+      "theme": "crystal",
+      "w": 60,
+      "h": 60
+    },
+    {
+      "file": "skull.gif",
+      "theme": "skull",
+      "w": 100,
+      "h": 100
+    },
+    {
+      "file": "flame.gif",
+      "theme": "flame",
+      "w": 144,
+      "h": 144
+    },
+    {
+      "file": "fairy.gif",
+      "theme": "fairy",
+      "w": 50,
+      "h": 50
+    },
+    {
+      "file": "butterfly.gif",
+      "theme": "butterfly",
+      "w": 95,
+      "h": 95
+    },
+    {
+      "file": "heart.gif",
+      "theme": "heart",
+      "w": 75,
+      "h": 75
+    },
+    {
+      "file": "eye.gif",
+      "theme": "eye",
+      "w": 66,
+      "h": 69
+    },
+    {
+      "file": "star.gif",
+      "theme": "star",
+      "w": 60,
+      "h": 60
+    },
+    {
+      "file": "spaceship.gif",
+      "theme": "spaceship",
+      "w": 77,
+      "h": 58
+    },
+    {
+      "file": "rainbow.gif",
+      "theme": "rainbow",
+      "w": 80,
+      "h": 80
+    },
+    {
+      "file": "cat.gif",
+      "theme": "cat",
+      "w": 45,
+      "h": 45
+    },
+    {
+      "file": "smiley.gif",
+      "theme": "smiley",
+      "w": 54,
+      "h": 54
+    },
+    {
+      "file": "peace.gif",
+      "theme": "peace",
+      "w": 74,
+      "h": 75
+    }
+  ]
+}
