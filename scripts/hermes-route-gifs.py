@@ -5,9 +5,12 @@
 #
 #   python3 scripts/hermes-route-gifs.py
 #
-# Stills are turned upright from the camera's own orientation tag. Clips
-# contribute a frame from the original, so a phone that stored the picture
-# sideways is rotated before it is drawn. A stop with no picture is left off.
+# The ground is the 30 August satellite frame, turned the same way as the
+# street map (temple up) and registered so the official street grid lands on
+# the city. Stills are turned upright from the camera's own orientation tag.
+# Clips contribute a frame from the original, so a phone that stored the
+# picture sideways is rotated before it is drawn. A stop with no picture is
+# left off.
 
 import json
 import math
@@ -19,11 +22,17 @@ from datetime import datetime
 from pathlib import Path
 from zoneinfo import ZoneInfo
 
+import numpy as np
 from PIL import Image, ImageDraw, ImageFont, ImageOps
 
 ROOT = Path(__file__).resolve().parents[1]
-MAP_PNG = ROOT / "data/hermes/2026/map/playa-streets.png"
+# Clear PlanetScope day, city built, already rotated and cropped to the playa.
+SAT_PNG = ROOT / "assets/hermes-annals/city-days/framed/2026-08-30.png"
 META_PATH = ROOT / "data/hermes/2026/map/playa-streets-metadata.json"
+# The Man on that frame, and metres per pixel. Fitted by laying the street
+# grid on the picture: the outer arc meets the outer blocks on both sides.
+MAN_PX, MAN_PY = 620, 610
+MPP = 3.15
 TRACK_PATH = ROOT / "data/hermes/track.jsonl"
 CURATION_PATH = ROOT / "data/hermes/annals-curation.json"
 MEDIA = ROOT / "docs/annals/media"
@@ -38,15 +47,18 @@ GAP_MS = 8 * 60 * 1000
 NEAR_MIN = 180
 OUT_W = 840
 FPS = 2
-MAX_BEATS = 20
-PW, PH, CAP = 240, 200, 28
+MAX_BEATS = 30
+# The picture keeps its own shape. A portrait is a tall frame, so it is not
+# letterboxed into a landscape box with black bars down both sides.
+MAX_PW, MAX_PH, CAP = 250, 340, 28
 
 meta = json.loads(META_PATH.read_text())
 LAT_SCALE = 111320
 LON_SCALE = math.cos(meta["origin"]["lat"] * math.pi / 180) * 111320
 COS_R = math.cos(meta["rotation"])
 SIN_R = math.sin(meta["rotation"])
-W, H = meta["width"], meta["height"]
+with Image.open(SAT_PNG) as _sat:
+    W, H = _sat.size
 SCALE = OUT_W / W
 
 
@@ -55,10 +67,7 @@ def screen(lon, lat):
     ry = (lat - meta["origin"]["lat"]) * LAT_SCALE
     x = rx * COS_R - ry * SIN_R
     y = rx * SIN_R + ry * COS_R
-    return (
-        meta["offset"]["x"] + (x - meta["bounds"]["minX"]) * meta["scale"],
-        meta["offset"]["y"] + (meta["bounds"]["maxY"] - y) * meta["scale"],
-    )
+    return MAN_PX + x / MPP, MAN_PY - y / MPP
 
 
 def metres(a, b):
@@ -115,23 +124,50 @@ def text(draw, xy, s, font, fill):
     draw.text((x, y), s, font=font, fill=fill)
 
 
-def fit(im, w, h):
+def crop_bars(im):
+    # A solid black band along an edge is the phone's leftover margin, not the
+    # picture. Night sky stays: a band only counts when the whole strip is black.
     im = im.convert("RGB")
-    scale = min(w / im.width, h / im.height)
-    im = im.resize((max(1, int(im.width * scale)), max(1, int(im.height * scale))), Image.Resampling.LANCZOS)
-    canvas = Image.new("RGB", (w, h), (6, 9, 15))
-    canvas.paste(im, ((w - im.width) // 2, (h - im.height) // 2))
-    return canvas
+    arr = np.asarray(im)
+    height, width = arr.shape[:2]
+    dark = arr.max(axis=2) < 16
+    col = dark.mean(axis=0)
+    row = dark.mean(axis=1)
+    limit = int(min(width, height) * 0.42)
+
+    def run(mask):
+        n = 0
+        for value in mask[:limit]:
+            if value < 0.98:
+                break
+            n += 1
+        return n
+
+    left, right = run(col), run(col[::-1])
+    top, bottom = run(row), run(row[::-1])
+    if left + right >= width - 8 or top + bottom >= height - 8:
+        return im
+    if left or right or top or bottom:
+        return im.crop((left, top, width - right, height - bottom))
+    return im
 
 
-def beside(dot):
+def framed(im):
+    im = crop_bars(im)
+    scale = min(MAX_PW / im.width, MAX_PH / im.height)
+    w = max(1, int(round(im.width * scale)))
+    h = max(1, int(round(im.height * scale)))
+    return im.resize((w, h), Image.Resampling.LANCZOS)
+
+
+def beside(dot, pw, ph):
     r = 8
     x = dot["x"] + r + 12
-    y = dot["y"] - (PH + CAP) / 2
-    if x + PW > W - 8:
-        x = dot["x"] - r - 12 - PW
-    y = min(max(8, y), H - PH - CAP - 8)
-    x = min(max(8, x), W - PW - 8)
+    y = dot["y"] - (ph + CAP) / 2
+    if x + pw > W - 8:
+        x = dot["x"] - r - 12 - pw
+    y = min(max(8, y), H - ph - CAP - 8)
+    x = min(max(8, x), W - pw - 8)
     return x, y
 
 
@@ -171,7 +207,25 @@ def open_still(path):
         return ImageOps.exif_transpose(im).convert("RGB")
 
 
+def grab_frame(src, dest, ss):
+    result = subprocess.run(
+        ["ffmpeg", "-y", "-hide_banner", "-loglevel", "error",
+         "-ss", str(ss), "-i", str(src), "-frames:v", "1", str(dest)],
+    )
+    if result.returncode == 0 and dest.exists() and dest.stat().st_size > 0:
+        return dest
+    return None
+
+
 def load_picture(shot, cache):
+    src = shot.get("src")
+    if src and Path(src).suffix.lower() in {".mp4", ".mov", ".m4v"}:
+        dest = cache / (Path(src).stem + ".png")
+        if not grab_frame(src, dest, shot.get("ss") or "1"):
+            return None
+        return Image.open(dest).convert("RGB")
+    if src:
+        return open_still(src)
     dest = cache / (shot["name"].replace("/", "_") + ".png")
     if shot["name"].endswith(".mp4"):
         if not video_frame(shot["name"], dest):
@@ -278,8 +332,88 @@ def pictured_shots(fixes):
             "clock": when.strftime("%-I:%M %p"),
             "day": when.astimezone(TZ).strftime("%Y-%m-%d"),
         })
+    shots.extend(burn_shots())
     shots.sort(key=lambda s: s["ms"])
     return shots
+
+
+def landmark(name):
+    data = json.loads((ROOT / "data/hermes/2026/gis/cpns.geojson").read_text())
+    wanted = name.lower()
+    for feature in data["features"]:
+        if str((feature.get("properties") or {}).get("NAME", "")).lower() != wanted:
+            continue
+        lon, lat = feature["geometry"]["coordinates"]
+        return float(lon), float(lat)
+    raise SystemExit(f"missing {name}")
+
+
+def burn_shots():
+    # The logger was off for both burns, so each picture is stood on the
+    # landmark. The wide still of Saturday night is the crowd, with the Man a
+    # speck. The frame that shows him burning is late in IMG_2982. The clock
+    # is the still beside it, 10:07 PM, the only time that camera kept.
+    man = (meta["origin"]["lon"], meta["origin"]["lat"])
+    temple = landmark("The Temple")
+    # The burn-night clips have no camera clock, only an export date. They
+    # were shot before the 10:07 still, so they sit ahead of it. The caption
+    # stays the day, rather than a minute we do not have.
+    specs = [
+        (
+            ROOT / "assets/burnnight/IMG_2964.mp4",
+            "25",
+            datetime(2026, 9, 5, 21, 20, tzinfo=TZ),
+            man,
+            "",
+        ),
+        (
+            ROOT / "assets/burnnight/IMG_2973.mp4",
+            "6",
+            datetime(2026, 9, 5, 21, 40, tzinfo=TZ),
+            man,
+            "",
+        ),
+        (
+            ROOT / "assets/burnnight/IMG_2982.mp4",
+            "23",
+            datetime(2026, 9, 5, 22, 7, 26, tzinfo=TZ),
+            man,
+            None,
+        ),
+        (
+            ROOT / "assets/hermes-annals/2026-09-06/IMG_4542.jpg",
+            None,
+            datetime(2026, 9, 6, 20, 6, 23, tzinfo=TZ),
+            temple,
+            None,
+        ),
+    ]
+    shots = []
+    for path, ss, when, (lon, lat), clock in specs:
+        if not path.exists():
+            continue
+        shots.append({
+            "name": path.name,
+            "src": path,
+            "ss": ss,
+            "ms": when.timestamp() * 1000,
+            "when": when,
+            "lat": lat,
+            "lon": lon,
+            "video": path.suffix.lower() in {".mp4", ".mov", ".m4v"},
+            "clock": when.strftime("%-I:%M %p") if clock is None else clock,
+            "day": when.strftime("%Y-%m-%d"),
+        })
+    return shots
+
+
+# These clips are a different picture from the frame the burst kept, so each
+# one stays its own stop instead of being folded into the neighbour.
+SPLIT_CLIPS = ("IMG_4330", "IMG_4345", "IMG_4508")
+
+
+def own_stop(shot):
+    return any(token in shot["name"] for token in SPLIT_CLIPS)
 
 
 def bursts_of(shots):
@@ -299,33 +433,95 @@ def bursts_of(shots):
         burst["x"], burst["y"] = screen(burst["lon"], burst["lat"])
         videos = [s for s in burst["shots"] if s["video"]]
         burst["shot"] = videos[len(videos) // 2] if videos else burst["shots"][len(burst["shots"]) // 2]
+        burst["t"] = burst["shot"]["ms"]
+    # A second clip from the same stop, when it is a different picture.
+    added = []
+    for burst in bursts:
+        for shot in burst["shots"]:
+            if not own_stop(shot) or shot is burst["shot"]:
+                continue
+            added.append({
+                "lon": shot["lon"], "lat": shot["lat"], "end": shot["ms"],
+                "shots": [shot], "shot": shot, "t": shot["ms"],
+                "x": burst["x"], "y": burst["y"],
+            })
+    bursts.extend(added)
+    bursts.sort(key=lambda b: b["t"])
     if len(bursts) > MAX_BEATS:
         step = len(bursts) / MAX_BEATS
         bursts = [bursts[min(len(bursts) - 1, int(i * step))] for i in range(MAX_BEATS)]
     return bursts
 
 
-def paint(base, stops, upto, picture, caption, font, small):
+def square_box(stops):
+    # The horseshoe, the dots, and the pictures. The spare desert falls away,
+    # and what remains is square.
+    bounds = meta["bounds"]
+    x0 = MAN_PX + bounds["minX"] / MPP
+    x1 = MAN_PX + bounds["maxX"] / MPP
+    y0 = MAN_PY - bounds["maxY"] / MPP
+    y1 = MAN_PY - bounds["minY"] / MPP
+    for stop in stops:
+        bx, by = beside(stop, MAX_PW, MAX_PH)
+        x0 = min(x0, stop["x"] - 18, bx - 6)
+        y0 = min(y0, stop["y"] - 18, by - 6)
+        x1 = max(x1, stop["x"] + 18, bx + MAX_PW + 6)
+        y1 = max(y1, stop["y"] + 18, by + MAX_PH + CAP + 6)
+    # A margin, so the horseshoe is not sliced flush with the frame.
+    pad = 56
+    x0, y0, x1, y1 = x0 - pad, y0 - pad, x1 + pad, y1 + pad
+    side = min(max(x1 - x0, y1 - y0), W, H)
+    cx, cy = (x0 + x1) / 2, (y0 + y1) / 2
+    left = min(max(0, cx - side / 2), W - side)
+    top = min(max(0, cy - side / 2), H - side)
+    if left > x0:
+        left = max(0, x0)
+    if top > y0:
+        top = max(0, y0)
+    if left + side < x1:
+        left = min(W - side, x1 - side)
+    if top + side < y1:
+        top = min(H - side, y1 - side)
+    left, top = int(round(left)), int(round(top))
+    side = int(round(side))
+    bottom = top + side
+    # The built city runs past the last street line. Slide the square down
+    # so that edge stays inside, without pushing the northern dots off.
+    city_bottom = MAN_PY - bounds["minY"] / MPP
+    highest = min(stop["y"] for stop in stops) - 36
+    shift = min(max(0, city_bottom + 130 - bottom), H - bottom, max(0, highest - top))
+    top += int(shift)
+    return (left, top, left + side, top + side)
+
+
+def paint(base, stops, upto, picture, caption, font, small, crop):
     frame = base.copy()
     draw = ImageDraw.Draw(frame)
     shown = stops[: upto + 1]
     for a, b in zip(shown, shown[1:]):
-        draw_dashed(draw, quad((a["x"], a["y"]), (b["x"], b["y"])), (255, 157, 61), width=3)
+        curve = quad((a["x"], a["y"]), (b["x"], b["y"]))
+        # A dark stroke under the orange, so the route reads on pale playa.
+        draw_dashed(draw, curve, (42, 24, 8), width=7)
+        draw_dashed(draw, curve, (255, 157, 61), width=3)
     for i, stop in enumerate(shown):
         fill = (125, 255, 168) if i == 0 else (255, 209, 102)
         if i == len(shown) - 1:
             fill = (127, 212, 255)
+        draw.ellipse((stop["x"] - 11, stop["y"] - 11, stop["x"] + 11, stop["y"] + 11), fill=(24, 16, 8))
         draw.ellipse((stop["x"] - 8, stop["y"] - 8, stop["x"] + 8, stop["y"] + 8), fill=fill)
     here = shown[-1]
     if picture is not None:
-        x, y = beside(here)
-        frame.paste(fit(picture, PW, PH), (int(x), int(y)))
-        draw.rectangle((x - 2, y - 2, x + PW + 2, y + PH + CAP), outline=(127, 212, 255), width=2)
-        text(draw, (x + 8, y + PH + 4), caption, small, (127, 212, 255))
-        near_x = x if x > here["x"] else x + PW
-        draw.line([(here["x"], here["y"]), (near_x, y + PH / 2)], fill=(127, 212, 255), width=2)
+        picture = framed(picture)
+        pw, ph = picture.size
+        x, y = beside(here, pw, ph)
+        frame.paste(picture, (int(x), int(y)))
+        draw.rectangle((x - 2, y - 2, x + pw + 2, y + ph + CAP), outline=(127, 212, 255), width=2)
+        text(draw, (x + 8, y + ph + 4), caption, small, (127, 212, 255))
+        near_x = x if x > here["x"] else x + pw
+        draw.line([(here["x"], here["y"]), (near_x, y + ph / 2)], fill=(127, 212, 255), width=2)
         draw.ellipse((here["x"] - 6, here["y"] - 6, here["x"] + 6, here["y"] + 6), fill=(127, 212, 255))
-    return frame.resize((OUT_W, round(H * SCALE)), Image.Resampling.LANCZOS)
+    frame = frame.crop(crop)
+    return frame.resize((OUT_W, OUT_W), Image.Resampling.LANCZOS)
 
 
 def main():
@@ -337,9 +533,7 @@ def main():
     if not beats:
         sys.exit("no pictured stops")
 
-    streets = Image.open(MAP_PNG).convert("RGBA")
-    black = Image.new("RGBA", streets.size, (0, 0, 0, 255))
-    base = Image.alpha_composite(black, streets).convert("RGB")
+    base = Image.open(SAT_PNG).convert("RGB")
     small = ImageFont.truetype("/System/Library/Fonts/Menlo.ttc", 18)
     font = small
 
@@ -363,13 +557,17 @@ def main():
         if picture is None:
             continue
         day = datetime.strptime(shot["day"], "%Y-%m-%d").strftime("%a %-d %b")
-        sequence.append((len(stops) - 1, picture, f"{day}  {shot['clock']}", shot["name"]))
+        clock = shot["clock"]
+        caption = f"{day}  {clock}" if clock else day
+        sequence.append((len(stops) - 1, picture, caption, shot["name"]))
 
+    crop = square_box(stops)
     frames = []
     for index, (upto, picture, caption, name) in enumerate(sequence):
-        img = paint(base, stops, upto, picture, caption, font, small)
+        img = paint(base, stops, upto, picture, caption, font, small, crop)
         # Held long enough to see the picture, then the route moves on.
-        copies = 2 if index < len(sequence) - 1 else 4
+        # The burns are held, so a one-second flash is not the only look at them.
+        copies = 4 if "2982" in name or index == len(sequence) - 1 else 2
         for _ in range(copies):
             frames.append(img)
         print(f"  {caption}  {name}")
