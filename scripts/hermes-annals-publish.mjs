@@ -239,6 +239,9 @@ if (mapDays.size) {
 // recorded and a third of what the days describe is not on it. Its own hedge — a 30%
 // chance of finding Hermes anywhere named — is the honest part, and the reason the
 // accounts below are the record and this is only the intention.
+const citySource = join(repo, "assets", "hermes-annals", "city-days", "city-season.gif");
+const hasCity = existsSync(citySource);
+if (hasCity) copyFileSync(citySource, join(outDir, "city-season.gif"));
 const programSource = join(repo, "assets", "hermes-annals", "program", "public-program.png");
 const hasProgram = existsSync(programSource);
 if (hasProgram) copyFileSync(programSource, join(outDir, "public-program.png"));
@@ -670,6 +673,7 @@ const html = `<!doctype html>
      browser can reserve, rather than a fixed size it stretches the picture into. */
   figure img, figure video { width:100%; height:auto; border-radius:10px; display:block; background:#0b111a; }
   figcaption { color:#8fa3b8; font-size:12px; margin-top:6px; }
+  figure.city { max-width:440px; margin:4px auto 28px; }
   figure.lead { margin:14px 0 18px; }
   /* Capped, because a portrait phone photograph at full column width is taller than the
      screen and pushes the day's account off the bottom of it. */
@@ -778,7 +782,11 @@ aboard for every night in this book from the thirtieth of August on, with
 him for three of them. Hermes is on Instagram as
 <a href="${esc(INSTAGRAM)}" rel="noopener">@hermesartcar</a>.</p>
 <div class="sub">${publishedDays.length} ${publishedDays.length === 1 ? "day" : "days"} on the playa · ${totalMedia} photograph${totalMedia === 1 ? "" : "s"} and clip${totalMedia === 1 ? "" : "s"} · anyone may comment</div>
-<nav class="toc" aria-label="Contents">
+${hasCity ? `<figure class="city">
+  <img src="city-season.gif" alt="Black Rock City from above, one day at a time, from July through the burn. The open end of the city is at the top." width="1240" height="1480">
+  <figcaption>The city, one day at a time, from the first of July through the burn. Twelve o'clock is at the top, the same way the maps are drawn. Days the satellite could not see for cloud are left out. Imagery © Planet Labs.</figcaption>
+</figure>
+` : ""}<nav class="toc" aria-label="Contents">
   <h2>Contents</h2>
   <ol>
 ${prologue.length ? `    <li><a href="#before"><span class="when">Before</span><span class="what">Juplaya in July, and the build days</span>${
