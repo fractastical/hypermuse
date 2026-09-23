@@ -2035,14 +2035,18 @@ const handle = async (req, res) => {
     // what the QR code on the moon display pointed at and a scanned rider needed to ask
     // for a pickup. The week is over, so the apex now leads to the account of it.
     //
-    // request.returnofhermes.com is exempt. It exists to take pickups and nothing else,
-    // so it keeps going to the form however the apex is pointed, and it is what a QR
-    // code or HERMES_PICKUP_URL should use — that way asking for a ride and reading
-    // about the week never have to be the same decision again.
+    // The pickup form used to have its own hostname. That name never got a
+    // certificate that matched, so the form lives on the apex instead, at /request.
+    // A leftover request.* host still lands on the same page, for any old QR.
     const hostOnly = String(req.headers.host || "").split(":")[0].toLowerCase();
     const hermesHost = hostOnly === "returnofhermes.com" || hostOnly.endsWith(".returnofhermes.com");
     const dispatchHost = hostOnly.startsWith("request.");
     if (req.method === "GET" && url.pathname === "/" && hermesHost && dispatchHost) {
+      res.writeHead(302, { location: "/hermes-live.html", "cache-control": "no-store" });
+      res.end("redirecting to /hermes-live.html\n");
+      return;
+    }
+    if (req.method === "GET" && (url.pathname === "/request" || url.pathname === "/request/")) {
       res.writeHead(302, { location: "/hermes-live.html", "cache-control": "no-store" });
       res.end("redirecting to /hermes-live.html\n");
       return;

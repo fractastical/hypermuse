@@ -209,11 +209,10 @@ Set these on the Railway web service:
 
 - `PORT=8080` — the server falls back to 8124 when this is unset, so the number
   here and the number in the domain dialog have to agree.
-- `HERMES_PICKUP_URL=https://request.returnofhermes.com/hermes-live.html` — this is
-  handed out verbatim, as the QR code and the link a rider is given. It used to be the
-  apex, which was fine while the apex led to the form; the apex now leads to the annals,
-  so pointing a rider there gives them a photo essay instead of a pickup box. The
-  `request.` hostname exists for exactly this and always goes to the form.
+- `HERMES_PICKUP_URL=https://returnofhermes.com/request` — this is handed out
+  verbatim, as the QR code and the link a rider is given. The apex itself leads to
+  the annals, so the pickup form is a page on that same host: `/request` redirects
+  to `/hermes-live.html`. There is no separate hostname for it.
 - `HERMES_PHONE=off` — otherwise it tries to bind a second https port and make
   certificates for a LAN the container does not have.
 - `HERMES_RESUME=1`
