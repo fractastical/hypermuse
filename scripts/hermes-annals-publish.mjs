@@ -542,8 +542,11 @@ function prologueSection() {
   const blocks = prologue.map(({ day, media }) => {
     const shots = media.filter((m) => !m.failed);
     if (!shots.length) return "";
+    const moon = day.day === "2026-08-26"
+      ? `<figure><video src="hypermoon-orbits.mp4" controls playsinline preload="none" poster="hypermoon-orbits.poster.jpg" width="1920" height="1080"></video><figcaption>The moon's orbits, the first night it was shown</figcaption></figure>`
+      : "";
     return `<h3>${esc(shortDay(day.day))}</h3>\n<div class="shots">` +
-      shots.map((s) => figureFor(s)).join("") + "</div>";
+      shots.map((s) => figureFor(s)).join("") + moon + "</div>";
   }).filter(Boolean).join("\n");
   return `<section id="before">
 <h2><a href="#before">Before</a></h2>
