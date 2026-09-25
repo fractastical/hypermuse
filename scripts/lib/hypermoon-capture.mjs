@@ -162,6 +162,24 @@ export async function withHypermoon(opts, fn) {
         }, shot.slowSpeed ?? slowSpeed);
       }
 
+      // The climb needs the city image and a fix before it will draw. Both
+      // arrive after load, and a film cannot wait on the live server, so the
+      // shot carries the night it is supposed to be looking at.
+      if (shot.hermes) {
+        await page.waitForFunction(() => {
+          const a = window.__hyperstitionStats && window.__hyperstitionStats.aerialState;
+          return !!(a && a.map);
+        }, undefined, { timeout: 25000 }).catch(() => console.warn("[capture]   city map never loaded"));
+        await page.evaluate((state) => {
+          window.__hermesState = state;
+          window.dispatchEvent(new CustomEvent("hermes-state", { detail: state }));
+        }, shot.hermes);
+        await page.waitForFunction(() => {
+          const a = window.__hyperstitionStats && window.__hyperstitionStats.aerialState;
+          return !!(a && a.fix);
+        }, undefined, { timeout: 8000 }).catch(() => console.warn("[capture]   no fix for the climb"));
+      }
+
       ensureDir(framesDir);
       dir = framesDir;
       frame = 0;
@@ -170,14 +188,48 @@ export async function withHypermoon(opts, fn) {
       recording = true;
 
       let elapsed = 0;
-      for (const a of (shot.act || []).slice().sort((x, y) => x.at - y.at)) {
-        const target = Math.max(0, Math.min(ms, a.at * ms));
-        if (target > elapsed) { await page.waitForTimeout(target - elapsed); elapsed = target; }
-        await page.evaluate((set) => {
-          new BroadcastChannel("hypermoon").postMessage({ type: "moonConfig", set });
-        }, a.set);
+      const acts = (shot.act || []).slice().sort((x, y) => x.at - y.at);
+      let actI = 0;
+      const rise = shot.rise || null;
+      const applyActs = async () => {
+        while (actI < acts.length && acts[actI].at * ms <= elapsed + 8) {
+          await page.evaluate((set) => {
+            new BroadcastChannel("hypermoon").postMessage({ type: "moonConfig", set });
+          }, acts[actI].set);
+          actI++;
+        }
+      };
+      if (rise) {
+        // The show clock climbs once a minute. A film shot drives the same
+        // altitude directly so the fade lands inside the take.
+        while (elapsed < ms) {
+          await applyActs();
+          const t = ms <= 0 ? 1 : elapsed / ms;
+          const start = rise.start ?? 0.05;
+          const end = rise.end ?? 0.62;
+          let u = 0;
+          if (t >= end) u = 1;
+          else if (t > start) u = (t - start) / (end - start);
+          const e = u * u * (3 - 2 * u);
+          const c = (rise.from ?? 0) + ((rise.to ?? 1) - (rise.from ?? 0)) * e;
+          await page.evaluate((climb) => {
+            const stats = window.__hyperstitionStats;
+            if (stats && stats.aerialAt) stats.aerialAt(climb);
+          }, c);
+          const next = Math.min(ms, elapsed + 90);
+          if (next > elapsed) await page.waitForTimeout(next - elapsed);
+          elapsed = next;
+        }
+      } else {
+        for (; actI < acts.length; actI++) {
+          const target = Math.max(0, Math.min(ms, acts[actI].at * ms));
+          if (target > elapsed) { await page.waitForTimeout(target - elapsed); elapsed = target; }
+          await page.evaluate((set) => {
+            new BroadcastChannel("hypermoon").postMessage({ type: "moonConfig", set });
+          }, acts[actI].set);
+        }
+        if (elapsed < ms) await page.waitForTimeout(ms - elapsed);
       }
-      if (elapsed < ms) await page.waitForTimeout(ms - elapsed);
 
       recording = false;
       await cdp.send("Page.stopScreencast").catch(() => {});

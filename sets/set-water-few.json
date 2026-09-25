@@ -1,0 +1,14 @@
+{
+  "setName": "set-water-few",
+  "sourceDirectory": "loops",
+  "playbackMode": "loop",
+  "setNotes": "One water loop per fibonacci tile, with spares so a swap stays on a different clip.",
+  "loops": [
+    { "url": "loops/Artbeats - Nature Underwater HD (1080i)/UN101H.mp4", "label": "underwater 1" },
+    { "url": "loops/Artbeats - Nature Underwater HD (1080i)/UN104H.mp4", "label": "underwater 2" },
+    { "url": "loops/Artbeats - Nature Underwater HD (1080i)/UN107H.mp4", "label": "underwater 3" },
+    { "url": "loops/Artbeats-OceanWaterEffects/CWE101.mp4", "label": "ocean 1" },
+    { "url": "loops/Artbeats-OceanWaterEffects/CWE104.mp4", "label": "ocean 2" },
+    { "url": "loops/Artbeats-OceanWaterEffects/CWE108.mp4", "label": "ocean 3" }
+  ]
+}

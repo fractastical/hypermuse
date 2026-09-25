@@ -40,9 +40,15 @@ const THEMES = (process.env.THEMES || [
   // the psychedelic end of 1999
   "lava lamp", "rainbow", "peace", "smiley", "mushroom", "spiral", "yin yang",
   // occult
-  "skull", "pentagram", "candle", "pyramid", "ankh", "dragon", "wizard", "crystal",
+  "skull", "pentagram", "candle", "pyramid", "ankh", "dragon", "wizard", "wand", "crystal", "castle",
   // soft things
-  "heart", "butterfly", "flower", "angel", "fairy", "cat", "flame", "eye"
+  "heart", "butterfly", "flower", "angel", "fairy", "cat", "flame", "eye",
+  // creatures
+  "ghost", "unicorn", "mermaid", "phoenix", "owl", "bat", "spider", "snake", "frog",
+  "rabbit", "wolf", "horse", "penguin",
+  // treasure and the rest of the spellbook
+  "crown", "sword", "knight", "potion", "cauldron", "witch", "lightning", "clover",
+  "dice", "gem", "guitar"
 ].join(",")).split(",").map((s) => s.trim()).filter(Boolean);
 
 // A swarm sprite wants to read at thumbnail size. Rules, banners and single

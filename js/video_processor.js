@@ -234,7 +234,22 @@ function skipPlaybackIfColorGroupBlocked() {
     playNextSetEntry();
 }
 
+// Layers that keep their own video elements built from the set (the fibonacci
+// mosaic) have no other way to learn that the filters just excluded clips they
+// are still playing.
+function notifyLoopFiltersChanged() {
+    if (typeof window.__hypermuseOnLoopFiltersChanged !== 'function') {
+        return;
+    }
+    try {
+        window.__hypermuseOnLoopFiltersChanged();
+    } catch (error) {
+        console.warn('loop filter listener failed', error);
+    }
+}
+
 function broadcastColorGroupsSnapshot() {
+    notifyLoopFiltersChanged();
     if (typeof window.getColorGroupsSnapshot !== 'function') {
         return;
     }
@@ -371,6 +386,7 @@ function registerFolderLoopGroup(groupId, labelHint) {
 }
 
 function broadcastLoopGroupsSnapshot() {
+    notifyLoopFiltersChanged();
     if (typeof window.getLoopGroupsSnapshot !== 'function') {
         return;
     }
@@ -966,13 +982,12 @@ if (!url) return false;
 const normalized = String(preference || '').trim().toLowerCase();
 if (normalized === 'dislike') {
     loopPreferenceByUrl.set(url, 'dislike');
-    return true;
-}
-if (normalized === 'like') {
+} else if (normalized === 'like') {
     loopPreferenceByUrl.set(url, 'like');
-    return true;
+} else {
+    loopPreferenceByUrl.delete(url);
 }
-loopPreferenceByUrl.delete(url);
+notifyLoopFiltersChanged();
 return true;
 }
 
@@ -1307,6 +1322,36 @@ window.setSetPlaybackTiming = setSetPlaybackTiming;
 window.setSetAutoAdvanceEnabled = setSetAutoAdvanceEnabled;
 window.playNextSetEntry = playNextSetEntry;
 window.ensureCurrentSetPlayback = ensureCurrentSetPlayback;
+
+// One row per clip in the loaded set, so a desk can offer them by name instead
+// of only "next". Clips the filters would currently skip are included and
+// flagged: picking one by hand is an override, not a suggestion.
+window.getSetEntriesSnapshot = function() {
+    return currentSetEntries.map(function(entry, index) {
+        const url = (entry && entry.url) || '';
+        const gid = entry && entry.loopGroupId ? String(entry.loopGroupId).trim() : '';
+        return {
+            index: index,
+            label: (entry && entry.label) || (url ? url.split('/').pop() : 'clip ' + (index + 1)),
+            url: url,
+            group: gid,
+            groupLabel: gid
+                ? (loopFolderGroupLabelsMap.get(gid) || gid.split('/').filter(Boolean).pop() || gid)
+                : '',
+            eligible: isSetEntryEligible(entry),
+            isCurrent: index === currentSetIndex
+        };
+    });
+};
+
+window.playSetEntryIndex = function(index) {
+    const i = parseInt(index, 10);
+    if (!Number.isFinite(i) || currentSetEntries.length === 0) {
+        return false;
+    }
+    playSetEntryAt(i); // normalises the index itself, so out of range is safe
+    return true;
+};
 window.setCurrentLoopPreference = function(preference, options = {}) {
     if (currentSetEntries.length === 0 || currentSetIndex < 0) {
         return false;
@@ -1361,6 +1406,12 @@ window.getRecentLoopUrls = function() {
 window.setProgressiveClipWindowConfig = setProgressiveClipWindowConfig;
 window.getLoadedSetUrls = function() {
     return Array.isArray(window.__hypermuseSetUrls) ? window.__hypermuseSetUrls.slice() : [];
+};
+window.getEligibleSetUrls = function() {
+    return currentSetEntries
+        .filter((entry) => isSetEntryEligible(entry))
+        .map((entry) => entry.url)
+        .filter(Boolean);
 };
 
 document.getElementById('videoInput').addEventListener('change', function(event) {

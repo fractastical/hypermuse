@@ -1,0 +1,12 @@
+{
+  "note": "Videos sampled from the open web with scripts/fetch-clip.mjs and centre-cropped square for the moon circle. The files stay out of git; this list is what lets a fresh clone fetch them again. Segment times are seconds into the square clip in assets/clips/circle.",
+  "sources": [
+    {
+      "name": "pranava",
+      "url": "https://www.youtube.com/watch?v=G1uDWHiDKXo",
+      "title": "Ace Ventura & Astrix - Pranava (Volcano On Mars Remix)",
+      "note": "The 2015 original has no video of its own - the canonical upload is the album cover with a hummingbird looping over it, and it carries burned-in titles across the top - so the remix's official video is the one worth sampling: mandalas, radial sunbursts, third eyes and lotus rings, centre-weighted and clean at the edges, which is exactly what survives a square crop and a circular mask.",
+      "segments": []
+    }
+  ]
+}

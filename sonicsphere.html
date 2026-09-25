@@ -2605,7 +2605,24 @@ button:hover {
             return iframe;
         }
 
-        function createMosaicTile(rect, sourceUrl, tileIndex) {
+        function claimMosaicIdentity(used, id) {
+            if (!id || used.has(id)) return false;
+            used.add(id);
+            return true;
+        }
+
+        function distinctMosaicSources(sources) {
+            const out = [];
+            const seen = new Set();
+            (sources || []).forEach((item) => {
+                if (!item || seen.has(item)) return;
+                seen.add(item);
+                out.push(item);
+            });
+            return out;
+        }
+
+        function createMosaicTile(rect, tileIndex, sources, used) {
             const tile = document.createElement('div');
             tile.style.position = 'absolute';
             tile.style.left = `${(rect.x * 100).toFixed(3)}%`;
@@ -2616,38 +2633,50 @@ button:hover {
             tile.style.border = '1px solid rgba(120,255,220,0.22)';
             tile.style.background = '#04080d';
             fibonacciMosaicLayer.appendChild(tile);
-            const content = mosaicContentForTile(tileIndex);
+            let content = mosaicContentForTile(tileIndex);
+            // A second panel never repeats a page another panel already has.
+            if (content.kind === 'page' && !claimMosaicIdentity(used, 'page:' + content.url)) {
+                content = { kind: 'video' };
+            }
             if (content.kind === 'page') {
                 const iframe = createMosaicTileFrame(tile, content.url, `Mosaic page ${content.url}`);
                 return { tile, iframe, isFx: true, page: content.url };
             }
             if (content.kind === 'fx') {
                 const modeList = getMosaicFxModes();
-                const mode = content.mode || modeList[fibonacciMosaicFxIndex % modeList.length];
-                if (!content.mode) fibonacciMosaicFxIndex += 1;
-                const modeParam = encodeURIComponent(mode);
-                // hideui=1 only hides the control panel. The debug ticker is a separate
-                // flag, and without it every FX tile prints "Effect: LIFE | Lanes: ..."
-                // across itself, which reads as a caption on the output.
-                const src = `${window.location.origin}${window.location.pathname}?demo=1&hideui=1&hideoverlay=1&mode=${modeParam}&layout=thirds-2d`;
-                const iframe = createMosaicTileFrame(tile, src, `Mosaic FX ${mode}`);
-                return { tile, iframe, isFx: true, mode };
+                let mode = content.mode && !used.has('fx:' + content.mode) ? content.mode : '';
+                if (!mode) mode = modeList.find((item) => !used.has('fx:' + item)) || '';
+                if (mode && claimMosaicIdentity(used, 'fx:' + mode)) {
+                    const modeParam = encodeURIComponent(mode);
+                    // hideui=1 only hides the control panel. The debug ticker is a separate
+                    // flag, and without it every FX tile prints "Effect: LIFE | Lanes: ..."
+                    // across itself, which reads as a caption on the output.
+                    const src = `${window.location.origin}${window.location.pathname}?demo=1&hideui=1&hideoverlay=1&mode=${modeParam}&layout=thirds-2d`;
+                    const iframe = createMosaicTileFrame(tile, src, `Mosaic FX ${mode}`);
+                    return { tile, iframe, isFx: true, mode };
+                }
+                content = { kind: 'video' };
             }
-            const video = document.createElement('video');
-            video.muted = true;
-            video.autoplay = true;
-            video.loop = true;
-            video.playsInline = true;
-            video.preload = 'auto';
-            video.style.width = '100%';
-            video.style.height = '100%';
-            video.style.objectFit = 'cover';
-            video.src = sourceUrl || '';
-            tile.appendChild(video);
-            const tryPlay = () => video.play().catch(() => {});
-            video.addEventListener('canplay', tryPlay, { once: true });
-            tryPlay();
-            return { tile, video, isFx: false, src: sourceUrl || '' };
+            const sourceUrl = sources.find((item) => !used.has('video:' + item)) || '';
+            if (sourceUrl && claimMosaicIdentity(used, 'video:' + sourceUrl)) {
+                const video = document.createElement('video');
+                video.muted = true;
+                video.autoplay = true;
+                video.loop = true;
+                video.playsInline = true;
+                video.preload = 'auto';
+                video.style.width = '100%';
+                video.style.height = '100%';
+                video.style.objectFit = 'cover';
+                video.src = sourceUrl;
+                tile.appendChild(video);
+                const tryPlay = () => video.play().catch(() => {});
+                video.addEventListener('canplay', tryPlay, { once: true });
+                tryPlay();
+                return { tile, video, isFx: false, src: sourceUrl };
+            }
+            // Nothing unseen is left. An empty panel is preferable to a copy.
+            return { tile, isFx: true, empty: true };
         }
 
         function rebuildFibonacciMosaicTiles() {
@@ -2655,12 +2684,12 @@ button:hover {
             if (!fibonacciMosaicLayer) return;
             fibonacciMosaicLayer.innerHTML = '';
             fibonacciMosaicTiles = [];
-            const sources = getMosaicSources();
-            if (sources.length === 0) return;
+            const sources = distinctMosaicSources(getMosaicSources());
+            if (sources.length === 0 && !fibonacciMosaicTileContent.some((item) => item && item !== 'auto' && item !== 'video')) return;
             const rects = getFibonacciRects(8);
+            const used = new Set();
             for (let i = 0; i < rects.length; i++) {
-                const src = sources[i % sources.length];
-                fibonacciMosaicTiles.push(createMosaicTile(rects[i], src, i));
+                fibonacciMosaicTiles.push(createMosaicTile(rects[i], i, sources, used));
             }
             // Asking for eight does not give eight: the subdivision stops once the
             // remainder is too thin to see. The controller has a row of per-tile pickers
@@ -3380,10 +3409,16 @@ button:hover {
             fibonacciMosaicLastSwapMs = nowMs;
             const sources = getMosaicSources();
             if (sources.length === 0) return;
-            const tile = fibonacciMosaicTiles[Math.floor(Math.random() * fibonacciMosaicTiles.length)];
-            if (!tile || tile.isFx || !tile.video) return;
-            const nextSrc = sources[Math.floor(Math.random() * sources.length)];
-            if (!nextSrc || tile.video.src.endsWith(nextSrc)) return;
+            const videos = fibonacciMosaicTiles.filter((entry) => entry && entry.video && !entry.isFx);
+            if (videos.length === 0) return;
+            const tile = videos[Math.floor(Math.random() * videos.length)];
+            const taken = new Set(videos.filter((entry) => entry !== tile).map((entry) => entry.src));
+            const free = sources.filter((item) => item && !taken.has(item) && item !== tile.src);
+            const nextSrc = free.length
+                ? free[Math.floor(Math.random() * free.length)]
+                : '';
+            if (!nextSrc) return;
+            tile.src = nextSrc;
             tile.video.src = nextSrc;
             tile.video.play().catch(() => {});
         }

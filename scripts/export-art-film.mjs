@@ -1,11 +1,11 @@
 #!/usr/bin/env node
 /**
  * A short art film, not a sampler. The catalogue reel shows one of everything
- * at one length; this is a structured piece: seven movements, shot lengths that
+ * at one length; this is a structured piece: eight movements, shot lengths that
  * breathe and then tighten, a scale progression from a distant disc to a filled
  * frame, and a return to the opening image so it closes and also loops.
  *
- *   npm run export:film                  # ~1:45, 1920x1080
+ *   npm run export:film                  # ~2:00, 1920x1080
  *   ACT=signal npm run export:film       # render one movement only
  *   TITLES=0 npm run export:film         # no title / end card
  *   SIZE=1080x1080 npm run export:film   # square for the holofan
@@ -19,6 +19,7 @@ import fs from "node:fs";
 import path from "node:path";
 import { spawnSync } from "node:child_process";
 import ffmpegPath from "ffmpeg-static";
+import { placeCoords, distanceMeters } from "./lib/playa-places.mjs";
 import {
   withHypermoon, encodeShot, blackClip, concatClips, probeVideo, ensureDir, H264
 } from "./lib/hypermoon-capture.mjs";
@@ -37,6 +38,16 @@ const TITLE_TEXT = process.env.TITLE_TEXT || "HYPERSTITION";
 const END_TEXT = process.env.END_TEXT || "THE DARK SIDE SPEAKS";
 const END_SUB = process.env.END_SUB || "WAIT FOR THE TURN";
 const EYE_GIF = "assets/esoteric-geometries-circles-warp.gif";
+// Clothed dancers from the show, then the nude clip. the-shadow-of-you is left
+// out here: it is the other nude, and this pass is the ones that were missing.
+const DANCERS = [
+  "assets/xfeeefeee/circle/in-my-dreamz.mp4",
+  "assets/xfeeefeee/circle/kaleidoscope.mp4",
+  "assets/xfeeefeee/circle/body-and-mind_loop.mp4",
+  "assets/xfeeefeee/circle/rhythm.mp4",
+  "assets/xfeeefeee/circle/psychedelic_v2.mp4",
+  "assets/butt/1.mp4"
+].join(",");
 
 // Window shots: open the aperture past the measured shadow patch and count more
 // mid-grey terrain as shadow, or the content comes out a sealed speck.
@@ -46,7 +57,7 @@ const WIN = { angw: "1.35", angh: "0.85", threshold: "0.4" };
 const SKY = { stars: "760", stardrift: "1.4" };
 
 /**
- * Seven movements. `seconds` is deliberately uneven: long patient holds to open
+ * Eight movements. `seconds` is deliberately uneven: long patient holds to open
  * and close, a tightening run through the geometry, and the longest single hold
  * in the middle on the reveal. `dip` is the black beat that follows a shot.
  */
@@ -113,7 +124,47 @@ const MOVEMENTS = [
     ]
   },
   {
-    act: "shadow", title: "VI. the shadow arrives",
+    // The running show, which the movements above never visit: ankhs and the
+    // other orbit acts, and the clothed dancers from the backdrop list as well
+    // as the nude clip. backsec is short so more than one of them gets seen.
+    // orbitact is shortened from the live 150s so a film can pass through
+    // more than one act.
+    act: "procession", title: "VI. what circles it",
+    shots: [
+      { id: "13b-ankhs", seconds: 10, fadeIn: 0.5,
+        q: {
+          ...SKY, content: "orbit", ufo: "0", vajras: "0",
+          orbitseq: "ankh", giforbit: "8",
+          backdrop: DANCERS, backfit: "0", backsec: "3.2",
+          iris: "0.62", iriszoom: "1", irisr: "0.8", irisfeather: "0.25",
+          moonscale: "0.9", meteors: "3"
+        } },
+      { id: "13c-orbits", seconds: 12,
+        q: {
+          ...SKY, content: "orbit", ufo: "0", vajras: "0",
+          orbitseq: "seahorse,jellyfish,seaweed|vajra|starfish",
+          orbitact: "5.5", orbitfade: "0.5", giforbit: "8",
+          backdrop: DANCERS, backfit: "0", backsec: "3.2",
+          iris: "0.7", iriszoom: "1", irisr: "0.8", irisfeather: "0.25",
+          moonscale: "0.9", meteors: "3"
+        } },
+      // The iris closes and the disc climbs off the car into the city, with the
+      // listings that were actually on near the car that night. hermes is filled
+      // in at render time. One place each, or ten pins land on the same corner.
+      { id: "13d-city", seconds: 11,
+        q: {
+          ...SKY, content: "orbit", ufo: "0", vajras: "0",
+          orbitseq: "ankh", giforbit: "6",
+          flash: "hermes/logo.png",
+          iris: "0", moonscale: "0.9", meteors: "2",
+          aerial: "1"
+        },
+        rise: { start: 0.04, end: 0.52 },
+        dip: 0.6 }
+    ]
+  },
+  {
+    act: "shadow", title: "VII. the shadow arrives",
     shots: [
       // Hard cut out of the reveal into consequence. The umbra's edge crossing
       // a still-lit disc is the image; totality is just a dark ball.
@@ -126,7 +177,7 @@ const MOVEMENTS = [
     ]
   },
   {
-    act: "coda", title: "VII. someone is still dancing",
+    act: "coda", title: "VIII. someone is still dancing",
     shots: [
       // After the omen, life carries on regardless. Three dancers rather than a
       // crowd, so each one is big enough to read through the window.
@@ -174,6 +225,64 @@ function card({ out, seconds, lines }) {
   return out;
 }
 
+// A night the car was in the city and the guide was full. The live feed is
+// empty now — the week is over — so the climb is given that night's fix and
+// the listings that were on within two kilometres, one per place.
+function nearbyThatNight() {
+  const when = Date.parse("2026-09-02T04:00:00.000Z");
+  const track = fs.readFileSync(path.join(ROOT, "data/hermes/track.jsonl"), "utf8")
+    .trim().split("\n").map((line) => JSON.parse(line));
+  let fix = track[0];
+  let best = Infinity;
+  for (const point of track) {
+    const delta = Math.abs(Date.parse(point.t) - when);
+    if (delta < best) { best = delta; fix = point; }
+  }
+  const lat = Number(fix.lat);
+  const lon = Number(fix.lon);
+  const body = JSON.parse(fs.readFileSync(path.join(ROOT, "data/hermes/activities.json"), "utf8"));
+  const near = [];
+  for (const activity of body.activities || []) {
+    if (activity.adult) continue;
+    const start = Date.parse(activity.start);
+    if (!Number.isFinite(start)) continue;
+    const end = start + (Number(activity.minutes) || 60) * 60000;
+    if (when < start || when > end) continue;
+    const at = placeCoords(activity.place || activity.location);
+    if (!at) continue;
+    const distanceM = distanceMeters(lat, lon, at.lat, at.lon);
+    if (distanceM > 2000) continue;
+    near.push({
+      title: activity.title,
+      location: activity.location || activity.place || "",
+      place: activity.place || "",
+      kind: activity.kind || "",
+      lat: at.lat,
+      lon: at.lon,
+      distanceM
+    });
+  }
+  near.sort((a, b) => a.distanceM - b.distanceM);
+  const activities = [];
+  const seen = new Set();
+  for (const event of near) {
+    const key = String(event.place || event.title).trim().toLowerCase();
+    if (seen.has(key)) continue;
+    seen.add(key);
+    activities.push({
+      title: event.title,
+      location: event.location,
+      place: event.place,
+      kind: event.kind,
+      lat: event.lat,
+      lon: event.lon
+    });
+    if (activities.length >= 10) break;
+  }
+  console.log(`[film] city over ${lat.toFixed(5)}, ${lon.toFixed(5)} — ${activities.length} nearby`);
+  return { fix: { lat, lon }, activities };
+}
+
 async function main() {
   const only = String(process.env.ACT || "").trim();
   const movements = only ? MOVEMENTS.filter((m) => m.act === only) : MOVEMENTS;
@@ -185,6 +294,9 @@ async function main() {
   const shotFilter = String(process.env.SHOT || "").trim();
   const shotRe = shotFilter ? new RegExp(shotFilter) : null;
   const joinOnly = process.env.JOIN_ONLY === "1";
+
+  const cityShot = movements.flatMap((m) => m.shots).find((s) => s.id === "13d-city");
+  if (cityShot && !joinOnly && !(shotRe && !shotRe.test(cityShot.id))) cityShot.hermes = nearbyThatNight();
 
   if (!joinOnly && !shotRe) fs.rmSync(FRAMES, { recursive: true, force: true });
   ensureDir(FRAMES);

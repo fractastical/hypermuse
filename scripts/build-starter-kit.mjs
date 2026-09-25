@@ -37,14 +37,22 @@ const SIZE = Math.max(64, Number(process.env.SIZE) || 360);
 const CRF = Math.max(1, Number(process.env.CRF) || 33);
 
 const ffprobe = execFileSync("bash", ["-lc", "command -v ffprobe"]).toString().trim();
-const pkg = JSON.parse(readFileSync("package.json", "utf8"));
-const show = pkg.scripts["kiosk:show"] || "";
-const url = (show.match(/"(http:\/\/[^"]+)"/) || [])[1] || "";
-if (!url) {
-  console.error("could not find the show URL in package.json scripts.kiosk:show");
+// The show is the SHOW block at the top of hypermoon.html — the ?show=1 preset
+// — rather than a query string in package.json, so the kit follows whatever the
+// page itself would come up playing.
+const SHOW_BLOCK = /const SHOW = (\{[\s\S]*?\n  \});/.exec(readFileSync("hypermoon.html", "utf8"));
+if (!SHOW_BLOCK) {
+  console.error("could not find the SHOW preset block in hypermoon.html");
   process.exit(1);
 }
-const q = new URLSearchParams(url.split("?")[1] || "");
+let show;
+try {
+  show = JSON.parse(SHOW_BLOCK[1]);
+} catch (err) {
+  console.error(`the SHOW block in hypermoon.html is not strict JSON: ${err.message}`);
+  process.exit(1);
+}
+const q = new Map(Object.entries(show).map(([k, v]) => [k, Array.isArray(v) ? v.join(",") : v]));
 
 // --- what the show asks for ------------------------------------------------
 const clips = [...new Set((q.get("backdrop") || "").split(",")
@@ -60,7 +68,7 @@ const themes = [...new Set((q.get("orbitseq") || "").split("|")
 
 console.log(`show wants ${clips.length} clip(s) and ${themes.length} gif theme(s)`);
 if (!clips.length && !themes.length) {
-  console.error("nothing to do — the show URL has no backdrop or orbitseq");
+  console.error("nothing to do — the SHOW preset has no backdrop or orbitseq");
   process.exit(1);
 }
 

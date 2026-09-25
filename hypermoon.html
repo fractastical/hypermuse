@@ -8,12 +8,61 @@
 </style>
 <script src="js/threejs.org_build_three.js"></script>
 <script src="js/stream-broadcast.js"></script>
+<!-- Both maps, the corner one and the moon's aerial, mark listings from these. -->
+<script src="js/hermes-marks.js"></script>
+<script src="js/playa-map.js"></script>
 <script src="js/hermes-overlay.js" defer></script>
 </head>
 <body>
 <script>
 (function () {
   const params = new URLSearchParams(location.search);
+
+  // ?show=1 is the whole running show — the orbit acts, the clips behind the
+  // iris, the vajras, the flashing mark — in one flag. It used to live only as
+  // a 700-character query string inside the kiosk:show npm script, which meant
+  // opening the page any other way (a plain file://, the hermes server on its
+  // own port) got a bare moon turning in front of a black hole, with no hint
+  // that the show was a parameter list you were missing. Anything named
+  // explicitly in the URL still wins, so this is a floor and not a cage.
+  //
+  // Kept as a strict JSON literal on purpose: scripts/build-starter-kit.mjs
+  // reads this block to learn which clips and gif themes the show needs small
+  // copies of, so no expressions, no trailing commas, no comments inside it.
+  const SHOW = {
+    "content": "orbit",
+    "orbitseq": "ankh|seahorse,jellyfish,seaweed|vajra|starfish|boobs|metavillan",
+    "orbitact": "150",
+    "giforbit": "8",
+    "vajras": "0",
+    "flash": "hermes/logo.png",
+    "backdrop": [
+      "assets/xfeeefeee/circle/kaleidoscope.mp4",
+      "assets/clips/circle/pranava.mp4",
+      "assets/xfeeefeee/circle/rhythm.mp4",
+      "assets/xfeeefeee/segments/shadow-blooms.mp4",
+      "assets/xfeeefeee/circle/psychedelic_v2.mp4",
+      "assets/clips/circle/pranava.mp4",
+      "assets/xfeeefeee/circle/in-my-dreamz.mp4",
+      "assets/xfeeefeee/segments/shadow-blooms.mp4",
+      "assets/xfeeefeee/circle/the-shadow-of-you.mp4",
+      "assets/xfeeefeee/circle/body-and-mind_loop.mp4",
+      "assets/butt/1.mp4",
+      "assets/clips/circle/pranava.mp4"
+    ],
+    "backfit": "0",
+    "backsec": "60",
+    "iris": "0.6",
+    "iriszoom": "1",
+    "irisr": "0.805",
+    "irisfeather": "0.253"
+  };
+  if (params.get("show") && params.get("show") !== "0") {
+    for (const [k, v] of Object.entries(SHOW)) {
+      if (!params.has(k)) params.set(k, Array.isArray(v) ? v.join(",") : v);
+    }
+  }
+
   const num = (key, fallback) => {
     const v = Number.parseFloat(params.get(key));
     return Number.isFinite(v) ? v : fallback;
@@ -96,6 +145,75 @@
   let FLASH_GAIN = Math.max(0, num("flashgain", 1));      // how hot the flash burns
   let FLASH_ON = true;                                    // put out from the keyboard
   const FLASH_FADE = Math.max(0, num("flashfade", 0.14)); // seconds of rise and fall
+  // How much of the mark is ink rather than light. Additive alone cannot make
+  // anything darker — it only ever adds — so a pale mark thrown on the lit half
+  // of the moon washes out exactly where the moon is brightest, which is the
+  // middle of it. At 1 the mark is laid on as paint and its dark parts are dark;
+  // at 0 it is the old pure glow. Between the two it reads as a solid mark with
+  // light coming off it, which is the way to be both stronger and darker at once.
+  const FLASH_INK = Math.max(0, Math.min(1, num("flashink", 0.88)));
+  // How far the artwork's own colour is pulled toward black once it is being
+  // painted rather than added. A little, not a lot: the mark has a lit rim that
+  // is most of what makes it legible, and blacking that out to make it "darker"
+  // loses the thing being darkened.
+  const FLASH_INK_DARK = Math.max(0, Math.min(1, num("flashinkdark", 0.3)));
+  // The supplied mark is a round badge on a black square with no alpha channel,
+  // which the old additive pass got away with because black adds nothing. Paint
+  // cannot: it would lay the square down as a slab. Keying on brightness instead
+  // is worse — measured on this artwork the surround is black to within 0.004 but
+  // 3% of the badge interior is that dark too, so a brightness key punches holes
+  // through the darkest strokes of the glyph, exactly where contrast is wanted.
+  // The shape is a circle, so cut a circle. Set 0 for artwork with real alpha.
+  const FLASH_CIRCLE = num("flashcircle", 1) !== 0;
+  // A dark halo just outside the mark, in units of its own radius, so it sits on
+  // the surface rather than floating in front of it — and so the badge still
+  // reads once the climb has shrunk it to a dot on a pale map.
+  const FLASH_SHADOW = Math.max(0, Math.min(1, num("flashshadow", 0.07)));
+  const FLASH_SHADOW_DARK = Math.max(0, Math.min(1, num("flashshadowdark", 0.62)));
+  // Aerial (?aerial=1): straight after the mark has held, the camera leaves the
+  // top of the art car and goes up. The mark shrinks as the ground falls away,
+  // the city resolves around it out of nothing, and what was a mark filling the
+  // moon ends as a dot with a whole plateau round it and streets you can name.
+  // The mark never stops being the same object — it is the thing that makes the
+  // two shots one shot, and it is why this is not simply a map cutting in.
+  const AERIAL_ON = params.get("aerial") !== "0";
+  const AERIAL_RISE = Math.max(0.4, num("aerialrise", 3.4));   // seconds climbing
+  const AERIAL_HOLD = Math.max(0, num("aerialhold", 5));       // seconds at altitude
+  const AERIAL_FALL = Math.max(0.1, num("aerialfall", 1.5));   // seconds fading out
+  // Metres across the disc at the bottom and top of the climb. The near end is
+  // not tighter than this on purpose: the street image carries city-scale line
+  // weights, and a single block of it enlarged to fill the moon is one white
+  // band. Under the mark at the start of the climb it is barely visible anyway.
+  const AERIAL_NEAR = Math.max(40, num("aerialnear", 460));
+  const AERIAL_FAR = Math.max(AERIAL_NEAR + 50, num("aerialfar", 3900));
+  const AERIAL_MARK = Math.max(0.01, Math.min(1, num("aerialmark", 0.11)));
+  const AERIAL_DIM = Math.max(0, Math.min(1, num("aerialdim", 0.84)));
+  // How far the camera comes off the vertical on the way up, from over the car
+  // at 0 to over the Man at 1. At 0 it is a true plumb-line ascent and the mark
+  // stays dead centre the whole way, which is honest but never quite shows where
+  // it is — the city arrives around it and slides off one edge. Leaning puts the
+  // city in frame and the mark travels out to its own place in it.
+  //
+  // At 1 it also does the thing the disc has been asking for all along: the Man
+  // ends up dead centre, so the city's rings and the moon's limb are concentric
+  // and the map stops looking pinned on at an angle. Anything less and the city
+  // is a circle whose centre is somewhere off to one side of a circle.
+  const AERIAL_FRAME = Math.max(0, Math.min(1, num("aerialframe", 1)));
+  const AERIAL_TRAIL = Math.max(0, num("aerialtrail", 6)) * 3600 * 1000;
+  // The other things on tonight, pinned where they are. Ten because that is what
+  // the server ranks and what the event bar cycles, so the pins and the bar are
+  // the same ten listings in the same order and the colours agree.
+  const AERIAL_EVENTS = Math.max(0, Math.min(10, num("aerialevents", 10)));
+  // Pin size as a fraction of the disc. Fixed in screen terms, not in metres —
+  // see the note where they are drawn.
+  const AERIAL_PIN = Math.max(0.02, Math.min(0.25, num("aerialpin", 0.072)));
+  // How far up before the pins start arriving. After the streets, so the shot
+  // reads as ground, then city, then what is happening in it.
+  const AERIAL_PINS_AT = Math.max(0, Math.min(0.95, num("aerialpinsat", 0.5)));
+  // How often the aerial feed refreshes while idle, in seconds. Kept short so
+  // the next climb is current; paused while the climb is visible so the ground
+  // does not move under the camera mid-shot.
+  const AERIAL_REFRESH_SEC = Math.max(2, num("aerialrefresh", 8));
   // Kiosk mode (?kiosk=1): hide the cursor and go fullscreen on the first
   // click/keypress (browsers require a gesture). npm run kiosk:hypermoon
   // launches Chrome in true kiosk mode with autoplay enabled.
@@ -350,12 +468,28 @@
     "letter-spacing:3px;text-transform:uppercase;display:none;z-index:5;pointer-events:none;";
   document.body.appendChild(playHint);
   let lastMoonTime = -1;
+  let moonStallChecks = 0;
   setInterval(() => {
     const v = moon.video;
     const stuck = v.readyState >= 2 && (v.paused || v.currentTime === lastMoonTime);
+    moonStallChecks = stuck ? moonStallChecks + 1 : 0;
     lastMoonTime = v.currentTime;
     playHint.style.display = (stuck && !SOLO) ? "block" : "none";
     if (stuck) v.play().catch(() => {});
+    // Some kiosk/GPU paths report "playing" but keep painting one decoded
+    // frame. If the clock has not moved for several checks, nudge the decoder;
+    // if that still fails, reload the source in place.
+    if (moonStallChecks >= 3 && !v.paused && Number.isFinite(v.currentTime)) {
+      try {
+        const span = Number.isFinite(v.duration) && v.duration > 0 ? v.duration : 0;
+        v.currentTime = span ? (v.currentTime + 0.04) % span : v.currentTime + 0.04;
+      } catch { /* seek can fail on some streams; the reload step below remains */ }
+    }
+    if (moonStallChecks >= 6) {
+      moonStallChecks = 0;
+      v.load();
+      v.play().catch(() => {});
+    }
   }, 1600);
   ["pointerdown", "keydown"].forEach((ev) => window.addEventListener(ev, () => {
     moon.video.play().catch(() => {});
@@ -404,9 +538,11 @@
   // sky, so the act grows them on the way in and shrinks them on the way out.
   const VAJRA_ACT_SCALE = Math.max(1, num("vajraactscale", 1.7));
   const vajraSprites = [];
-  // What the show runs at between acts. An orbit act named "vajra" brings every
-  // clip up for its turn and then comes back to this, so the three that garnish
-  // the gif acts and the six that hold an act of their own are the same layer.
+  // What the show runs at between acts, and zero in the show as it stands: an
+  // orbit act named "vajra" brings every clip up for its turn and then comes
+  // back to this, so the layer belongs to that act and nothing else. Raising it
+  // keeps that many turning through every other act as well, which reads as the
+  // vajras being part of the seahorses and the coral rather than their own turn.
   let VAJRA_BASE = VAJRA_COUNT;
   let vajraAim = 0;    // 1 while the vajras have the sky to themselves
   let vajraLevel = 0;  // eased; gates only the sprites the act added
@@ -655,11 +791,25 @@
   // lands on the limb and the moon reads as briefly becoming the mark.
   function makeFlashMark(src) {
     const mat = new THREE.ShaderMaterial({
-      uniforms: { map: { value: null }, uOpacity: { value: 0 }, uGain: { value: 1 } },
+      uniforms: {
+        map: { value: null },
+        uOpacity: { value: 0 },
+        uGain: { value: 1 },
+        uInk: { value: FLASH_INK },
+        uInkDark: { value: FLASH_INK_DARK },
+        uShadow: { value: FLASH_SHADOW },
+        uShadowDark: { value: FLASH_SHADOW_DARK },
+        uCircle: { value: FLASH_CIRCLE ? 1 : 0 }
+      },
       transparent: true,
       depthTest: false,
       depthWrite: false,
-      blending: THREE.AdditiveBlending,
+      // Normal rather than additive, because ink has to be able to cover. The
+      // glow is kept by adding it inside the shader on top of the paint, so one
+      // pass still does both and the mark is a single object that can be moved
+      // and shrunk as one thing.
+      blending: THREE.NormalBlending,
+      premultipliedAlpha: true,
       vertexShader: `
         varying vec2 vUv;
         void main() {
@@ -667,21 +817,42 @@
           gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
         }
       `,
-      // Premultiplied against a solid alpha: additive takes the colour and
-      // ignores what it was drawn on, so a mark with an alpha channel and a
-      // mark on a black plate both arrive the same way.
+      // Output is premultiplied: rgb already carries its own alpha, which is what
+      // lets paint and glow be summed in one colour without the glow being dimmed
+      // by the coverage of the paint underneath it.
       fragmentShader: `
         uniform sampler2D map;
-        uniform float uOpacity, uGain;
+        uniform float uOpacity, uGain, uInk, uInkDark, uShadow, uShadowDark, uCircle;
         varying vec2 vUv;
         void main() {
           vec4 c = texture2D(map, vUv);
-          gl_FragColor = vec4(c.rgb * c.a * uOpacity * uGain, 1.0);
+          // Distance from the middle in units of the mark's radius: 1 is the rim
+          // of a round badge, and the corners of the square reach 1.41.
+          float d = length(vUv - 0.5) * 2.0;
+          float shape = uCircle > 0.5
+            ? 1.0 - smoothstep(0.985, 1.0, d)
+            : c.a;
+          // The halo lives in the ring beyond the rim, which is inside the square
+          // the texture occupies, so it can be drawn without a bigger quad.
+          float halo = uShadow > 0.0
+            ? (1.0 - smoothstep(1.0, 1.0 + uShadow, d)) * (1.0 - shape)
+            : 0.0;
+          float cover = clamp(shape * uInk + halo * uShadowDark, 0.0, 1.0) * uOpacity;
+          // Paint, deepened. Under the halo there is nothing to deepen, so the
+          // halo simply is the darkening — hence mixing the paint away there.
+          vec3 paint = mix(c.rgb * (1.0 - uInkDark), vec3(0.0), halo);
+          // What is left of the old additive pass, so the mark still throws some
+          // light rather than being a flat sticker. Added outside the coverage,
+          // which is what keeps it from being dimmed by its own paint.
+          vec3 glow = c.rgb * shape * uOpacity * uGain * (1.0 - uInk) * 1.4;
+          gl_FragColor = vec4(paint * cover + glow, cover);
         }
       `
     });
     const mesh = new THREE.Mesh(new THREE.PlaneGeometry(1, 1), mat);
-    mesh.renderOrder = 3; // over the moon quad and the orbiting sprites
+    // Above the aerial ground at 3 as well as the moon and the sprites, because
+    // the mark has to stay on top of the city it is rising away from.
+    mesh.renderOrder = 4;
     mesh.visible = false;
     scene.add(mesh);
     const mark = { mesh, mat, aspect: 1, ready: false };
@@ -696,27 +867,195 @@
     return mark;
   }
 
+  // --- The climb -----------------------------------------------------------
+  // A canvas of the city, on a quad cut to the disc, under the mark. Only ever
+  // redrawn while the camera is actually moving, which is a few seconds a minute.
+  function makeAerial() {
+    const canvas = document.createElement("canvas");
+    canvas.width = canvas.height = 1024;
+    const ctx = canvas.getContext("2d");
+    const tex = new THREE.CanvasTexture(canvas);
+    tex.minFilter = THREE.LinearFilter;
+    tex.magFilter = THREE.LinearFilter;
+    const mat = new THREE.ShaderMaterial({
+      uniforms: { map: { value: tex }, uOpacity: { value: 0 } },
+      transparent: true,
+      depthTest: false,
+      depthWrite: false,
+      blending: THREE.NormalBlending,
+      premultipliedAlpha: true,
+      vertexShader: `
+        varying vec2 vUv;
+        void main() {
+          vUv = uv;
+          gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+        }
+      `,
+      fragmentShader: `
+        uniform sampler2D map;
+        uniform float uOpacity;
+        varying vec2 vUv;
+        void main() {
+          vec4 c = texture2D(map, vUv);
+          gl_FragColor = vec4(c.rgb * uOpacity, c.a * uOpacity);
+        }
+      `
+    });
+    const mesh = new THREE.Mesh(new THREE.PlaneGeometry(1, 1), mat);
+    // Under the mark, over everything else on the disc: the whole point is that
+    // the mark stays on top of the ground it is rising away from.
+    mesh.renderOrder = 3;
+    mesh.visible = false;
+    scene.add(mesh);
+
+    const air = {
+      mesh, mat, ctx, tex, map: null, fix: null, trail: [], events: [],
+      far: AERIAL_FAR,
+      prefetchCycle: -1
+    };
+
+    // Keep aerial and corner map on one truth source. If one reads local :8124
+    // and the other reads same-origin (tunnel/proxy), they can drift apart.
+    // Resolve the backend the same way as the overlay: prefer :8124, then this
+    // origin, with ?hermesapi= to pin either.
+    if (window.PlayaMap) {
+      window.PlayaMap.load().then((map) => { air.map = map; air.far = fitSpan(air); })
+        .catch((err) => console.warn("[aerial] no city map:", err.message));
+    }
+    const API_PORT = 8124;
+    const API_FALLBACK = `${location.protocol}//${location.hostname}:${API_PORT}`;
+    const API_PINNED = params.get("hermesapi");
+    let apiBase = API_PINNED || "";
+    let apiResolved = API_PINNED != null;
+    const candidateBases = () => apiResolved ? [apiBase] : [API_FALLBACK, ""];
+    async function grab(path) {
+      let err = null;
+      for (const base of candidateBases()) {
+        try {
+          const resp = await fetch(base + path, { cache: "no-store" });
+          if (!resp.ok) throw new Error(`${resp.status} ${resp.statusText}`);
+          const body = await resp.json();
+          apiBase = base;
+          apiResolved = true;
+          return body;
+        } catch (e) {
+          err = e;
+        }
+      }
+      throw err || new Error("no api source");
+    }
+    const applyHermesState = (s) => {
+      if (!s || typeof s !== "object") return false;
+      if (!(s.fix && Number.isFinite(Number(s.fix.lat)) && Number.isFinite(Number(s.fix.lon)))) return false;
+      air.fix = { lat: Number(s.fix.lat), lon: Number(s.fix.lon) };
+      // Same ranked listings/order as overlay corner map.
+      const acts = (Array.isArray(s.activities) ? s.activities : [])
+        .map((event, index) => ({ event, index }))
+        .filter(({ event }) => Number.isFinite(Number(event.lat)) &&
+          Number.isFinite(Number(event.lon)));
+      air.events = acts.slice(0, AERIAL_EVENTS);
+      air.far = fitSpan(air);
+      return true;
+    };
+    const refreshTrail = () => {
+      if (AERIAL_TRAIL <= 0) return;
+      grab(`/api/hermes/track?minutes=${Math.round(AERIAL_TRAIL / 60000)}`)
+        .then((d) => {
+          const pts = (d && (d.points || d.track)) || [];
+          air.trail = pts.filter((p) => Number.isFinite(Number(p.lat)))
+            .map((p) => ({ lat: Number(p.lat), lon: Number(p.lon) }));
+        }).catch(() => {});
+    };
+    const findGround = () => {
+      // If overlay already has live state, use that first so both maps are
+      // frame-identical.
+      if (applyHermesState(window.__hermesState)) {
+        refreshTrail();
+        return;
+      }
+      grab("/api/hermes/state").then((s) => {
+        applyHermesState(s);
+      }).catch(() => {});
+      refreshTrail();
+    };
+    air.refresh = findGround;
+    findGround();
+    window.addEventListener("hermes-state", (ev) => {
+      const s = ev && ev.detail ? ev.detail : null;
+      applyHermesState(s);
+    });
+    // Keep it fresh continuously so the moon map and corner map agree.
+    setInterval(findGround, AERIAL_REFRESH_SEC * 1000);
+    return air;
+  }
+
   // Rise, hold, fall, then nothing until the next period comes round. The
   // cycle is taken off the show clock rather than counted between frames, so
   // an hour in it is still landing on the minute.
+  //
+  // With the aerial on, the mark's fall is replaced by the climb: the mark holds
+  // at full size, then shrinks as the city comes up under it, holds again as a
+  // dot on the plateau, and only then goes out. So one clock drives both.
   function updateFlash(t) {
     if (!flashMark) return;
     if (!FLASH_ON) {
       flashMark.mat.uniforms.uOpacity.value = 0;
       flashMark.mesh.visible = false;
+      if (aerial) { aerial.mesh.visible = false; aerial.mat.uniforms.uOpacity.value = 0; }
       return;
     }
-    const span = FLASH_HOLD + FLASH_FADE * 2;
-    const u = t % Math.max(span, FLASH_SEC);
-    const level = u >= span ? 0
-      : FLASH_FADE <= 0 ? 1
-      : Math.max(0, Math.min(1, Math.min(u, span - u) / FLASH_FADE));
-    // Set before the visibility bail-out, or a hidden mark keeps reporting
-    // whatever strength it was at when it went out.
+    const climbing = AERIAL_ON && aerial && aerial.map && aerial.fix;
+    const markSpan = FLASH_HOLD + FLASH_FADE * 2;
+    const span = climbing
+      ? FLASH_FADE + FLASH_HOLD + AERIAL_RISE + AERIAL_HOLD + AERIAL_FALL
+      : markSpan;
+    const u = (t - flashAt) % Math.max(span, FLASH_SEC);
+
+    // How far up, 0 on the ground and 1 at altitude, and how much mark is left.
+    let level;
+    let climb = 0;
+    if (climbing && aerialHold != null) {
+      // Parked partway up. The loop keeps running — the moon still turns, the
+      // sprites still orbit — but the camera stays at the altitude it was put at,
+      // which is what makes a shot of it reproducible.
+      level = 1;
+      climb = aerialHold;
+    } else if (!climbing) {
+      level = u >= span ? 0
+        : FLASH_FADE <= 0 ? 1
+        : Math.max(0, Math.min(1, Math.min(u, span - u) / FLASH_FADE));
+    } else if (u >= span) {
+      level = 0;
+    } else if (u < FLASH_FADE) {
+      level = FLASH_FADE <= 0 ? 1 : u / FLASH_FADE;
+    } else if (u < FLASH_FADE + FLASH_HOLD) {
+      level = 1;
+    } else if (u < FLASH_FADE + FLASH_HOLD + AERIAL_RISE) {
+      level = 1;
+      climb = (u - FLASH_FADE - FLASH_HOLD) / AERIAL_RISE;
+    } else if (u < span - AERIAL_FALL) {
+      level = 1;
+      climb = 1;
+    } else {
+      level = Math.max(0, (span - u) / AERIAL_FALL);
+      climb = 1;
+    }
+
+    // Pull a fresh state right before each climb starts, so the zoom view and
+    // top bar agree on "what's on now" even when flashsec is long.
+    if (climbing && aerial && typeof aerial.refresh === "function") {
+      const cycle = Math.floor((t - flashAt) / Math.max(span, FLASH_SEC));
+      const prefetchAt = FLASH_FADE + Math.max(0.2, Math.min(1.2, FLASH_HOLD * 0.5));
+      if (u >= prefetchAt && aerial.prefetchCycle !== cycle) {
+        aerial.prefetchCycle = cycle;
+        aerial.refresh();
+      }
+    }
+
     flashMark.mat.uniforms.uOpacity.value = level;
     flashMark.mat.uniforms.uGain.value = FLASH_GAIN;
     flashMark.mesh.visible = flashMark.ready && level > 0.002;
-    if (!flashMark.mesh.visible) return;
+
     // Frame-height units -> world units, the same conversion the vajra lanes
     // and the gif orbiters make.
     const fhX = 2 * quad.scale.x * (9 / 16);
@@ -724,9 +1063,215 @@
     const dv = uniforms.uDisc.value; // disc centre (uv) + radius (frame heights)
     const cx = (dv.x * 2 - 1) * quad.scale.x + quad.position.x;
     const cy = (dv.y * 2 - 1) * quad.scale.y + quad.position.y;
-    const s = 2 * dv.z * FLASH_SCALE;
-    flashMark.mesh.position.set(cx, cy, 0);
+
+    let markScale = FLASH_SCALE;
+    let offX = 0;
+    let offY = 0;
+    if (climbing) {
+      const shown = drawAerial(climb, level);
+      markScale = FLASH_SCALE + (AERIAL_MARK - FLASH_SCALE) * ease(climb);
+      // The mark rides the ground rather than the frame: its offset comes out of
+      // the same view the city was drawn with, so it stays over its own spot as
+      // the camera leans off the vertical and the streets slide under it.
+      if (shown) {
+        // shown is in units of the disc radius. The mesh carrying the city spans
+        // the disc diameter, 2 * dv.z frame-heights, across 1024 canvas pixels —
+        // so one radius of canvas is dv.z of those, not two. Doubling it here put
+        // the badge off its own reticle by a visible margin.
+        offX = shown.x * dv.z * fhX;
+        offY = -shown.y * dv.z * fhY;
+      }
+    } else if (aerial) {
+      aerial.mesh.visible = false;
+      aerial.mat.uniforms.uOpacity.value = 0;
+    }
+
+    aerialNow.climb = +climb.toFixed(4);
+    aerialNow.mark = +markScale.toFixed(4);
+    aerialNow.opacity = aerial ? +aerial.mat.uniforms.uOpacity.value.toFixed(4) : 0;
+    aerialNow.visible = !!(aerial && aerial.mesh.visible);
+    aerialNow.spanM = climbing
+      ? Math.round(AERIAL_NEAR * Math.pow(aerial.far / AERIAL_NEAR, ease(climb)))
+      : 0;
+
+    if (!flashMark.mesh.visible) return;
+    const s = 2 * dv.z * markScale;
+    flashMark.mesh.position.set(cx + offX, cy + offY, 0);
     flashMark.mesh.scale.set(s * flashMark.aspect * fhX, s * fhY, 1);
+  }
+
+  // Set to 0..1 to park the climb there, null to give it back to the clock.
+  let aerialHold = null;
+  // Show-time the current flash period started from. Moved forward to fire the
+  // mark and the climb on demand instead of waiting out the rest of the minute.
+  let flashAt = 0;
+
+  // The g key: go up now. Says why not, when not, because the two things it
+  // needs both come over the network and "nothing happened" is a bad answer to
+  // be given in front of a crowd.
+  function flyAerial() {
+    if (!flashMark) return "no mark in this show";
+    if (!FLASH_ON) return "the mark is out — f puts it back";
+    if (!AERIAL_ON) return "the climb is off in this show";
+    if (!aerial || !aerial.map) return "no city map loaded";
+    if (!aerial.fix) return "no fix yet — nowhere to say we are";
+    aerialHold = null;
+    flashAt = prevT;
+    return "going up";
+  }
+  // What the climb is doing right now, for checks and for the hot key readout.
+  // Kept as a plain record updated in place rather than recomputed on read, so
+  // asking cannot itself advance anything.
+  const aerialNow = { climb: 0, spanM: 0, opacity: 0, mark: 1, visible: false };
+
+  // How far from the middle of the canvas a pin can sit and still be wholly on
+  // the readable part of the disc: inside the mask's feather, and far enough in
+  // that the pin's own body clears the limb too.
+  function pinRoom() {
+    return 512 * 0.86 - 1024 * AERIAL_PIN * 0.5;
+  }
+
+  // The top of the climb, set by what has to be in shot rather than by a number
+  // picked in advance. The whole point of going up is to show what else is on
+  // out there, so a listing that ends up past the limb is the shot failing at
+  // its job — and how far out the night's listings happen to be is not something
+  // a default can know. Capped, because one listing geocoded to the wrong side
+  // of the playa should not pull the camera back until the city is a smudge.
+  function fitSpan(air) {
+    if (!air || !air.map || !air.fix) return AERIAL_FAR;
+    const map = air.map;
+    const ground = map.at(air.fix.lat, air.fix.lon);
+    // Where the camera is looking at the top of the climb, which is where the
+    // framing has to work — see the lean in drawAerial.
+    const centre = {
+      x: ground.x + (map.man.x - ground.x) * AERIAL_FRAME,
+      y: ground.y + (map.man.y - ground.y) * AERIAL_FRAME
+    };
+    const room = pinRoom();
+    let need = AERIAL_FAR;
+    // The mark is in this list because at full lean the camera stops following
+    // it: parked over the Man, it is the city that is guaranteed to be in shot
+    // and the car that can walk out of it. A shot framed so beautifully that it
+    // has lost the one dot the whole thing is about is the other way to fail.
+    const inShot = [ground, ...air.events.map(({ event }) =>
+      map.at(Number(event.lat), Number(event.lon)))];
+    for (const p of inShot) {
+      const away = Math.hypot(p.x - centre.x, p.y - centre.y);
+      // A point `away` image-pixels out lands at away * 1024 / (span * pxPerMetre)
+      // canvas pixels from the middle. Solve that for the span that puts it on
+      // the edge of the room available.
+      need = Math.max(need, (away * 1024) / (map.pxPerMetre * room));
+    }
+    return Math.min(need, AERIAL_FAR * 2.2);
+  }
+
+  // Smooth at both ends, so the camera does not jerk off the roof or slam into
+  // the ceiling. The zoom itself is geometric, below, which is a separate thing.
+  function ease(x) {
+    return x < 0.5 ? 2 * x * x : 1 - Math.pow(-2 * x + 2, 2) / 2;
+  }
+
+  // One frame of the climb. Returns where the mark's own ground is, as a fraction
+  // of the disc radius from its centre, or null if there is nothing to draw.
+  function drawAerial(climb, level) {
+    if (!aerial || !aerial.map || !aerial.fix) return null;
+    const map = aerial.map;
+    const e = ease(climb);
+    // Geometric, not linear: altitude that doubles at a steady rate is what an
+    // ascent looks like. Interpolating the span straight would spend most of the
+    // climb crawling across the last few hundred metres of the city.
+    const spanM = AERIAL_NEAR * Math.pow(aerial.far / AERIAL_NEAR, e);
+    const ground = map.at(aerial.fix.lat, aerial.fix.lon);
+    // The lean: at the bottom the camera is directly over the car, at the top it
+    // has drifted toward framing the city by however much aerialframe allows.
+    const lean = AERIAL_FRAME * e;
+    const centre = {
+      x: ground.x + (map.man.x - ground.x) * lean,
+      y: ground.y + (map.man.y - ground.y) * lean
+    };
+    // The city arrives as the ground falls away rather than being there from the
+    // first frame, so the shot starts on the mark alone and the map is something
+    // that happens. Fully up by the time there is enough altitude to read it.
+    const cityIn = Math.max(0, Math.min(1, climb / 0.45));
+    const view = map.draw(aerial.ctx, {
+      lat: aerial.fix.lat,
+      lon: aerial.fix.lon,
+      centre,
+      spanM,
+      dim: AERIAL_DIM * cityIn * level,
+      cityAlpha: 0.94 * cityIn,
+      trail: climb > 0.5 ? aerial.trail : null,
+      trailWidth: 10,
+      // A reticle around the badge rather than under it. The canvas is the disc's
+      // bounding square, so a mark of aerialmark disc-diameters has a radius of
+      // half that in canvas pixels — and the ring wants to sit just outside it,
+      // close enough to read as the badge's own ring rather than as a circle
+      // drawn on the city that happens to have the badge inside it.
+      ring: climb > 0.72
+        ? {
+          r: 1024 * AERIAL_MARK * 0.5 * 1.28,
+          alpha: Math.min(1, (climb - 0.72) / 0.2) * 0.9
+        }
+        : null
+    });
+    // What else is on, out there, tonight. Held back until there is enough
+    // altitude for the city to have arrived — pins over a blank plateau are just
+    // floating badges — and drawn at a fixed size in canvas pixels rather than
+    // scaled with the zoom, because a map pin is a label on the map, not a thing
+    // lying on the ground that gets smaller as you climb away from it.
+    const pinsIn = Math.max(0, Math.min(1, (climb - AERIAL_PINS_AT) / 0.22));
+    if (pinsIn > 0 && aerial.events.length) {
+      const size = 1024 * AERIAL_PIN;
+      const placed = aerial.events.map(({ event, index }) => ({
+        at: view.toCanvas(map.at(Number(event.lat), Number(event.lon))),
+        event,
+        mark: marks.marker(event, index)
+      }));
+      // Only what is actually over the disc, with a margin so a pin does not pop
+      // in at the limb as the city slides under the camera.
+      // Inside the unfeathered part of the disc mask, which has already run by
+      // now: a pin drawn past it would sit at full strength on a map that is
+      // fading out under it, and read as stuck to the glass. At the top of the
+      // climb fitSpan has already chosen an altitude that puts them all inside
+      // this, so on a normal night nothing is actually dropped here.
+      const near = placed.filter((p) => Math.hypot(p.at.x - 512, p.at.y - 512) < pinRoom());
+      // The badge is sitting on this map too, and it is sitting exactly where the
+      // nearest listings are — being next to them is why they are ranked first.
+      // So pins under it are pushed straight out from it until they clear: the
+      // badge is the hero and must not end up hiding the very things the climb
+      // went up to show.
+      const hub = view.toCanvas(map.at(aerial.fix.lat, aerial.fix.lon));
+      const clear = 1024 * AERIAL_MARK * 0.5 * 1.28 + size * 0.6;
+      for (const p of marks.fan(near, size)) {
+        const dx = p.at.x - hub.x;
+        const dy = p.at.y - hub.y;
+        const d = Math.hypot(dx, dy);
+        if (d < clear) {
+          // Dead centre has no direction to be pushed in, so pick one.
+          const a = d > 0.01 ? Math.atan2(dy, dx) : -Math.PI / 2;
+          p.at = { x: hub.x + Math.cos(a) * clear, y: hub.y + Math.sin(a) * clear };
+        }
+        marks.drawPin(aerial.ctx, p.at, p.mark, p.event, size, pinsIn * level);
+      }
+    }
+    aerial.tex.needsUpdate = true;
+    aerial.mat.uniforms.uOpacity.value = cityIn * level;
+    aerial.mesh.visible = cityIn * level > 0.004;
+    const dv = uniforms.uDisc.value;
+    const fhX = 2 * quad.scale.x * (9 / 16);
+    const fhY = 2 * quad.scale.y;
+    const cx = (dv.x * 2 - 1) * quad.scale.x + quad.position.x;
+    const cy = (dv.y * 2 - 1) * quad.scale.y + quad.position.y;
+    const s = 2 * dv.z;
+    aerial.mesh.position.set(cx, cy, 0);
+    aerial.mesh.scale.set(s * fhX, s * fhY, 1);
+    // Canvas pixels to fractions of the disc radius: the canvas is the disc's
+    // bounding square, so half its width is one radius.
+    const here = view.toCanvas(view.at(aerial.fix.lat, aerial.fix.lon));
+    return {
+      x: (here.x - 512) / 512,
+      y: (here.y - 512) / 512
+    };
   }
 
   // Image slideshow: preload all, swap the content texture on a timer.
@@ -1061,36 +1606,156 @@
   const GIF_ORBIT_R = num("giforbitradius", 1.2);   // 1 = skimming the limb
   const GIF_ORBIT_SCALE = num("giforbitscale", 0.12); // frame-height units
   // The flower, on a mark act: every mandsec the sprites leave their lanes,
-  // gather over mandmove into a ring of petals at equal angles round the moon,
+  // gather over mandmove into rings of petals at equal angles round the moon,
   // turn there for mandhold, and scatter back. Each petal is turned to point out
-  // of the ring, so the mark's own V is the petal — which is why this is worth
-  // doing to a monogram and not to a dancing GeoCities banner.
+  // of its ring, so the mark's own V is the petal — which is why this is worth
+  // doing to a monogram and not to a dancing GeoCities banner. Several rings of
+  // them, arriving inside out, is the long form of the same thing: see mandrings.
   const MAND_SEC = Math.max(0, num("mandsec", 12));    // orbiting before it forms
   const MAND_HOLD = Math.max(0, num("mandhold", 30));  // held as a flower
   const MAND_MOVE = Math.max(0.2, num("mandmove", 3)); // gather / scatter
+  // Rings of the rosette, from mandr0 innermost out to mandr. One ring is the
+  // single flower this began as; three is a mandala, which is what a couple of
+  // dozen marks are for. Each ring is filled in proportion to its radius so the
+  // arc between petals comes out about equal on all of them, and each turns a
+  // little faster than the one outside it — in the opposite direction unless
+  // mandcounter=0, which is what keeps a mandala from reading as a wheel.
+  const MAND_RINGS = Math.max(1, Math.min(6, Math.round(num("mandrings", 3))));
   // Just over 1 sets the ring outside the limb, where the moon reads as the
   // heart of the flower and the petals as attached to it. Under 1 puts them on
   // the face instead, a seal rather than a flower — 0.58 for the tight mandala.
-  const MAND_R = Math.max(0, num("mandr", 1.16));      // ring radius, in disc radii
-  const MAND_SPIN = num("mandspin", 0.22);             // radians/sec of the whole ring
-  const MAND_SCALE = Math.max(0.1, num("mandscale", 1.5)); // petal size against a lane sprite
+  // Several rings want smaller petals than one does, or they overlap into a
+  // thicket and stop reading as rings; what they cannot have is more room, and
+  // that is the ceiling on all of this. The disc measures about 0.35 frame
+  // heights, so a ring at 1.2 of it plus half a petal is the whole of the half
+  // frame there is, and a wider mandala is one with its top and bottom marks cut
+  // off by the edge of the screen — which is invisible in a tall browser window,
+  // where the show is letterboxed and there is black to spare, and unmissable on
+  // the 16:9 it is projected on.
+  const MAND_R = Math.max(0, num("mandr", MAND_RINGS > 1 ? 1.2 : 1.16));
+  const MAND_R0 = Math.max(0.15, num("mandr0", 0.5)); // innermost ring
+  const MAND_SPIN = num("mandspin", 0.22);             // radians/sec of the outermost ring
+  const MAND_SCALE = Math.max(0.1, num("mandscale", MAND_RINGS > 1 ? 1.1 : 1.5)); // petal size against a lane sprite
+  // How many marks fly during a mark act, as against giforbit for a gif act. A
+  // rosette of several rings wants several dozen monograms and eight is one ring,
+  // so the extra lanes are built up front and only shown while the marks are up —
+  // the same way the vajra act brings its extra dorjes in and takes them away.
+  const MARK_ORBIT = Math.max(0, Math.min(36, Math.round(num("markorbit", MAND_RINGS > 1 ? 27 : 8))));
+  const MARK_IN = Math.max(0.2, num("markin", 2.5));   // extra lanes fading in
+  // Seconds between one ring starting to gather and the next. The rings arrive
+  // inside out and fall away outside in, so the rosette is built and dismantled
+  // rather than switched on: with three rings there is a good five seconds of
+  // monograms swinging into place.
+  const MAND_STAGGER = Math.max(0, num("mandstagger", 1.1));
+  const MAND_COUNTER = num("mandcounter", 1) !== 0;
+  // Petals dealt in groups of this rather than one at a time, so every ring
+  // divides by the same number and the rosette has axes the eye can find. Counts
+  // straight off the radii came out 5, 9 and 13 — three primes sharing no
+  // symmetry, which is three unrelated necklaces and not a mandala. The same
+  // twenty-seven marks as 6, 9 and 12 have three axes. 1 turns it off.
+  const MAND_SYM = Math.max(1, Math.min(12, Math.round(num("mandsym", 3))));
   // The marks run through the hues as they go, each petal a step further round
   // the colour wheel than the last, so the flower is a spectrum that turns as
   // well as a ring that does. Rate in radians/sec; markhue=0 leaves the
   // collected colourways alone.
   const MARK_HUE = num("markhue", 0.3);
-  const MARK_HUE_SPREAD = num("markhuespread", 1);     // 1 = spread evenly round the ring
+  // 1 sweeps the whole colour wheel round each ring, which is the rainbow the
+  // single flower is. On a rosette it undoes the colourway a ring is dealt — a
+  // ring cannot read as one colour while every petal on it is a different one —
+  // so several rings take a narrow band instead: a sheen round the ring, and the
+  // colour itself carried by the artwork and turned as a whole by markhue.
+  const MARK_HUE_SPREAD = num("markhuespread", MAND_RINGS > 1 ? 0.12 : 1);
+  // How far apart the rings sit on the colour wheel. Left alone they spread evenly
+  // round it, so three rings land on a triad and each is told from the one inside
+  // it by colour as well as by radius. This was a flat 0.7 radians, which is forty
+  // degrees: enough to keep two rings from matching exactly, not enough to read as
+  // a decision.
+  const MARK_RING_HUE = params.has("markringhue") ? num("markringhue", 0) : null;
+  // One colourway for the whole rosette, or a different one per ring. On unless
+  // there is only one ring, where there is nothing to tell apart and the collected
+  // colourways are the variety the flower has.
+  const MARK_ONE = num("markone", MAND_RINGS > 1 ? 1 : 0) !== 0;
+  // Black and white on the way in, colour let across the petals once the rosette
+  // has formed. A monogram is a shape before it is a colourway, and the shape
+  // reads hardest with nothing else in it — so the flock orbits and gathers in
+  // grey, and the colour becomes something that happens to a finished thing
+  // rather than a property it was already wearing on the way past.
+  const MARK_MONO = num("markmono", 1) !== 0;
+  // Seconds for the colour front to cross the whole rosette. Wants to fit inside
+  // mandhold with room to spare, or the flower comes apart mid-bloom.
+  const MARK_BLOOM = Math.max(0.3, num("markbloom", 8));
+  // Width of the front as a fraction of the sweep, so a good handful of petals
+  // are part-way coloured at once. A hard edge is a wipe; this is a fade that
+  // travels. Wide enough here that it crosses a ring boundary, or three rings
+  // light one after another and read as three events rather than one bloom.
+  const MARK_BLOOM_EDGE = Math.max(0.02, Math.min(1, num("markbloomedge", 0.6)));
+  // Once everything is lit, a shallow desaturation still going round, so a held
+  // flower keeps moving instead of arriving at flat colour and stopping there.
+  const MARK_WAVE = Math.max(0, Math.min(1, num("markwave", 0.22)));
+  const MARK_WAVE_SEC = Math.max(0.5, num("markwavesec", 7));
+  // How much of the front's travel is rotation rather than expansion. At 0 the
+  // colour arrives ring by ring: three rings, three concentric events, and no
+  // sense of anything crossing the petals. Turning the front as it expands makes
+  // one spiral arm sweeping out through the flower, which is a single thing
+  // happening rather than three, and puts petals of every ring mid-fade at once.
+  const MARK_BLOOM_SPIN = Math.max(0, Math.min(4, num("markbloomspin", 1)));
   // Which way each V faces. What makes petals is pointing away from whatever the
   // ring is arranged around, and that depends on where the ring is: outside the
   // limb the moon is already the heart of the flower, so the marks point out of
   // it and radiate. A ring on the face has no centre until the marks make one,
-  // so there they point in and their tips close on a void. Same eight marks,
-  // and getting this backwards is the difference between a flower and eight
-  // darts that happen to be aimed at the same rock — hence a default that
-  // follows the radius rather than a constant.
-  const MAND_AIM = params.has("mandaim")
-    ? (num("mandaim", 1) < 0 ? -1 : 1)
-    : (MAND_R >= 1 ? 1 : -1);
+  // so there they point in and their tips close on a void. Getting this backwards
+  // is the difference between a flower and a dozen darts that happen to be aimed
+  // at the same rock, and with three rings the answer differs between them —
+  // hence a decision made per ring by its radius. 0 here means nothing was asked
+  // for; an explicit mandaim overrides the lot.
+  const MAND_AIM_SET = params.has("mandaim") ? (num("mandaim", 1) < 0 ? -1 : 1) : 0;
+
+  // The rosette's rings: how big each one is, how many marks sit on it, how fast
+  // and which way it turns, which way its petals point, how large they are, and
+  // how far round it is offset. Worked out once from the number of marks flying —
+  // it is the same every time the formation happens.
+  function mandalaRings(count) {
+    const marks = Math.max(1, count || 1);
+    // The symmetry has to fit what is flying: fewer marks than one group means
+    // dealing them singly, and a ring per group at the most.
+    const sym = Math.max(1, Math.min(MAND_SYM, marks));
+    const groups = Math.max(1, Math.floor(marks / sym));
+    const rings = Math.max(1, Math.min(MAND_RINGS, groups));
+    const radii = Array.from({ length: rings }, (_, k) =>
+      rings === 1 ? MAND_R : MAND_R0 + (MAND_R - MAND_R0) * (k / (rings - 1)));
+    // Proportional to radius, so the gap between petals is roughly equal on every
+    // ring. An inner ring given as many marks as an outer one is a solid band.
+    // Shared out as groups, which is what keeps the rings on common axes.
+    const total = radii.reduce((sum, r) => sum + r, 0) || 1;
+    const counts = radii.map((r) => Math.max(1, Math.round((groups * r) / total)));
+    // Rounding never lands on the total, and the remainder has to go somewhere.
+    let drift = groups - counts.reduce((sum, n) => sum + n, 0);
+    while (drift > 0) { counts[counts.length - 1]++; drift--; }
+    for (let k = counts.length - 1; drift < 0 && k >= 0; k--) {
+      const take = Math.min(-drift, counts[k] - 1);
+      counts[k] -= take;
+      drift += take;
+    }
+    // Groups back to petals. Marks that did not divide evenly go to the outermost
+    // ring, where one extra in the largest count is what shows least — and with a
+    // markorbit that is a multiple of mandsym there are none.
+    for (let k = 0; k < counts.length; k++) counts[k] *= sym;
+    counts[counts.length - 1] += marks - counts.reduce((sum, n) => sum + n, 0);
+    return radii.map((r, k) => ({
+      r,
+      count: counts[k],
+      // Equal linear speed would be 1/r and sends the inner ring spinning; the
+      // square root keeps the inner rings livelier without making them a blur.
+      spin: MAND_SPIN * Math.sqrt(MAND_R / Math.max(0.05, r)) * (MAND_COUNTER && k % 2 ? -1 : 1),
+      aim: MAND_AIM_SET || (r >= 1 ? 1 : -1),
+      // Petals grow with the ring they are on: one size for all of them crowds
+      // the inner rings and leaves the outer one looking sparse.
+      scale: MAND_SCALE * (0.62 + 0.38 * (r / Math.max(0.05, MAND_R))),
+      // Alternate rings are turned half a gap, so petals interleave with the ring
+      // inside them rather than lining up into spokes.
+      turn: (k % 2) * (Math.PI / Math.max(1, counts[k]))
+    }));
+  }
   // Laps an orbiter keeps its gif for before taking another out of the pool
   // (0 = it keeps whatever it was dealt for the whole act). The change is made
   // at the deepest point behind the moon, where the sprite is inside the
@@ -1108,6 +1773,16 @@
     .split("|").map((s) => s.trim().toLowerCase()).filter(Boolean);
   const ORBIT_ACT = Math.max(4, num("orbitact", 150));
   const ORBIT_FADE = Math.max(0.1, num("orbitfade", 1.2));
+  // Optional orbiting banner (ufo + towed text), blinking in for a short
+  // window every so often.
+  const UFO_TEXT = String(params.get("ufotext") || "don't worry your dick is shinking").trim();
+  const UFO_EVERY = Math.max(20, num("ufoevery", 95));
+  const UFO_FOR = Math.max(4, Math.min(UFO_EVERY - 2, num("ufodur", 16)));
+  const UFO_BLINK = Math.max(0.08, num("ufoblink", 0.34));
+  const UFO_SPEED = num("ufospeed", 0.33);
+  const UFO_ORBIT_R = Math.max(1.02, num("ufoorbitr", 1.54));
+  const UFO_DEFAULT_ON = params.get("ufo") !== "0";
+  const UFO_TEXT_PX = Math.max(56, Math.min(220, num("ufosize", 124)));
   // "vajra" is a reserved act name rather than a theme: the sky goes to the
   // dorje loops that garnish the other acts, all six of them and nothing else,
   // so the sequence can put a turn of the spinning brass between two turns of
@@ -1120,6 +1795,32 @@
   // marks leave their lanes, gather into a rosette on the disc, and scatter.
   const isMarkAct = (spec) => /^(metavillan|mv)$/.test(String(spec || "").trim());
   const MARK_INDEX = "assets/metavillan/index.json";
+  // Themes that form a rosette as well as the marks do. The gather is not
+  // really about monograms — it is about taking a flock of small things and
+  // finding an order in it — and a coral is as good a petal as a V, arguably
+  // better, because the fan of a petal is already in the shape of it.
+  //
+  // One thing does not carry over. A monogram is a shape wearing a colourway,
+  // so turning its hue costs nothing and gains a spectrum; a coral is a
+  // photograph of a colour, and turning that makes it a plastic coral. So a
+  // theme rosette keeps markhue out of it and blooms from grey into the colours
+  // the artwork already had, which is the whole effect and none of the damage.
+  const MAND_ACTS = new Set((params.get("mandacts") || "coral")
+    .split(",").map((s) => s.trim().toLowerCase()).filter(Boolean));
+  // An act is a list of themes ("coral,starfish"), and any one of them naming a
+  // rosette theme is enough: the flock is drawn from the act as a whole and
+  // there is no sensible way to gather half of it.
+  const isThemeRosette = (spec) => !!spec && String(spec).split(",")
+    .some((name) => MAND_ACTS.has(name.trim().toLowerCase()));
+  const isRosetteAct = (spec) => isMarkAct(spec) || isThemeRosette(spec);
+  // How grey grey is before the bloom, per kind of petal. Zero is the
+  // monogram's own answer and the right one: a V reads perfectly with no colour
+  // in it at all, which is the point of draining it. A coral does not — stripped
+  // completely it stops being a coral and spends its whole orbit as a grey
+  // smudge, which reads as a fault rather than as restraint. A floor leaves it
+  // legible on the way round and still lets the bloom be the event.
+  const MONO_FLOOR_MARK = Math.max(0, Math.min(1, num("markmonofloor", 0)));
+  const MONO_FLOOR_THEME = Math.max(0, Math.min(1, num("mandmonofloor", 0.34)));
 
   // Rejections and favourites made in gif-curator.html. curation.json is the
   // copy that travels with the library; localStorage is what the curator writes
@@ -1347,6 +2048,7 @@
           uOpacity: { value: 0 },
           uBehind: { value: 0 },
           uHue: { value: 0 },
+          uSat: { value: 1 },
           uCen: { value: new THREE.Vector2(0, 0) },
           uInv: { value: new THREE.Vector2(1, 1) },
           uR: { value: 0.5 }
@@ -1368,7 +2070,7 @@
         `,
         fragmentShader: `
           uniform sampler2D map;
-          uniform float uOpacity, uBehind, uR, uHue;
+          uniform float uOpacity, uBehind, uR, uHue, uSat;
           uniform vec2 uCen, uInv;
           varying vec2 vUv;
           varying vec2 vWorld;
@@ -1383,6 +2085,15 @@
           void main() {
             vec4 c = texture2D(map, vUv);
             if (uHue != 0.0) c.rgb = clamp(hueTurn(c.rgb, uHue), 0.0, 1.0);
+            // Toward grey along the very luminance the gate below reads, so
+            // pulling the colour out cannot change which pixels count as
+            // backing plate — desaturating with any other weights makes marks
+            // flicker as the colour drains, which is the one thing a slow fade
+            // must not do.
+            if (uSat < 1.0) {
+              float grey = dot(c.rgb, vec3(0.2126, 0.7152, 0.0722));
+              c.rgb = mix(vec3(grey), c.rgb, uSat);
+            }
             // Keyed gifs carry their own alpha; the luminance gate is for the
             // ones whose backing plate could not be read off the corners,
             // which would otherwise orbit as a black tile.
@@ -1409,18 +2120,178 @@
         lap: null, laps: 0
       };
     }
-    const orbiters = Array.from({ length: GIF_ORBIT }, (_, i) => makeOrbiter(i));
+    // Built for the widest act the show has, which is the mark act: the lanes
+    // beyond giforbit exist all along and are simply not shown until the marks
+    // come in. Building them on the fly would mean compiling shaders and
+    // allocating canvases in the middle of a dissolve.
+    const LANES = Math.max(1, GIF_ORBIT);
+    // Any act in the sequence that gathers needs the extra lanes standing by,
+    // whether it gathers monograms or corals: three rings want a couple of dozen
+    // petals and the lanes cannot be built once the act has started.
+    const rosetteComing = ORBIT_SEQ.some(isRosetteAct) || isRosetteAct(theme);
+    const orbiters = Array.from(
+      { length: GIF_ORBIT ? Math.max(GIF_ORBIT, rosetteComing ? MARK_ORBIT : 0) : 0 },
+      (_, i) => makeOrbiter(i)
+    );
+    // UFO towing a text banner, separate from the gif orbiters so it can blink
+    // in occasionally without disturbing act sequencing or pool swapping.
+    const ufoCanvas = document.createElement("canvas");
+    ufoCanvas.width = 320;
+    ufoCanvas.height = 160;
+    const ufoCtx = ufoCanvas.getContext("2d");
+    const ufoTex = new THREE.CanvasTexture(ufoCanvas);
+    ufoTex.minFilter = THREE.LinearFilter;
+    ufoTex.magFilter = THREE.LinearFilter;
+    const ufoMat = new THREE.MeshBasicMaterial({
+      map: ufoTex,
+      transparent: true,
+      depthTest: false,
+      depthWrite: false,
+      premultipliedAlpha: true
+    });
+    const ufoMesh = new THREE.Mesh(new THREE.PlaneGeometry(1, 1), ufoMat);
+    ufoMesh.renderOrder = 2;
+    ufoMesh.visible = false;
+    scene.add(ufoMesh);
+
+    const bannerCanvas = document.createElement("canvas");
+    bannerCanvas.width = 1800;
+    bannerCanvas.height = Math.max(260, Math.round(UFO_TEXT_PX * 2.1));
+    const bannerCtx = bannerCanvas.getContext("2d");
+    const bannerTex = new THREE.CanvasTexture(bannerCanvas);
+    bannerTex.minFilter = THREE.LinearFilter;
+    bannerTex.magFilter = THREE.LinearFilter;
+    const bannerMat = new THREE.MeshBasicMaterial({
+      map: bannerTex,
+      transparent: true,
+      depthTest: false,
+      depthWrite: false,
+      premultipliedAlpha: true
+    });
+    const bannerMesh = new THREE.Mesh(new THREE.PlaneGeometry(1, 1), bannerMat);
+    bannerMesh.renderOrder = 2;
+    bannerMesh.visible = false;
+    scene.add(bannerMesh);
+    let ufoEnabled = UFO_DEFAULT_ON;
+    let ufoText = UFO_TEXT;
+    let ufoEvery = UFO_EVERY;
+    let ufoFor = UFO_FOR;
+    let ufoBlink = UFO_BLINK;
+    let ufoSpeed = UFO_SPEED;
+    let ufoOrbitR = UFO_ORBIT_R;
+    let ufoTextPx = UFO_TEXT_PX;
+    const drawUfoSprite = () => {
+      ufoCtx.clearRect(0, 0, ufoCanvas.width, ufoCanvas.height);
+      const cx = ufoCanvas.width * 0.5;
+      const cy = ufoCanvas.height * 0.58;
+      const bodyW = ufoCanvas.width * 0.66;
+      const bodyH = ufoCanvas.height * 0.24;
+      const domeW = bodyW * 0.48;
+      const domeH = bodyH * 0.86;
+      ufoCtx.fillStyle = "rgba(166, 244, 255, 0.95)";
+      ufoCtx.beginPath();
+      ufoCtx.ellipse(cx, cy, bodyW * 0.5, bodyH * 0.5, 0, 0, Math.PI * 2);
+      ufoCtx.fill();
+      ufoCtx.fillStyle = "rgba(228, 251, 255, 0.95)";
+      ufoCtx.beginPath();
+      ufoCtx.ellipse(cx, cy - bodyH * 0.38, domeW * 0.5, domeH * 0.5, 0, Math.PI, 0, true);
+      ufoCtx.closePath();
+      ufoCtx.fill();
+      ufoCtx.strokeStyle = "rgba(7, 20, 36, 0.94)";
+      ufoCtx.lineWidth = 6;
+      ufoCtx.beginPath();
+      ufoCtx.ellipse(cx, cy, bodyW * 0.5, bodyH * 0.5, 0, 0, Math.PI * 2);
+      ufoCtx.stroke();
+      ufoCtx.lineWidth = 4;
+      ufoCtx.beginPath();
+      ufoCtx.ellipse(cx, cy - bodyH * 0.38, domeW * 0.5, domeH * 0.5, 0, Math.PI, 0, true);
+      ufoCtx.stroke();
+      for (let i = -2; i <= 2; i++) {
+        const x = cx + i * bodyW * 0.17;
+        ufoCtx.fillStyle = "rgba(255, 236, 138, 0.95)";
+        ufoCtx.beginPath();
+        ufoCtx.arc(x, cy + bodyH * 0.08, 7, 0, Math.PI * 2);
+        ufoCtx.fill();
+      }
+      ufoTex.needsUpdate = true;
+    };
+    const drawBannerSprite = () => {
+      bannerCtx.clearRect(0, 0, bannerCanvas.width, bannerCanvas.height);
+      const pad = 16;
+      const w = bannerCanvas.width - pad * 2;
+      const h = bannerCanvas.height - pad * 2;
+      const r = 28;
+      bannerCtx.fillStyle = "rgba(7, 20, 36, 0.88)";
+      bannerCtx.strokeStyle = "rgba(170, 235, 255, 0.9)";
+      bannerCtx.lineWidth = 7;
+      bannerCtx.beginPath();
+      bannerCtx.moveTo(pad + r, pad);
+      bannerCtx.lineTo(pad + w - r, pad);
+      bannerCtx.quadraticCurveTo(pad + w, pad, pad + w, pad + r);
+      bannerCtx.lineTo(pad + w, pad + h - r);
+      bannerCtx.quadraticCurveTo(pad + w, pad + h, pad + w - r, pad + h);
+      bannerCtx.lineTo(pad + r, pad + h);
+      bannerCtx.quadraticCurveTo(pad, pad + h, pad, pad + h - r);
+      bannerCtx.lineTo(pad, pad + r);
+      bannerCtx.quadraticCurveTo(pad, pad, pad + r, pad);
+      bannerCtx.closePath();
+      bannerCtx.fill();
+      bannerCtx.stroke();
+      bannerCtx.fillStyle = "rgba(228, 248, 255, 0.98)";
+      bannerCtx.font = `700 ${Math.round(ufoTextPx)}px -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, sans-serif`;
+      bannerCtx.textAlign = "center";
+      bannerCtx.textBaseline = "middle";
+      bannerCtx.fillText(ufoText || "", bannerCanvas.width / 2, bannerCanvas.height / 2 + 2);
+      bannerTex.needsUpdate = true;
+    };
+    drawUfoSprite();
+    drawBannerSprite();
+    // Which ring of the rosette each mark belongs to, and where on it. Dealt out
+    // inner ring first, and fixed for the life of the swarm — a mark that changed
+    // rings between one formation and the next would look like a mistake.
+    const rings = mandalaRings(orbiters.length);
+    const ringHue = MARK_RING_HUE != null
+      ? MARK_RING_HUE
+      : (Math.PI * 2) / Math.max(1, rings.length);
+    {
+      let i = 0;
+      rings.forEach((ring, k) => {
+        for (let s = 0; s < ring.count && i < orbiters.length; s++, i++) {
+          orbiters[i].ring = k;
+          orbiters[i].slot = s;
+        }
+      });
+    }
     // Where the next hand-over takes its gif from. Shared, so two orbiters
     // changing at the same moment do not both reach for the same one.
-    let orbitCursor = GIF_ORBIT;
+    let orbitCursor = orbiters.length;
 
     // Where the sequence has got to. "hold" runs the act out, "out" dissolves
     // the layer away, "wait" sits dark while the next act's gifs decode, "in"
     // brings it back up. seqLevel is the whole layer's opacity throughout, and
     // the swap happens at the bottom of it where there is nothing to see.
-    let seqAct = 0, seqPhase = "hold", seqLevel = 1, seqAt = 0, seqWaitAt = 0;
+    let seqAct = 0, seqPhase = "hold", seqLevel = 1, seqAt = 0, seqWaitAt = 0, seqSingleSpec = "";
     function updateSequence(t, dt) {
-      if (ORBIT_SEQ.length < 2) return;
+      if (ORBIT_SEQ.length < 2) {
+        // If live edits collapse the sequence to one act (or none), recover
+        // to a steady visible layer rather than freezing mid hand-over.
+        seqPhase = "hold";
+        seqLevel = 1;
+        const only = (ORBIT_SEQ[0] || theme || "").trim().toLowerCase();
+        if (!only) return;
+        if (isVajraAct(only)) {
+          setVajraAct(true);
+          seqSingleSpec = only;
+          return;
+        }
+        setVajraAct(false);
+        if (seqSingleSpec !== only || !sources.length) {
+          seqSingleSpec = only;
+          loadPool(only);
+        }
+        return;
+      }
+      seqSingleSpec = "";
       if (seqPhase === "hold") {
         if (t - seqAt >= ORBIT_ACT) seqPhase = "out";
       } else if (seqPhase === "out") {
@@ -1438,7 +2309,7 @@
           o.mesh.visible = false;
           o.mat.uniforms.uOpacity.value = 0;
         });
-        orbitCursor = GIF_ORBIT;
+        orbitCursor = orbiters.length;
         if (isVajraAct(ORBIT_SEQ[seqAct])) {
           setVajraAct(true);
           seqPhase = "vajras";
@@ -1471,42 +2342,101 @@
     const actSpec = () => (ORBIT_SEQ.length ? ORBIT_SEQ[seqAct] : theme);
 
     // How far into the formation the sprites are, and the clock that drives it.
+    // Each ring has its own progress, because they arrive one after another;
+    // mandForm is the average of them, which is what the readout and the
+    // hand-over checks want.
     let mandPhase = "orbit", mandAt = 0, mandForm = 0;
+    // How much colour the rosette has been allowed: 0 grey, 1 fully lit. On the
+    // formation's clock rather than the show's, so the bloom is something the
+    // flower does and not something the wall clock does to it.
+    let mandBloom = 0;
+    const ringForm = rings.map(() => 0);
+    // How long a whole gather or scatter takes, last ring included.
+    const mandSpan = () => (ringForm.length - 1) * MAND_STAGGER + MAND_MOVE;
+    function setRingForms(elapsed, forming) {
+      for (let k = 0; k < ringForm.length; k++) {
+        // Inner rings lead on the way in, outer rings on the way out, so it
+        // builds from the middle and comes apart from the edge.
+        const order = forming ? k : ringForm.length - 1 - k;
+        const local = Math.max(0, Math.min(1, (elapsed - order * MAND_STAGGER) / MAND_MOVE));
+        ringForm[k] = forming ? local : 1 - local;
+      }
+      mandForm = ringForm.length
+        ? ringForm.reduce((sum, v) => sum + v, 0) / ringForm.length
+        : 0;
+    }
+    // The extra lanes, up while the marks are up. Faded rather than switched, so
+    // a couple of dozen monograms arrive as an arrival.
+    let markExtra = 0;
     // Whether what is in the lanes is marks, which is not the same question as
     // whether the mark act is current: at the top of a dissolve the next act's
     // name is up while the marks are still on screen, and they should keep
-    // running through the hues until they are actually gone.
+    // running through the hues until they are actually gone. Answered by the pool
+    // itself rather than guessed at from the dissolve, which got it wrong for a
+    // sequence that opens on the marks — there is no dissolve to wait for there,
+    // and the marks flew the first act uncoloured and one ring short.
+    let poolIsMarks = false;
     let markLit = 0;
+    // The same question for the rosette rather than for the marks specifically:
+    // a coral act gathers and blooms but must never have its hue turned, so the
+    // two cannot be the same flag. markLit drives colour that belongs only to
+    // the monograms; mandLit drives everything the gather owns — the extra
+    // lanes, and the bloom out of grey.
+    let poolIsRosette = false;
+    let mandLit = 0;
+    // The show's clock as the formation last saw it, so a gather asked for from
+    // the keyboard starts its move from now rather than from whenever the
+    // previous phase began — which with a time-driven stagger would snap the
+    // whole rosette into place in a single frame.
+    let mandT = 0;
     function updateMandala(t, dt) {
+      mandT = t;
       // Any other act, and the formation unwinds and its clock is held at now,
       // so a mark act always begins by orbiting rather than half-gathered.
-      if (!isMarkAct(actSpec())) {
+      if (!isRosetteAct(actSpec())) {
         // The act name changes at the top of the dissolve, so while the marks
         // are still on screen the ring scatters as it fades — but it is gone
         // outright at the bottom, where the pool is rebuilt. A ring that
         // outlived the dissolve would gather the next act's gifs into it.
-        mandForm = seqLevel <= 0 ? 0 : Math.max(0, mandForm - dt / MAND_MOVE);
-        if (seqLevel <= 0) markLit = 0;
+        for (let k = 0; k < ringForm.length; k++) {
+          ringForm[k] = seqLevel <= 0 ? 0 : Math.max(0, ringForm[k] - dt / MAND_MOVE);
+        }
+        mandForm = ringForm.length
+          ? ringForm.reduce((sum, v) => sum + v, 0) / ringForm.length
+          : 0;
+        markExtra = Math.max(0, markExtra - dt / MARK_IN);
+        mandBloom = Math.max(0, mandBloom - dt / MAND_MOVE);
+        if (seqLevel <= 0) { markLit = 0; mandLit = 0; }
         mandPhase = "orbit";
         mandAt = t;
         return;
       }
       // And the other side of the same problem: the marks are not in the lanes
-      // the moment their act's name comes up, only once the dissolve has
-      // bottomed out and the pool has been rebuilt out of them. Turning the
-      // hues any earlier would recolour the outgoing act's gifs on their way
-      // down. With no sequence there is no dissolve to wait for.
-      if (ORBIT_SEQ.length < 2 || seqLevel <= 0) markLit = 1;
+      // the moment their act's name comes up, only once the pool has been
+      // rebuilt out of them. Turning the hues or bringing the extra lanes up any
+      // earlier would recolour the outgoing act's gifs on their way down.
+      if (poolIsMarks) markLit = 1;
+      if (poolIsRosette) mandLit = 1;
+      if (mandLit) markExtra = Math.min(1, markExtra + dt / MARK_IN);
+      // Colour belongs to the held flower. It drains while the marks are merely
+      // flying, arrives once they are in place, and leaves again as they break
+      // formation — so the bloom marks the difference between a flock and a
+      // rosette, which is the whole point of the act.
       if (mandPhase === "orbit") {
-        if (t - mandAt >= MAND_SEC) mandPhase = "gather";
+        mandBloom = Math.max(0, mandBloom - dt / MAND_MOVE);
+        if (t - mandAt >= MAND_SEC) { mandPhase = "gather"; mandAt = t; }
       } else if (mandPhase === "gather") {
-        mandForm = Math.min(1, mandForm + dt / MAND_MOVE);
-        if (mandForm >= 1) { mandPhase = "hold"; mandAt = t; }
+        setRingForms(t - mandAt, true);
+        if (t - mandAt >= mandSpan()) { mandPhase = "hold"; mandAt = t; }
       } else if (mandPhase === "hold") {
-        if (t - mandAt >= MAND_HOLD) mandPhase = "scatter";
+        mandBloom = Math.min(1, mandBloom + dt / MARK_BLOOM);
+        if (t - mandAt >= MAND_HOLD) { mandPhase = "scatter"; mandAt = t; }
       } else {
-        mandForm = Math.max(0, mandForm - dt / MAND_MOVE);
-        if (mandForm <= 0) { mandPhase = "orbit"; mandAt = t; }
+        // Faster out than in: the petals are leaving anyway, and colour that
+        // lingers on a dispersing ring reads as a bug rather than a farewell.
+        mandBloom = Math.max(0, mandBloom - dt / (MARK_BLOOM * 0.45));
+        setRingForms(t - mandAt, false);
+        if (t - mandAt >= mandSpan()) { mandPhase = "orbit"; mandAt = t; }
       }
     }
 
@@ -1516,9 +2446,15 @@
     let orbitShown = 1;
 
     function drawOrbiters(t, dt) {
-      if (!orbiters.length || !sources.length) return;
+      if (!orbiters.length || !sources.length) {
+        ufoMesh.visible = false;
+        bannerMesh.visible = false;
+        return;
+      }
       if (!orbitShown) {
         orbiters.forEach((o) => { o.mesh.visible = false; });
+        ufoMesh.visible = false;
+        bannerMesh.visible = false;
         return;
       }
       // Frame-height units -> world units (the quad is letterboxed to 16:9).
@@ -1528,6 +2464,12 @@
       const ccx = (dv.x * 2 - 1) * quad.scale.x + quad.position.x;
       const ccy = (dv.y * 2 - 1) * quad.scale.y + quad.position.y;
       for (const o of orbiters) {
+        // The extra lanes the mark act brings in are hidden the rest of the time,
+        // and fade rather than appear. Nothing else in the show has a couple of
+        // dozen sprites to fly, and a gif act flying them would be a swarm — so
+        // while they are down they are not drawn to their canvas either.
+        const extra = o.lane >= GIF_ORBIT;
+        if (extra && markExtra <= 0) { o.mesh.visible = false; continue; }
         const th = o.phase + t * o.speed;
         // Laps are counted off the angle rather than a timer, and from the far
         // point of the lane (sin = -1) so the boundary falls where the sprite
@@ -1537,7 +2479,10 @@
           if (o.lap == null) o.lap = lap;
           else if (lap !== o.lap) {
             o.lap = lap;
-            if (++o.laps >= GIF_ORBIT_SWAP) {
+            // A sprite in the formation is on the face and being read rather than
+            // passing behind the disc, so the change it is due is held until it
+            // is back in its lane and can make it out of sight.
+            if (++o.laps >= GIF_ORBIT_SWAP && !poolIsMarks && !(ringForm[o.ring || 0] > 0)) {
               o.laps = 0;
               // A shared cursor deals the pool out instead of sampling it, so
               // eight orbiters taking turns work through all thirty-odd gifs
@@ -1563,9 +2508,15 @@
         o.ctx.drawImage(bmp, 0, 0, o.canvas.width, o.canvas.height);
         o.tex.needsUpdate = true;
 
-        const rx = dv.z * GIF_ORBIT_R * (1.03 + o.lane * 0.085);
-        const ry = dv.z * Math.min(0.9, 0.75 * (0.45 + o.lane * 0.07));
-        const laneRot = (o.lane - (orbiters.length - 1) / 2) * 0.16;
+        // Lane geometry is folded back into the baseline count, so building extra
+        // lanes for the marks does not push the ellipses out to twice the radius
+        // — lane 26 would ride at over three disc radii. Two marks sharing a
+        // lane start at different phases, so they are spread round it rather
+        // than sitting on top of each other.
+        const lane = o.lane % LANES;
+        const rx = dv.z * GIF_ORBIT_R * (1.03 + lane * 0.085);
+        const ry = dv.z * Math.min(0.9, 0.75 * (0.45 + lane * 0.07));
+        const laneRot = (lane - (LANES - 1) / 2) * 0.16;
         const depth = Math.sin(th); // > 0 = in front of the moon
         const ex = Math.cos(th) * rx;
         const ey = Math.sin(th) * ry;
@@ -1575,24 +2526,26 @@
 
         // The formation, eased so the sprites leave and rejoin their lanes
         // rather than snapping off them.
-        const e = mandForm * mandForm * (3 - 2 * mandForm);
+        const ring = rings[o.ring || 0] || rings[0];
+        const rf = ringForm[o.ring || 0] || 0;
+        const e = rf * rf * (3 - 2 * rf);
         let rot = 0, seen = 1;
         if (e > 0) {
-          const a = (o.lane / orbiters.length) * Math.PI * 2 + t * MAND_SPIN;
-          const mr = dv.z * MAND_R;
+          const a = ring.turn + (o.slot / ring.count) * Math.PI * 2 + t * ring.spin;
+          const mr = dv.z * ring.r;
           px = px * (1 - e) + Math.cos(a) * mr * e;
           py = py * (1 - e) + Math.sin(a) * mr * e;
           // The mark's V points down, so turning it by the petal's own angle
           // plus a quarter turn aims it out of the ring, and minus a quarter
           // turn aims it in.
-          rot = (a + MAND_AIM * Math.PI / 2) * e;
+          rot = (a + ring.aim * Math.PI / 2) * e;
           // A sprite on the far side is hidden by the limb, so it can cross to
           // the face without being watched doing it: it fades in where it
           // lands, and on the way back out it fades before the limb takes over.
           if (depth < 0) seen = e;
         }
 
-        const scl = GIF_ORBIT_SCALE * (0.7 + 0.3 * near) * (1 + (MAND_SCALE - 1) * e);
+        const scl = GIF_ORBIT_SCALE * (0.7 + 0.3 * near) * (1 + (ring.scale - 1) * e);
         o.mesh.visible = true;
         o.mesh.position.set(ccx + px * fhX, ccy + py * fhY, 0);
         o.mesh.scale.set(scl * o.aspect * fhX, scl * fhY, 1);
@@ -1601,12 +2554,49 @@
         // A petal is at full strength: it is on the face and meant to be read,
         // not passing by.
         const base = 0.55 + 0.45 * near;
-        u.uOpacity.value = (base + (1 - base) * e) * seqLevel * seen;
+        u.uOpacity.value = (base + (1 - base) * e) * seqLevel * seen * (extra ? markExtra : 1);
         // Only the marks run through the hues. A GeoCities gif is the colour it
         // was in 1999 and turning it would be vandalism.
+        // Spread round each ring rather than round the whole set, plus an offset
+        // per ring, so every ring is a full spectrum and no two rings are showing
+        // the same colour at the same angle.
         u.uHue.value = markLit
-          ? t * MARK_HUE + (o.lane / orbiters.length) * Math.PI * 2 * MARK_HUE_SPREAD
+          ? t * MARK_HUE + (o.slot / ring.count) * Math.PI * 2 * MARK_HUE_SPREAD + (o.ring || 0) * ringHue
           : 0;
+        // Colour arrives petal by petal: ring first, then round the ring, so the
+        // front travels outward and rotates at the same time and no two petals
+        // light together. What each one reveals is the hue it already had from
+        // markhuespread and its ring's offset — which is why this reads as
+        // colour spreading through the flower rather than a lamp being switched
+        // on behind it.
+        // Keyed on the rosette rather than on the marks: a coral gathers and
+        // blooms exactly as a monogram does. Only the hue turn above is the
+        // marks' alone.
+        if (mandLit && MARK_MONO) {
+          const ringCount = Math.max(1, rings.length);
+          const round = o.slot / ring.count;
+          // Outward, plus that much again of the way round: a spiral arm. Scaled
+          // back down so a petal's place in the queue still lands in 0..1 and the
+          // front crosses everything exactly once however much spin is asked for.
+          const q = (((o.ring || 0) + round) / ringCount + MARK_BLOOM_SPIN * round) /
+            (1 + MARK_BLOOM_SPIN);
+          const front = mandBloom * (1 + MARK_BLOOM_EDGE);
+          let sat = Math.max(0, Math.min(1, (front - q) / MARK_BLOOM_EDGE));
+          if (MARK_WAVE > 0 && sat >= 1) {
+            // Keyed on the way round rather than on the place in the queue, so
+            // the lasting wave circles the flower instead of pulsing along the
+            // spiral the bloom came in on.
+            const turn = (round - t / MARK_WAVE_SEC) * Math.PI * 2;
+            sat = 1 - MARK_WAVE * (0.5 - 0.5 * Math.cos(turn));
+          }
+          // Lifted off the floor rather than scaled to it, so full bloom is
+          // still full colour: the floor only sets how much of itself the
+          // artwork keeps while it is waiting to be lit.
+          const floor = poolIsMarks ? MONO_FLOOR_MARK : MONO_FLOOR_THEME;
+          u.uSat.value = floor + (1 - floor) * sat;
+        } else {
+          u.uSat.value = 1;
+        }
         // The far half is clipped against the disc silhouette in the fragment
         // shader, so it is eaten by the limb rather than fading out whole —
         // except once the formation has it, when it belongs on the face.
@@ -1615,6 +2605,57 @@
         u.uInv.value.set(1 / fhX, 1 / fhY);
         u.uR.value = dv.z;
       }
+
+      // Blinking orbit banner: appears briefly every so often.
+      // It follows an outside lane and tows the text behind the craft.
+      const cycle = ((t % ufoEvery) + ufoEvery) % ufoEvery;
+      const ufoOn = ufoEnabled && cycle <= ufoFor && ufoText;
+      if (!ufoOn || seqLevel <= 0.02) {
+        ufoMesh.visible = false;
+        bannerMesh.visible = false;
+        return;
+      }
+      const blink = (Math.floor(cycle / ufoBlink) % 2) === 0;
+      const pulse = 0.62 + 0.38 * Math.sin((cycle / Math.max(0.08, ufoBlink)) * Math.PI);
+      const alpha = (blink ? 1 : 0.25) * pulse * seqLevel;
+      const th = t * ufoSpeed;
+      const laneRot = 0.22;
+      const rx = dv.z * ufoOrbitR;
+      const ry = dv.z * Math.min(0.96, 0.69 * ufoOrbitR);
+      const ex = Math.cos(th) * rx;
+      const ey = Math.sin(th) * ry;
+      const px = ex * Math.cos(laneRot) - ey * Math.sin(laneRot);
+      const py = ex * Math.sin(laneRot) + ey * Math.cos(laneRot);
+      const eps = 0.015;
+      const ex2 = Math.cos(th + eps) * rx;
+      const ey2 = Math.sin(th + eps) * ry;
+      const px2 = ex2 * Math.cos(laneRot) - ey2 * Math.sin(laneRot);
+      const py2 = ex2 * Math.sin(laneRot) + ey2 * Math.cos(laneRot);
+      const tx = px2 - px;
+      const ty = py2 - py;
+      const tl = Math.max(1e-6, Math.hypot(tx, ty));
+      const tnx = tx / tl;
+      const tny = ty / tl;
+      const ang = Math.atan2(tny * fhY, tnx * fhX);
+      const ux = ccx + px * fhX;
+      const uy = ccy + py * fhY;
+      const tow = dv.z * 0.30;
+      const bx = ux - tnx * tow * fhX;
+      const by = uy - tny * tow * fhY;
+      const ufoS = dv.z * 0.18;
+      const bannerS = dv.z * 0.72;
+
+      ufoMesh.visible = true;
+      ufoMesh.position.set(ux, uy, 0);
+      ufoMesh.scale.set(ufoS * fhX, ufoS * 0.5 * fhY, 1);
+      ufoMesh.rotation.z = ang;
+      ufoMat.opacity = alpha;
+
+      bannerMesh.visible = true;
+      bannerMesh.position.set(bx, by, 0);
+      bannerMesh.scale.set(bannerS * fhX, bannerS * 0.15 * fhY, 1);
+      bannerMesh.rotation.z = ang;
+      bannerMat.opacity = alpha * 0.92;
     }
 
     // The library index, fetched once and kept: an act change rebuilds the pool
@@ -1653,13 +2694,27 @@
       if (!library) {
         // The scraped library first, then the pre-curated subset that ships in
         // git. Either answers with the same shape; only its base differs.
-        library = await getJson(GIF_INDEX) || await getJson(GIF_STARTER_INDEX);
+        const scraped = await getJson(GIF_INDEX);
+        const starter = await getJson(GIF_STARTER_INDEX);
+        const themes = {};
+        const take = (lib, fallbackBase) => {
+          if (!lib) return;
+          const base = lib.base || fallbackBase;
+          for (const [slug, t] of Object.entries(lib.themes || {})) {
+            if (!themes[slug]) themes[slug] = Object.assign({ base: base }, t);
+          }
+        };
+        // A fresh scrape wins for the themes it actually has. The starter kit
+        // fills whatever that scrape didn't, so pulling jellyfish does not
+        // empty the ankh and seahorse acts.
+        take(scraped, "assets/gifcities/");
+        take(starter, "assets/starter/gifs/");
+        library = { themes: themes };
       }
-      if (!library) {
+      if (!library || !Object.keys(library.themes || {}).length) {
         console.warn("[gifswarm] no " + GIF_INDEX + " — run: npm run gifs");
         return [];
       }
-      const libBase = library.base || "assets/gifcities/";
       const marks = await loadGifMarks();
       const theme = String(themeSpec || "");
       const themes = Object.entries(library.themes || {});
@@ -1687,7 +2742,7 @@
         for (const [slug, t] of themes) {
           if (only.size && !only.has(slug)) continue;
           for (const g of t.gifs) {
-            const p = libBase + slug + "/" + g.file;
+            const p = (t.base || "assets/gifcities/") + slug + "/" + g.file;
             if (marks[p] !== "reject") out.push(p);
           }
         }
@@ -1706,11 +2761,15 @@
       // luck. Sorting is stable, so the shuffle survives inside each group.
       pool.sort((a, b) => (marks[b] === "star") - (marks[a] === "star"));
       // A few dozen distinct GIFs is plenty of variety for any swarm size.
-      return pool.slice(0, 32);
+      return pool.slice(0, 80);
     }
 
     async function loadPool(themeSpec) {
       const gen = ++poolGen;
+      // From here on the lanes are flying this act's pool, whatever is still
+      // decoding, so this is the moment the marks are in them or out of them.
+      poolIsMarks = isMarkAct(themeSpec);
+      poolIsRosette = isRosetteAct(themeSpec);
       const targets = isMarkAct(themeSpec)
         ? await markTargets()
         : await gifTargets(themeSpec);
@@ -1740,7 +2799,19 @@
           // Spread the orbiters across the far end of the pool, so the handful
           // going round the moon are not the same handful filling the window.
           orbiters.forEach((o, i) => {
-            o.src = (sources.length - 1 - i % sources.length + sources.length) % sources.length;
+            // Gifs are spread across the pool, because variety is the point of a
+            // gif act. The marks are the opposite: one motif repeated is what a
+            // mandala is, and the colourways are the same glyph anyway, so the
+            // whole rosette wears one and the rings are told apart by markringhue
+            // instead. Dealt out per orbiter they came out as confetti, and a
+            // colourway per ring only moved the problem — the pool is shuffled, so
+            // which ring got the desaturated chrome was luck, and on the runs it
+            // landed on a middle ring the triad collapsed into two blues.
+            o.src = !poolIsMarks
+              ? (sources.length - 1 - i % sources.length + sources.length) % sources.length
+              : MARK_ONE
+                ? 0
+                : Math.round((o.ring || 0) * (sources.length - 1) / Math.max(1, rings.length - 1));
           });
         }
       };
@@ -1939,6 +3010,14 @@
         o.tex.dispose();
       });
       orbiters.length = 0;
+      scene.remove(ufoMesh);
+      ufoMesh.geometry.dispose();
+      ufoMat.dispose();
+      ufoTex.dispose();
+      scene.remove(bannerMesh);
+      bannerMesh.geometry.dispose();
+      bannerMat.dispose();
+      bannerTex.dispose();
       sources.forEach(closeFrames);
       sources.length = 0;
       srcs.length = 0;
@@ -1967,9 +3046,77 @@
         i: seqAct, of: ORBIT_SEQ.length, themes: ORBIT_SEQ[seqAct] || theme,
         phase: seqPhase, level: +seqLevel.toFixed(3)
       }),
+      ufo: (on) => {
+        if (on == null) return !!ufoEnabled;
+        ufoEnabled = !!on;
+        if (!ufoEnabled) {
+          ufoMesh.visible = false;
+          bannerMesh.visible = false;
+        }
+        return !!ufoEnabled;
+      },
+      ufoConfig: (patch) => {
+        if (patch && typeof patch === "object") {
+          if (patch.enabled != null) ufoEnabled = !!patch.enabled;
+          if (patch.text != null) {
+            ufoText = String(patch.text || "").trim();
+            drawBannerSprite();
+          }
+          if (patch.size != null) {
+            const n = Number(patch.size);
+            if (Number.isFinite(n)) {
+              ufoTextPx = Math.max(56, Math.min(260, n));
+              drawBannerSprite();
+            }
+          }
+          if (patch.every != null) {
+            const n = Number(patch.every);
+            if (Number.isFinite(n)) ufoEvery = Math.max(20, n);
+          }
+          if (patch.dur != null) {
+            const n = Number(patch.dur);
+            if (Number.isFinite(n)) ufoFor = Math.max(4, n);
+          }
+          if (patch.blink != null) {
+            const n = Number(patch.blink);
+            if (Number.isFinite(n)) ufoBlink = Math.max(0.08, n);
+          }
+          if (patch.speed != null) {
+            const n = Number(patch.speed);
+            if (Number.isFinite(n)) ufoSpeed = n;
+          }
+          if (patch.radius != null) {
+            const n = Number(patch.radius);
+            if (Number.isFinite(n)) ufoOrbitR = Math.max(1.02, n);
+          }
+          ufoFor = Math.min(ufoFor, Math.max(4, ufoEvery - 2));
+          if (!ufoEnabled) {
+            ufoMesh.visible = false;
+            bannerMesh.visible = false;
+          }
+        }
+        return {
+          enabled: !!ufoEnabled,
+          text: ufoText,
+          size: +ufoTextPx.toFixed(0),
+          every: +ufoEvery.toFixed(2),
+          dur: +ufoFor.toFixed(2),
+          blink: +ufoBlink.toFixed(2),
+          speed: +ufoSpeed.toFixed(3),
+          radius: +ufoOrbitR.toFixed(2)
+        };
+      },
       // Where the mandala is in its cycle, so a check can catch it formed
       // instead of waiting on the eye and shooting at a guess.
-      mandala: () => ({ phase: mandPhase, form: +mandForm.toFixed(3), marks: markLit }),
+      mandala: () => ({
+        phase: mandPhase, form: +mandForm.toFixed(3), bloom: +mandBloom.toFixed(3), marks: markLit,
+        rosette: mandLit, act: actSpec(),
+        extra: +markExtra.toFixed(3), lanes: orbiters.length,
+        rings: rings.map((r, k) => ({
+          r: +r.r.toFixed(3), n: r.count, aim: r.aim,
+          spin: +r.spin.toFixed(3), form: +(ringForm[k] || 0).toFixed(3)
+        }))
+      }),
       shown: () => orbitShown,
       setShown: (on) => {
         orbitShown = on ? 1 : 0;
@@ -1988,8 +3135,8 @@
       // Mid-move it is left to arrive: reversing it looks like a mistake.
       flower: () => {
         if (!markLit) return "no marks in the lanes";
-        if (mandPhase === "orbit") { mandPhase = "gather"; return "gathering"; }
-        if (mandPhase === "hold") { mandPhase = "scatter"; return "scattering"; }
+        if (mandPhase === "orbit") { mandPhase = "gather"; mandAt = mandT; return "gathering"; }
+        if (mandPhase === "hold") { mandPhase = "scatter"; mandAt = mandT; return "scattering"; }
         return false;
       }
     };
@@ -3077,6 +4224,15 @@
   let gifswarm = (ORBIT_ONLY || (WIN && baseKey(CONTENT_KEY) === "gifswarm"))
     ? makeGifSwarm(keyArg(CONTENT_KEY)) : null;
   const flashMark = FLASH_SRC ? makeFlashMark(FLASH_SRC) : null;
+  // Only worth building if there is a mark to fly it under.
+  const aerial = FLASH_SRC && AERIAL_ON ? makeAerial() : null;
+  // Shared with the overlay's corner map, so a listing keeps its colour across
+  // both. Stubbed if the script is missing, rather than taking the show down.
+  const marks = window.HermesMarks || {
+    marker: () => ({ color: "#65e6ff", shape: 0 }),
+    drawPin: () => {},
+    fan: (a) => a
+  };
   const SONIC_LOOP = "artifacts/sample-sonicsphere-silent.webm";
   const FOLD_MAKERS = {
     fold: () => makeFold(),
@@ -4088,8 +5244,8 @@
     if (s < 1.02 && Math.abs(ox) < 0.004 && Math.abs(oy) < 0.004) return null;
     return { ox, oy, s };
   }
-  function makeBackdropLayer(src) {
-    const layer = { node: null, raf: 0, frames: null, i: 0, acc: 0, last: 0, disposed: false };
+  function makeBackdropLayer(src, onFail) {
+    const layer = { node: null, raf: 0, frames: null, i: 0, acc: 0, last: 0, disposed: false, failed: false };
     const base = "position:absolute;left:0;top:0;width:100%;height:100%;" +
       "object-fit:contain;transition:opacity 1.2s ease;";
     const isVideo = /\.(mp4|webm|mov|m4v)(\?|$)/i.test(src);
@@ -4106,6 +5262,7 @@
       v.preload = "auto";
       v.style.cssText = base.replace("object-fit:contain", "object-fit:cover");
       v.addEventListener("loadedmetadata", () => { v.playbackRate = BACK_SPEED; });
+      v.addEventListener("playing", () => { layer.failed = false; });
       // The clips are fetched by script and stay out of git, so a fresh clone
       // has none of them and would open the iris onto black. Fall back to the
       // low-bandwidth copy that does ship (npm run starter), the same way a
@@ -4115,7 +5272,9 @@
       v.addEventListener("error", () => {
         const alt = starterCopy(src);
         if (!alt || v.dataset.starter) {
+          layer.failed = true;
           console.warn("hypermoon: backdrop video failed " + v.src);
+          if (typeof onFail === "function") onFail(layer);
           return;
         }
         v.dataset.starter = "1";
@@ -4170,6 +5329,8 @@
           };
           layer.raf = requestAnimationFrame(loop);
         } catch (e) {
+          layer.failed = true;
+          if (typeof onFail === "function") onFail(layer);
           canvas.style.background = "center/contain no-repeat url('" + src + "')";
         }
       })();
@@ -4178,8 +5339,14 @@
       img.src = src;
       img.style.cssText = base;
       img.addEventListener("load", () => {
+        layer.failed = false;
         layer.fit = measureFit([img], img.naturalWidth, img.naturalHeight);
       }, { once: true });
+      img.addEventListener("error", () => {
+        layer.failed = true;
+        console.warn("hypermoon: backdrop image failed " + src);
+        if (typeof onFail === "function") onFail(layer);
+      });
       layer.node = img;
     }
     return layer;
@@ -4208,8 +5375,13 @@
     // thin lunar limb when the iris is open.
     el.style.cssText = "position:fixed;z-index:0;pointer-events:none;" +
       "border-radius:50%;overflow:hidden;";
+    const onFail = (layer) => {
+      const at = backdrop.players.indexOf(layer);
+      if (at < 0 || at !== backdrop.idx || backdrop.players.length < 2) return;
+      showBackdrop((at + 1) % backdrop.players.length);
+    };
     backdrop.players = list.map((src, i) => {
-      const layer = makeBackdropLayer(src);
+      const layer = makeBackdropLayer(src, onFail);
       layer.node.style.opacity = i === 0 ? 1 : 0;
       el.appendChild(layer.node);
       return layer;
@@ -4229,9 +5401,18 @@
   // plays. It is started before the fade rather than after, so it crossfades
   // in moving instead of arriving as a held frame.
   function showBackdrop(idx) {
-    backdrop.idx = idx;
+    const n = backdrop.players.length;
+    if (!n) return;
+    let pick = ((idx % n) + n) % n;
+    // If a source failed to load, skip to the next available layer so loops
+    // keep moving instead of sitting on a dead frame.
+    let guard = 0;
+    while (guard++ < n && backdrop.players[pick] && backdrop.players[pick].failed) {
+      pick = (pick + 1) % n;
+    }
+    backdrop.idx = pick;
     backdrop.players.forEach((p, i) => {
-      const on = i === idx;
+      const on = i === pick;
       p.node.style.opacity = on ? 1 : 0;
       if (!p.video) return;
       if (on) { p.video.playbackRate = BACK_SPEED; p.video.play().catch(() => {}); }
@@ -4441,6 +5622,37 @@
     get wordOn() { return +uniforms.uWordOn.value; },
     // 0 while the flashed mark is dark, 1 at full strength.
     get flash() { return flashMark ? +flashMark.mat.uniforms.uOpacity.value : 0; },
+    // Whether the climb has what it needs — the city image and a fix to be over
+    // — so a check can wait for it instead of shooting a bare moon and calling
+    // it a failure. Both arrive over the network after the show has started.
+    get aerialState() {
+      if (!aerial) return null;
+      return { map: !!aerial.map, fix: aerial.fix, trail: aerial.trail.length };
+    },
+    // Where the camera is this frame: 0 on the roof of the art car, 1 at the top.
+    get aerial() { return aerial ? aerialNow : null; },
+    // Holds the climb at one point and reports where it put things. The show
+    // clock runs the ascent in three seconds a minute; this is how it gets
+    // looked at frame by frame.
+    aerialAt(climb) {
+      if (!aerial || !aerial.map || !aerial.fix) return null;
+      if (climb == null) { aerialHold = null; return null; }
+      const c = Math.max(0, Math.min(1, Number(climb) || 0));
+      // Parked, then left to the animation loop to actually draw. Rendering it
+      // here instead would be undone by the next frame before anything could
+      // photograph it, which is the trap this exists to avoid.
+      aerialHold = c;
+      const here = drawAerial(c, 1) || { x: 0, y: 0 };
+      // Reported in disc radii, matching what updateFlash converts from.
+      return {
+        climb: c,
+        spanM: AERIAL_NEAR * Math.pow(aerial.far / AERIAL_NEAR, ease(c)),
+        markScale: +(FLASH_SCALE + (AERIAL_MARK - FLASH_SCALE) * ease(c)).toFixed(4),
+        pins: aerial.events.length,
+        x: +here.x.toFixed(4),
+        y: +here.y.toFixed(4)
+      };
+    },
     // How many vajras are up, the count between acts, and how far through its
     // fade the vajras' own act is — so a check can watch it take the sky.
     get vajras() { return { on: VAJRA_COUNT, base: VAJRA_BASE, level: +vajraLevel.toFixed(3) }; },
@@ -5470,7 +6682,18 @@
     "letter-spacing:2px;z-index:6;pointer-events:none;display:none;white-space:pre;" +
     "background:rgba(0,0,0,0.72);padding:22px 30px;border:1px solid rgba(143,216,255,0.25);" +
     "text-shadow:0 0 12px rgba(0,0,0,0.9);";
-  if (HOTKEYS) { document.body.appendChild(keyNote); document.body.appendChild(keyHelp); }
+  const videoHelp = document.createElement("div");
+  videoHelp.id = "videohelp";
+  videoHelp.style.cssText = "position:fixed;left:50%;top:52%;transform:translate(-50%,-50%);" +
+    "color:rgba(214,241,255,0.95);font:13px/1.7 'JetBrains Mono',Menlo,monospace;" +
+    "letter-spacing:1px;z-index:7;pointer-events:auto;display:none;" +
+    "background:rgba(0,0,0,0.78);padding:18px 24px;border:1px solid rgba(143,216,255,0.35);" +
+    "max-width:min(94vw,1200px);max-height:74vh;overflow:auto;text-shadow:0 0 12px rgba(0,0,0,0.9);";
+  if (HOTKEYS) {
+    document.body.appendChild(keyNote);
+    document.body.appendChild(keyHelp);
+    document.body.appendChild(videoHelp);
+  }
 
   let noteTimer = 0;
   function note(msg) {
@@ -5483,6 +6706,141 @@
   // Whether this show was given any clips to play behind the iris. Taking the
   // backdrop out empties BACKDROP_SRC, so it cannot answer that question later.
   const HAD_BACKDROP = !!BACKDROP_SRC;
+  let videoHelpTimer = 0;
+  const backdropChoices = [...new Set(String(BACKDROP_SRC || "").split(",").map((s) => s.trim()).filter(Boolean))];
+  const orbitActChoices = [...new Set(ORBIT_SEQ.slice())];
+  const escHtml = (txt) => String(txt || "")
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;");
+
+  const shortSrc = (src) => {
+    const s = String(src || "").trim();
+    if (!s) return "none";
+    try {
+      const u = new URL(s, location.href);
+      const parts = u.pathname.split("/").filter(Boolean);
+      return parts.slice(-2).join("/") || u.pathname || s;
+    } catch {
+      const bits = s.split("/").filter(Boolean);
+      return bits.slice(-2).join("/") || s;
+    }
+  };
+
+  function syncBackdropChoices() {
+    const live = String(BACKDROP_SRC || "").split(",").map((s) => s.trim()).filter(Boolean);
+    for (const src of live) if (!backdropChoices.includes(src)) backdropChoices.push(src);
+  }
+  function syncOrbitChoices() {
+    for (const spec of ORBIT_SEQ) if (!orbitActChoices.includes(spec)) orbitActChoices.push(spec);
+  }
+
+  function renderVideoPanel() {
+    syncBackdropChoices();
+    syncOrbitChoices();
+    const moonNow = shortSrc(moon.video.currentSrc || MOON_SRC);
+    const windowNow = contentVideo && contentVideo.video
+      ? shortSrc(contentVideo.video.currentSrc || contentVideo.video.src || contentList[0])
+      : isVideoContent && contentList[0]
+        ? shortSrc(contentList[0])
+        : isImageContent
+          ? `image slideshow (${contentList.length})`
+          : "none";
+    const activeBacks = String(BACKDROP_SRC || "").split(",").map((s) => s.trim()).filter(Boolean);
+    const activeSet = new Set(activeBacks);
+    const activeIdx = activeBacks.length
+      ? Math.max(0, Math.min(activeBacks.length - 1, Number(backdrop.idx) || 0))
+      : -1;
+    const act = (gifswarm && gifswarm.act) ? gifswarm.act() : null;
+    const rows = [];
+    rows.push(`<div style="font-weight:700;letter-spacing:2px;margin-bottom:8px;">VIDEOS IN LOOP</div>`);
+    rows.push(`<div>moon: <b>${escHtml(moonNow)}</b></div>`);
+    rows.push(`<div>window: <b>${escHtml(windowNow)}</b></div>`);
+    rows.push(`<div style="margin-top:10px;margin-bottom:4px;">backdrop loop ${activeBacks.length ? `${activeIdx + 1}/${activeBacks.length}` : "none"}</div>`);
+    if (!backdropChoices.length) {
+      rows.push(`<div style="opacity:0.8;">no backdrop clips configured</div>`);
+    } else {
+      rows.push(`<div style="display:grid;grid-template-columns:1fr;gap:3px;max-height:36vh;overflow:auto;border:1px solid rgba(143,216,255,0.2);padding:8px;">`);
+      backdropChoices.forEach((src, i) => {
+        const checked = activeSet.has(src) ? "checked" : "";
+        const inLoop = activeSet.has(src) ? ` <span style="color:rgba(151,240,182,0.95)">${activeBacks.indexOf(src) === activeIdx ? "• now" : "• queued"}</span>` : "";
+        rows.push(
+          `<label style="display:flex;align-items:center;gap:8px;cursor:pointer;">` +
+          `<input type="checkbox" data-backdrop-src="${escHtml(src)}" ${checked} style="width:14px;height:14px;">` +
+          `<span>${i + 1}. ${escHtml(shortSrc(src))}${inLoop}</span>` +
+          `</label>`
+        );
+      });
+      rows.push(`</div>`);
+    }
+    if (act) rows.push(`<div style="margin-top:10px;">orbit act ${Number(act.i || 0) + 1}/${act.of || 1}: ${escHtml(act.themes || "")}</div>`);
+    rows.push(`<div style="margin-top:10px;margin-bottom:4px;">orbit loop acts (${ORBIT_SEQ.length} in cycle)</div>`);
+    if (!orbitActChoices.length) {
+      rows.push(`<div style="opacity:0.8;">no orbit acts configured</div>`);
+    } else {
+      const activeOrbit = new Set(ORBIT_SEQ);
+      rows.push(`<div style="display:grid;grid-template-columns:1fr;gap:3px;max-height:26vh;overflow:auto;border:1px solid rgba(143,216,255,0.2);padding:8px;">`);
+      orbitActChoices.forEach((spec, i) => {
+        const checked = activeOrbit.has(spec) ? "checked" : "";
+        const marker = activeOrbit.has(spec) ? " • in cycle" : "";
+        rows.push(
+          `<label style="display:flex;align-items:center;gap:8px;cursor:pointer;">` +
+          `<input type="checkbox" data-orbit-spec="${escHtml(spec)}" ${checked} style="width:14px;height:14px;">` +
+          `<span>${i + 1}. ${escHtml(spec)}${marker}</span>` +
+          `</label>`
+        );
+      });
+      rows.push(`</div>`);
+    }
+    rows.push(`<div style="margin-top:10px;opacity:0.9;">press v to hide</div>`);
+    videoHelp.innerHTML = rows.join("");
+  }
+
+  function showVideos(on) {
+    if (!on) {
+      videoHelp.style.display = "none";
+      if (videoHelpTimer) { clearInterval(videoHelpTimer); videoHelpTimer = 0; }
+      return;
+    }
+    renderVideoPanel();
+    videoHelp.style.display = "block";
+    if (videoHelpTimer) clearInterval(videoHelpTimer);
+    videoHelpTimer = setInterval(() => {
+      if (videoHelp.style.display !== "block") return;
+      renderVideoPanel();
+    }, 1000);
+  }
+
+  videoHelp.addEventListener("change", (ev) => {
+    const t = ev.target;
+    if (!(t instanceof HTMLInputElement) || t.type !== "checkbox") return;
+    const src = String(t.getAttribute("data-backdrop-src") || "").trim();
+    if (src) {
+      if (!backdropChoices.includes(src)) backdropChoices.push(src);
+      const checked = [...videoHelp.querySelectorAll("input[data-backdrop-src]")]
+        .filter((box) => box instanceof HTMLInputElement && box.checked)
+        .map((box) => String(box.getAttribute("data-backdrop-src") || "").trim())
+        .filter(Boolean);
+      const selected = backdropChoices.filter((s) => checked.includes(s));
+      setBackdrop(selected.join(","));
+      renderVideoPanel();
+      note(`backdrop loop: ${selected.length} clip${selected.length === 1 ? "" : "s"} in`);
+      return;
+    }
+    const spec = String(t.getAttribute("data-orbit-spec") || "").trim();
+    if (spec) {
+      if (!orbitActChoices.includes(spec)) orbitActChoices.push(spec);
+      const checked = [...videoHelp.querySelectorAll("input[data-orbit-spec]")]
+        .filter((box) => box instanceof HTMLInputElement && box.checked)
+        .map((box) => String(box.getAttribute("data-orbit-spec") || "").trim())
+        .filter(Boolean);
+      ORBIT_SEQ.splice(0, ORBIT_SEQ.length, ...orbitActChoices.filter((s) => checked.includes(s)));
+      renderVideoPanel();
+      note(`orbit loop: ${ORBIT_SEQ.length} act${ORBIT_SEQ.length === 1 ? "" : "s"} in`);
+      return;
+    }
+  });
 
   // Each layer is read and written through one value, whatever its type, so a
   // single toggle serves all of them: reading nothing back means this show does
@@ -5493,7 +6851,7 @@
       get: () => (gifswarm ? gifswarm.shown() : null),
       set: (v) => gifswarm.setShown(!!v)
     },
-    v: {
+    j: {
       name: "vajras", off: 0,
       get: () => VAJRA_BASE,
       set: (v) => applyLiveConfig({ vajras: v })
@@ -5552,8 +6910,12 @@
     // The gps overlay is a separate script with its own key, so it is listed
     // only when it is actually up rather than promised to every show.
     if (document.querySelector(".hermes-panel")) rows.push("  h   gps panels");
+    rows.push("  v   show videos in loop");
+    rows.push("  u   ufo text banner        " + ((gifswarm && gifswarm.ufo && gifswarm.ufo()) ? "in" : "out"));
+    rows.push("  c   ufo config");
     keyHelp.textContent = ["HOT KEYS", ""].concat(rows).concat([
       "", "  n   next orbit act", "  m   gather / scatter the flower",
+      "  a   go up and show where we are",
       "  0   everything back in", "  ?   this list"
     ]).join("\n");
     keyHelp.style.display = "block";
@@ -5565,6 +6927,13 @@
     const el = document.activeElement;
     if (el && /^(input|textarea|select)$/i.test(el.tagName)) return;
     const k = e.key.toLowerCase();
+    if (k === "v") {
+      const on = videoHelp.style.display !== "block";
+      showVideos(on);
+      note(on ? "showing loop videos" : "hiding loop videos");
+      if (on) showHelp(false);
+      return;
+    }
     if (LAYERS[k]) { toggleLayer(k); showHelp(keyHelp.style.display === "block"); return; }
     if (k === "n") {
       const moved = gifswarm && gifswarm.nextAct();
@@ -5574,6 +6943,92 @@
     if (k === "m") {
       const what = gifswarm && gifswarm.flower();
       note(typeof what === "string" ? what : what ? "flower" : "the flower is already moving");
+      return;
+    }
+    // Not "g": that is the orbiting sprites layer.
+    if (k === "a") {
+      note(flyAerial());
+      return;
+    }
+    if (k === "u") {
+      if (!gifswarm || !gifswarm.ufo) {
+        note("ufo banner — not in this show");
+        return;
+      }
+      const on = gifswarm.ufo(!gifswarm.ufo());
+      extraState.ufo = on ? 1 : 0;
+      if (on && gifswarm.ufoConfig) {
+        const cfg = gifswarm.ufoConfig();
+        const quick = window.prompt(
+          "UFO text and size (text|size). Leave blank to keep current.",
+          `${cfg.text}|${cfg.size}`
+        );
+        if (quick != null && String(quick).trim()) {
+          const [rawText, rawSize] = String(quick).split("|");
+          const patch = {};
+          if (rawText != null && String(rawText).trim()) patch.text = String(rawText).trim();
+          const n = Number(rawSize);
+          if (Number.isFinite(n)) patch.size = n;
+          const next = gifswarm.ufoConfig(patch);
+          extraState.ufotext = next.text;
+          extraState.ufosize = next.size;
+        }
+      }
+      note("ufo banner " + (on ? "in" : "out"));
+      announce();
+      showHelp(keyHelp.style.display === "block");
+      return;
+    }
+    if (k === "c") {
+      if (!gifswarm || !gifswarm.ufoConfig) {
+        note("ufo config — not in this show");
+        return;
+      }
+      const cfg = gifswarm.ufoConfig();
+      const promptBody = [
+        "UFO config (one key=value per line).",
+        "keys: text, size, every, dur, blink, speed, radius, enabled",
+        "",
+        `text=${cfg.text}`,
+        `size=${cfg.size}`,
+        `every=${cfg.every}`,
+        `dur=${cfg.dur}`,
+        `blink=${cfg.blink}`,
+        `speed=${cfg.speed}`,
+        `radius=${cfg.radius}`,
+        `enabled=${cfg.enabled ? 1 : 0}`
+      ].join("\n");
+      const asked = window.prompt(promptBody, promptBody.split("\n").slice(3).join("\n"));
+      if (asked == null) return;
+      const patch = {};
+      for (const line of String(asked || "").split(/\r?\n/)) {
+        const txt = line.trim();
+        if (!txt || txt.startsWith("#")) continue;
+        const ix = txt.indexOf("=");
+        if (ix < 1) continue;
+        const key = txt.slice(0, ix).trim().toLowerCase();
+        const val = txt.slice(ix + 1).trim();
+        if (key === "text") patch.text = val;
+        else if (key === "size" || key === "fontsize" || key === "px") patch.size = Number(val);
+        else if (key === "every") patch.every = Number(val);
+        else if (key === "dur" || key === "duration") patch.dur = Number(val);
+        else if (key === "blink") patch.blink = Number(val);
+        else if (key === "speed") patch.speed = Number(val);
+        else if (key === "radius" || key === "r") patch.radius = Number(val);
+        else if (key === "enabled" || key === "on") patch.enabled = ["1", "true", "yes", "on"].includes(val.toLowerCase());
+      }
+      const next = gifswarm.ufoConfig(patch);
+      extraState.ufo = next.enabled ? 1 : 0;
+      extraState.ufotext = next.text;
+      extraState.ufoevery = next.every;
+      extraState.ufodur = next.dur;
+      extraState.ufoblink = next.blink;
+      extraState.ufospeed = next.speed;
+      extraState.ufoorbitr = next.radius;
+      extraState.ufosize = next.size;
+      note(`ufo config set · text size ${next.size}px · every ${next.every}s · dur ${next.dur}s`);
+      announce();
+      showHelp(keyHelp.style.display === "block");
       return;
     }
     if (k === "0") {

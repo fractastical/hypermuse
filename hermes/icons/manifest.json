@@ -1,0 +1,204 @@
+{
+  "note": "Event icons for the playa overlay, picked out of assets/gifcities by scripts/build-hermes-icons.mjs. A slot is a meaning; js/hermes-overlay.js maps an event's words onto one. Tracked in git because the library itself is not.",
+  "built": "2026-08-29T04:41:22.590Z",
+  "icons": {
+    "message": {
+      "file": "hermes/icons/message.gif",
+      "from": "ankh/times-square-alley-1939-ankh-VSZO7Y.gif",
+      "theme": "ankh",
+      "w": 60,
+      "h": 60,
+      "frames": 20,
+      "edgeClear": 1,
+      "source": "https://web.archive.org/web/20090805020605/http://geocities.com/TimesSquare/Alley/1939/index.html",
+      "note": "Hermes' own trade: dispatches, letters, things undelivered"
+    },
+    "cells": {
+      "file": "hermes/icons/cells.gif",
+      "from": "coral/su-kasem-bungalows-coral-bo-XB4AYL.gif",
+      "theme": "coral",
+      "w": 49,
+      "h": 40,
+      "frames": 9,
+      "edgeClear": 0.83,
+      "source": "https://web.archive.org/web/20090902131225/http://geocities.com/sukasembungalows/room.htm",
+      "note": "morphogenesis, mitochondria, anything cellular"
+    },
+    "dance": {
+      "file": "hermes/icons/dance.gif",
+      "from": "flame/extrem3-power-images-flame-RGQ2NU.gif",
+      "theme": "flame",
+      "w": 34,
+      "h": 32,
+      "frames": 12,
+      "edgeClear": 0.92,
+      "source": "https://web.archive.org/web/20090723044944/http://asia.geocities.com/extrem3power/rackets.htm",
+      "note": "bass, movement, sound systems"
+    },
+    "portal": {
+      "file": "hermes/icons/portal.gif",
+      "from": "ufo/ufo-unlimited-rebel-5KKIIN.gif",
+      "theme": "ufo",
+      "w": 75,
+      "h": 75,
+      "frames": 30,
+      "edgeClear": 1,
+      "source": "https://web.archive.org/web/20091026101329/http://geocities.com/ufounlimited/conspiracy.html",
+      "note": "stargates, deep playa, leaving the known map"
+    },
+    "chance": {
+      "file": "hermes/icons/chance.gif",
+      "from": "crystal/m2pt5-ani-bee-drill-shiny-crystal-KYVCGO.gif",
+      "theme": "crystal",
+      "w": 60,
+      "h": 60,
+      "frames": 57,
+      "edgeClear": 1,
+      "source": "https://web.archive.org/web/20090902154949/http://geocities.com/m2pt5/poison.htm",
+      "note": "casinos, bets, hypotheses, poker"
+    },
+    "mask": {
+      "file": "hermes/icons/mask.gif",
+      "from": "skull/paris-cafe-1373-images-skull-BCTQSW.gif",
+      "theme": "skull",
+      "w": 100,
+      "h": 100,
+      "frames": 24,
+      "edgeClear": 1,
+      "source": "https://web.archive.org/web/20090830170602/http://geocities.com/Paris/Cafe/1373/avpage3.html",
+      "note": "villains, balls, masks, monologues"
+    },
+    "question": {
+      "file": "hermes/icons/question.gif",
+      "from": "eye/most-eye-know-art3451465img-Y5TMSP.gif",
+      "theme": "eye",
+      "w": 66,
+      "h": 69,
+      "frames": 52,
+      "edgeClear": 1,
+      "source": "https://web.archive.org/web/20090820043829/http://geocities.com/mosteyeknow/Computer_Downloads.html",
+      "note": "salons, one weird question, staring into it"
+    },
+    "poem": {
+      "file": "hermes/icons/poem.gif",
+      "from": "butterfly/slave-kitty2u-butterfly-1-RUNJTO.gif",
+      "theme": "butterfly",
+      "w": 95,
+      "h": 95,
+      "frames": 20,
+      "edgeClear": 1,
+      "source": "https://web.archive.org/web/20090829091017/http://geocities.com/slavekitty2u/Tributetomaster.html",
+      "note": "poetry, skin, manuscripts, tenderness"
+    },
+    "shrine": {
+      "file": "hermes/icons/shrine.gif",
+      "from": "candle/chestnut-190-candle-1-HQLWPS.gif",
+      "theme": "candle",
+      "w": 60,
+      "h": 60,
+      "frames": 23,
+      "edgeClear": 0.88,
+      "source": "https://web.archive.org/web/20090807032734/http://geocities.com/chestnut190/memoral2.html",
+      "note": "churches, confessions, absolution"
+    },
+    "heart": {
+      "file": "hermes/icons/heart.gif",
+      "from": "heart/david-se-hoon-0-heart-4373DW.gif",
+      "theme": "heart",
+      "w": 32,
+      "h": 32,
+      "frames": 17,
+      "edgeClear": 1,
+      "source": "https://web.archive.org/web/20091023230318/http://geocities.com/davidsehoon/sehoon20.htm",
+      "note": "dating, romance, consent"
+    },
+    "moon": {
+      "file": "hermes/icons/moon.gif",
+      "from": "moon/wf-lipner-artwork-moon-YLO5CF.gif",
+      "theme": "moon",
+      "w": 72,
+      "h": 72,
+      "frames": 12,
+      "edgeClear": 1,
+      "source": "https://web.archive.org/web/20090829125608/http://geocities.com/wflipner/Breathing_pg8.html",
+      "note": "the moon, and anything named for it"
+    },
+    "man": {
+      "file": "hermes/icons/man.gif",
+      "from": "flame/gavi-gar-gr-flame-S4CYBZ.gif",
+      "theme": "flame",
+      "w": 63,
+      "h": 68,
+      "frames": 5,
+      "edgeClear": 1,
+      "source": "https://web.archive.org/web/20091025123127/http://geocities.com/~gavigar/geobook.html",
+      "note": "the Man, fire, burns"
+    },
+    "temple": {
+      "file": "hermes/icons/temple.gif",
+      "from": "pyramid/area-51-chamber-9781-pyramid-SNNXX2.gif",
+      "theme": "pyramid",
+      "w": 40,
+      "h": 40,
+      "frames": 30,
+      "edgeClear": 1,
+      "source": "https://web.archive.org/web/20090729210619/http://geocities.com/Area51/Chamber/9781/net.htm",
+      "note": "the Temple, grief, quiet"
+    },
+    "music": {
+      "file": "hermes/icons/music.gif",
+      "from": "rainbow/bab-girl-t-dancer-girl-rainbow-HVTKZC.gif",
+      "theme": "rainbow",
+      "w": 64,
+      "h": 64,
+      "frames": 32,
+      "edgeClear": 0.98,
+      "source": "https://web.archive.org/web/20091021085941/http://geocities.com/babgirlt/all4u",
+      "note": "choirs, opera, singing"
+    },
+    "art": {
+      "file": "hermes/icons/art.gif",
+      "from": "spinning-globe/i-ciao-s-globe-VTPFFD.gif",
+      "theme": "spinning-globe",
+      "w": 56,
+      "h": 58,
+      "frames": 24,
+      "edgeClear": 1,
+      "source": "https://web.archive.org/web/20091027134553/http://geocities.com/iciaos/Approached.html",
+      "note": "art cars, installations, the city itself"
+    },
+    "food": {
+      "file": "hermes/icons/food.gif",
+      "from": "smiley/airstrike-bitches-smiley-10-PQ6UMX.gif",
+      "theme": "smiley",
+      "w": 90,
+      "h": 90,
+      "frames": 30,
+      "edgeClear": 1,
+      "source": "https://web.archive.org/web/20090831002929/http://geocities.com/airstrikebitches/Giggles.html",
+      "note": "coffee, diners, anything served"
+    },
+    "water": {
+      "file": "hermes/icons/water.gif",
+      "from": "seahorse/semi-deity-seahorse-swims-mclr-UZ4XPC.gif",
+      "theme": "seahorse",
+      "w": 70,
+      "h": 70,
+      "frames": 6,
+      "edgeClear": 1,
+      "source": "https://web.archive.org/web/20091022205644/http://geocities.com/semideity/ocean.html",
+      "note": "the reef acts, aquatic anything"
+    },
+    "default": {
+      "file": "hermes/icons/default.gif",
+      "from": "star/youth-4sa-cool-star-LTRYEC.gif",
+      "theme": "star",
+      "w": 72,
+      "h": 72,
+      "frames": 16,
+      "edgeClear": 1,
+      "source": "https://web.archive.org/web/20090830093355/http://geocities.com/youth4sa/sami.html",
+      "note": "everything the words did not place"
+    }
+  }
+}

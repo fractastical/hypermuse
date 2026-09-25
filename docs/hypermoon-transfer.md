@@ -19,8 +19,8 @@ had one, is worse than no key at all.
 
 `g` orbiting sprites · `v` vajras · `s` stars · `b` backdrop clip · `f` the
 flashed mark · `i` the iris · `n` hands on to the next orbit act · `m` gathers or
-scatters the flower · `0` puts everything back · `?` lists the lot with what is
-currently in and out.
+scatters the flower · `a` goes up and shows where we are · `0` puts everything
+back · `?` lists the lot with what is currently in and out.
 
 A toggle puts back what it took out rather than a default, so a starfield taken
 down and brought back comes back at the count the show was running. Anything with
@@ -28,10 +28,55 @@ cmd, ctrl or alt held is left to the browser, so quitting and reloading still
 work. `?hotkeys=0` turns the whole thing off for an installation that might get
 leant on.
 
-**The playa overlay.** `?hermes=1` puts the car's position, what is on nearby in
-the next hour, and a Black Rock City street map with the track behind it around
-the edges of the show. Without that parameter the script returns immediately and
-nothing about the show changes, so it costs nothing to leave in.
+**The playa overlay.** `?hermes=1` puts what is on nearby in the top right and a
+Black Rock City street map, with the position and the track on it, in the bottom
+left. Without that parameter the script returns immediately and nothing about the
+show changes, so it costs nothing to leave in.
+
+Listings are shown **one at a time and cycled**, about ten seconds each
+(`?hermeshold=` in seconds), with a thin bar along the bottom counting the card
+down. Three at once meant the third was always sliced off mid-word and none of
+them had room for an icon. Each listing carries an animated icon chosen from its
+own words — a stargate gets a UFO, a poetry reading gets a butterfly — and the
+same icon is stamped on the map where the listing is, ringed in amber for the one
+the panel is currently talking about. Up to ten listings are carried at once, so
+the map reads as the legend and the panel walks through it.
+
+The icons live in `hermes/icons/`, picked out of the GifCities library by
+`npm run hermes:icons`. They are tracked in git, unlike the library itself, since
+the overlay refers to them by name. A slot is a meaning rather than a picture, so
+re-running the picker changes which gif means "portal" without touching the rule
+that says a stargate is one. Only cut-outs are eligible: the picker decodes each
+candidate and rejects anything carrying its own background, because on the night
+sky a gif with a background is a coloured box with a picture in it.
+
+**The position is coordinates**, to five decimal places, and nothing else. It
+used to name the nearest official point, which reads well in a plaza and lies on
+a street: parked on F between the 8:30 and 8:45 radials, the nearest point in the
+city's own CPN layer was the ice store at 9 o'clock, 277m off, and the panel said
+"near Ice Nine Arctica" over a dot that was nowhere near it. A corner is only
+your address if you are standing on it, and past that the honest answer is the
+number — the map underneath draws where that is, and the listings still say where
+*they* are in the city's words, because those are written down rather than
+guessed. The server goes on working out a name (it is what the journey dispatches
+narrate from); the panel just does not put it on screen.
+
+**The trail is also a log.** The map draws where you have been as a fading tail,
+brightest at the head and thinning back over half an hour (`?hermestrail=` in
+minutes), after which it settles to a faint thread and stays for the session
+(`?hermeslog=` in hours). The bottom of the map says what it adds up to in
+distance and time.
+
+Behind that, `scripts/hermes-server.mjs` appends every fix it accepts to
+`data/hermes/track.jsonl`, one JSON object per line — so the record survives a
+reload, a restart, or a power cut, which the browser's own trail does not. A page
+that has just been opened asks for the log and draws the night it missed. The file
+is git-ignored: it is a record of where the car actually was. `HERMES_TRACK=off`
+writes none of it, and the mock route keeps its own file so invented positions are
+never mixed into a real week.
+
+Because the log exists, a restarted server **resumes from the last logged
+position** rather than dropping back to the seed. `HERMES_RESUME=0` overrides it.
 
 It reads `/api/hermes/state` and an event stream from `scripts/hermes-server.mjs`
 (`npm run hermes:server`, or `hermes:mock` to drive it round an invented route
@@ -44,13 +89,256 @@ beside it, or everything out of the one server on 8124. `?hermesapi=` pins it if
 the API is on another machine.
 
 Position comes from a Garmin Alpha: `npm run hermes:post <lat> <lon>` pushes one
-by hand, and `scripts/hermes-alpha-watcher.mjs` polls the handheld's
-`.Position.gpx` and posts it every few seconds. That path is where a Linux box
-mounts the unit over MTP, so on a Mac it needs `ALPHA_POSITION_PATH` pointed at
-wherever the Alpha actually appears.
+by hand, and `npm run hermes:alpha` polls the handheld and posts what it finds.
+`--once` does a single read and says what it saw, which is the thing to run when
+the dot is not where the device says it is.
+
+The watcher reads a mounted volume if it finds one, and otherwise pulls files over
+MTP with libmtp (`brew install libmtp`). Either way it prefers `.Position.gpx`, the
+live file the unit rewrites with where it is *now*, and falls back to the track log.
+A log's last point is only the current position if the unit has been moving, so the
+two are posted under different source names and the panel says `last moved 4h ago`
+in grey for a log against `fix 4h old` in amber for a live file that has gone quiet
+— a parked car and a broken feed look identical in the numbers and should not read
+the same.
+
+**The Alpha 300 cannot do live position over USB, and this is not a software
+problem.** Its USB Mode menu offers Mass Storage, but selecting it changes nothing:
+the device enumerates one single vendor-specific interface named MTP
+(`0x091e:0x50ef`, `bInterfaceClass 255`), with no mass-storage interface and no
+serial interface, so nothing mounts under `/Volumes` and no OS can make it. Linux
+is no better — same descriptor, and the `garmin_gps` driver and `gpsbabel -i garmin`
+speak the old native protocol this unit does not implement. Worse, the receiver
+appears to power down when the unit enters transfer mode: `.Position.gpx` gets one
+fresh write at the moment of connection and then freezes, so each replug buys
+exactly one fix. `--once` will show you this — the same GPS timestamp, poll after
+poll, while the age climbs.
+
+**The dog collar is not a way around it either, and now we know why.** `npm run
+hermes:collar` points the watcher at `Dog.gpx`, the collar's track as the handheld
+records it. A TT 25 does have its own receiver and its own radio, and it does keep
+reporting to the handheld — but the handheld is what writes the file, and *the
+handheld stops writing files while it is tethered*. Tested with the collar in a
+moving vehicle: on connection `Dog.gpx` jumped from 17 points to 42, the newest 30
+seconds old and a kilometre away, and then froze. `mtp-files` fifty seconds apart
+returned the same object ids at the same byte counts while the vehicle was still
+moving. It is not the watcher caching, and it is not libmtp: the device genuinely
+does not write while it is plugged in.
+
+**So treat the Alpha as a recorder, not a feed.** It logs faithfully with nothing
+attached and hands the whole lot over on the next connection, which is what
+`npm run hermes:harvest` is for — see below. Live position is a phone's job.
+
+Two libmtp cautions. It does not recognise the Alpha's USB ID and drops the device
+often, so expect `No Devices have been found` and let the watcher's backoff handle
+it. And object ids are positional: the device renumbers them whenever it writes, so
+an id is leased for a minute and dropped early if a read comes back as something
+other than GPX. Only one process can hold the MTP session, so stop the watcher
+before poking at the device by hand.
+
+A phone is the fallback that always works. `/api/location` takes GET as well as
+POST, so an iOS Shortcut looping Get Current Location into a URL feeds it with no
+cable at all. Both can run at once: the freshest fix holds the position, with a
+minute of slack for clock skew, and a feed that goes quiet for ninety seconds stops
+defending so the other takes over.
+
+Add `&test=1` to the URL you hand people. It answers "you can reach Hermes" and
+records nothing. Without it, everyone who taps the example link to check it works
+teleports the dot to the example coordinates and leaves a point there — the first
+draft of a story dispatch had a five-kilometre journey in it that was nothing but
+the position bouncing between test posts.
+
+### Harvesting the recorder
+
+```bash
+npm run hermes:harvest              # plug the Alpha in first
+npm run hermes:harvest -- --dry     # say what it would take, take nothing
+npm run hermes:harvest -- --since=2026-08-24 --from=/tmp/gpx
+```
+
+Pulls `Dog.gpx` (collar) and `Current.gpx` (handheld) and merges their trackpoints
+into `data/hermes/track.jsonl` under `alpha-collar-gpx` and `alpha-handheld-gpx`.
+Plugging in once at the end of the night backfills every mile logged while nothing
+was tethered: on the first real run it took the log from 18 points to 152.
+
+It appends and never rewrites, because the server has the same file open and a
+read-modify-write here would drop whatever landed in between. Points therefore go
+in out of order, and readers sort. Each point is filed under its **satellite**
+timestamp rather than the moment it arrived, or a whole night would be recorded as
+having happened during the minute the cable went in. Run it as often as you like:
+a fix already in the log is recognised and skipped.
+
+Two things to expect. The handheld's `Current.gpx` is a rolling log, not this
+week's — ours still had points from July of the previous year, which is what
+`--since` is for, and why distances are only summed within runs of points less than
+an hour apart. And only one process gets the MTP session, so stop the watcher
+first. `--from=<dir>` reads files copied off by hand, which also covers a
+connection that has since been unplugged: the pull leaves its copy in `$TMPDIR`.
+
+### Phones as the live feed
+
+Hand out **`http://<mac-ip>:8124/phone`**. They tap through a certificate warning
+once, type a name, tap once more, allow location, and leave the tab open.
+
+The exact address is printed on startup, so read it off the log rather than
+working it out:
+
+```
+[hermes] phones -> http://192.168.1.75:8124/phone   (share this one)
+```
+
+That link is http even though the page can only work over https, and it is the
+right one to share for a dull reason: it redirects, and it survives being typed.
+An address with no scheme in front of it gets tried as http, and http aimed at the
+https port is not a redirect but a connection failure — so handing out the https
+address directly means anyone who retypes it from a photo of a whiteboard, without
+the `https://`, gets an error instead of a page.
+
+#### Why https, and why the warning
+
+Browsers refuse `navigator.geolocation` outside a "secure context", and a LAN
+address over plain http is not one — Chrome and Safari both fail it with *Only
+secure origins are allowed* **before** the user is asked to allow anything.
+Pre-granting the permission makes no difference; it is the origin being rejected,
+not the request. Localhost is exempt, which is why the moon on the Mac is fine on
+http and a phone across the camp wifi is not.
+
+This is worth being blunt about because the failure is silent and it fooled this
+build once already: the page loads, looks perfectly healthy, and simply never
+gets a position. It was verified against `127.0.0.1` — a secure context — and
+passed, while the LAN address it was actually going to be used on could not have
+worked.
+
+So the server signs its own certificate on startup, into `data/hermes/tls/`
+(gitignored, key `0600`, and the whole directory is refused by the file server so
+the private key cannot be fetched off the wifi it is protecting). There is no
+internet out here to get a real one with, so each phone waves the warning through
+once. The address goes in `subjectAltName` as an IP entry, because a certificate
+for a hostname does nothing for `https://192.168.1.75`; the pair is regenerated
+whenever the camp's addresses change, since a certificate that does not name the
+address being typed produces a warning iOS will not let you past.
+
+An http link to `/phone` is answered with a redirect to the https one rather than
+being served, because a page that looks fine and can never read a location is the
+worst of the available outcomes. So an old link, or someone typing the show's port
+out of habit, still lands in the right place.
+
+`HERMES_PHONE=off` skips the listener entirely; `HERMES_PHONE_PORT` moves it.
+
+This exists because the alternative did not survive contact with reality: talking a
+dozen people through building an iOS Shortcut, in the dark, in the dust, on phones
+whose owners have never opened the Shortcuts app. The browser already has a
+geolocation API behind a permission prompt everyone has seen, so the page is a
+link instead of a recipe, and it works the same on iPhone and Android.
+
+It uses `watchPosition`, so the phone reports when it has moved rather than being
+asked every few seconds and handing back the same fix — fresher and easier on the
+battery. The name is kept in `localStorage`, so a phone that gets locked and
+reopened comes back as the same source instead of a second nameless one competing
+with the phone it was a minute ago. When another phone is fresher the page says
+"someone else is closer to the moon" rather than "failed", because several people
+sharing at once is the normal case and not an error to go and debug.
+
+Caveats worth saying out loud when handing it out: **the certificate warning is
+expected and has to be tapped through**, **the tab has to stay open** — phones
+suspend background tabs, and it resumes when you come back to it — and everyone
+must be on the same wifi as the Mac, though no internet is needed.
+
+`/api/location` still takes GET and POST directly for anything scripted, and
+`&test=1` proves the path without writing to the track log.
+
+### The story: "Hermes was here"
+
+```bash
+npm run hermes:story                       # everything in the log
+npm run hermes:story -- --day=2026-08-29   # one day
+npm run hermes:story -- --json             # the data, for something else to render
+```
+
+Writes `artifacts/hermes-story/index.html` — the trail drawn on the city with
+numbered stops, beside a telling of the night — and a markdown copy next to it.
+The directory is the whole dispatch, map included, so it can be moved anywhere as
+it stands.
+
+Every sentence is read off the log. A journey is a run of fixes with no gap longer
+than half an hour; inside one, a stop is a cluster staying within 45m for at least
+eight minutes, and the rest is legs. Those three numbers are what separate a night
+from a list of coordinates: without the gap rule the page draws a straight line
+through the city that nothing drove, without the cluster radius a parked hour of
+GPS drift reads as driving up and down the street, and without the dwell minimum
+every wait to turn becomes somewhere Hermes went. Silences are stated rather than
+crossed. Stops are named by the same geocoder the live panel uses
+(`scripts/lib/playa-places.mjs`, shared so the dispatch cannot call a corner
+something different from what the screen called it all night), and anything in the
+listings that was on near a stop while Hermes was standing there gets a line.
+
+The page crops the map to what the night covered, always keeping the Man in frame,
+and draws the base from `playa-streets.svg` so the crop stays sharp. It draws its
+own trail once on load rather than presenting it finished, because an arriving
+trail is a night and a drawn one is a diagram; `?play=0` shows the finished map
+straight away, and `?upto=N` draws the first N fixes and stops there.
+
+### The trail as a gif
+
+```bash
+npm run hermes:gif                                    # needs the story built and a server up
+npm run hermes:gif -- --frames=140 --fps=24 --width=900
+npm run hermes:gif -- --keep                          # leave the frames for inspection
+```
+
+Writes `hermes-trail.gif` into the dispatch directory, which the page then links
+from the map caption on its next build — so the order is `hermes:story`,
+`hermes:gif`, `hermes:story` again. Needs the server running (`npm start`): a
+canvas drawing an SVG off `file://` is blocked as cross-origin, and the map would
+come out blank.
+
+Frames are shot with `?upto=`, one page load each, so frame N is a pure function
+of N. Capturing off a running clock instead gives a different gif every time and
+no way to tell a rendering bug from a slow frame. The schedule comes out of the
+page itself, so the gif and the live playback are the same animation and not two
+that resemble each other — including the pacing, which is by distance travelled
+and not by fix count. That matters more than it sounds: two thirds of a typical
+log is a van parked at camp, and paced by count two thirds of the animation is a
+stationary dot followed by the actual drive going past in a rush.
 
 `h` hides and shows the overlay's panels, which is why it is not also the key for
 the hot key list.
+
+### Fitting the overlay round the hardware
+
+The screen is not all ours. A ratchet strap across the glass takes a band of it,
+and no amount of clamping font sizes wins against something physically in the way
+— the panel has to move instead. So the listings run as a thin bar along the top
+above the moon, which needs only a strip and leaves the whole right-hand side
+clear, and the strip can be pushed down past whatever crosses the screen.
+
+```
+?hermesevents=bar     one line along the top (the default)
+?hermesevents=card    the old block in the top right corner
+?hermesbartop=470     px from the top, to sit clear of a strap
+?hermesbarh=88        px tall
+?hermesinset=40       px all panels keep away from every edge
+```
+
+In the bar, who yields to whom when it gets narrow is deliberate: the blurb goes
+first and can go to nothing, the time and distance next, and the title only after
+that and never below a few characters — a listing with no title is not a listing.
+Below 900px wide the blurb is dropped outright, because the title and the time are
+the listing and the rest is a courtesy.
+
+```bash
+npm run hermes:overlay                              # 1920x1080
+STRAP=470,120 npm run hermes:overlay                # band 120px tall, 470px down
+STRAP=470,120 EXTRA="&hermesbartop=610" npm run hermes:overlay
+SIZE=3840x2160 npm run hermes:overlay
+```
+
+`STRAP` draws a hazard band over the shot where something covers the glass and
+then says which panels are under it, so the layout can be moved clear by looking
+rather than by carrying a laptop back and forth to the installation. It also
+reports the box of every panel and whether any line is being clipped — which a
+picture cannot tell you, since the clipped part is by definition the part you
+cannot see.
 
 ## What's new in this build
 
@@ -317,39 +605,107 @@ the hot key list.
   something the lanes cannot. It flies the collected Metavillan marks — the same
   lanes, the same pool, just a different index to read — and then every
   `?mandsec=` (12) seconds it takes them out of those lanes: over `?mandmove=`
-  (3) they gather into a ring of eight petals at `?mandr=` (1.16) of the disc
-  radius, grown to `?mandscale=` (1.5), and hold for `?mandhold=` (30) while the
-  ring turns at `?mandspin=` (0.22 rad/s, about one circuit of the moon per
-  hold) before scattering back. Just over 1 sets the ring outside the limb,
-  which is the flower: the moon is its heart and the marks are petals going
-  round it. Under 1 puts them on the face instead, which is a seal rather than a
-  flower — `?mandr=0.58&mandscale=1.25` is the tight mandala, and during the show
-  a ring that small lands inside the iris and frames the backdrop clip.
+  (3) they gather into rings of petals round the moon, hold for `?mandhold=`
+  (30) while the rings turn, and scatter back.
+
+  `?mandrings=` (3) is how many rings, spread evenly from `?mandr0=` (0.5 of the
+  disc radius) out to `?mandr=` (1.2), and it is the difference between the
+  single flower this started as and the long form. Set it to 1 and everything
+  goes back to that flower, defaults included: one ring of eight at 1.16 grown
+  to 1.5. Leave it at 3 and the act flies `?markorbit=` (27) marks rather than
+  the `?giforbit=` (8) a gif act does, dealt over the rings in proportion to
+  their radius — 5, 9 and 13 at the defaults — so the gap between petals comes
+  out about equal on all of them. Those extra lanes are built at load and simply
+  not shown until the marks come in, fading up over `?markin=` (2.5); a gif act
+  never flies more than its eight. Petals grow with the ring they sit on out of
+  `?mandscale=` (1.1 with rings, 1.5 for the lone flower), because one size for
+  all of them crowds the inner rings and leaves the outer one looking sparse.
+
+  1.2 is as far out as the outermost ring can go, and it is the ceiling on the
+  whole formation: the disc measures about 0.35 frame heights, so a ring there
+  plus half a petal is the whole of the half frame there is. Push `?mandr=`
+  past it and the top and bottom marks are cut off by the edge of the screen —
+  which looks fine in a tall browser window, where the show is letterboxed into
+  a band and there is black above and below to spill into, and is unmissable on
+  the 16:9 it gets projected on. More marks go in by adding a ring rather than
+  by widening the ones there are.
+
+  Each ring turns at its own rate off `?mandspin=` (0.22 rad/s, which is the
+  outermost; inner rings go faster by the square root of the radius ratio) and
+  alternate rings turn the other way unless `?mandcounter=0`, which is what
+  keeps a mandala from reading as a wheel. They are also offset half a gap turn
+  about, so petals interleave with the ring inside them rather than lining up
+  into spokes. And they arrive one at a time, `?mandstagger=` (1.1) seconds
+  apart, inside out on the way in and outside in on the way out: the rosette is
+  built and dismantled rather than switched on, and at three rings that is a
+  good five seconds of monograms swinging into place.
+
+  Just over 1 sets a ring outside the limb, where the moon is the heart of the
+  flower and the marks are petals going round it. Under 1 puts them on the face
+  instead, which is a seal rather than a flower — `?mandrings=1&mandr=0.58` is
+  the tight mandala, and during the show a ring that small lands inside the iris
+  and frames the backdrop clip. With three rings the default span crosses the
+  limb, so the inner two are seals on the face and the outer one is petals.
 
   Which way each V faces follows from that, and getting it backwards is the
-  difference between a flower and eight darts aimed at the same rock. Petals
+  difference between a flower and a dozen darts aimed at the same rock. Petals
   point away from whatever the ring is arranged around: outside the limb that is
   the moon, so they radiate, while a ring on the face has no centre until the
   marks make one, so there they point in and their tips close on a void. Hence
-  `?mandaim=` defaults off the radius rather than to a constant, and is only
-  worth setting by hand to see the wrong one.
+  the decision is made per ring off its own radius, and `?mandaim=` overriding
+  all of them at once is only worth setting by hand to see the wrong one.
 
   The marks also run through the hues as they go — `?markhue=` (0.3 rad/s) turns
   every mark about the grey axis of the colour cube, which cycles the colour and
   leaves the brightness, so a mark keeps its gradient and the chrome one keeps
   its metal. `?markhuespread=` (1) starts each petal a further step round the
-  wheel, so the flower is a spectrum that turns as well as a ring that does.
+  wheel round its own ring, with each ring offset again from the last, so every
+  ring is a full spectrum that turns and no two of them show the same colour at
+  the same angle.
   `?markhue=0` leaves the collected colourways as they were shot. Only the marks
   are turned: a GeoCities gif is the colour it was in 1999.
 
+  The colour is held back until the flower exists. A monogram is a shape before
+  it is a colourway and the shape reads hardest with nothing else in it, so the
+  flock orbits and gathers in grey and the colour becomes something that happened
+  to a finished thing rather than a property it flew in wearing. `?markmono=0`
+  turns that off and lets the marks arrive already coloured. `?markbloom=` (8s)
+  is how long the front takes to cross the whole rosette, and wants to fit inside
+  `mandhold` with room to spare or the flower comes apart mid-bloom; on the way
+  out it drains in under half that, because colour lingering on a dispersing ring
+  reads as a bug rather than a farewell. `?markbloomedge=` (0.6 of the sweep) is
+  the width of the front — a hard edge is a wipe, this is a fade
+  travelling — and wants to be wider than one ring's share of the sweep, or the
+  rings light one after another and read as three events instead of one bloom.
+  `?markbloomspin=` (1) is how much of the front's travel is rotation rather than
+  expansion: at 0 the colour arrives ring by ring, and turning it as it expands
+  makes one spiral arm sweeping outward with petals of every ring mid-fade at
+  once. What each petal reveals is the hue it already had from `markhuespread`
+  and its ring's offset, which is why this reads as colour spreading through the
+  flower rather than a lamp being switched on behind it. Once everything is lit,
+  `?markwave=` (0.22) leaves a shallow desaturation still going round on a
+  `?markwavesec=` (7s) turn, so a held flower keeps moving instead of arriving at
+  flat colour and stopping there. The desaturation is toward grey along the very
+  luminance the sprite's alpha gate reads, so draining the colour cannot change
+  which pixels count as backing plate — with any other weights the marks flicker
+  as the colour goes, which is the one thing a slow fade must not do.
+
+  `npm run metavillan:check` shoots the cycle where it means something, the bloom
+  included, so the rings can be tuned by looking at them instead of standing in
+  front of a two-and-a-half minute act waiting for it to come round.
+
   A sprite on the far side of its lane is hidden by the limb, so it crosses to
-  the face while nobody can see it move and fades in where it lands. The other
-  two are both the same trap, which is that an act's name changes at the top of
-  the dissolve while the last act's sprites are still on screen. So the ring is
+  the face while nobody can see it move and fades in where it lands, and a mark
+  that is due to take another out of the pool holds the change until it is back
+  in its lane — mid-rosette it is on the face being read rather than passing
+  behind the disc, and that is the one place a cut would be seen. The rest is
+  the same trap twice, which is that an act's name changes at the top of the
+  dissolve while the last act's sprites are still on screen. So the rings are
   dropped outright at the bottom of the dissolve rather than eased out, or a
-  half-formed one would outlive the hand-over and gather the next act's gifs into
-  it — and the hues do not start turning until that same bottom, where the pool
-  is rebuilt, or they would recolour the outgoing act's gifs on their way down.
+  half-formed rosette would outlive the hand-over and gather the next act's gifs
+  into it — and the hues and the extra lanes wait on the pool itself rather than
+  on the act name, or they would recolour the outgoing act's gifs on their way
+  down.
 
   `npm run metavillan` brings marks in: it crops each one to its own bounds —
   they arrive as a glyph floating in a wide transparent margin, and a fixed
@@ -358,10 +714,11 @@ the hot key list.
   resolution and rewrites the index. Pass it any number of files, rerun it to
   add more. Unlike the scraped libraries these are tracked in git, because there
   is no script that can fetch a collected set back. `npm run metavillan:check`
-  shoots the cycle at four points — orbiting, mid-gather, held, back out — into
-  `artifacts/metavillan/`, so the ring can be tuned by looking at it rather than
-  by standing in front of a two-and-a-half minute act waiting for it to come
-  round; `EXTRA="&mandr=0.9&mandaim=1"` shoots a variant.
+  shoots the cycle at five points — orbiting, the inner ring seated with the
+  outer one still in its lane, mid-gather, held, back out — into
+  `artifacts/metavillan/`, so the rings can be tuned by looking at them rather
+  than by standing in front of a two-and-a-half minute act waiting for it to
+  come round; `EXTRA="&mandrings=4&markorbit=32"` shoots a variant.
 
   `npm run gifs:pool` reports what each act of the show's sequence actually
   flies — curated, tried, and how many were dropped as tiles — and writes a
@@ -603,6 +960,139 @@ Worth knowing:
 - The panel is one slot, so a running program still owns it: on the rotations
   where an effect opens the window wordless, the guest steps aside with the
   word and comes back on the next word rotation.
+
+## The mark, and going up from the art car
+
+Separate from the guest panel above: `?flash=` throws a mark over the whole disc
+for a few seconds a minute, so the moon briefly *becomes* the mark. The show
+preset already carries `flash=hermes/logo.png`.
+
+```
+hypermoon.html?flash=hermes/logo.png&flashsec=60&flashhold=3
+```
+
+### Paint, not just light
+
+The mark used to be added as pure light, which is why it washed out: additive
+blending can only ever brighten, so a mark thrown on the lit face of the moon
+loses most of its contrast exactly where the moon is brightest. It is now laid on
+as paint with some glow left over, which is what makes it read as both stronger
+and darker.
+
+- `flashink` (default 0.88) — how opaque the paint is. `0` is the old pure glow.
+- `flashinkdark` (0.3) — how far the artwork's colour is pulled toward black. A
+  little goes a long way: the supplied mark has a lit rim doing most of the
+  legibility work, and blacking that out to make it "darker" loses the thing
+  being darkened.
+- `flashshadow` (0.07) and `flashshadowdark` (0.62) — a dark halo just outside
+  the mark, in units of its own radius, so it sits on the surface rather than
+  floating in front of it. It is also what keeps the mark readable once the climb
+  below has shrunk it to a dot on a pale map.
+- `flashcircle` (1) — treat the mark as a round badge and cut it to a circle
+  rather than trusting its alpha. **`hermes/logo.png` has no alpha channel** —
+  it is a circular badge on a black square — which the old additive pass got away
+  with because black adds nothing. Paint cannot: it would lay the square down as
+  a slab. Keying on brightness instead is worse, because measured on that artwork
+  the surround is black to within 0.004 but 3% of the badge interior is that dark
+  too, so a brightness key punches holes through the darkest strokes of the
+  glyph, precisely where the contrast was wanted. Set `flashcircle=0` for artwork
+  that has real alpha.
+
+### The climb
+
+Straight after the mark has held, the camera leaves the roof of the art car and
+goes up. The mark shrinks as the ground falls away, the city resolves around it
+out of nothing, and what was a mark filling the moon ends as a dot with the whole
+plateau round it and streets you can name. The mark never stops being the same
+object — that is what makes the two shots one shot rather than a map cutting in.
+
+On by default wherever there is a mark. `?aerial=0` turns it off and gives the
+mark its plain rise-hold-fall back.
+
+- `aerialrise` (3.4s) climbing · `aerialhold` (5s) at altitude · `aerialfall`
+  (1.5s) fading out. These extend the flash period rather than fitting inside it,
+  so `flashsec` still sets how often the whole thing comes round.
+- `aerialnear` (460m) and `aerialfar` (3900m) — metres across the disc at the
+  bottom and the top of the climb. The near end is deliberately not tighter: the
+  street image carries city-scale line weights, and a single block of it enlarged
+  to fill the moon is one white band. Under the mark at the start of the climb it
+  is barely visible anyway, which is what buys the licence.
+- The zoom between them is geometric, not linear — altitude that doubles at a
+  steady rate is what an ascent actually looks like. Interpolating the span
+  straight spends most of the climb crawling over the last few hundred metres.
+- `aerialframe` (0.72) — how far the camera comes off the vertical on the way up.
+  At `0` it is a true plumb line and the mark stays dead centre the whole way,
+  which is honest but never quite shows where it is: the city arrives around it
+  and slides off one edge. Letting the camera lean puts the city in frame and the
+  mark travels out to its own place in it.
+- `aerialmark` (0.11) — the mark's size at altitude, in disc diameters.
+  `aerialdim` (0.84) — how opaque the map is over the moon. `aerialtrail` (6) —
+  hours of track to draw behind the dot.
+
+### What else is on, out there
+
+The climb also pins the other listings where they actually are, each one the
+event's icon on a dark plate ringed in that listing's own colour. The colour is
+the join: the same listing is that colour as a polygon on the corner map and as
+the badge on the event bar, so a pin on the moon and a name in the bar are
+findable as the same thing. Ten of them, in the server's ranked order, which is
+the order the bar cycles.
+
+The icons are the gifs, not polygons, because there is finally room for them —
+the corner map learned the hard way that fourteen pixels of hollow nineties line
+art on a street grid reads as a smudge, and a pin on the full disc is three or
+four times that. They animate, since the browser keeps running a detached gif and
+the canvas takes whatever frame is showing.
+
+- `aerialevents` (10) — how many to pin. `aerialpin` (0.072) — pin size in disc
+  diameters. `aerialpinsat` (0.5) — how far up before they start arriving, after
+  the streets, so the shot reads as ground, then city, then what is happening
+  in it.
+- Pins are a fixed size on screen rather than scaled with the zoom, because a pin
+  is a label on the map, not a thing lying on the ground getting smaller as you
+  climb away from it.
+- **The top of the climb is set by what has to be in shot**, not by `aerialfar`:
+  the whole point of going up is to show what else is on, so a listing past the
+  limb is the shot failing at its job, and how far out tonight's listings happen
+  to be is not something a default can know. `aerialfar` is the floor, and the
+  ceiling is capped at 2.2× it so one listing geocoded to the wrong side of the
+  playa cannot pull the camera back until the city is a smudge.
+- Listings whose `place` the geocoder could not resolve are dropped rather than
+  stacked on the Man, which is where a null would put them.
+- Pins landing on each other fan out into a ring, and pins landing under the
+  Hermes badge are pushed out until they clear it — being next to Hermes is
+  exactly why a listing ranks first, so that collision is the common case, and
+  the badge must not hide the very things the climb went up to show.
+
+Icons and mark colours now live in `js/hermes-marks.js`, shared by the corner map,
+the event bar and the aerial pins, because a listing that is a pink pentagon on
+one map and a green star on another is two listings to anyone watching.
+
+Press `a` to go up now instead of waiting out the rest of the minute. It says why
+not when it can't — no fix yet, no map loaded, mark toggled out — because both
+things it needs arrive over the network, and "nothing happened" is a bad answer
+to be given in front of a crowd.
+
+The position comes from the same Hermes server the overlay uses, on port 8124,
+fetched between climbs rather than during one so the ground never moves under the
+camera mid-shot. **If the server is down or there is no fix, the climb simply
+does not happen** and the mark flashes as it always did. The city image itself is
+a static asset, so a map with no fix still loads and still waits.
+
+Look at it frame by frame without waiting on the clock:
+
+```
+npm run hermes:aerial
+EXTRA="&aerialframe=0&aerialnear=900" npm run hermes:aerial
+```
+
+which parks the climb at six altitudes and writes them to `artifacts/aerial/`,
+reporting the span in metres and where the mark landed at each. Needs the server
+up and a fix in the log for the car to be over.
+
+`js/playa-map.js` is the projection and the aerial renderer, and is the version
+meant to be shared — the overlay's corner map and the story page still carry
+their own copies of the same origin-at-the-Man, rotate-to-the-Temple maths.
 
 ## Included assets
 

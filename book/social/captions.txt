@@ -1,0 +1,8 @@
+Cover — feed or story
+The Blockchain Chronicles. A social history of ideology, code, and law.
+Primavera De Filippi, Joel Dietz, Morshed Mannan, and Kelsie Nabben.
+
+Carousel — books, then works, then citations
+“Smart contract” sits on the axis of English books until 2015. In 2019 the singular and the plural together show up about once per million words. That book count stops in 2019, which is where the corpus ends.
+
+Semantic Scholar lists 28,284 works whose title or abstract uses the phrase, counted 23 September 2026. Those works have been cited 400,240 times. The citations sit on papers published in 2016–2020. The new papers are still arriving. The pale bar is 2026, still open.

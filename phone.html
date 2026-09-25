@@ -848,7 +848,7 @@ function drawWindOverlay(ctx2d, ws) {
   const gustKph = Number(ws && ws.gustKph);
   const windDirDeg = Number(ws && ws.windDirDeg);
   if (!Number.isFinite(windKph) && !Number.isFinite(windDirDeg)) return;
-  const x = 12, y = 12, w = 248, h = 62;
+  const x = 12, y = 12, w = 260, h = 76;
   ctx2d.save();
   ctx2d.fillStyle = "rgba(7, 16, 28, 0.72)";
   ctx2d.strokeStyle = "rgba(138, 193, 232, 0.7)";
@@ -864,9 +864,11 @@ function drawWindOverlay(ctx2d, ws) {
   ctx2d.font = "12px -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, sans-serif";
   const dirText = Number.isFinite(windDirDeg) ? `${arrow(windDirDeg)} ${Math.round(windDirDeg)}°` : "dir ?";
   const speedText = Number.isFinite(windKph) ? `${windKph.toFixed(1)} km/h` : "speed ?";
-  const gustText = Number.isFinite(gustKph) ? ` gust ${gustKph.toFixed(1)}` : "";
-  ctx2d.fillText(`${speedText}${gustText}`, x + 50, y + 36);
-  ctx2d.fillText(`from ${dirText}`, x + 50, y + 53);
+  const gustText = Number.isFinite(gustKph) ? `${gustKph.toFixed(1)} km/h` : "unknown";
+  const deltaText = Number.isFinite(gustKph) && Number.isFinite(windKph) ? ` (+${Math.max(0, gustKph - windKph).toFixed(1)})` : "";
+  ctx2d.fillText(`Wind: ${speedText}`, x + 50, y + 34);
+  ctx2d.fillText(`Gust: ${gustText}${deltaText}`, x + 50, y + 50);
+  ctx2d.fillText(`from ${dirText}`, x + 50, y + 66);
 
   if (Number.isFinite(windDirDeg)) {
     // Meteorological convention: direction is where wind comes from.
@@ -874,7 +876,7 @@ function drawWindOverlay(ctx2d, ws) {
     const rad = (towardDeg - 90) * Math.PI / 180;
     const cx = x + 24;
     const cy = y + 36;
-    const len = 17;
+    const len = Math.max(14, Math.min(26, Number.isFinite(gustKph) ? gustKph * 0.55 : windKph * 0.55));
     const tipX = cx + Math.cos(rad) * len;
     const tipY = cy + Math.sin(rad) * len;
     const tailX = cx - Math.cos(rad) * 8;
@@ -1348,6 +1350,10 @@ function drawMiniMap(rows, arts, pickups) {
   drawWindOverlay(mapCtx, weatherState);
 }
 
+function renderHermesFirst() {
+  drawMiniMap([], [], []);
+}
+
 function syncMapModeLabel() {
   const btn = el("mapMode");
   if (!btn) return;
@@ -1510,9 +1516,25 @@ async function refreshState() {
   try {
     const r = await fetch("/api/hermes/state", { cache: "no-store" });
     latestState = await r.json();
-    renderNearby();
+    renderHermesFirst();
+    setTimeout(renderNearby, 0);
     refreshWeather(false);
     refreshInfractions();
+  } catch { /* next refresh will try again */ }
+}
+
+async function refreshFix() {
+  try {
+    const r = await fetch("/api/hermes/fix", { cache: "no-store" });
+    const body = await r.json();
+    if (!r.ok || !body || body.ok === false || !body.fix) return;
+    latestState = {
+      ...(latestState || {}),
+      fix: body.fix,
+      updatedAt: body.updatedAt || (latestState && latestState.updatedAt) || "",
+      place: body.place || (latestState && latestState.place) || null
+    };
+    renderHermesFirst();
   } catch { /* next refresh will try again */ }
 }
 
@@ -1749,15 +1771,17 @@ el("go").addEventListener("click", () => {
 
 if (window.PlayaMap) {
   window.PlayaMap.load()
-    .then((map) => { miniMap = map; renderNearby(); })
+    .then((map) => { miniMap = map; renderHermesFirst(); renderNearby(); })
     .catch(() => {});
 }
+refreshFix();
 refreshState();
 refreshPickups();
 renderWeather();
 refreshWeather(true);
 refreshInfractions();
-setInterval(refreshState, 7000);
+setInterval(refreshFix, 3000);
+setInterval(refreshState, 12000);
 setInterval(refreshPickups, 7000);
 setInterval(() => refreshWeather(false), 30000);
 setInterval(refreshInfractions, 15000);

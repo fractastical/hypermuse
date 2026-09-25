@@ -1495,7 +1495,7 @@ anything outside the repo.
 - This repo contains multiple experimental pages with overlapping logic.
 - Some scripts are in-progress or partially wired; `controller.html` +
   `sonicsphere.html` is the primary path.
-- Live control mapping doc: `LIVE_CONTROLS_MIXER.md`
+- Live control mapping doc: `docs/live-controls.md`
 
 ## Related work
 
