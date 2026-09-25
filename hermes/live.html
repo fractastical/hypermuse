@@ -13,13 +13,13 @@
 <meta property="og:description" content="Live location, request form, and core info for the Return of Hermes and the Circle of Hermes.">
 <meta property="og:image" content="/hermes/logo.png">
 <meta property="og:image:alt" content="Return of Hermes logo">
-<meta property="og:url" content="https://returnofhermes.com/hermes-live.html">
+<meta property="og:url" content="https://returnofhermes.com/hermes/live.html">
 <meta property="og:site_name" content="Return of Hermes">
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:title" content="Return of Hermes | Live Art Car Tracker & Circle of Hermes">
 <meta name="twitter:description" content="Live location, ride requests, and basic info for the Return of Hermes and Circle of Hermes.">
 <meta name="twitter:image" content="/hermes/logo.png">
-<link rel="canonical" href="https://returnofhermes.com/hermes-live.html">
+<link rel="canonical" href="https://returnofhermes.com/hermes/live.html">
 <style>
   :root { color-scheme: dark; }
   * { box-sizing: border-box; }
@@ -133,8 +133,8 @@
   }
   .about li { margin: 4px 0; }
 </style>
-<script src="js/hermes-marks.js"></script>
-<script src="js/playa-map.js"></script>
+<script src="/js/hermes-marks.js"></script>
+<script src="/js/playa-map.js"></script>
 <script type="application/ld+json">
 {
   "@context": "https://schema.org",
@@ -308,7 +308,7 @@
   const hermesLogo = new Image();
   let hermesLogoReady = false;
   hermesLogo.onload = () => { hermesLogoReady = true; draw(); };
-  hermesLogo.src = "hermes/logo.png";
+  hermesLogo.src = "/hermes/logo.png";
 
   function loadBootFix() {
     try {

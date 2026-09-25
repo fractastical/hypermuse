@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 // Builds the public annals: the days, the photographs somebody chose in
-// annals-curator.html, re-encoded small enough to open on a phone, and a comment box.
+// hermes/annals-curator.html, re-encoded small enough to open on a phone, and a comment box.
 //
 //   npm run hermes:annals:publish            # say what it would do
 //   npm run hermes:annals:publish -- --apply
@@ -67,7 +67,7 @@ async function annalsJson() {
 
 if (!existsSync(curationPath)) {
   console.error("No curation file at " + curationPath);
-  console.error("Open annals-curator.html, choose the photographs, and save the download there.");
+  console.error("Open hermes/annals-curator.html, choose the photographs, and save the download there.");
   process.exit(1);
 }
 const curation = JSON.parse(readFileSync(curationPath, "utf8"));

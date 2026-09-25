@@ -1191,14 +1191,14 @@ function pickupLocalUrl(req) {
     const lan = lanAddresses()[0];
     if (lan) hostPort = `${lan}:${port}`;
   }
-  return `${proto}://${hostPort}/hermes-live.html`;
+  return `${proto}://${hostPort}/hermes/live.html`;
 }
 
 function pickupPublicUrl(req) {
   const forced = String(process.env.HERMES_PICKUP_URL || "").trim();
   if (forced) return forced;
   const forwardedHost = String(req.headers["x-forwarded-host"] || "").split(",")[0].trim();
-  if (forwardedHost) return `https://${forwardedHost}/hermes-live.html`;
+  if (forwardedHost) return `https://${forwardedHost}/hermes/live.html`;
   // If cloudflared is running, prefer its public URL so QR scans work off-LAN.
   try {
     const quick = join(process.env.HOME || "", "Library", "Logs", "hypermuse", "cloudflared.err.log");
@@ -1206,7 +1206,7 @@ function pickupPublicUrl(req) {
       const text = readFileSync(quick, "utf8");
       const all = text.match(/https:\/\/[a-z0-9-]+\.trycloudflare\.com/gi);
       const latest = all && all[all.length - 1];
-      if (latest) return `${latest}/hermes-live.html`;
+      if (latest) return `${latest}/hermes/live.html`;
     }
   } catch { /* no public URL available */ }
   return "";
@@ -1221,13 +1221,13 @@ function pickupAppUrl(req, mode = "local") {
 }
 
 function graphLocalUrl(req) {
-  return pickupLocalUrl(req).replace(/\/hermes-live\.html(?:\?.*)?$/, "/hermes-crew-graph.html");
+  return pickupLocalUrl(req).replace(/\/hermes\/live\.html(?:\?.*)?$/, "/hermes/crew-graph.html");
 }
 
 function graphPublicUrl(req) {
   const base = pickupPublicUrl(req);
   if (!base) return "";
-  return String(base).replace(/\/hermes-live\.html(?:\?.*)?$/, "/hermes-crew-graph.html");
+  return String(base).replace(/\/hermes\/live\.html(?:\?.*)?$/, "/hermes/crew-graph.html");
 }
 
 function graphAppUrl(req, mode = "local") {
@@ -2039,16 +2039,28 @@ const handle = async (req, res) => {
     // certificate that matched, so the form lives on the apex instead, at /request.
     // A leftover request.* host still lands on the same page, for any old QR.
     const hostOnly = String(req.headers.host || "").split(":")[0].toLowerCase();
+    // Old root addresses, kept so a printed QR and a saved link still land.
+    const legacyPage = {
+      "/hermes-live.html": "/hermes/live.html",
+      "/hermes-book.html": "/hermes/book.html",
+      "/hermes-crew-graph.html": "/hermes/crew-graph.html",
+      "/annals-curator.html": "/hermes/annals-curator.html"
+    }[url.pathname];
+    if (req.method === "GET" && legacyPage) {
+      res.writeHead(302, { location: legacyPage + url.search, "cache-control": "no-store" });
+      res.end("redirecting to " + legacyPage + "\n");
+      return;
+    }
     const hermesHost = hostOnly === "returnofhermes.com" || hostOnly.endsWith(".returnofhermes.com");
     const dispatchHost = hostOnly.startsWith("request.");
     if (req.method === "GET" && url.pathname === "/" && hermesHost && dispatchHost) {
-      res.writeHead(302, { location: "/hermes-live.html", "cache-control": "no-store" });
-      res.end("redirecting to /hermes-live.html\n");
+      res.writeHead(302, { location: "/hermes/live.html", "cache-control": "no-store" });
+      res.end("redirecting to /hermes/live.html\n");
       return;
     }
     if (req.method === "GET" && (url.pathname === "/request" || url.pathname === "/request/")) {
-      res.writeHead(302, { location: "/hermes-live.html", "cache-control": "no-store" });
-      res.end("redirecting to /hermes-live.html\n");
+      res.writeHead(302, { location: "/hermes/live.html", "cache-control": "no-store" });
+      res.end("redirecting to /hermes/live.html\n");
       return;
     }
     // A readable way in, since the real path is an artefact of the site being served out
@@ -2062,8 +2074,8 @@ const handle = async (req, res) => {
     // Short enough to say out loud on a deck at three in the morning, which is where
     // somebody is most likely to ask how they get involved next year.
     if (req.method === "GET" && (url.pathname === "/book" || url.pathname === "/book/")) {
-      res.writeHead(302, { location: "/hermes-book.html", "cache-control": "no-store" });
-      res.end("redirecting to /hermes-book.html\n");
+      res.writeHead(302, { location: "/hermes/book.html", "cache-control": "no-store" });
+      res.end("redirecting to /hermes/book.html\n");
       return;
     }
     if (req.method === "GET" && url.pathname === "/" && hermesHost) {
@@ -2798,7 +2810,7 @@ const handle = async (req, res) => {
 
     // Short enough to read out across a camp or type from a photo of a whiteboard.
     // The whole point of the phone page is that it is handed to people, and
-    // "/phone.html" is two more things to get wrong than "/phone".
+    // "/hermes/phone.html" is two more things to get wrong than "/phone".
     if (req.method === "GET" && /^\/phone(\/|\.html)?$/.test(url.pathname)) {
       // Sent to https if it arrived any other way. A phone loading this over
       // plain http gets a page that looks perfectly fine and can never actually
@@ -2825,7 +2837,7 @@ const handle = async (req, res) => {
         res.end(`the phone page needs https so your browser will share location: ${to}\n`);
         return;
       }
-      req.url = "/phone.html";
+      req.url = "/hermes/phone.html";
     }
 
     serveFile(req, res);
@@ -2901,7 +2913,7 @@ server.listen(port, host, () => {
   // orbit and a black iris, because the acts and the clips are parameters.
   console.log(`[hermes] moon: http://127.0.0.1:${port}/hypermoon.html?show=1&kiosk=1&hermes=1`);
   console.log(`[hermes] state: http://127.0.0.1:${port}/api/hermes/state`);
-  console.log(`[hermes] crew graph: http://127.0.0.1:${port}/hermes-crew-graph.html`);
+  console.log(`[hermes] crew graph: http://127.0.0.1:${port}/hermes/crew-graph.html`);
   console.log(trackOff
     ? "[hermes] track log off (HERMES_TRACK=off)"
     : `[hermes] track: ${trackPath} (${track.length} point(s) so far)`);

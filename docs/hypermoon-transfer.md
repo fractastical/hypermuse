@@ -746,7 +746,7 @@ cannot see.
   *last* word of the query appears in the filename: "space ship" goes looking
   for ships and finds pirates, where "spaceship" finds ships in space.
 
-- **Curating the gif library** (`gif-curator.html`, or "curate gifs…" in the
+- **Curating the gif library** (`pages/gif-curator.html`, or "curate gifs…" in the
   hypermoon panel): search there matches the GIF's old URL rather than the
   picture, so a themed pull always lands passengers — an E-Mail banner filed
   under butterfly, a Click Here button under eye. The curator is a contact
@@ -1212,7 +1212,7 @@ separates a wiring or patch fault from a content one:
     TEST=rgb npm run pixels          # whole rig cycles red, green, blue
     TEST=white LEVEL=0.2 npm run pixels
 
-`pixel-preview.html` shows what the rig is being told, so a map can be looked at
+`pages/pixel-preview.html` shows what the rig is being told, so a map can be looked at
 rather than inferred from packet counts. It attaches to the bridge as a monitor
 and is sent the same frame the controller gets, gamma and gain already applied,
 in two views: the runs in wire order, where a strip wired back to front is
@@ -1221,7 +1221,7 @@ pointing into empty space is obvious. The test patterns come through the same
 buffer, so a map can be checked with no moon and no controller anywhere:
 
     MAP=maps/car-sides.json TEST=chase npm run pixels
-    open http://localhost:8080/pixel-preview.html
+    open http://localhost:8080/pages/pixel-preview.html
 
 Give it a minute before judging a disc-space map. The page surveys where the
 disc actually is over a revolution of playback before pinning it, so for the

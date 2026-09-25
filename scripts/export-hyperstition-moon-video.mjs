@@ -8,7 +8,7 @@
  *   CAPTURE_MS=15000  OUTPUT_VIDEO=artifacts/hyperstition-moon.webm
  *   EXPORT_WIDTH=1920  EXPORT_HEIGHT=1080
  *   BUILD_MOON_CUBES=1  (default: build index if missing)
- *   HYPERSTITION_PAGE=hyperstition-moon-halo.html  (or hyperstition-moon.html)
+ *   HYPERSTITION_PAGE=pages/hyperstition-moon-halo.html  (or pages/hyperstition-moon.html)
  *   ORBIT_SHAPE=vajra  (ellipse default)
  */
 
@@ -27,7 +27,7 @@ const EXPORT_WIDTH = Number.parseInt(process.env.EXPORT_WIDTH || "1920", 10);
 const EXPORT_HEIGHT = Number.parseInt(process.env.EXPORT_HEIGHT || "1080", 10);
 const SERVER_PORT = Number.parseInt(process.env.SERVER_PORT || "8080", 10);
 const BUILD_MOON_CUBES = process.env.BUILD_MOON_CUBES !== "0";
-const HYPERSTITION_PAGE = String(process.env.HYPERSTITION_PAGE || "hyperstition-moon.html").trim();
+const HYPERSTITION_PAGE = String(process.env.HYPERSTITION_PAGE || "pages/hyperstition-moon.html").trim();
 const MOON_VIDEO = String(process.env.MOON_VIDEO || "").trim();
 const ORBIT_SHAPE = String(process.env.ORBIT_SHAPE || "").trim().toLowerCase();
 const VAJRAS = process.env.VAJRAS === "1";

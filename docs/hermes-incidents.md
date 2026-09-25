@@ -73,7 +73,7 @@ inside. Check all three hostnames after any DNS change, per
 **Seen:** once the apex resolved, it opened "HyperMuse · a holographic fan you
 can book" rather than the tracker.
 
-**Actually:** the redirect to `/hermes-live.html` tested for the exact host
+**Actually:** the redirect to `/hermes/live.html` tested for the exact host
 `request.returnofhermes.com`, so every other hostname fell through to the
 static `index.html`. A scanned rider got a product page for a different
 product.
@@ -88,7 +88,7 @@ product.
 age of the fix it returned. The server always answers with the last fix it
 heard, so any reachable server read as live.
 
-**Fixed:** `LIVE_MAX_AGE_SEC` in `hermes-live.html`; older than five minutes
+**Fixed:** `LIVE_MAX_AGE_SEC` in `hermes/live.html`; older than five minutes
 reads "Last known".
 
 ## 2026-09-11 — a performer was announced who was not playing
@@ -108,7 +108,7 @@ overrides it.
 
 **Actually:** four of the five modules `hermes-server.mjs` imports had never
 been committed — `playa-places.mjs`, `journeys.mjs`, `hermes-tls.mjs`,
-`hermes-answers.mjs` — along with both scripts `hermes-live.html` loads and
+`hermes-answers.mjs` — along with both scripts `hermes/live.html` loads and
 `railway.json` itself. It ran here because the files exist on this laptop. Any
 deploy from the repo would have died on the first import, with a stack trace
 pointing at a missing file rather than at the reason it was missing.

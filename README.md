@@ -289,23 +289,23 @@ The app is mostly multi-page HTML + inline script, with shared helpers in `js/`.
   fan, for previewing that hardware.
 - `stream-broadcast.html` + `stream-view.html` -> WebRTC sender and viewer for
   watching an output live on another device.
-- `hyperstition-moon.html` -> the earlier word-on-the-moon page: a 2D canvas mosaic
+- `pages/hyperstition-moon.html` -> the earlier word-on-the-moon page: a 2D canvas mosaic
   spelling a word out of moon-colored cube tiles from `artifacts/moon-cube-index.json`.
-- `hyperstition-moon-halo.html` -> the same lettering orbiting a moon video on a
+- `pages/hyperstition-moon-halo.html` -> the same lettering orbiting a moon video on a
   tilted 3D ellipse, with optional vajra clips. Both export via
   `npm run export:hyperstition:moon`, `npm run export:hyperstition:moon:halo`, and
   `npm run export:hyperstition:moon:vajra` (the last adds three orbiting vajras).
-- `colorsphere.html` + `colorcontroller.html` -> color-focused variant.
-- `poetsphere.html` + `poetcontroller.html` -> the old poetry variant: an
+- `pages/colorsphere.html` + `pages/colorcontroller.html` -> color-focused variant.
+- `pages/poetsphere.html` + `pages/poetcontroller.html` -> the old poetry variant: an
   audio-reactive sphere with the poem typed onto a texture. Predates hypermoon,
   talks over `postMessage` rather than the `hypermoon` channel, and its "active
   poem" box is not wired to anything. Kept for reference. For a poem in a show,
   use the poem screen below instead.
-- `polysphere.html`, `videosphere.html`, `venus.html`, `kurasphere.html` ->
+- `pages/polysphere.html`, `pages/videosphere.html`, `pages/venus.html`, `pages/kurasphere.html` ->
   alternate visualizer experiments, kept for reference rather than actively
   maintained.
-- `hypersphere.html` and `kurosphere.html` are **empty placeholder files** that are
-  nonetheless tracked in git. `kuramotocontroller.html` opens `kurosphere.html`, so
+- `pages/hypersphere.html` and `pages/kurosphere.html` are **empty placeholder files** that are
+  nonetheless tracked in git. `pages/kuramotocontroller.html` opens `pages/kurosphere.html`, so
   that controller cannot currently work — treat all three as dead unless someone
   fills the stubs in.
 - `synergetics-fold.html` -> Fuller's Synergetics 100.41 fold: a wireframe triangle
@@ -398,8 +398,8 @@ npm start
 Then open:
 
 - `http://localhost:8080/controller.html` (main controller -> opens visualizer)
-- or `http://localhost:8080/colorcontroller.html`
-- or `http://localhost:8080/poetcontroller.html`
+- or `http://localhost:8080/pages/colorcontroller.html`
+- or `http://localhost:8080/pages/poetcontroller.html`
 
 ### Hypermoon output & kiosk mode
 
@@ -1204,7 +1204,7 @@ REPLATE=1 npm run poster                                  # reshoot, not just re
 
 The rig shot again, in portrait, with the dimension arrows and the caption off
 and one figure left in for scale, carrying whatever mark was asked for on the
-dark side. `poster.html` then sets the headline under it and the sheet is
+dark side. `pages/poster.html` then sets the headline under it and the sheet is
 written to `artifacts/poster/` at 2160 × 2700, which prints. Asterisks in `HEAD`
 mark the words that take the accent colour; `KICKER`, `TAG`, `SUB` and `ACCENT`
 are the rest of the type. The render is the slow half and is kept on disk, so

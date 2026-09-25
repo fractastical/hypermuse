@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>Body mask on the dancer clip</title>
+<style>
+  :root { color-scheme: dark; }
+  body { margin: 0; background: #07090c; color: #e7eef6;
+    font: 15px/1.45 -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; }
+  main { max-width: 880px; margin: 0 auto; padding: 24px 20px 48px; }
+  h1 { font-size: 22px; font-weight: 600; margin: 0 0 8px; }
+  p { margin: 0 0 14px; color: #9aafc2; }
+  .stage { position: relative; width: min(356px, 100%); background: #000; }
+  video, canvas { display: block; width: 100%; height: auto; }
+  canvas { position: absolute; inset: 0; width: 100%; height: 100%; }
+  button { font: inherit; background: #d7e7f6; color: #071018; border: 0;
+    border-radius: 8px; padding: 8px 14px; cursor: pointer; }
+  #readout { margin-top: 14px; font-variant-numeric: tabular-nums; }
+</style>
+</head>
+<body>
+<main>
+  <h1>Body mask on the dancer clip</h1>
+  <p>Stock person segmenter, no training. White is what it calls a person. The number under the picture is how long that frame took.</p>
+  <div class="stage">
+    <video id="clip" src="/data/dancer/864bf6ff65c448a2a61efb537f544ba3.MOV" playsinline muted></video>
+    <canvas id="mask"></canvas>
+  </div>
+  <p style="margin-top:14px"><button id="go" type="button">Play</button></p>
+  <div id="readout">Loading the segmenter…</div>
+</main>
+<script type="module">
+import { FilesetResolver, ImageSegmenter } from "https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@1.0.1";
+
+const video = document.querySelector("#clip");
+const canvas = document.querySelector("#mask");
+const ctx = canvas.getContext("2d");
+const readout = document.querySelector("#readout");
+const go = document.querySelector("#go");
+
+const vision = await FilesetResolver.forVisionTasks(
+  "https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@1.0.1/wasm"
+);
+let delegate = "GPU";
+let segmenter;
+try {
+  segmenter = await ImageSegmenter.createFromOptions(vision, {
+    baseOptions: {
+      modelAssetPath: "https://storage.googleapis.com/mediapipe-models/image_segmenter/selfie_segmenter/float16/1/selfie_segmenter.tflite",
+      delegate: "GPU"
+    },
+    runningMode: "VIDEO",
+    outputCategoryMask: true
+  });
+} catch (err) {
+  delegate = "CPU";
+  segmenter = await ImageSegmenter.createFromOptions(vision, {
+    baseOptions: {
+      modelAssetPath: "https://storage.googleapis.com/mediapipe-models/image_segmenter/selfie_segmenter/float16/1/selfie_segmenter.tflite",
+      delegate: "CPU"
+    },
+    runningMode: "VIDEO",
+    outputCategoryMask: true
+  });
+}
+readout.textContent = `Segmenter ready (${delegate}). Press play.`;
+window.__at = async (t) => {
+  video.pause();
+  if (Math.abs(video.currentTime - t) > 0.05) {
+    video.currentTime = t;
+    await new Promise((resolve) => { video.onseeked = () => resolve(); });
+  }
+  const t0 = performance.now();
+  paint(segmenter.segmentForVideo(video, performance.now()));
+  return { ms: performance.now() - t0, hist: window.__maskHist, t: video.currentTime };
+};
+
+let last = -1;
+let samples = [];
+function paint(result) {
+  const mask = result.categoryMask;
+  if (!mask) return;
+  const w = mask.width, h = mask.height;
+  if (canvas.width !== w) { canvas.width = w; canvas.height = h; }
+  const src = mask.getAsUint8Array();
+  const hist = [0, 0, 0, 0];
+  for (let i = 0; i < src.length; i++) hist[Math.min(3, src[i])]++;
+  window.__maskHist = hist;
+  const img = ctx.createImageData(w, h);
+  const px = img.data;
+  for (let i = 0; i < src.length; i++) {
+    const person = src[i] > 0;
+    const o = i * 4;
+    px[o] = 255; px[o + 1] = 255; px[o + 2] = 255; px[o + 3] = person ? 150 : 0;
+  }
+  ctx.putImageData(img, 0, 0);
+}
+
+function frame() {
+  if (video.paused || video.ended) return;
+  const now = performance.now();
+  if (video.currentTime !== last) {
+    last = video.currentTime;
+    const t0 = performance.now();
+    const result = segmenter.segmentForVideo(video, now);
+    paint(result);
+    const ms = performance.now() - t0;
+    samples.push(ms);
+    if (samples.length > 30) samples.shift();
+    const avg = samples.reduce((a, b) => a + b, 0) / samples.length;
+    readout.textContent = `${delegate} · this frame ${ms.toFixed(1)} ms · recent average ${avg.toFixed(1)} ms · video ${video.videoWidth}×${video.videoHeight}`;
+  }
+  requestAnimationFrame(frame);
+}
+
+go.addEventListener("click", async () => {
+  samples = [];
+  last = -1;
+  await video.play();
+  requestAnimationFrame(frame);
+});
+</script>
+</body>
+</html>

@@ -424,8 +424,8 @@
     <li>Keep it on the camp wifi. No internet needed — this only talks to the moon.</li>
   </ol>
 
-<script src="js/hermes-marks.js"></script>
-<script src="js/playa-map.js"></script>
+<script src="/js/hermes-marks.js"></script>
+<script src="/js/playa-map.js"></script>
 <script>
 // Same origin as whatever they opened, so this works over any address the
 // server is reached on without anybody editing a URL.
@@ -527,7 +527,7 @@ let weatherTrend = (() => {
 const hermesLogo = new Image();
 let hermesLogoReady = false;
 hermesLogo.onload = () => { hermesLogoReady = true; renderNearby(); };
-hermesLogo.src = "hermes/logo.png";
+hermesLogo.src = "/hermes/logo.png";
 
 const show = (cls, state, detail) => {
   status.className = "card " + cls;

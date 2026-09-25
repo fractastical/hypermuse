@@ -194,11 +194,11 @@ section > p.none { opacity: 0.4; font-size: 12px; margin: 0 0 10px; }
  * subset someone chose on purpose — so this is opt-in: a file is private until
  * it is clicked, and the publisher refuses to guess. Choices live in
  * localStorage while the work is in progress and leave as a downloaded json,
- * the same shape of workflow as gif-curator.html, because a page served by
+ * the same shape of workflow as pages/gif-curator.html, because a page served by
  * http-server cannot write to the repo it is served from.
  */
-const INDEX = "data/hermes/annals-index.json";
-const CURATION = "data/hermes/annals-curation.json";
+const INDEX = "/data/hermes/annals-index.json";
+const CURATION = "/data/hermes/annals-curation.json";
 const STORE_KEY = "hermes.annals.curation";
 
 /** path -> { publish: true, caption: string }. Absent means private. */
@@ -208,6 +208,7 @@ const sizes = {};
 let index = null;
 
 const $ = (id) => document.getElementById(id);
+const abs = (p) => !p || p.startsWith("/") || p.startsWith("http") ? p : "/" + p;
 const posterFor = (src) => src.replace(/\.[^.]+$/, "") + ".poster.jpg";
 const fileName = (src) => src.split("/").pop();
 const mb = (bytes) => (bytes / 1048576).toFixed(bytes >= 10485760 ? 0 : 1) + " MB";
@@ -295,7 +296,7 @@ function playInline(art, src) {
     if (art.querySelector("video")) return;
     art.innerHTML = "";
     const video = document.createElement("video");
-    video.src = src;
+    video.src = abs(src);
     video.controls = true;
     video.muted = true;
     video.loop = true;
@@ -319,7 +320,7 @@ function tileFor(item) {
     const thumb = document.createElement("img");
     thumb.loading = "lazy";
     thumb.alt = fileName(src);
-    thumb.src = isVideo ? posterFor(src) : src;
+    thumb.src = abs(isVideo ? posterFor(src) : src);
     // A clip that never got a poster frame still needs something to click.
     thumb.addEventListener("error", () => { thumb.remove(); });
     art.appendChild(thumb);
@@ -395,7 +396,7 @@ function tileFor(item) {
 
     // Size is only in the response header, and the total is the whole point of
     // choosing a subset, so ask for it without downloading the file.
-    fetch(src, { method: "HEAD" }).then((r) => {
+    fetch(abs(src), { method: "HEAD" }).then((r) => {
         const length = Number(r.headers.get("content-length"));
         if (Number.isFinite(length) && length > 0) {
             sizes[src] = length;
@@ -477,7 +478,7 @@ $("save").addEventListener("click", () => {
         if (marks[src].explicit) publish[src].explicit = true;
     }
     const body = {
-        note: "Which annals media may be published, chosen in annals-curator.html. " +
+        note: "Which annals media may be published, chosen in hermes/annals-curator.html. " +
               "Anything absent stays private. Captions here win over annals-media.json. " +
               "explicit: true is held back unless the publisher is run with --explicit.",
         chosenAt: new Date().toISOString(),

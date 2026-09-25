@@ -4,7 +4,7 @@
  *
  * Two steps, both of them renders. First export-holofan shoots the hire tower
  * at night in portrait with its spec-sheet annotations off and one person
- * beside it, carrying whatever mark was asked for on the disc. Then poster.html
+ * beside it, carrying whatever mark was asked for on the disc. Then pages/poster.html
  * sets the headline under it and the sheet is screenshotted.
  *
  *   npm run poster
@@ -93,7 +93,7 @@ function renderPlate() {
   const page = await browser.newPage({
     viewport: { width: W, height: H }, deviceScaleFactor: SCALE
   });
-  await page.goto(`file://${path.join(ROOT, "poster.html")}?${q}`, { waitUntil: "load" });
+  await page.goto(`file://${path.join(ROOT, "pages/poster.html")}?${q}`, { waitUntil: "load" });
   await page.waitForFunction(() => window.__posterReady === true, undefined, { timeout: 20000 });
   fs.mkdirSync(path.dirname(OUT), { recursive: true });
   await page.screenshot({ path: OUT });

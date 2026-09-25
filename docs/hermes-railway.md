@@ -71,7 +71,7 @@ people are being asked to fill in for next year stays up with the lid closed.
 
 What it does affect is smaller but not nothing. Anyone who types `www` gets the
 laptop. `request` serves the pickup form, whose season is over, but
-`hermes-live.html` still gives `request.returnofhermes.com` as its canonical URL,
+`hermes/live.html` still gives `request.returnofhermes.com` as its canonical URL,
 its `og:url` and its JSON-LD logo, so link previews and anything crawling the
 tracker resolve against a host that is only up sometimes.
 
@@ -212,7 +212,7 @@ Set these on the Railway web service:
 - `HERMES_PICKUP_URL=https://returnofhermes.com/request` — this is handed out
   verbatim, as the QR code and the link a rider is given. The apex itself leads to
   the annals, so the pickup form is a page on that same host: `/request` redirects
-  to `/hermes-live.html`. There is no separate hostname for it.
+  to `/hermes/live.html`. There is no separate hostname for it.
 - `HERMES_PHONE=off` — otherwise it tries to bind a second https port and make
   certificates for a LAN the container does not have.
 - `HERMES_RESUME=1`
@@ -289,10 +289,10 @@ moon display points at:
 
 - `https://returnofhermes.com/` should redirect to `/docs/annals/`, and
   `https://returnofhermes.com/docs/annals/` should return the page itself. A
-  redirect to `/hermes-live.html` here is the signature of a container built
+  redirect to `/hermes/live.html` here is the signature of a container built
   before the annals existed — the apex led to the tracker until the annals
   became the front door, so this check used to assert the opposite.
-- `https://request.returnofhermes.com/` should still reach `/hermes-live.html`.
+- `https://request.returnofhermes.com/` should still reach `/hermes/live.html`.
   This is the hostname riders are given, and it is the one that must never
   follow the apex to the annals.
 - `https://returnofhermes.com/api/hermes/state` should return JSON.

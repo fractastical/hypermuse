@@ -155,8 +155,9 @@ main {
  * machine, where it becomes the starting point.
  */
 const MARKS_KEY = "hypermoon.gifcities.marks";
-const INDEX = "assets/gifcities/index.json";
-const CURATION = "assets/gifcities/curation.json";
+const INDEX = "/assets/gifcities/index.json";
+const abs = (p) => !p || p.startsWith("/") || p.startsWith("http") ? p : "/" + p;
+const CURATION = "/assets/gifcities/curation.json";
 
 const $ = (id) => document.getElementById(id);
 let marks = {};
@@ -271,16 +272,16 @@ async function mount(item) {
     const art = item.el.querySelector(".art");
     if ($("view").value === "raw" || !("ImageDecoder" in window)) {
         const img = document.createElement("img");
-        img.src = item.path;
+        img.src = abs(item.path);
         img.loading = "lazy";
         art.replaceChildren(img);
         return;
     }
     let frames;
-    try { frames = await decodeTrimmed(item.path); } catch { frames = null; }
+    try { frames = await decodeTrimmed(abs(item.path)); } catch { frames = null; }
     if (!item.mounted) { if (frames) frames.forEach((f) => f.bmp.close()); return; }
     if (!frames) {
-        art.replaceChildren(Object.assign(document.createElement("img"), { src: item.path }));
+        art.replaceChildren(Object.assign(document.createElement("img"), { src: abs(item.path) }));
         return;
     }
     const cv = document.createElement("canvas");

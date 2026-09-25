@@ -303,7 +303,7 @@ function testFrame() {
 
 // --- browser feed --------------------------------------------------------
 const wss = new WebSocketServer({ port: PORT, host: "0.0.0.0" });
-// pixel-preview.html says hello and is then sent the frames rather than asked
+// pages/pixel-preview.html says hello and is then sent the frames rather than asked
 // for them. It watches the same bytes the rig is given, gamma and gain already
 // applied, so what it shows is what the controller is being told - and because
 // the test patterns run through the same buffer, a map can be checked on screen

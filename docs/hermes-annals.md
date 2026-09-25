@@ -23,7 +23,7 @@ playa — are computed from the track log rather than typed, so they cannot drif
 npm run hermes:annals:photos -- --apply   # file a camera dump into day folders
 npm run hermes:annals:maps                # one track overlay per day
 npm run hermes:annals:index               # what the curator reads
-# open annals-curator.html, choose photos, mark a best-of, download the json
+# open hermes/annals-curator.html, choose photos, mark a best-of, download the json
 npm run hermes:annals:publish -- --apply  # build docs/annals/
 ```
 
@@ -66,7 +66,7 @@ there is nowhere for it to point.
 
 ## Choosing what is public
 
-Nothing is published unless it is chosen. `annals-curator.html` lists every photograph and
+Nothing is published unless it is chosen. `hermes/annals-curator.html` lists every photograph and
 clip; clicking one marks it public, and **best of day** makes it that day's lead — shown
 full width above the account, one per day. A day with nothing marked simply has no lead.
 
