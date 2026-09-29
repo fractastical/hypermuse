@@ -1,0 +1,477 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"/>
+<title>Read the cover</title>
+<style>
+  :root { color-scheme: dark; }
+  html, body { margin: 0; height: 100%; background: #0d0c0b; color: #f4efe4;
+    font: 16px/1.4 Georgia, "Times New Roman", serif; }
+  main { position: fixed; inset: 0; display: flex; flex-direction: column; }
+  #stage { flex: 1; position: relative; overflow: hidden; display: flex;
+    align-items: center; justify-content: center; }
+  #view { max-width: 100%; max-height: 100%; display: block; }
+  #bar { padding: 12px 16px calc(12px + env(safe-area-inset-bottom));
+    display: flex; gap: 10px; align-items: center; flex-wrap: wrap;
+    background: #16140f; border-top: 1px solid #2c2820; }
+  #status { flex: 1 1 200px; color: #c9bfae; font-size: 15px; }
+  button, label.button { font: inherit; font-size: 15px; background: #f4efe4; color: #1c1814;
+    border: 0; border-radius: 6px; padding: 8px 14px; cursor: pointer; }
+  label.button input { display: none; }
+  #found { position: absolute; inset: 0; display: none; align-items: center;
+    justify-content: center; background: rgba(244, 239, 228, 0.94); color: #1c1814;
+    text-align: center; padding: 24px; }
+  #found.on { display: flex; }
+  #found h1 { font-size: clamp(34px, 9vw, 64px); font-weight: normal; font-style: italic;
+    margin: 0 0 10px; letter-spacing: 0.02em; }
+  #found p { margin: 0 auto 18px; max-width: 30em; color: #4a4238; font-size: 15px; }
+</style>
+</head>
+<body>
+<main>
+  <div id="stage">
+    <canvas id="view" width="720" height="1280"></canvas>
+    <div id="found">
+      <div>
+        <h1 id="phrase"></h1>
+        <p id="how"></p>
+        <button id="again" type="button">Scan again</button>
+      </div>
+    </div>
+  </div>
+  <div id="bar">
+    <div id="status">Loading…</div>
+    <button id="start" type="button">Use camera</button>
+    <label class="button">Photo…<input id="file" type="file" accept="image/*"/></label>
+  </div>
+</main>
+<script type="module">
+// Reads the phrase that scripts/cover-phrase.py writes into the Rd1A cover.
+// Same steps as that script's Reader, in the same order: find the grid of cells,
+// tighten the fit, nudge each block for a tilted cover, find which way each
+// copy's colour points after printing, vote, and let the checksum choose.
+
+const COVER_W = 682, COVER_H = 1024;
+const WEAKEST = 6;
+
+const view = document.querySelector("#view");
+const vctx = view.getContext("2d", { willReadFrequently: true });
+const statusEl = document.querySelector("#status");
+const found = document.querySelector("#found");
+
+const layout = await fetch("cover-phrase-layout.json", { cache: "no-store" }).then((r) => r.json());
+const { cell: CELL, cols, rows, x0, y0, stride, bits: NBITS, copies: COPIES } = layout;
+const NCELL = cols * rows;
+const NCOPY = COPIES.length;
+const index = COPIES.map((c) => {
+  const out = new Int32Array(NCELL);
+  for (let k = 0; k < NCELL; k++) out[k] = (k * stride + c.offset) % NBITS;
+  return out;
+});
+
+// Sixteen points per cell, one in the middle of each quarter-cell square. Every
+// pattern is constant on those squares, so the same points read all of them.
+const SAMPLES = 16;
+const offX = new Float32Array(SAMPLES), offY = new Float32Array(SAMPLES);
+const signs = COPIES.map(() => new Float32Array(SAMPLES));
+{
+  const q = CELL / 4, h = CELL / 2;
+  for (let j = 0; j < SAMPLES; j++) {
+    const iy = Math.floor(j / 4) * q + q / 2, ix = (j % 4) * q + q / 2;
+    offY[j] = iy; offX[j] = ix;
+    const y = Math.floor(iy), x = Math.floor(ix);
+    COPIES.forEach((c, i) => {
+      let s;
+      if (c.pattern === "checker") s = (Math.floor(y / h) + Math.floor(x / h)) % 2 === 0 ? 1 : -1;
+      else if (c.pattern === "fine") s = (Math.floor(y / q) + Math.floor(x / q)) % 2 === 0 ? 1 : -1;
+      else if (c.pattern === "stripes") s = Math.floor(y / h) === 0 ? 1 : -1;
+      else throw new Error("unknown pattern " + c.pattern);
+      signs[i][j] = s;
+    });
+  }
+}
+const cellR = new Int32Array(NCELL), cellC = new Int32Array(NCELL);
+for (let k = 0; k < NCELL; k++) { cellR[k] = Math.floor(k / cols); cellC[k] = k % cols; }
+
+function patch(radius) {
+  const keep = [];
+  for (let k = 0; k < NCELL; k++) {
+    if (Math.abs(cellR[k] - rows / 2) <= radius && Math.abs(cellC[k] - cols / 2) <= radius) keep.push(k);
+  }
+  return keep;
+}
+
+// Green-magenta and blue-yellow, each with the room's slow colour taken away so
+// only the fine patterns are left.
+function planesFrom(img) {
+  const { width: w, height: h, data } = img;
+  const cr = new Float32Array(w * h), cb = new Float32Array(w * h);
+  for (let i = 0, p = 0; i < w * h; i++, p += 4) {
+    const r = data[p], g = data[p + 1], b = data[p + 2];
+    cr[i] = Math.min(255, Math.max(0, 128 + 0.5 * r - 0.418688 * g - 0.081312 * b));
+    cb[i] = Math.min(255, Math.max(0, 128 - 0.168736 * r - 0.331264 * g + 0.5 * b));
+  }
+  return [highpass(cr, w, h), highpass(cb, w, h)];
+}
+
+function highpass(src, w, h) {
+  const sat = new Float64Array((w + 1) * (h + 1));
+  for (let y = 0; y < h; y++) {
+    let run = 0;
+    for (let x = 0; x < w; x++) {
+      run += src[y * w + x];
+      sat[(y + 1) * (w + 1) + x + 1] = sat[y * (w + 1) + x + 1] + run;
+    }
+  }
+  const r = CELL;
+  const plane = new Float32Array(w * h);
+  for (let y = 0; y < h; y++) {
+    const ya = Math.max(0, y - r), yb = Math.min(h, y + r + 1);
+    for (let x = 0; x < w; x++) {
+      const xa = Math.max(0, x - r), xb = Math.min(w, x + r + 1);
+      const sum = sat[yb * (w + 1) + xb] - sat[ya * (w + 1) + xb] - sat[yb * (w + 1) + xa] + sat[ya * (w + 1) + xa];
+      plane[y * w + x] = src[y * w + x] - sum / ((yb - ya) * (xb - xa));
+    }
+  }
+  return { plane, w, h };
+}
+
+function bilinear(P, x, y) {
+  const { plane, w, h } = P;
+  if (x < 0) x = 0; else if (x > w - 1.001) x = w - 1.001;
+  if (y < 0) y = 0; else if (y > h - 1.001) y = h - 1.001;
+  const xi = x | 0, yi = y | 0, fx = x - xi, fy = y - yi, i = yi * w + xi;
+  const a = plane[i] * (1 - fx) + plane[i + 1] * fx;
+  const b = plane[i + w] * (1 - fx) + plane[i + w + 1] * fx;
+  return a * (1 - fy) + b * fy;
+}
+
+// For one cell: how strongly each copy's pattern shows in each channel, written
+// into out as [copy0 cr, copy0 cb, copy1 cr, copy1 cb, ...].
+const vals = [new Float32Array(SAMPLES), new Float32Array(SAMPLES)];
+function measureCell(Ps, k, guide, pose, ox, oy, out, at) {
+  const [gx, gy, gw, gh] = guide;
+  const [scale, dx, dy, theta] = pose;
+  const s = scale * gw / COVER_W, ct = Math.cos(theta), st = Math.sin(theta);
+  const bx = x0 + cellC[k] * CELL - COVER_W / 2 + dx + ox;
+  const by = y0 + cellR[k] * CELL - COVER_H / 2 + dy + oy;
+  const cx = gx + gw / 2, cy = gy + gh / 2;
+  for (let j = 0; j < SAMPLES; j++) {
+    const u = bx + offX[j], v = by + offY[j];
+    const px = cx + s * (ct * u - st * v), py = cy + s * (st * u + ct * v);
+    vals[0][j] = bilinear(Ps[0], px, py);
+    vals[1][j] = bilinear(Ps[1], px, py);
+  }
+  for (let c = 0; c < NCOPY; c++) {
+    let a = 0, b = 0;
+    const sg = signs[c];
+    for (let j = 0; j < SAMPLES; j++) { a += vals[0][j] * sg[j]; b += vals[1][j] * sg[j]; }
+    out[at + c * 2] = a;
+    out[at + c * 2 + 1] = b;
+  }
+}
+
+const scratch = new Float32Array(NCOPY * 2);
+function cellStrength(Ps, k, guide, pose, ox = 0, oy = 0) {
+  measureCell(Ps, k, guide, pose, ox, oy, scratch, 0);
+  let t = 0;
+  for (let c = 0; c < NCOPY; c++) t += Math.hypot(scratch[c * 2], scratch[c * 2 + 1]);
+  return t;
+}
+
+function score(Ps, guide, pose, keep) {
+  let total = 0;
+  for (const k of keep) total += cellStrength(Ps, k, guide, pose);
+  return total;
+}
+
+const DEG = Math.PI / 180;
+
+function search(Ps, guide) {
+  // 1. Find the grid with a small patch in the middle, where a wrong size or
+  //    tilt has not had room to add up. A whole cell out is fine here.
+  const centre = patch(5);
+  let best = -1, pose = null;
+  const seen = [];
+  for (let s = 0.76; s <= 1.2401; s += 0.04) {
+    for (let t = -4; t <= 4; t += 2) {
+      for (let dx = 0; dx < CELL; dx += CELL / 4) {
+        for (let dy = 0; dy < CELL; dy += CELL / 4) {
+          const p = [s, dx, dy, t * DEG];
+          const sc = score(Ps, guide, p, centre);
+          seen.push(sc);
+          if (sc > best) { best = sc; pose = p; }
+        }
+      }
+    }
+  }
+  seen.sort((a, b) => a - b);
+  const grid = best / (seen[seen.length >> 1] || 1);
+
+  // 2. Grow the patch and tighten the fit as it grows.
+  let step = [0.02, 2, 2, 1 * DEG];
+  for (const radius of [5, 9, 14, 99]) {
+    const keep = patch(radius);
+    best = score(Ps, guide, pose, keep);
+    for (let round = 0; round < 3; round++) {
+      let improved = true;
+      while (improved) {
+        improved = false;
+        for (let i = 0; i < 4; i++) {
+          for (const d of [-1, 1]) {
+            const q = pose.slice();
+            q[i] += d * step[i];
+            const sc = score(Ps, guide, q, keep);
+            if (sc > best) { best = sc; pose = q; improved = true; }
+          }
+        }
+      }
+      step = step.map((v) => v / 2);
+    }
+    step = [0.01, 1, 1, 0.5 * DEG];
+  }
+
+  // 3. A cover held at an angle is not a rectangle in the picture, so each
+  //    block of cells gets its own small nudge, always under half a cell.
+  const W = NCOPY * 2;
+  const m = new Float32Array(NCELL * W);
+  for (let k = 0; k < NCELL; k++) measureCell(Ps, k, guide, pose, 0, 0, m, k * W);
+  const strength = (arr, at) => {
+    let t = 0;
+    for (let c = 0; c < NCOPY; c++) t += Math.hypot(arr[at + c * 2], arr[at + c * 2 + 1]);
+    return t;
+  };
+  const BLOCK = 8;
+  const trial = new Float32Array(BLOCK * BLOCK * W);
+  for (let br = 0; br < rows; br += BLOCK) {
+    for (let bc = 0; bc < cols; bc += BLOCK) {
+      const keep = [];
+      for (let k = 0; k < NCELL; k++) {
+        if (cellR[k] >= br && cellR[k] < br + BLOCK && cellC[k] >= bc && cellC[k] < bc + BLOCK) keep.push(k);
+      }
+      let bestSc = keep.reduce((a, k) => a + strength(m, k * W), 0);
+      for (let ox = -6; ox <= 6; ox += 2) {
+        for (let oy = -6; oy <= 6; oy += 2) {
+          let sc = 0;
+          keep.forEach((k, i) => { measureCell(Ps, k, guide, pose, ox, oy, trial, i * W); sc += strength(trial, i * W); });
+          if (sc > bestSc) {
+            bestSc = sc;
+            keep.forEach((k, i) => { for (let z = 0; z < W; z++) m[k * W + z] = trial[i * W + z]; });
+          }
+        }
+      }
+    }
+  }
+
+  // 4. Printing may have turned each copy's colour. Find the direction it
+  //    points now, read along it, and weight the copy by how cleanly it stands
+  //    out from what it is not.
+  const perCopy = COPIES.map((_, c) => {
+    let sxx = 0, sxy = 0, syy = 0;
+    for (let k = 0; k < NCELL; k++) {
+      const x = m[k * W + c * 2], y = m[k * W + c * 2 + 1];
+      sxx += x * x; sxy += x * y; syy += y * y;
+    }
+    sxx /= NCELL; sxy /= NCELL; syy /= NCELL;
+    const mid = (sxx + syy) / 2, rad = Math.hypot((sxx - syy) / 2, sxy);
+    const big = mid + rad, small = Math.max(mid - rad, 1e-9);
+    const phi = 0.5 * Math.atan2(2 * sxy, sxx - syy);
+    const ax = Math.cos(phi), ay = Math.sin(phi);
+    const weight = Math.sqrt(Math.max(big - small, 1e-9)) / small;
+    const votes = new Float64Array(NBITS);
+    for (let k = 0; k < NCELL; k++) {
+      votes[index[c][k]] += weight * (m[k * W + c * 2] * ax + m[k * W + c * 2 + 1] * ay);
+    }
+    return votes;
+  });
+
+  // 5. Which way round each copy points is not known, so both ways are tried,
+  //    together and alone. The checksum decides.
+  const candidates = [];
+  if (NCOPY === 2) {
+    candidates.push(perCopy[0].map((v, i) => v + perCopy[1][i]));
+    candidates.push(perCopy[0].map((v, i) => v - perCopy[1][i]));
+  }
+  candidates.push(...perCopy);
+  for (const c of candidates.slice()) candidates.push(c.map((v) => -v));
+  return { text: resolve(candidates), grid, pose };
+}
+
+function crc16(bytes) {
+  let crc = 0xffff;
+  for (const b of bytes) {
+    crc ^= b << 8;
+    for (let i = 0; i < 8; i++) crc = (crc & 0x8000 ? (crc << 1) ^ 0x1021 : crc << 1) & 0xffff;
+  }
+  return crc;
+}
+
+// Every candidate, every starting point, the least certain bits both ways, fewer
+// flips before more. A checksum plus sixteen printable letters is the bar.
+function resolve(candidates) {
+  const n = NBITS;
+  const patterns = Array.from({ length: 1 << WEAKEST }, (_, p) => p)
+    .sort((a, b) => popcount(a) - popcount(b));
+  const prepared = candidates.map((votes) => ({
+    votes,
+    weak: Array.from({ length: n }, (_, i) => i)
+      .sort((a, b) => Math.abs(votes[a]) - Math.abs(votes[b])).slice(0, WEAKEST)
+  }));
+  const bits = new Uint8Array(n);
+  const bytes = new Uint8Array(n / 8);
+  for (const pattern of patterns) {
+    for (const { votes, weak } of prepared) {
+      for (let turn = 0; turn < n; turn++) {
+        for (let i = 0; i < n; i++) bits[i] = votes[(i - turn + n) % n] > 0 ? 1 : 0;
+        for (let j = 0; j < WEAKEST; j++) if (pattern >> j & 1) bits[(weak[j] + turn) % n] ^= 1;
+        bytes.fill(0);
+        for (let i = 0; i < n; i++) bytes[i >> 3] |= bits[i] << (7 - (i & 7));
+        const body = bytes.subarray(0, bytes.length - 2);
+        const crc = (bytes[bytes.length - 2] << 8) | bytes[bytes.length - 1];
+        if (crc16(body) !== crc) continue;
+        if (!body.every((b) => b >= 32 && b < 127)) continue;
+        return String.fromCharCode(...body);
+      }
+    }
+  }
+  return null;
+}
+
+function popcount(v) { let c = 0; while (v) { c += v & 1; v >>= 1; } return c; }
+
+// Where the cover should sit: 80% of the picture's height, centred.
+function guideFor(w, h, share = 0.8) {
+  let gh = h * share, gw = gh * COVER_W / COVER_H;
+  if (gw > w * 0.94) { gw = w * 0.94; gh = gw * COVER_H / COVER_W; }
+  return [(w - gw) / 2, (h - gh) / 2, gw, gh];
+}
+
+function read(img, guides) {
+  const P = planesFrom(img);
+  let last = null;
+  for (const g of guides) {
+    const out = search(P, g);
+    if (out.text) return out;
+    if (!last || out.grid > last.grid) last = out;
+  }
+  return last;
+}
+
+function drawGuide(w, h, strength) {
+  const [gx, gy, gw, gh] = guideFor(w, h);
+  vctx.save();
+  vctx.fillStyle = "rgba(0,0,0,0.38)";
+  vctx.beginPath();
+  vctx.rect(0, 0, w, h);
+  vctx.rect(gx, gy, gw, gh);
+  vctx.fill("evenodd");
+  vctx.strokeStyle = strength > 1.6 ? "#e8d27a" : "#f4efe4";
+  vctx.lineWidth = Math.max(2, w / 300);
+  const L = gw * 0.12;
+  for (const [x, y, sx, sy] of [[gx, gy, 1, 1], [gx + gw, gy, -1, 1], [gx, gy + gh, 1, -1], [gx + gw, gy + gh, -1, -1]]) {
+    vctx.beginPath();
+    vctx.moveTo(x + sx * L, y); vctx.lineTo(x, y); vctx.lineTo(x, y + sy * L);
+    vctx.stroke();
+  }
+  vctx.restore();
+}
+
+function show(text, how) {
+  document.querySelector("#phrase").textContent = text;
+  document.querySelector("#how").textContent = how;
+  found.classList.add("on");
+}
+
+document.querySelector("#again").addEventListener("click", () => {
+  found.classList.remove("on");
+  scanning = !!stream;
+  if (scanning) loop();
+});
+
+// --- camera ---------------------------------------------------------------
+
+const video = document.createElement("video");
+video.playsInline = true;
+video.muted = true;
+let stream = null;
+let scanning = false;
+let busy = false;
+let frames = 0;
+
+async function startCamera() {
+  stream = await navigator.mediaDevices.getUserMedia({
+    video: { facingMode: { ideal: "environment" }, width: { ideal: 1280 }, height: { ideal: 1280 } },
+    audio: false
+  });
+  video.srcObject = stream;
+  await video.play();
+  scanning = true;
+  loop();
+}
+
+function loop() {
+  if (!scanning) return;
+  const w = video.videoWidth, h = video.videoHeight;
+  if (!w) { requestAnimationFrame(loop); return; }
+  if (view.width !== w) { view.width = w; view.height = h; }
+  vctx.drawImage(video, 0, 0, w, h);
+  if (!busy) {
+    busy = true;
+    const img = vctx.getImageData(0, 0, w, h);
+    const t0 = performance.now();
+    const out = read(img, [guideFor(w, h)]);
+    const ms = performance.now() - t0;
+    frames++;
+    window.__lastRead = { text: out.text, grid: out.grid, ms, frames };
+    if (out.text) {
+      scanning = false;
+      show(out.text, `Read from the colour of the cover, frame ${frames}, in ${ms.toFixed(0)} ms. Nothing on the cover you can see says this.`);
+    } else {
+      statusEl.textContent = out.grid > 1.6
+        ? `Found the cells. Hold still… (${ms.toFixed(0)} ms a try)`
+        : `Fill the corners with the cover. (${ms.toFixed(0)} ms a try)`;
+    }
+    busy = false;
+    drawGuide(w, h, out.grid);
+  }
+  if (scanning) requestAnimationFrame(loop);
+}
+
+document.querySelector("#start").addEventListener("click", () => {
+  startCamera().catch((err) => {
+    statusEl.textContent = `No camera: ${err.message}. The camera needs https or localhost.`;
+  });
+});
+
+// --- a photo instead of the camera ------------------------------------------
+
+async function readFile(file) {
+  const bitmap = await createImageBitmap(file);
+  view.width = bitmap.width; view.height = bitmap.height;
+  vctx.drawImage(bitmap, 0, 0);
+  const img = vctx.getImageData(0, 0, bitmap.width, bitmap.height);
+  statusEl.textContent = "Reading…";
+  await new Promise((r) => setTimeout(r, 20));
+  const t0 = performance.now();
+  // A straight export of the cover fills the whole picture; a photo of it sits
+  // in the guide. Try the guide first, then the whole frame.
+  const out = read(img, [guideFor(img.width, img.height), guideFor(img.width, img.height, 1.0)]);
+  const ms = performance.now() - t0;
+  window.__lastRead = { text: out.text, grid: out.grid, ms, frames: 1 };
+  if (out.text) show(out.text, `Read from the colour of the picture in ${ms.toFixed(0)} ms.`);
+  else statusEl.textContent = "No phrase in that picture. Try a sharper photo, filling the frame.";
+  return out;
+}
+
+document.querySelector("#file").addEventListener("change", (e) => {
+  const f = e.target.files && e.target.files[0];
+  if (f) readFile(f);
+});
+window.__readFile = readFile;
+
+statusEl.textContent = "Point the camera at the cover, or open a photo of it.";
+window.__ready = true;
+</script>
+</body>
+</html>

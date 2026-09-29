@@ -1,0 +1,30 @@
+{
+  "bits": 144,
+  "cover": {
+    "w": 682,
+    "h": 1024
+  },
+  "cell": 16,
+  "cols": 42,
+  "rows": 64,
+  "x0": 5,
+  "y0": 0,
+  "stride": 61,
+  "copies": [
+    {
+      "name": "A",
+      "pattern": "checker",
+      "offset": 0,
+      "axis": "green-magenta"
+    },
+    {
+      "name": "B",
+      "pattern": "stripes",
+      "offset": 72,
+      "axis": "blue-yellow"
+    }
+  ],
+  "crc": "CRC-16/CCITT-FALSE over the ASCII phrase, appended big-endian",
+  "maxChannelShift": 13.0,
+  "meanChannelShift": 6.022242702305909
+}
