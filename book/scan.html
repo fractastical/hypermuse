@@ -7,7 +7,7 @@
 <style>
   :root { color-scheme: dark; }
   html, body { margin: 0; height: 100%; background: #0d0c0b; color: #f4efe4;
-    font: 16px/1.4 Georgia, "Times New Roman", serif; }
+    font: 15px/1.4 ui-monospace, "SF Mono", Menlo, Consolas, "Liberation Mono", monospace; }
   main { position: fixed; inset: 0; display: flex; flex-direction: column; }
   #stage { flex: 1; position: relative; overflow: hidden; display: flex;
     align-items: center; justify-content: center; }
@@ -15,17 +15,16 @@
   #bar { padding: 12px 16px calc(12px + env(safe-area-inset-bottom));
     display: flex; gap: 10px; align-items: center; flex-wrap: wrap;
     background: #16140f; border-top: 1px solid #2c2820; }
-  #status { flex: 1 1 200px; color: #c9bfae; font-size: 15px; }
-  button, label.button { font: inherit; font-size: 15px; background: #f4efe4; color: #1c1814;
-    border: 0; border-radius: 6px; padding: 8px 14px; cursor: pointer; }
+  #status { flex: 1 1 200px; color: #c9bfae; }
+  button, label.button { font: inherit; background: none; color: #f4efe4;
+    border: 1px solid #5a5244; border-radius: 0; padding: 7px 14px; cursor: pointer; }
   label.button input { display: none; }
   #found { position: absolute; inset: 0; display: none; align-items: center;
-    justify-content: center; background: rgba(244, 239, 228, 0.94); color: #1c1814;
-    text-align: center; padding: 24px; }
+    justify-content: center; background: rgba(13, 12, 11, 0.94); text-align: center;
+    padding: 24px; cursor: pointer; }
   #found.on { display: flex; }
-  #found h1 { font-size: clamp(34px, 9vw, 64px); font-weight: normal; font-style: italic;
-    margin: 0 0 10px; letter-spacing: 0.02em; }
-  #found p { margin: 0 auto 18px; max-width: 30em; color: #4a4238; font-size: 15px; }
+  #found small { display: block; color: #8f8574; letter-spacing: 0.2em; margin-bottom: 18px; }
+  #found h1 { font: inherit; font-size: clamp(24px, 7vw, 48px); margin: 0; letter-spacing: 0.04em; }
 </style>
 </head>
 <body>
@@ -34,16 +33,15 @@
     <canvas id="view" width="720" height="1280"></canvas>
     <div id="found">
       <div>
+        <small>decoded</small>
         <h1 id="phrase"></h1>
-        <p id="how"></p>
-        <button id="again" type="button">Scan again</button>
       </div>
     </div>
   </div>
   <div id="bar">
-    <div id="status">Loading…</div>
-    <button id="start" type="button">Use camera</button>
-    <label class="button">Photo…<input id="file" type="file" accept="image/*"/></label>
+    <div id="status"></div>
+    <button id="start" type="button">scan</button>
+    <label class="button">photo<input id="file" type="file" accept="image/*"/></label>
   </div>
 </main>
 <script type="module">
@@ -377,14 +375,15 @@ function drawGuide(w, h, strength) {
   vctx.restore();
 }
 
-function show(text, how) {
+function show(text) {
   document.querySelector("#phrase").textContent = text;
-  document.querySelector("#how").textContent = how;
+  statusEl.textContent = "";
   found.classList.add("on");
 }
 
-document.querySelector("#again").addEventListener("click", () => {
+found.addEventListener("click", () => {
   found.classList.remove("on");
+  if (stream) statusEl.textContent = "decoding…";
   scanning = !!stream;
   if (scanning) loop();
 });
@@ -426,11 +425,7 @@ function loop() {
     window.__lastRead = { text: out.text, grid: out.grid, ms, frames };
     if (out.text) {
       scanning = false;
-      show(out.text, `Read from the colour of the cover, frame ${frames}, in ${ms.toFixed(0)} ms. Nothing on the cover you can see says this.`);
-    } else {
-      statusEl.textContent = out.grid > 1.6
-        ? `Found the cells. Hold still… (${ms.toFixed(0)} ms a try)`
-        : `Fill the corners with the cover. (${ms.toFixed(0)} ms a try)`;
+      show(out.text);
     }
     busy = false;
     drawGuide(w, h, out.grid);
@@ -439,9 +434,9 @@ function loop() {
 }
 
 document.querySelector("#start").addEventListener("click", () => {
-  startCamera().catch((err) => {
-    statusEl.textContent = `No camera: ${err.message}. The camera needs https or localhost.`;
-  });
+  found.classList.remove("on");
+  statusEl.textContent = "decoding…";
+  startCamera().catch(() => { statusEl.textContent = "no camera"; });
 });
 
 // --- a photo instead of the camera ------------------------------------------
@@ -451,7 +446,8 @@ async function readFile(file) {
   view.width = bitmap.width; view.height = bitmap.height;
   vctx.drawImage(bitmap, 0, 0);
   const img = vctx.getImageData(0, 0, bitmap.width, bitmap.height);
-  statusEl.textContent = "Reading…";
+  found.classList.remove("on");
+  statusEl.textContent = "decoding…";
   await new Promise((r) => setTimeout(r, 20));
   const t0 = performance.now();
   // A straight export of the cover fills the whole picture; a photo of it sits
@@ -459,8 +455,8 @@ async function readFile(file) {
   const out = read(img, [guideFor(img.width, img.height), guideFor(img.width, img.height, 1.0)]);
   const ms = performance.now() - t0;
   window.__lastRead = { text: out.text, grid: out.grid, ms, frames: 1 };
-  if (out.text) show(out.text, `Read from the colour of the picture in ${ms.toFixed(0)} ms.`);
-  else statusEl.textContent = "No phrase in that picture. Try a sharper photo, filling the frame.";
+  if (out.text) show(out.text);
+  else statusEl.textContent = "nothing decoded";
   return out;
 }
 
@@ -470,7 +466,6 @@ document.querySelector("#file").addEventListener("change", (e) => {
 });
 window.__readFile = readFile;
 
-statusEl.textContent = "Point the camera at the cover, or open a photo of it.";
 window.__ready = true;
 </script>
 </body>
