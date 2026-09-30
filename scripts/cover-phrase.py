@@ -430,6 +430,30 @@ def fake_photo(keyed: Image.Image, rng, *, err, tilt, keystone, blur, quality, n
     return Image.open(io.BytesIO(buf.getvalue()))
 
 
+def webcam_photo(keyed: Image.Image, width, seed, fw=1920, fh=1080):
+    """A laptop camera: landscape, the cover held up at some size, noisier than a phone."""
+    s = width / COVER_W
+    cx, cy = fw / 2 + 0.01 * fw, fh / 2
+    t = np.radians(1.0)
+    corners = [(cx + s * (np.cos(t) * (u - COVER_W / 2) - np.sin(t) * (v - COVER_H / 2)),
+                cy + s * (np.sin(t) * (u - COVER_W / 2) + np.cos(t) * (v - COVER_H / 2)))
+               for u, v in ((0, 0), (COVER_W, 0), (COVER_W, COVER_H), (0, COVER_H))]
+    coeffs = perspective_coeffs(corners, [(0, 0), (COVER_W, 0), (COVER_W, COVER_H), (0, COVER_H)])
+    table = Image.new("RGB", (fw, fh), (70, 66, 62))
+    warped = keyed.convert("RGBA").transform((fw, fh), Image.PERSPECTIVE, coeffs, Image.BICUBIC)
+    table.paste(warped, (0, 0), warped)
+    a = np.asarray(table.filter(ImageFilter.GaussianBlur(1.2))).astype(float)
+    a = a + np.random.default_rng(seed).normal(0, 7, a.shape)
+    buf = io.BytesIO()
+    Image.fromarray(np.clip(a, 0, 255).astype(np.uint8)).save(buf, "JPEG", quality=70)
+    return Image.open(io.BytesIO(buf.getvalue()))
+
+
+# cover widths in a 1920x1080 frame; 719 fills its height
+WEBCAM = (480, 600, 719)
+LIVE_SHARES = (0.92, 0.72, 0.56)   # the guide sizes book/scan.html cycles through
+
+
 def perspective_coeffs(dst, src):
     m = []
     for (x, y), (u, v) in zip(dst, src):
@@ -495,6 +519,13 @@ def simulate():
         b = fake_photo(press(double, **kw) if kw else double, np.random.default_rng(100 + j), **HANDHELD)
         b.save(SIMULATED / f"print{j}.jpg")
         print(f"  {name:30s} {'read' if run(old, a, False) else '-':10s} {'read' if run(new, b, True) else '-'}")
+
+    print(f"\n{'laptop camera, 1920x1080':32s} two copies, any of the live guide sizes")
+    for k, width in enumerate(WEBCAM):
+        img = webcam_photo(double, width, 200 + k)
+        img.save(SIMULATED / f"webcam{k}.jpg")
+        ok = any(new.read(photo_planes(img), default_guide(*img.size, s))[0] == PHRASE for s in LIVE_SHARES)
+        print(f"  cover {width} px wide{'':15s} {'read' if ok else '-'}")
 
 
 if __name__ == "__main__":

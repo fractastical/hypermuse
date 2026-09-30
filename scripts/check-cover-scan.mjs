@@ -51,8 +51,11 @@ for (const [name, file, expect] of photos) {
 }
 await browser.close();
 
-// The live loop, fed a still photo as if it were the camera.
-const still = path.join(SIM, "case1.jpg");
+// The live loop, fed a still photo as if it were the camera: a phone held
+// upright, then a laptop camera with the cover held up at several sizes.
+const stills = ["case1.jpg", ...fs.readdirSync(SIM).filter((f) => /^webcam\d+\.jpg$/.test(f)).sort()];
+for (const name of stills) {
+const still = path.join(SIM, name);
 const y4m = path.join(SIM, "camera.y4m");
 spawnSync(ffmpegPath, ["-y", "-loop", "1", "-i", still, "-t", "4", "-r", "15", "-pix_fmt", "yuv420p", y4m], { stdio: "ignore" });
 const cam = await chromium.launch({
@@ -67,14 +70,15 @@ await cpage.click("#start");
 try {
   await cpage.waitForFunction(() => window.__lastRead && window.__lastRead.text, undefined, { timeout: 30000 });
   const r = await cpage.evaluate(() => window.__lastRead);
-  console.log(`${"live camera (fake stream)".padEnd(36)} ${r.text.padEnd(18)} ${r.ms.toFixed(0).padStart(5)} ms  frame ${r.frames}`);
-  await cpage.screenshot({ path: path.join(SIM, "found.png") });
+  console.log(`${`live camera, ${name}`.padEnd(36)} ${r.text.padEnd(18)} ${r.ms.toFixed(0).padStart(5)} ms  frame ${r.frames}`);
+  if (name === "case1.jpg") await cpage.screenshot({ path: path.join(SIM, "found.png") });
 } catch {
   const r = await cpage.evaluate(() => window.__lastRead);
-  console.log("live camera: nothing read", JSON.stringify(r));
+  console.log(`live camera, ${name}: nothing read`, JSON.stringify(r));
   failures++;
 }
 await cam.close();
+}
 server.close();
 console.log(failures ? `${failures} failure(s)` : "all checks passed");
 process.exit(failures ? 1 : 0);

@@ -397,14 +397,18 @@ let stream = null;
 let scanning = false;
 let busy = false;
 let frames = 0;
+const LIVE_SHARES = [0.92, 0.72, 0.56];
 
 async function startCamera() {
   stream = await navigator.mediaDevices.getUserMedia({
-    video: { facingMode: { ideal: "environment" }, width: { ideal: 1280 }, height: { ideal: 1280 } },
+    video: { facingMode: { ideal: "environment" }, width: { ideal: 1920 }, height: { ideal: 1080 } },
     audio: false
   });
   video.srcObject = stream;
   await video.play();
+  // A laptop's camera faces you; unmirrored, the cover moves the wrong way on screen.
+  const facing = stream.getVideoTracks()[0].getSettings().facingMode;
+  view.style.transform = facing === "environment" ? "" : "scaleX(-1)";
   scanning = true;
   loop();
 }
@@ -419,7 +423,9 @@ function loop() {
     busy = true;
     const img = vctx.getImageData(0, 0, w, h);
     const t0 = performance.now();
-    const out = read(img, [guideFor(w, h)]);
+    // The search only allows a quarter either side of the guide's size, so each
+    // frame tries a different size and the cover need not match the box.
+    const out = read(img, [guideFor(w, h, LIVE_SHARES[frames % LIVE_SHARES.length])]);
     const ms = performance.now() - t0;
     frames++;
     window.__lastRead = { text: out.text, grid: out.grid, ms, frames };
@@ -443,6 +449,7 @@ document.querySelector("#start").addEventListener("click", () => {
 
 async function readFile(file) {
   const bitmap = await createImageBitmap(file);
+  view.style.transform = "";
   view.width = bitmap.width; view.height = bitmap.height;
   vctx.drawImage(bitmap, 0, 0);
   const img = vctx.getImageData(0, 0, bitmap.width, bitmap.height);
