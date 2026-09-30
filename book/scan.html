@@ -1,4 +1,44 @@
 <!DOCTYPE html>
+<!--
+  scan.html: read a phrase hidden in a picture's colour, from a camera or a photo.
+
+  The phrase is written by hidden_phrase.py, which explains the method in full at
+  the top of the file. This page is the same reader, in the browser.
+
+  RUN IT LOCALLY
+      python3 hidden_phrase.py encode cover.png cover-marked.png "vires in numeris"
+      python3 -m http.server 8000
+      open http://localhost:8000/scan.html?key=cover-marked.key.json
+
+  Browsers only give a page the camera on https or on localhost. To scan from a
+  phone, put scan.html and the key file on any https host (GitHub Pages works),
+  or use "photo" to pick a picture you have already taken.
+
+  Without ?key= the page loads cover-phrase-layout.json.
+
+  WHAT IT SHOWS
+      decoding… 97/144 bits   while scanning: bits whose votes already stand more
+                              than 2.5 standard deviations clear of the noise
+                              (the noise is how much cells carrying the same bit
+                              disagree). A picture with nothing in it shows a few.
+      decoded                 the phrase; the cells found in the frame, lit where
+                              they carry a 1 in the first copy; and how many bits,
+                              cells, copies and corrections it took.
+
+  HOW IT READS A FRAME
+      1. Take the two colour-difference planes and subtract a blurred copy of
+         each, leaving only fine colour patterns.
+      2. Assume the picture is roughly centred and search its size, tilt and
+         sub-cell offset on a small patch of cells in the middle. Live frames
+         cycle three sizes, so the picture need not match the guide box.
+      3. Grow the patch to the whole picture, tightening the fit, then let each
+         8x8 block of cells shift a little on its own.
+      4. Per copy, find which way its colour now points (printing turns hues) and
+         weight it by how cleanly it came through.
+      5. Try both copies together and apart, both signs, every starting point and
+         the 6 least certain bits flipped; accept the first whose CRC-16 passes
+         and whose letters are all printable.
+-->
 <html lang="en">
 <head>
 <meta charset="utf-8"/>
@@ -19,12 +59,14 @@
   button, label.button { font: inherit; background: none; color: #f4efe4;
     border: 1px solid #5a5244; border-radius: 0; padding: 7px 14px; cursor: pointer; }
   label.button input { display: none; }
-  #found { position: absolute; inset: 0; display: none; align-items: center;
-    justify-content: center; background: rgba(13, 12, 11, 0.94); text-align: center;
-    padding: 24px; cursor: pointer; }
+  #found { position: absolute; inset: 0; display: none; align-items: flex-end;
+    justify-content: center; text-align: center; padding: 24px; cursor: pointer; }
   #found.on { display: flex; }
+  #found > div { background: rgba(13, 12, 11, 0.82); padding: 22px 26px; }
   #found small { display: block; color: #8f8574; letter-spacing: 0.2em; margin-bottom: 18px; }
   #found h1 { font: inherit; font-size: clamp(24px, 7vw, 48px); margin: 0; letter-spacing: 0.04em; }
+  #detail { margin: 20px 0 0; color: #8f8574; font-size: 12px; line-height: 1.6;
+    white-space: pre; text-align: left; display: inline-block; }
 </style>
 </head>
 <body>
@@ -35,6 +77,7 @@
       <div>
         <small>decoded</small>
         <h1 id="phrase"></h1>
+        <div id="detail"></div>
       </div>
     </div>
   </div>
@@ -50,7 +93,6 @@
 // tighten the fit, nudge each block for a tilted cover, find which way each
 // copy's colour points after printing, vote, and let the checksum choose.
 
-const COVER_W = 682, COVER_H = 1024;
 const WEAKEST = 6;
 
 const view = document.querySelector("#view");
@@ -58,8 +100,10 @@ const vctx = view.getContext("2d", { willReadFrequently: true });
 const statusEl = document.querySelector("#status");
 const found = document.querySelector("#found");
 
-const layout = await fetch("cover-phrase-layout.json", { cache: "no-store" }).then((r) => r.json());
+const keyFile = new URLSearchParams(location.search).get("key") || "cover-phrase-layout.json";
+const layout = await fetch(keyFile, { cache: "no-store" }).then((r) => r.json());
 const { cell: CELL, cols, rows, x0, y0, stride, bits: NBITS, copies: COPIES } = layout;
+const { w: COVER_W, h: COVER_H } = layout.cover;
 const NCELL = cols * rows;
 const NCOPY = COPIES.length;
 const index = COPIES.map((c) => {
@@ -102,7 +146,7 @@ function patch(radius) {
 
 // Green-magenta and blue-yellow, each with the room's slow colour taken away so
 // only the fine patterns are left.
-function planesFrom(img) {
+function planesFrom(img, r) {
   const { width: w, height: h, data } = img;
   const cr = new Float32Array(w * h), cb = new Float32Array(w * h);
   for (let i = 0, p = 0; i < w * h; i++, p += 4) {
@@ -110,10 +154,11 @@ function planesFrom(img) {
     cr[i] = Math.min(255, Math.max(0, 128 + 0.5 * r - 0.418688 * g - 0.081312 * b));
     cb[i] = Math.min(255, Math.max(0, 128 - 0.168736 * r - 0.331264 * g + 0.5 * b));
   }
-  return [highpass(cr, w, h), highpass(cb, w, h)];
+  return [highpass(cr, w, h, r), highpass(cb, w, h, r)];
 }
 
-function highpass(src, w, h) {
+// r is about one cell as it appears in the photo
+function highpass(src, w, h, r) {
   const sat = new Float64Array((w + 1) * (h + 1));
   for (let y = 0; y < h; y++) {
     let run = 0;
@@ -122,7 +167,6 @@ function highpass(src, w, h) {
       sat[(y + 1) * (w + 1) + x + 1] = sat[y * (w + 1) + x + 1] + run;
     }
   }
-  const r = CELL;
   const plane = new Float32Array(w * h);
   for (let y = 0; y < h; y++) {
     const ya = Math.max(0, y - r), yb = Math.min(h, y + r + 1);
@@ -208,7 +252,7 @@ function search(Ps, guide) {
   const grid = best / (seen[seen.length >> 1] || 1);
 
   // 2. Grow the patch and tighten the fit as it grows.
-  let step = [0.02, 2, 2, 1 * DEG];
+  let step = [0.02, CELL / 8, CELL / 8, 1 * DEG];
   for (const radius of [5, 9, 14, 99]) {
     const keep = patch(radius);
     best = score(Ps, guide, pose, keep);
@@ -227,7 +271,7 @@ function search(Ps, guide) {
       }
       step = step.map((v) => v / 2);
     }
-    step = [0.01, 1, 1, 0.5 * DEG];
+    step = [0.01, CELL / 16, CELL / 16, 0.5 * DEG];
   }
 
   // 3. A cover held at an angle is not a rectangle in the picture, so each
@@ -241,7 +285,9 @@ function search(Ps, guide) {
     return t;
   };
   const BLOCK = 8;
+  const REACH = Math.round(CELL * 3 / 8), PACE = Math.max(1, Math.round(CELL / 8));
   const trial = new Float32Array(BLOCK * BLOCK * W);
+  const nudge = new Float32Array(NCELL * 2);
   for (let br = 0; br < rows; br += BLOCK) {
     for (let bc = 0; bc < cols; bc += BLOCK) {
       const keep = [];
@@ -249,13 +295,16 @@ function search(Ps, guide) {
         if (cellR[k] >= br && cellR[k] < br + BLOCK && cellC[k] >= bc && cellC[k] < bc + BLOCK) keep.push(k);
       }
       let bestSc = keep.reduce((a, k) => a + strength(m, k * W), 0);
-      for (let ox = -6; ox <= 6; ox += 2) {
-        for (let oy = -6; oy <= 6; oy += 2) {
+      for (let ox = -REACH; ox <= REACH; ox += PACE) {
+        for (let oy = -REACH; oy <= REACH; oy += PACE) {
           let sc = 0;
           keep.forEach((k, i) => { measureCell(Ps, k, guide, pose, ox, oy, trial, i * W); sc += strength(trial, i * W); });
           if (sc > bestSc) {
             bestSc = sc;
-            keep.forEach((k, i) => { for (let z = 0; z < W; z++) m[k * W + z] = trial[i * W + z]; });
+            keep.forEach((k, i) => {
+              for (let z = 0; z < W; z++) m[k * W + z] = trial[i * W + z];
+              nudge[k * 2] = ox; nudge[k * 2 + 1] = oy;
+            });
           }
         }
       }
@@ -265,6 +314,15 @@ function search(Ps, guide) {
   // 4. Printing may have turned each copy's colour. Find the direction it
   //    points now, read along it, and weight the copy by how cleanly it stands
   //    out from what it is not.
+  // noise[c]: variance of one bit's vote in copy c when there is no mark, from
+  // the spread across the copy's colour axis
+  const noise = [];
+  const counts = COPIES.map((_, c) => {
+    const n = new Float64Array(NBITS);
+    for (let k = 0; k < NCELL; k++) n[index[c][k]]++;
+    return n;
+  });
+  const perBit = counts[0];
   const perCopy = COPIES.map((_, c) => {
     let sxx = 0, sxy = 0, syy = 0;
     for (let k = 0; k < NCELL; k++) {
@@ -278,9 +336,16 @@ function search(Ps, guide) {
     const ax = Math.cos(phi), ay = Math.sin(phi);
     const weight = Math.sqrt(Math.max(big - small, 1e-9)) / small;
     const votes = new Float64Array(NBITS);
+    const proj = new Float64Array(NCELL);
     for (let k = 0; k < NCELL; k++) {
-      votes[index[c][k]] += weight * (m[k * W + c * 2] * ax + m[k * W + c * 2 + 1] * ay);
+      proj[k] = m[k * W + c * 2] * ax + m[k * W + c * 2 + 1] * ay;
+      votes[index[c][k]] += proj[k];
     }
+    // cells carrying the same bit should agree; how much they don't is the noise
+    let within = 0;
+    for (let k = 0; k < NCELL; k++) within += (proj[k] - votes[index[c][k]] / counts[c][index[c][k]]) ** 2;
+    noise.push(weight * weight * within / (NCELL - NBITS));
+    for (let b = 0; b < NBITS; b++) votes[b] *= weight;
     return votes;
   });
 
@@ -292,8 +357,20 @@ function search(Ps, guide) {
     candidates.push(perCopy[0].map((v, i) => v - perCopy[1][i]));
   }
   candidates.push(...perCopy);
+
+  // How many bits already stand clear of the noise, whether or not the whole
+  // phrase can be read yet: more than 2.5 standard deviations from zero.
+  let sure = 0;
+  candidates.forEach((votes, i) => {
+    const v = i < 2 && NCOPY === 2 ? noise[0] + noise[1] : noise[i - (NCOPY === 2 ? 2 : 0)];
+    let n = 0;
+    for (let b = 0; b < NBITS; b++) if (Math.abs(votes[b]) > 2.5 * Math.sqrt(v * perBit[b])) n++;
+    sure = Math.max(sure, n);
+  });
+
   for (const c of candidates.slice()) candidates.push(c.map((v) => -v));
-  return { text: resolve(candidates), grid, pose };
+  const found = resolve(candidates);
+  return { ...(found || { text: null }), grid, pose, nudge, sure };
 }
 
 function crc16(bytes) {
@@ -329,7 +406,7 @@ function resolve(candidates) {
         const crc = (bytes[bytes.length - 2] << 8) | bytes[bytes.length - 1];
         if (crc16(body) !== crc) continue;
         if (!body.every((b) => b >= 32 && b < 127)) continue;
-        return String.fromCharCode(...body);
+        return { text: String.fromCharCode(...body), bits: bits.slice(), turn, fixed: popcount(pattern) };
       }
     }
   }
@@ -346,14 +423,41 @@ function guideFor(w, h, share = 0.8) {
 }
 
 function read(img, guides) {
-  const P = planesFrom(img);
+  const P = planesFrom(img, Math.max(2, Math.round(CELL * guides[0][2] / COVER_W)));
   let last = null;
   for (const g of guides) {
     const out = search(P, g);
+    out.guide = g;
     if (out.text) return out;
-    if (!last || out.grid > last.grid) last = out;
+    if (!last || out.sure > last.sure) last = out;
   }
   return last;
+}
+
+// The cells as found in the picture, each lit by the bit it carried in copy A.
+function drawCells(out) {
+  const [gx, gy, gw] = out.guide;
+  const [scale, dx, dy, theta] = out.pose;
+  const s = scale * gw / COVER_W, ct = Math.cos(theta), st = Math.sin(theta);
+  const cx = gx + gw / 2, cy = gy + out.guide[3] / 2;
+  const at = (u, v) => [cx + s * (ct * u - st * v), cy + s * (st * u + ct * v)];
+  vctx.save();
+  vctx.fillStyle = "rgba(13,12,11,0.55)";
+  vctx.fillRect(0, 0, view.width, view.height);
+  vctx.lineWidth = Math.max(1, s * CELL / 16);
+  for (let k = 0; k < NCELL; k++) {
+    const bit = out.bits[(index[0][k] + out.turn) % NBITS];
+    const u = x0 + cellC[k] * CELL - COVER_W / 2 + dx + out.nudge[k * 2];
+    const v = y0 + cellR[k] * CELL - COVER_H / 2 + dy + out.nudge[k * 2 + 1];
+    const i = CELL * 0.12;
+    const corners = [at(u + i, v + i), at(u + CELL - i, v + i), at(u + CELL - i, v + CELL - i), at(u + i, v + CELL - i)];
+    vctx.beginPath();
+    corners.forEach(([x, y], j) => (j ? vctx.lineTo(x, y) : vctx.moveTo(x, y)));
+    vctx.closePath();
+    if (bit) { vctx.fillStyle = "rgba(232,210,122,0.45)"; vctx.fill(); }
+    else { vctx.strokeStyle = "rgba(244,239,228,0.35)"; vctx.stroke(); }
+  }
+  vctx.restore();
 }
 
 function drawGuide(w, h, strength) {
@@ -375,8 +479,19 @@ function drawGuide(w, h, strength) {
   vctx.restore();
 }
 
-function show(text) {
-  document.querySelector("#phrase").textContent = text;
+const PATTERN_NAME = { checker: "2x2 checker", stripes: "half-cell stripes", fine: "4x4 checker" };
+
+function show(out) {
+  drawCells(out);
+  document.querySelector("#phrase").textContent = out.text;
+  const letters = NBITS / 8 - 2;
+  document.querySelector("#detail").textContent = [
+    `${NBITS} bits: ${letters} letters + crc-16`,
+    `${NCELL.toLocaleString("en")} cells of ${CELL} px, ${cols} x ${rows}`,
+    ...COPIES.map((c) => `copy ${c.name}: ${c.axis}, ${PATTERN_NAME[c.pattern] || c.pattern}`),
+    `each bit written ${Math.round(NCELL * NCOPY / NBITS)} times`,
+    `${out.sure}/${NBITS} bits clear of noise, ${out.fixed} corrected`,
+  ].join("\n");
   statusEl.textContent = "";
   found.classList.add("on");
 }
@@ -428,13 +543,15 @@ function loop() {
     const out = read(img, [guideFor(w, h, LIVE_SHARES[frames % LIVE_SHARES.length])]);
     const ms = performance.now() - t0;
     frames++;
-    window.__lastRead = { text: out.text, grid: out.grid, ms, frames };
+    window.__lastRead = { text: out.text, grid: out.grid, sure: out.sure, ms, frames };
+    busy = false;
     if (out.text) {
       scanning = false;
-      show(out.text);
+      show(out);
+    } else {
+      statusEl.textContent = `decoding… ${out.sure}/${NBITS} bits`;
+      drawGuide(w, h, out.grid);
     }
-    busy = false;
-    drawGuide(w, h, out.grid);
   }
   if (scanning) requestAnimationFrame(loop);
 }
@@ -461,9 +578,9 @@ async function readFile(file) {
   // in the guide. Try the guide first, then the whole frame.
   const out = read(img, [guideFor(img.width, img.height), guideFor(img.width, img.height, 1.0)]);
   const ms = performance.now() - t0;
-  window.__lastRead = { text: out.text, grid: out.grid, ms, frames: 1 };
-  if (out.text) show(out.text);
-  else statusEl.textContent = "nothing decoded";
+  window.__lastRead = { text: out.text, grid: out.grid, sure: out.sure, ms, frames: 1 };
+  if (out.text) show(out);
+  else statusEl.textContent = `nothing decoded, ${out.sure}/${NBITS} bits`;
   return out;
 }
 

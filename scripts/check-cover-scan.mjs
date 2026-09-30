@@ -47,7 +47,7 @@ for (const [name, file, expect] of photos) {
   const r = await page.evaluate(() => { window.__lastReadSeen = window.__lastRead; return window.__lastRead; });
   const verdict = expect === null ? "" : (expect === (r.text === "vires in numeris") ? "  pass" : "  FAIL");
   if (verdict.includes("FAIL")) failures++;
-  console.log(`${name.padEnd(36)} ${String(r.text).padEnd(18)} ${r.ms.toFixed(0).padStart(5)} ms${verdict}`);
+  console.log(`${name.padEnd(36)} ${String(r.text).padEnd(18)} ${String(r.sure).padStart(3)} bits ${r.ms.toFixed(0).padStart(5)} ms${verdict}`);
 }
 await browser.close();
 
