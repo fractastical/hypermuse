@@ -51,6 +51,8 @@
     "gifs:pool": "node scripts/check-gifpool.mjs",
     "metavillan": "node scripts/build-metavillan.mjs",
     "metavillan:check": "node scripts/check-mandala.mjs",
+    "metavillan:secret": "node scripts/check-mandala-secret.mjs",
+    "metavillan:secret:video": "node scripts/check-mandala-secret-video.mjs",
     "clips": "node scripts/fetch-xfeeefeee.mjs",
     "clips:web": "node scripts/fetch-clip.mjs",
     "tracks": "node scripts/extract-xfeeefeee-audio.mjs",

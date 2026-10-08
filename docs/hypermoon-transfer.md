@@ -690,6 +690,30 @@ cannot see.
   which pixels count as backing plate — with any other weights the marks flicker
   as the colour goes, which is the one thing a slow fade must not do.
 
+  The colour also carries a message. While the rosette is lit, the whole
+  flower's saturation is pulled down by `?marksecretdepth=` (0.25) for half of
+  every `?marksecretbit=` (0.2s) — the first half for a 1, the second for a 0 —
+  so every bit has one half dipped and the average never moves: to the eye a
+  fine shimmer on top of the slow wave, to a camera the text of `?marksecret=`
+  ("metavillan"). The frame is a 13-bit Barker sync, the text as UTF-8 and a
+  CRC-16, about 22 seconds for ten letters, and it starts four-tenths of the way
+  into the bloom so that it is finished inside the 30-second hold; a longer text
+  wants a longer `mandhold`. It is one gain on every petal at once, so the
+  turning rings and the wave, which keep the flower's total colour level, do
+  not disturb it. `?marksecret=0` leaves the colour plain.
+
+  `pages/metavillan-scan.html` reads it: a camera on the show, or a video of
+  it, with the flower in the box. It measures the colour in the box frame by
+  frame — distance from the grey axis, which the running hues leave alone —
+  takes off the slope of the bloom arriving, finds the sync and lets the CRC
+  choose, flipping up to two weak bits. One flower is usually enough; a dull
+  colourway or a noisy camera may take two or three — the rosette wears one colourway drawn at random, and
+  the dullest measured gave a fifth of the brightest's signal — and it keeps
+  listening and adds the copies up.
+  `npm run metavillan:secret` decodes it off the rendered frames;
+  `npm run metavillan:secret:video` records a compressed video of the act and
+  has the scan page read the file, which is the trip a phone makes.
+
   `npm run metavillan:check` shoots the cycle where it means something, the bloom
   included, so the rings can be tuned by looking at them instead of standing in
   front of a two-and-a-half minute act waiting for it to come round.

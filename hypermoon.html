@@ -10,6 +10,7 @@
 <script src="js/stream-broadcast.js"></script>
 <!-- Both maps, the corner one and the moon's aerial, mark listings from these. -->
 <script src="js/hermes-marks.js"></script>
+<script src="js/secret-shimmer.js"></script>
 <script src="js/playa-map.js"></script>
 <script src="js/hermes-overlay.js" defer></script>
 </head>
@@ -1693,6 +1694,18 @@
   // flower keeps moving instead of arriving at flat colour and stopping there.
   const MARK_WAVE = Math.max(0, Math.min(1, num("markwave", 0.22)));
   const MARK_WAVE_SEC = Math.max(0.5, num("markwavesec", 7));
+  // The colour carries a message. While the rosette is lit its saturation is
+  // dipped by ?marksecretdepth= for half of every ?marksecretbit= seconds,
+  // Manchester-coded so the average never moves: to the eye a shimmer, to a
+  // camera on pages/metavillan-scan.html the text of ?marksecret=. The clock
+  // starts once the bloom is under way, so the first copy is complete well
+  // inside the hold; ?marksecret=0 leaves the colour plain.
+  const MARK_SECRET = params.has("marksecret") ? String(params.get("marksecret")) : "metavillan";
+  const MARK_SECRET_BIT = Math.max(0.05, num("marksecretbit", 0.2));
+  const MARK_SECRET_DEPTH = Math.max(0, Math.min(1, num("marksecretdepth", 0.25)));
+  const markSecret = (MARK_SECRET && MARK_SECRET !== "0" && MARK_SECRET_DEPTH > 0 && window.SecretShimmer)
+    ? window.SecretShimmer.encoder(MARK_SECRET, MARK_SECRET_BIT)
+    : null;
   // How much of the front's travel is rotation rather than expansion. At 0 the
   // colour arrives ring by ring: three rings, three concentric events, and no
   // sense of anything crossing the petals. Turning the front as it expands makes
@@ -2350,6 +2363,9 @@
     // formation's clock rather than the show's, so the bloom is something the
     // flower does and not something the wall clock does to it.
     let mandBloom = 0;
+    // Where the colour's message clock started: the hold, plus enough of the
+    // bloom that there is colour for it to be carried in.
+    let secretAt = -Infinity;
     const ringForm = rings.map(() => 0);
     // How long a whole gather or scatter takes, last ring included.
     const mandSpan = () => (ringForm.length - 1) * MAND_STAGGER + MAND_MOVE;
@@ -2427,7 +2443,10 @@
         if (t - mandAt >= MAND_SEC) { mandPhase = "gather"; mandAt = t; }
       } else if (mandPhase === "gather") {
         setRingForms(t - mandAt, true);
-        if (t - mandAt >= mandSpan()) { mandPhase = "hold"; mandAt = t; }
+        if (t - mandAt >= mandSpan()) {
+          mandPhase = "hold"; mandAt = t;
+          secretAt = t + MARK_BLOOM * 0.4;
+        }
       } else if (mandPhase === "hold") {
         mandBloom = Math.min(1, mandBloom + dt / MARK_BLOOM);
         if (t - mandAt >= MAND_HOLD) { mandPhase = "scatter"; mandAt = t; }
@@ -2463,6 +2482,11 @@
       const dv = uniforms.uDisc.value; // disc centre (uv) + radius (frame heights)
       const ccx = (dv.x * 2 - 1) * quad.scale.x + quad.position.x;
       const ccy = (dv.y * 2 - 1) * quad.scale.y + quad.position.y;
+      // One gain for every petal at once: the message is in the colour of the
+      // whole flower, which the turning rings and the wave cannot disturb.
+      const secretGain = markSecret && mandLit && mandPhase !== "orbit"
+        ? 1 - MARK_SECRET_DEPTH * markSecret.dip(t - secretAt)
+        : 1;
       for (const o of orbiters) {
         // The extra lanes the mark act brings in are hidden the rest of the time,
         // and fade rather than appear. Nothing else in the show has a couple of
@@ -2593,9 +2617,9 @@
           // still full colour: the floor only sets how much of itself the
           // artwork keeps while it is waiting to be lit.
           const floor = poolIsMarks ? MONO_FLOOR_MARK : MONO_FLOOR_THEME;
-          u.uSat.value = floor + (1 - floor) * sat;
+          u.uSat.value = floor + (1 - floor) * sat * secretGain;
         } else {
-          u.uSat.value = 1;
+          u.uSat.value = mandLit ? secretGain : 1;
         }
         // The far half is clipped against the disc silhouette in the fragment
         // shader, so it is eaten by the limb rather than fading out whole —
@@ -3111,6 +3135,10 @@
       mandala: () => ({
         phase: mandPhase, form: +mandForm.toFixed(3), bloom: +mandBloom.toFixed(3), marks: markLit,
         rosette: mandLit, act: actSpec(),
+        secret: markSecret
+          ? { bit: MARK_SECRET_BIT, depth: MARK_SECRET_DEPTH, span: +markSecret.span.toFixed(2),
+              at: Number.isFinite(secretAt) ? +(mandT - secretAt).toFixed(2) : null }
+          : null,
         extra: +markExtra.toFixed(3), lanes: orbiters.length,
         rings: rings.map((r, k) => ({
           r: +r.r.toFixed(3), n: r.count, aim: r.aim,

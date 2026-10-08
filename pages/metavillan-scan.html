@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<!--
+  metavillan-scan.html: read the message the Metavillan act carries in its colour.
+
+  While the rosette is lit, hypermoon.html dips the flower's saturation for half
+  of every bit (js/secret-shimmer.js explains the code). Point a camera at the
+  show, or open a video of it, and keep the flower in the box: the page
+  measures how much colour is in the box frame by frame and decodes that.
+
+  One flower is usually enough. A dull colourway or a noisy camera may need two
+  or three, and the page keeps listening and adds the copies up.
+
+  RUN IT LOCALLY
+      npm start
+      open http://localhost:8080/pages/metavillan-scan.html
+
+  Browsers only give a page the camera on https or on localhost.
+  ?bit= must match the show's ?marksecretbit= (0.2 s).
+-->
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"/>
+<title>Read the flower</title>
+<style>
+  :root { color-scheme: dark; }
+  html, body { margin: 0; height: 100%; background: #0d0c0b; color: #f4efe4;
+    font: 15px/1.4 ui-monospace, "SF Mono", Menlo, Consolas, "Liberation Mono", monospace; }
+  main { position: fixed; inset: 0; display: flex; flex-direction: column; }
+  #stage { flex: 1; position: relative; overflow: hidden; display: flex;
+    align-items: center; justify-content: center; }
+  video { max-width: 100%; max-height: 100%; display: block; }
+  #box { position: absolute; border: 1px dashed rgba(244, 239, 228, 0.45); pointer-events: none; }
+  #bar { padding: 12px 16px calc(12px + env(safe-area-inset-bottom));
+    display: flex; gap: 10px; align-items: center; flex-wrap: wrap;
+    background: #16140f; border-top: 1px solid #2c2820; }
+  #status { flex: 1 1 200px; color: #c9bfae; }
+  button, label.button { font: inherit; background: none; color: #f4efe4;
+    border: 1px solid #5a5244; border-radius: 0; padding: 7px 14px; cursor: pointer; }
+  label.button input { display: none; }
+  #found { position: absolute; inset: 0; display: none; align-items: flex-end;
+    justify-content: center; text-align: center; padding: 24px; cursor: pointer; }
+  #found.on { display: flex; }
+  #found > div { background: rgba(13, 12, 11, 0.82); padding: 22px 26px; }
+  #found small { display: block; color: #8f8574; letter-spacing: 0.2em; margin-bottom: 18px; }
+  #found h1 { font: inherit; font-size: clamp(24px, 7vw, 48px); margin: 0; letter-spacing: 0.04em; }
+  #detail { margin: 20px 0 0; color: #8f8574; font-size: 12px; line-height: 1.6;
+    white-space: pre; text-align: left; display: inline-block; }
+</style>
+</head>
+<body>
+<main>
+  <div id="stage">
+    <video id="video" playsinline muted></video>
+    <div id="box"></div>
+    <div id="found">
+      <div>
+        <small>decoded</small>
+        <h1 id="phrase"></h1>
+        <div id="detail"></div>
+      </div>
+    </div>
+  </div>
+  <div id="bar">
+    <div id="status">point the camera at the flower</div>
+    <button id="start" type="button">scan</button>
+    <label class="button">video<input id="file" type="file" accept="video/*"/></label>
+  </div>
+</main>
+<script src="../js/secret-shimmer.js"></script>
+<script>
+const S = window.SecretShimmer;
+const BIT = Math.max(0.05, Number(new URLSearchParams(location.search).get("bit")) || 0.2);
+// The middle of the frame, where the flower is asked to be: the less black sky
+// and stage the measure includes, the larger the dip is against everything else.
+const BOX = 0.7;
+const KEEP = 240;           // seconds of colour kept: four or five flowers
+const video = document.querySelector("#video");
+const box = document.querySelector("#box");
+const statusEl = document.querySelector("#status");
+const found = document.querySelector("#found");
+const small = document.createElement("canvas");
+small.width = 96; small.height = 54;
+const sg = small.getContext("2d", { willReadFrequently: true });
+
+let samples = [], started = 0, lastTry = 0, frames = 0, done = false, stream = null;
+
+function placeBox() {
+  const r = video.getBoundingClientRect(), p = video.parentElement.getBoundingClientRect();
+  Object.assign(box.style, {
+    left: `${r.left - p.left + r.width * (1 - BOX) / 2}px`, top: `${r.top - p.top + r.height * (1 - BOX) / 2}px`,
+    width: `${r.width * BOX}px`, height: `${r.height * BOX}px`
+  });
+}
+addEventListener("resize", placeBox);
+
+function reset() {
+  samples = []; started = 0; lastTry = 0; frames = 0; done = false;
+  found.classList.remove("on");
+}
+
+function onFrame(now, meta) {
+  if (done) return;
+  const vw = video.videoWidth, vh = video.videoHeight;
+  if (vw && vh) {
+    sg.drawImage(video, vw * (1 - BOX) / 2, vh * (1 - BOX) / 2, vw * BOX, vh * BOX, 0, 0, small.width, small.height);
+    // A file is timed by its own frames; a camera by when they arrived.
+    const t = stream ? meta.expectedDisplayTime / 1000 : meta.mediaTime;
+    samples.push({ t, v: S.chroma(sg.getImageData(0, 0, small.width, small.height).data) });
+    frames++;
+    if (!started) started = t;
+    while (samples.length && samples[0].t < t - KEEP) samples.shift();
+    if (t - lastTry >= 1) {
+      lastTry = t;
+      const r = S.decode(samples, BIT);
+      if (r.text != null) return show(r, t);
+      statusEl.textContent = `decoding… ${Math.round(t - started)}s`;
+    }
+  }
+  video.requestVideoFrameCallback(onFrame);
+}
+video.addEventListener("ended", () => {
+  if (done) return;
+  const r = S.decode(samples, BIT);
+  if (r.text != null) show(r, samples[samples.length - 1].t);
+  else statusEl.textContent = "no message in this video";
+});
+
+function show(r, t) {
+  done = true;
+  const fps = frames / Math.max(1e-3, t - started);
+  document.querySelector("#phrase").textContent = r.text;
+  document.querySelector("#detail").textContent = [
+    `${r.bits} bits: 13 sync, ${r.bits - 29} message, 16 crc`,
+    `carried in the flower's colour, ${BIT}s a bit`,
+    `${r.copies} ${r.copies === 1 ? "copy" : "copies"} heard, ${r.fixed} bit${r.fixed === 1 ? "" : "s"} corrected`,
+    `${Math.round(t - started)}s at ${fps.toFixed(0)} fps`
+  ].join("\n");
+  found.classList.add("on");
+  statusEl.textContent = "decoded";
+  if (!stream) video.pause();
+}
+
+found.addEventListener("click", () => { reset(); video.play(); video.requestVideoFrameCallback(onFrame); });
+
+document.querySelector("#start").addEventListener("click", async () => {
+  try {
+    stream = await navigator.mediaDevices.getUserMedia({
+      audio: false,
+      video: { facingMode: "environment", width: { ideal: 1280 }, height: { ideal: 720 }, frameRate: { ideal: 30 } }
+    });
+  } catch (e) {
+    statusEl.textContent = "no camera: " + e.message;
+    return;
+  }
+  reset();
+  video.srcObject = stream;
+  await video.play();
+  placeBox();
+  statusEl.textContent = "decoding…";
+  video.requestVideoFrameCallback(onFrame);
+});
+
+document.querySelector("#file").addEventListener("change", async (e) => {
+  const f = e.target.files[0];
+  if (!f) return;
+  if (stream) { stream.getTracks().forEach((t) => t.stop()); stream = null; video.srcObject = null; }
+  reset();
+  video.src = URL.createObjectURL(f);
+  await video.play();
+  placeBox();
+  statusEl.textContent = "decoding…";
+  video.requestVideoFrameCallback(onFrame);
+});
+</script>
+</body>
+</html>
