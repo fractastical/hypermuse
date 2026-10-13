@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<!--
+  works/index.html: everything we have made and everywhere we have built, on
+  one page. Land first (parcels in other people's worlds, with their
+  addresses), then the works in this repository.
+
+  The Metavillan pictures in img/ carry "metavillan" in their colour
+  (gist/hidden_phrase.py); their keys are in artifacts/works/keys/.
+-->
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>Hypermuse &middot; land and works</title>
+<meta name="description" content="Where we have built and what we have made: parcels in OgarVerse, the hypermoon show, the Metavillan, the Blockchain Chronicles, the Annals of Hermes."/>
+<link rel="canonical" href="https://fractastical.github.io/hypermuse/works/"/>
+<meta property="og:title" content="Hypermuse &middot; land and works"/>
+<meta property="og:image" content="https://fractastical.github.io/hypermuse/works/img/obelisk.jpg"/>
+<style>
+  :root { color-scheme: dark; }
+  body { margin: 0; padding: 48px 28px 96px; background: #0d0c0b; color: #f4efe4;
+    font: 15px/1.55 ui-monospace, "SF Mono", Menlo, Consolas, "Liberation Mono", monospace; }
+  main { max-width: 1120px; margin: 0 auto; }
+  h1 { font-size: 26px; font-weight: 600; margin: 0 0 8px; letter-spacing: 0.02em; }
+  p.lede { color: #c9bfae; max-width: 70ch; margin: 0; }
+  h2 { font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.2em;
+    color: #8f8574; margin: 56px 0 6px; }
+  p.note { color: #8f8574; font-size: 13px; max-width: 80ch; margin: 0 0 20px; }
+  a { color: #f0b8e0; }
+  .grid { display: grid; gap: 18px; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); }
+  article { background: #16140f; border: 1px solid #2c2820; display: flex; flex-direction: column; }
+  article img { display: block; width: 100%; aspect-ratio: 4 / 3; object-fit: cover; background: #000; }
+  .say { padding: 14px 16px 16px; display: flex; flex-direction: column; gap: 8px; flex: 1; }
+  .say b { font-size: 16px; font-weight: 600; }
+  .where { color: #8f8574; font-size: 12px; }
+  .say p { margin: 0; color: #c9bfae; font-size: 13.5px; }
+  .links { margin-top: auto; padding-top: 6px; display: flex; flex-wrap: wrap; gap: 8px; }
+  .links a { font-size: 13px; text-decoration: none; border: 1px solid #5a5244; color: #f4efe4; padding: 5px 11px; }
+  .links a:hover { border-color: #f0b8e0; }
+  .links a.go { border-color: #f0b8e0; color: #f0b8e0; }
+  footer { margin-top: 64px; color: #8f8574; font-size: 12px; }
+</style>
+</head>
+<body>
+<main>
+  <h1>Land and works</h1>
+  <p class="lede">Where we have built, and what we have made. Everything here can be visited
+    in a browser.</p>
+
+  <h2>Land</h2>
+  <p class="note">Parcels in <a href="https://ogarverse.org/">OgarVerse</a>, a voxel world anyone
+    can walk in a browser. A link drops you in front of the parcel; WASD to walk, F to fly.
+    Pictures and screens wake up within 20&nbsp;m, and screens play when clicked.</p>
+  <div class="grid">
+    <article>
+      <img src="img/obelisk.jpg" alt="A slim stone obelisk with a pink tip rising past the forum's buildings against a cloudy sky" loading="lazy"/>
+      <div class="say">
+        <b>The Metavillan obelisk</b>
+        <span class="where">C-034 &middot; 3, avenue Sophie Scholl &mdash; Forum Hannah Arendt</span>
+        <p>A 51&nbsp;m stone needle on the ring of the forum where every visitor arrives, the
+          tallest a parcel may be. Its lantern blinks, magenta and cyan, and the stone is
+          patterned: three messages in all, for whoever reads them.</p>
+        <div class="links">
+          <a class="go" href="https://ogarverse.org/?parcel=C-034">visit</a>
+          <a href="../pages/metavillan-scan.html?bit=0.3">read the lantern</a>
+        </div>
+      </div>
+    </article>
+    <article>
+      <img src="img/flower.jpg" alt="A big screen on a plaza at night, with a glowing rosette in the floor before it" loading="lazy"/>
+      <div class="say">
+        <b>The Metavillan flower</b>
+        <span class="where">P-00004 &middot; 2, place Vera Rubin &mdash; Louise Michel</span>
+        <p>A screen looping one turn of the Metavillan rosette, over a rosette of lamps set in
+          the floor. The flower's colour carries a message; stand on the rosette, play the
+          screen and point the reader at it.</p>
+        <div class="links">
+          <a class="go" href="https://ogarverse.org/?parcel=P-00004">visit</a>
+          <a href="../pages/metavillan-scan.html">read the flower</a>
+        </div>
+      </div>
+    </article>
+    <article>
+      <img src="img/hypersound.jpg" alt="A ring of glowing pillars with screens, on a plaza at night" loading="lazy"/>
+      <div class="say">
+        <b>Hypersound</b>
+        <span class="where">P-00006 &middot; 4, place Vera Rubin &mdash; Louise Michel</span>
+        <p>Twelve screens, each a sound piece from the sea and the ground beneath it:
+          hydrophones, whales, tremors.</p>
+        <div class="links">
+          <a class="go" href="https://ogarverse.org/?parcel=P-00006">visit</a>
+        </div>
+      </div>
+    </article>
+  </div>
+
+  <h2>Works</h2>
+  <p class="note">The show and the pages around it, all in <a href="https://github.com/fractastical/hypermuse">this repository</a>.</p>
+  <div class="grid">
+    <article>
+      <img src="../docs/press/posters/rig.jpg" alt="The moon on a holographic fan atop a truss tower at night" loading="lazy"/>
+      <div class="say">
+        <b>HyperMuse</b>
+        <span class="where">holographic fan &middot; 4.3&nbsp;m tower</span>
+        <p>An audio-reactive holographic fan, where black is transparent and the picture hangs
+          in the air. Debuted at Burning Man PlayAlchemist in 2023.</p>
+        <div class="links">
+          <a class="go" href="../">booking</a>
+          <a href="../docs/press/">press kit</a>
+        </div>
+      </div>
+    </article>
+    <article>
+      <img src="../docs/gallery/word.jpg" alt="The word HYPERSTITION in image cubes across the moon's shadowed side" loading="lazy"/>
+      <div class="say">
+        <b>The hypermoon</b>
+        <span class="where">the show &middot; Three.js</span>
+        <p>The show the fan runs: a moon turning in the dark, and around it whatever the night
+          asks for, driven by the room's sound.</p>
+        <div class="links">
+          <a class="go" href="../hypermoon.html">open the show</a>
+          <a href="../docs/hyperstition/">hyperstition</a>
+        </div>
+      </div>
+    </article>
+    <article>
+      <img src="img/metavillan-act.jpg" alt="Neon marks in a rosette around the moon" loading="lazy"/>
+      <div class="say">
+        <b>The Metavillan</b>
+        <span class="where">an act of the show</span>
+        <p>Marks orbit the moon, gather into a rosette, bloom and scatter. Every colour the act
+          shows carries a hidden message, and the reader page finds it with a phone camera.</p>
+        <div class="links">
+          <a class="go" href="../hypermoon.html?content=orbit&amp;orbitseq=metavillan&amp;giforbit=8">open the act</a>
+          <a href="../pages/metavillan-scan.html">the reader</a>
+        </div>
+      </div>
+    </article>
+    <article>
+      <img src="../book/merkle-lineage-abstract.png" alt="An abstract line drawing of a lineage" loading="lazy"/>
+      <div class="say">
+        <b>The Blockchain Chronicles</b>
+        <span class="where">a book</span>
+        <p>The book's page, with the lineages drawn behind it, and a camera page that reads
+          the phrase hidden in the cover's colour.</p>
+        <div class="links">
+          <a class="go" href="../book/">the book</a>
+          <a href="../book/scan.html">read the cover</a>
+        </div>
+      </div>
+    </article>
+    <article>
+      <img src="../docs/annals/hypermoon-orbits.poster.jpg" alt="Gold ankhs orbiting the moon" loading="lazy"/>
+      <div class="say">
+        <b>The Annals of Hermes</b>
+        <span class="where">11 days on the playa</span>
+        <p>A day by day account of Hermes on the playa, and the city it was in.</p>
+        <div class="links">
+          <a class="go" href="../docs/annals/">the annals</a>
+          <a href="../docs/annals/city.html">the city</a>
+        </div>
+      </div>
+    </article>
+    <article>
+      <img src="../docs/gallery/harmonics.jpg" alt="A vibrating-sphere mode pattern glowing inside the moon's dark side" loading="lazy"/>
+      <div class="say">
+        <b>Sonic sphere</b>
+        <span class="where">a study</span>
+        <p>The real normal modes of a vibrating sphere, driven by the room.</p>
+        <div class="links">
+          <a class="go" href="../sonicsphere.html">open</a>
+        </div>
+      </div>
+    </article>
+    <article>
+      <img src="../docs/gallery/fold.jpg" alt="A triangle folding into a tetrahedron inside the moon's dark side" loading="lazy"/>
+      <div class="say">
+        <b>Synergetics fold</b>
+        <span class="where">a study &middot; Fuller 100.41</span>
+        <p>A triangle folding itself into a tetrahedron.</p>
+        <div class="links">
+          <a class="go" href="../synergetics-fold.html">open</a>
+        </div>
+      </div>
+    </article>
+  </div>
+
+  <footer>fractastical &middot; <a href="https://github.com/fractastical/hypermuse">source</a></footer>
+</main>
+</body>
+</html>
