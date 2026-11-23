@@ -1,0 +1,1060 @@
+<!DOCTYPE html>
+<!--
+  essays/the-image-that-looks-back/: an essay by Colina van Bemmel and Joel
+  Dietz, set as a page. It is woven from two earlier texts, The Cinematic Dream
+  and I am still thinking about that tower (../tower/). The words, their four
+  colours and the twelve pictures are the authors', in the order they put them.
+  The numerals are the ten parts, which the list of sources refers to.
+
+  The five drawings are ours, each made from a line of the text and from the
+  show's own parts:
+
+    eye     the moon of hypermoon.html opens a window, as the show does. Inside
+            is the tower between two trees. The trees are in leaf, then bare;
+            the white band holds its place. The window turns toward the
+            pointer, the way a pupil does.
+    halo    "take me, take me to the other side" on a tilted lane round the
+            dark side of the moon, and "though I was just keeping you out" on a
+            wider lane going the other way.
+    roofs   books lying open on a roof, their leaves lifting in the wind.
+    stain   red going dark on stone, and creeping along the joints. The red
+            carries a message (js/secret-shimmer.js), read by
+            pages/metavillan-scan.html: "a letter nobody can read".
+    fruit   a pomegranate that is still unsplit, cracks, and splits for whoever
+            waits. The seeds are laid out by the golden angle.
+
+  ?secret=       the stain's message (default "looks back"); ?secret=0 for none
+  ?secretbit=    seconds a bit (0.2, which is what the reader expects)
+  ?secretdepth=  how far the red is pulled toward grey for half of each bit (0.25)
+  ?still=        hold every drawing at this many seconds, for taking pictures
+
+  Check the message decodes: npm run essay:lookback:secret (needs npm start).
+-->
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>The image that looks back &middot; Hypermuse</title>
+<meta name="description" content="An essay by Colina van Bemmel and Joel Dietz. A black tower, walls made of words, books drying on the roofs, a still unsplit pomegranate."/>
+<link rel="canonical" href="https://fractastical.github.io/hypermuse/essays/the-image-that-looks-back/"/>
+<meta property="og:type" content="article"/>
+<meta property="og:title" content="The image that looks back"/>
+<meta property="og:description" content="An essay by Colina van Bemmel and Joel Dietz. A black tower, walls made of words, books drying on the roofs, a still unsplit pomegranate."/>
+<meta property="og:image" content="https://fractastical.github.io/hypermuse/essays/the-image-that-looks-back/img/card.jpg"/>
+<meta property="og:url" content="https://fractastical.github.io/hypermuse/essays/the-image-that-looks-back/"/>
+<meta name="twitter:card" content="summary_large_image"/>
+<style>
+  :root { color-scheme: dark; }
+  html { background: #0d0c0b; }
+  body { margin: 0; background: #0d0c0b; color: #f4efe4;
+    font: 20px/1.62 Georgia, "Iowan Old Style", Palatino, serif; }
+  .badge, .by, h2, figcaption, footer {
+    font: 12px/1.6 ui-monospace, "SF Mono", Menlo, Consolas, "Liberation Mono", monospace; }
+  /* The eye is the whole first screen, as the clip is on the front page. */
+  .sky { position: relative; height: min(78vh, 720px); min-height: 380px; }
+  .sky canvas { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
+  .badge { position: absolute; top: 26px; left: 0; right: 0; max-width: 680px; margin: 0 auto;
+    padding: 0 28px; letter-spacing: 0.16em; text-transform: uppercase; color: #8f8574; }
+  .badge a { color: inherit; text-decoration: none; }
+  .badge b { color: #c9bfae; letter-spacing: 0.2em; font-weight: 600; }
+  main { max-width: 680px; margin: 0 auto; padding: 4px 28px 96px; }
+  h1 { font-weight: normal; font-size: clamp(32px, 6vw, 44px); line-height: 1.15;
+    margin: 0 0 10px; text-wrap: balance; }
+  .by { color: #8f8574; font-size: 13px; margin: 0 0 40px; }
+  /* The ten parts. The sources at the foot refer to them by number. */
+  h2 { color: #8f8574; font-weight: 400; letter-spacing: 0.2em; margin: 64px 0 14px; }
+  section:first-of-type h2 { margin-top: 0; }
+  p { margin: 0 0 1.2em; }
+  /* Four colours, a sentence or a clause at a time, as the authors set them:
+     theirs are inks on cream paper, and these are the same four on black. */
+  .r { color: #e58da3; }
+  .o { color: #d9a85f; }
+  .b { color: #9fb6ec; }
+  .g { color: #76c6b0; }
+  figure { margin: 40px 0; }
+  figure img, figure canvas { display: block; width: 100%; height: auto; }
+  figure.own img { width: auto; max-width: 100%; margin: 0 auto; }
+  figure.tall img { max-width: min(100%, 460px); margin: 0 auto; }
+  figure.tall figcaption { max-width: 460px; margin-left: auto; margin-right: auto; }
+  figcaption { margin-top: 8px; color: #8f8574; }
+  figcaption a { color: inherit; }
+  #halo { aspect-ratio: 16 / 10; }
+  #roofs { aspect-ratio: 16 / 9; }
+  #stain { aspect-ratio: 16 / 7; min-height: 190px; }
+  #fruit { aspect-ratio: 5 / 4; }
+  @media (min-width: 900px) {
+    figure.wide { margin-left: -90px; margin-right: -90px; }
+  }
+  @media (max-width: 600px) {
+    body { font-size: 18px; }
+    #halo { aspect-ratio: 4 / 3; }
+    #roofs { aspect-ratio: 4 / 3; }
+  }
+  footer { margin-top: 72px; padding-top: 18px; border-top: 1px solid #2c2820; color: #8f8574; }
+  footer p { margin: 0 0 10px; }
+  footer a { color: #c9bfae; }
+  footer h3 { font: inherit; text-transform: uppercase; letter-spacing: 0.2em; margin: 34px 0 12px; }
+  footer dl { margin: 0; columns: 2 260px; column-gap: 28px; }
+  footer dl > div { break-inside: avoid; margin: 0 0 12px; }
+  footer dt { color: #c9bfae; }
+  footer dd { margin: 0; }
+</style>
+</head>
+<body>
+<div class="sky">
+  <canvas id="eye" role="img" aria-label="The moon turning among stars. A round window opens in it like a pupil. Inside is a pale sky, a black tower with a white band, and two trees that are in leaf and then bare."></canvas>
+  <div class="badge"><a href="../../works/"><b>Hypermuse</b> &nbsp;&middot;&nbsp; land and works</a></div>
+</div>
+<main>
+  <h1>The image that looks back</h1>
+  <p class="by">Colina van Bemmel and Joel Dietz &middot; November 2026</p>
+
+  <section>
+  <h2 aria-label="Part 1">1</h2>
+
+  <p>
+    <span class="r">I am still thinking about that tower, dark like Poe, deep in my thoughts buried. Tower, tower.</span>
+    <span class="o">Once in the sky and once behind the eyes.</span>
+    <span class="r">I thought the telltale heart was under the floorboards, but someone has lifted the darkness up there, above the trees, where everyone can see it and nobody need confess.</span>
+    <span class="b">The trees change around it. Leaves, then branches;</span>
+    <span class="r">the white band holds its place.</span>
+    <span class="g">Nothing consolidates, and still I know what I will look for in the next image.</span>
+    <span class="b">The voice has begun before I have found its mouth.</span>
+  </p>
+
+  <figure class="own">
+    <img src="img/black-tower-trees.jpg" width="640" height="480" alt="A black tower with a white band round it, standing between two bare trees against a pale sky"/>
+    <figcaption>John Smith, <i>The Black Tower</i>, 1985&ndash;87</figcaption>
+  </figure>
+
+  <p>
+    <span class="g">Is it following us, or are we learning how to carry it?</span>
+    <span class="r">I could recognise every cut and still feel the return.</span>
+    <span class="o">Something known of old comes home wearing its own face, and that is the face I cannot quite bear to meet.</span>
+    <span class="r">Cat, raven, something dark in the corner, that strange laughter by the chains.</span>
+    <span class="o">Even the darkness has a sound.</span>
+    <span class="g">When the image stops, the sentence goes on;</span>
+    <span class="o">when the sentence stops, something scratches against its edge.</span>
+  </p>
+  </section>
+
+  <section>
+  <h2 aria-label="Part 2">2</h2>
+
+  <p>
+    <span class="b">The walls are made of words. Blue hands, gold hands, staffs held against inscriptions, devotion entering the physical world through weathered surfaces.</span>
+    <span class="g">The writing is quiet because I cannot read it.</span>
+    <span class="b">Someone else might hear a roomful of voices here, while I keep following the colour from one hand into another.</span>
+    <span class="o">Two serpent heads upon a teaching staff;</span>
+    <span class="b">wisdom has something to hold.</span>
+    <span class="o">The Armenian teacher carries his office in an object, and the object approaches the stone.</span>
+    <span class="g">Does the lesson remain when the hand lets go?</span>
+    <span class="r">Across the wall the would-be wise hag knows another path. Take me, take me to the other side, though I was just keeping you out.</span>
+  </p>
+
+  <figure class="wide">
+    <img src="img/staffs.jpg" width="1400" height="1050" loading="lazy" alt="A blue hand and a bare hand each holding a staff topped with two serpent heads, against a wall carved with Armenian letters"/>
+    <figcaption>Sergei Parajanov, <i>The Colour of Pomegranates</i>, 1969</figcaption>
+  </figure>
+
+  <figure class="wide">
+    <canvas id="halo" role="img" aria-label="The words take me, take me to the other side circling the dark side of the moon, and the words though I was just keeping you out circling it the other way, further off"></canvas>
+  </figure>
+  </section>
+
+  <section>
+  <h2 aria-label="Part 3">3</h2>
+
+  <figure>
+    <img src="img/rooftop-books.jpg" width="1200" height="900" loading="lazy" alt="Hundreds of books lying open on stone roofs, and a boy standing among them"/>
+    <figcaption>Sergei Parajanov, <i>The Colour of Pomegranates</i>, 1969</figcaption>
+  </figure>
+
+  <p>
+    <span class="b">There are manuscripts everywhere, people living inside them, margins broad enough for a body to kneel.</span>
+    <span class="o">Water enters. Pages swell.</span>
+    <span class="r">The book grows heavy with the weather, as though knowledge had been left outside and forgotten to come in.</span>
+    <span class="b">But on the roofs the books lie open to dry.</span>
+    <span class="o">A whole small city of pages, wind entering every house.</span>
+    <span class="g">One pair of hands saves what another pair cannot stop losing.</span>
+    <span class="r">The prayer leaves on the breath;</span>
+    <span class="g">the paper stays behind, damp and rippling.</span>
+  </p>
+
+  <figure>
+    <canvas id="roofs" role="img" aria-label="Open books lying on a dark roof, their leaves lifting and falling as the wind crosses"></canvas>
+  </figure>
+
+  <figure class="wide">
+    <img src="img/sofiko-chiaureli.jpg" width="1600" height="613" loading="lazy" alt="The same woman twice in a striped dress: once holding a white flower and a candle, once veiled in lace with gloved hands raised"/>
+    <figcaption>Sofiko Chiaureli, twice. Sergei Parajanov, <i>The Colour of Pomegranates</i>, 1969</figcaption>
+  </figure>
+
+  <p>
+    <span class="o">And the poet&rsquo;s face returns on the beloved.</span>
+    <span class="b">Sofiko Chiaureli moves between them: a flower, a veil, a changed place in the looking, the same face carrying another life.</span>
+    <span class="g">Do I recognise you, or the image through which I first learned to want you?</span>
+    <span class="r">The face remains familiar;</span>
+    <span class="g">the person has crossed the room.</span>
+  </p>
+  </section>
+
+  <section>
+  <h2 aria-label="Part 4">4</h2>
+
+  <p>
+    <span class="b">Red becomes dark upon the stone.</span>
+    <span class="o">Blood approaches ink;</span>
+    <span class="b">the fruit opens and spills its little chambers.</span>
+    <span class="r">I am afraid of this great fruity abyss, and then I see the mouths: dark-robed figures eating, a book open at the side, carved crosses behind them.</span>
+    <span class="b">Appetite has assembled where I expected renunciation.</span>
+    <span class="g">The mouth can eat, recite, sing, refuse.</span>
+    <span class="o">A stain waits between the body and the page. Given time it might become evidence, ornament, a letter nobody can read;</span>
+    <span class="b">given water, it might begin travelling again.</span>
+  </p>
+
+  <figure>
+    <canvas id="stain" role="img" aria-label="A red stain on stone blocks, dark at its rim, creeping along the joints. A cross is cut into the stone beside it"></canvas>
+    <figcaption>A letter nobody can read.</figcaption>
+  </figure>
+
+  <figure class="wide">
+    <img src="img/monks-pomegranates.jpg" width="1400" height="930" loading="lazy" alt="Monks in black sitting in rows against a stone wall, each biting into a pomegranate, and one standing with an open book"/>
+    <figcaption>Sergei Parajanov, <i>The Colour of Pomegranates</i>, 1969</figcaption>
+  </figure>
+
+  <p>
+    <span class="o">Valerie comes towards another threshold.</span>
+    <span class="b">A skull close to her hand, a red vessel beside it, flowers and skin belonging to the same light. The village keeps its familiar faces and changes what those faces ask of her.</span>
+    <span class="g">What she is discovering and what the village wants need not be the same story.</span>
+  </p>
+  </section>
+
+  <section>
+  <h2 aria-label="Part 5">5</h2>
+
+  <figure class="wide">
+    <img src="img/valerie-skull.jpg" width="1400" height="1033" loading="lazy" alt="A girl reaching across a stone ledge toward a skull and a glass of red wine, a cloaked figure standing over her"/>
+    <figcaption>Jaromil Jire&scaron;, <i>Valerie and Her Week of Wonders</i>, 1970</figcaption>
+  </figure>
+
+  <p>
+    <span class="r">&ldquo;A still unsplit pomegranate.&rdquo; The words return with her face.</span>
+    <span class="g">Who has called it still, who is waiting for the split?</span>
+    <span class="b">The skin can be a promise to one person and shelter to another.</span>
+    <span class="g">I hear her curiosity beside the hunger gathering around her, two sounds close enough to confuse in the dark.</span>
+    <span class="r">The vampires are all around us, making our eroticisms tickle and looping us somewhere, somehow.</span>
+    <span class="g">But where am I in that &ldquo;us&rdquo;?</span>
+    <span class="o">Beside the girl, behind the camera, close to the mouth that wants to swallow? The earrings catch the light.</span>
+    <span class="r">A small ornament may have its own work to do while everyone watches the face.</span>
+  </p>
+
+  <figure>
+    <canvas id="fruit" role="img" aria-label="A whole pomegranate. A crack comes down it from the crown, and then it splits and its seeds spiral in toward a black centre"></canvas>
+  </figure>
+  </section>
+
+  <section>
+  <h2 aria-label="Part 6">6</h2>
+
+  <p>
+    <span class="r">I now look to the window, and somehow this bottle of urine is a symbol of female power.</span>
+    <span class="b">The body has dismissed something and the hand has kept it.</span>
+    <span class="o">Sink, shelf, altar.</span>
+    <span class="r">A little of myself outside myself, stoppered and waiting.</span>
+    <span class="g">Waste, charm, shield.</span>
+    <span class="b">In Elaine&rsquo;s kitchen, bowls and jars wait in their places.</span>
+    <span class="o">Power looks almost like preparing a meal.</span>
+  </p>
+
+  <figure>
+    <img src="img/love-witch-kitchen.jpg" width="1300" height="698" loading="lazy" alt="A woman with long dark hair at a kitchen counter among yellow crockery, filling a jar"/>
+    <figcaption>Anna Biller, <i>The Love Witch</i>, 2016</figcaption>
+  </figure>
+
+  <p>
+    <span class="r">We should have more sex more openly.</span>
+    <span class="g">Or it should remain in the forests. The window opens in both directions.</span>
+    <span class="b">Someone outside can see in;</span>
+    <span class="r">the forest shelters and conceals.</span>
+    <span class="o">A body lies across a star on a rug.</span>
+    <span class="b">Six months of Biller&rsquo;s evenings are beneath that moment, thread after thread.</span>
+    <span class="r">I wanted texture and found a hand&rsquo;s time.</span>
+    <span class="g">The circle invites, encloses. Does it keep something close, or keep something from leaving?</span>
+  </p>
+
+  <figure>
+    <img src="img/love-witch-circle.jpg" width="738" height="415" loading="lazy" alt="A woman in black lying with arms spread on a round red, yellow and black rug marked with a pentagram, a green candle beside her"/>
+    <figcaption>Anna Biller, <i>The Love Witch</i>, 2016</figcaption>
+  </figure>
+  </section>
+
+  <section>
+  <h2 aria-label="Part 7">7</h2>
+
+  <p>
+    <span class="b">The flowers in Fairy Ballet seem freshly made, untouched by weather.</span>
+    <span class="r">I can see the idea of spring before I feel its weight.</span>
+    <span class="g">Yet the dancer must place a foot somewhere;</span>
+    <span class="o">the painted garden receives it. A flower that has never thirsted passes through a hand that tires.</span>
+    <span class="b">The surface remains bright.</span>
+    <span class="o">The prince asks the White Cat to become a woman, or to make him a cat.</span>
+    <span class="g">She offers tea and a walk.</span>
+    <span class="o">The cup delays the transformation;</span>
+    <span class="b">there is time to stay two different creatures.</span>
+    <span class="g">Perhaps the garden is the enchantment.</span>
+    <span class="b">Perhaps it is the interval in which nobody has yet agreed to change.</span>
+  </p>
+
+  <figure class="wide">
+    <img src="img/fairy-ballet.jpg" width="866" height="666" loading="lazy" alt="A woman in a pale blue gown with a white cat&rsquo;s head and a man in pale blue satin kneeling to take her hand, a teapot on the table between them"/>
+    <figcaption>Anna Biller, <i>Fairy Ballet</i>, 1998</figcaption>
+  </figure>
+  </section>
+
+  <section>
+  <h2 aria-label="Part 8">8</h2>
+
+  <figure class="wide">
+    <img src="img/incubus-saloon.jpg" width="1237" height="900" loading="lazy" alt="A woman in a red sequinned dress and red hat singing with arms spread, dancers in pink on either side"/>
+    <figcaption>Anna Biller, <i>A Visit from the Incubus</i>, 2001</figcaption>
+  </figure>
+
+  <p>
+    <span class="r">Then the cloth reaches me differently.</span>
+    <span class="o">Lucy leaves the bed for the saloon, the incubus following her into the music.</span>
+    <span class="b">The painted universe holds;</span>
+    <span class="r">her voice has another room to fill.</span>
+    <span class="g">A song begins where I had expected only the dream to continue.</span>
+    <span class="r">Something touches without explaining how it crossed the distance.</span>
+    <span class="o">Words, costumes, a tune;</span>
+    <span class="b">the artificial flower, the watered page. The clock can keep moving while an image holds me still.</span>
+    <span class="g">I can remain in the same universe and find that I no longer occupy the same place within it.</span>
+  </p>
+  </section>
+
+  <section>
+  <h2 aria-label="Part 9">9</h2>
+
+  <p>
+    <span class="o">A pomegranate opens into a fish, the fish into tigers, their leap carrying a bayonet.</span>
+    <span class="b">Dal&iacute; has crowded an instant with arrivals.</span>
+    <span class="r">From one small opening the whole procession comes, larger and larger, until I have forgotten what first disturbed the air.</span>
+    <span class="b">I had been looking only at the tigers, forgetting Gala asleep and the little bee.</span>
+    <span class="g">Give them room again: a sleeping body beneath the animals, a tiny disturbance beside the elaborate threat.</span>
+    <span class="o">The picture changes without changing a single creature.</span>
+    <span class="b">The monsters have acquired someone to approach;</span>
+    <span class="r">the abyss has acquired a bedside.</span>
+  </p>
+
+  <figure>
+    <img src="img/dali-dream.jpg" width="1400" height="1764" loading="lazy" alt="A sleeping woman floating over a rock in the sea. A pomegranate opens into a fish, the fish into two tigers and a bayonet, and an elephant on thread legs carries an obelisk behind them"/>
+    <figcaption>Salvador Dal&iacute;, <i>One Second Before the Awakening from a Dream Provoked by the Flight of a Bee Around a Pomegranate</i>, 1944. Museo Nacional Thyssen-Bornemisza, Madrid. &copy; Salvador Dal&iacute;, Fundaci&oacute;n Gala-Salvador Dal&iacute; / VEGAP</figcaption>
+  </figure>
+  </section>
+
+  <section>
+  <h2 aria-label="Part 10">10</h2>
+
+  <p>
+    <span class="o">Farther away an elephant carries an obelisk on legs like threads.</span>
+    <span class="b">Bernini&rsquo;s Rome travels into the dream, stone and papal authority growing strangely light.</span>
+    <span class="o">In the square there are feet beneath the burden.</span>
+    <span class="g">Here the burden hangs over water.</span>
+    <span class="b">Something from the background of waking life has found another way to stand.</span>
+    <span class="o">One thing gathers several things;</span>
+    <span class="b">a small sound borrows an enormous fear.</span>
+    <span class="g">The dream can unfold in a second, the second in a painting, the painting in a sentence that will not quite finish.</span>
+  </p>
+
+  <figure class="tall">
+    <img src="img/elephant-obelisk.jpg" width="960" height="1232" loading="lazy" alt="A marble elephant carrying an obelisk on its back, in a Roman square"/>
+    <figcaption>Gian Lorenzo Bernini and Ercole Ferrata, <i>Elephant and Obelisk</i>, Rome. Photograph: <a href="https://commons.wikimedia.org/wiki/File:Elephant_and_Obelisk.jpg">Livioandronico2013</a>, <a href="https://creativecommons.org/licenses/by-sa/4.0/">CC BY-SA 4.0</a></figcaption>
+  </figure>
+
+  <p>
+    <span class="r">Shall we survive it?</span>
+    <span class="g">Ourselves lusty?</span>
+    <span class="o">Or is there another way?</span>
+    <span class="g">The fruit is still here.</span>
+    <span class="b">We could eat it, watch it darken, leave it beside the open book.</span>
+    <span class="o">The books are drying on the roofs.</span>
+    <span class="r">Somewhere a woman is singing, somewhere tea has postponed a wish, somewhere the familiar voice begins again.</span>
+    <span class="b">Tower, tower.</span>
+    <span class="r">The trees have returned around it.</span>
+    <span class="o">I look at the white band, then the sky, then the space beyond the edge where something might have been left out.</span>
+    <span class="r">The dark corner keeps its laughter. I am still thinking about that tower;</span>
+    <span class="g">another hand is turning the page.</span>
+  </p>
+  </section>
+
+  <footer>
+    <p>Colina van Bemmel and Joel Dietz &middot; November 2026</p>
+    <p>A condensed adaptation of two treatments, <i>The Cinematic Dream</i> and
+      <a href="../tower/"><i>I am still thinking about that tower</i></a>, with additional
+      visual commentary. The colored passages are rewritten and interwoven, rather than
+      presented as verbatim quotations.</p>
+    <p>The twelve pictures are their makers'. The five drawings are made from the moon and
+      the lanes of <a href="../../hypermoon.html">the show</a>.</p>
+    <p>The stain carries a phrase in its colour. Open
+      <a href="../../pages/metavillan-scan.html">the reader</a> on a phone, hold it on the
+      stain for up to a minute, and it will say it.</p>
+
+    <h3>Images &amp; sources</h3>
+    <dl>
+      <div><dt>1 &middot; The Black Tower</dt>
+        <dd>John Smith. <a href="https://johnsmithfilms.com/selected-works/the-black-tower/">Source</a></dd></div>
+      <div><dt>2&ndash;4 &middot; The Colour of Pomegranates</dt>
+        <dd>Sergei Parajanov. Staffs and fruit-eating figures. Rooftop-books still and paired
+          portraits of Sofiko Chiaureli from The Criterion Collection.
+          <a href="https://www.criterion.com/current/posts/5639">Source</a></dd></div>
+      <div><dt>Rooftop books</dt>
+        <dd>The Criterion Collection film gallery.
+          <a href="https://www.criterion.com/films/29219-the-color-of-pomegranates">Source</a></dd></div>
+      <div><dt>5 &middot; Valerie and Her Week of Wonders</dt>
+        <dd>Jaromil Jire&scaron;.
+          <a href="https://player.bfi.org.uk/subscription/film/watch-valerie-and-her-week-of-wonders-1970-online">Source</a></dd></div>
+      <div><dt>6 &middot; The Love Witch</dt>
+        <dd>Anna Biller. Kitchen and rug stills; rug-making account in Hillary Weston,
+          Anna Biller&rsquo;s Pleasure Principles.
+          <a href="https://www.criterion.com/current/posts/6400-anna-biller-s-pleasure-principles">Source</a></dd></div>
+      <div><dt>7 &middot; Fairy Ballet</dt>
+        <dd>Anna Biller. White Cat and Prince still via IMDb; scene described by Berwick
+          Film &amp; Media Arts Festival. <a href="https://www.imdb.com/title/tt1262125/">Source</a></dd></div>
+      <div><dt>The tea and the garden</dt>
+        <dd>Herb Shellenberger, Berwick Film &amp; Media Arts Festival.
+          <a href="https://bfmaf.org/programme-item/fairy-ballet/">Source</a></dd></div>
+      <div><dt>8 &middot; A Visit from the Incubus</dt>
+        <dd>Anna Biller. Saloon-performance still from The Criterion Collection.
+          <a href="https://www.criterion.com/current/posts/6400-anna-biller-s-pleasure-principles">Source</a></dd></div>
+      <div><dt>9 &middot; Dal&iacute;</dt>
+        <dd>One Second Before the Awakening from a Dream Provoked by the Flight of a Bee
+          Around a Pomegranate. Full composition. Museo Nacional Thyssen-Bornemisza, Madrid.
+          &copy; Salvador Dal&iacute;, Fundaci&oacute;n Gala-Salvador Dal&iacute; / VEGAP, Madrid.
+          <a href="https://www.museothyssen.org/en/collection/artists/dali-salvador/one-second-awakening-dream-provoked-flight-bee-around-pomegranate">Source</a></dd></div>
+      <div><dt>10 &middot; Elephant and Obelisk</dt>
+        <dd>Gian Lorenzo Bernini / Ercole Ferrata, Rome. Photograph: Livioandronico2013, 2014;
+          Wikimedia Commons, CC BY-SA 4.0. Resized proportionally, uncropped.
+          <a href="https://commons.wikimedia.org/wiki/File:Elephant_and_Obelisk.jpg">Source</a></dd></div>
+      <div><dt>Image licence</dt>
+        <dd>Creative Commons Attribution-ShareAlike 4.0 International.
+          <a href="https://creativecommons.org/licenses/by-sa/4.0/">Source</a></dd></div>
+      <div><dt>Other reference points</dt>
+        <dd>Armenian teaching staff: Diocese of the Armenian Church in the UK and Ireland.
+          <a href="https://www.armenianchurch.org.uk/our-faith">Source</a></dd></div>
+      <div><dt>Dream imagery</dt>
+        <dd>Freud Museum London, The Dream-Work.
+          <a href="https://www.freud.org.uk/schools/resources/the-interpretation-of-dreams/the-dream-work/">Source</a></dd></div>
+    </dl>
+  </footer>
+</main>
+
+<script src="../../js/secret-shimmer.js"></script>
+<script>
+(() => {
+  const params = new URLSearchParams(location.search);
+  const num = (key, fallback) => {
+    const v = Number.parseFloat(params.get(key));
+    return Number.isFinite(v) ? v : fallback;
+  };
+  const TAU = Math.PI * 2;
+  const PAGE = "#0d0c0b";
+  const clamp = (v, lo = 0, hi = 1) => Math.max(lo, Math.min(hi, v));
+  const ease = (x) => { x = clamp(x); return x * x * (3 - 2 * x); };
+  function rng(seed) {
+    return () => {
+      seed = (seed + 0x6d2b79f5) | 0;
+      let t = Math.imul(seed ^ (seed >>> 15), 1 | seed);
+      t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
+      return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+    };
+  }
+
+  // null: running. A number: every drawing held at that second. NaN: each held
+  // at its own resting frame, for anyone who has asked their system for less motion.
+  const HELD = params.has("still") ? num("still", NaN)
+    : matchMedia("(prefers-reduced-motion: reduce)").matches ? NaN : null;
+
+  // The show's moon. Its alpha is not decoded everywhere, so the disc is cut
+  // out by its measured place in the frame instead: centre (960, 540), radius 379.
+  const moon = document.createElement("video");
+  moon.muted = true; moon.loop = true; moon.playsInline = true; moon.preload = "auto";
+  moon.setAttribute("muted", ""); moon.setAttribute("playsinline", ""); moon.setAttribute("aria-hidden", "true");
+  moon.style.cssText = "position:absolute;top:0;left:0;width:1px;height:1px;opacity:0;pointer-events:none";
+  moon.src = "../../loops/3d%20moon/web/moon-rotating-6s-alpha.webm";
+  document.body.appendChild(moon);
+  const moonWatchers = new Set();
+  function watchMoon(id, on) {
+    on ? moonWatchers.add(id) : moonWatchers.delete(id);
+    if (HELD !== null) return;
+    if (moonWatchers.size) moon.play().catch(() => {});
+    else moon.pause();
+  }
+  function drawMoon(g, x, y, R) {
+    g.save();
+    g.beginPath(); g.arc(x, y, R, 0, TAU); g.clip();
+    if (moon.readyState >= 2) {
+      g.drawImage(moon, 960 - 377, 540 - 377, 754, 754, x - R, y - R, 2 * R, 2 * R);
+    } else {
+      const f = g.createRadialGradient(x - R * 0.3, y - R * 0.2, R * 0.1, x, y, R);
+      f.addColorStop(0, "#b9b9bb"); f.addColorStop(0.7, "#7c7c80"); f.addColorStop(1, "#2a2a2e");
+      g.fillStyle = f; g.fillRect(x - R, y - R, 2 * R, 2 * R);
+    }
+    g.restore();
+  }
+
+  const redraws = [];
+  function stage(id, { rest = 0, usesMoon = false }, draw) {
+    const canvas = document.getElementById(id), g = canvas.getContext("2d");
+    let w = 0, h = 0, dpr = 1, seen = false, since = 0, raf = 0;
+    const paint = (t) => { if (w && h) draw(g, w, h, t, dpr); };
+    const hold = () => paint(HELD === null ? 0 : Number.isNaN(HELD) ? rest : HELD);
+    const tick = (now) => {
+      raf = 0;
+      if (!seen) return;
+      paint(Math.max(0, now / 1000 - since));
+      raf = requestAnimationFrame(tick);
+    };
+    new ResizeObserver(() => {
+      const r = canvas.getBoundingClientRect();
+      dpr = Math.min(2, window.devicePixelRatio || 1);
+      w = r.width; h = r.height;
+      canvas.width = Math.round(w * dpr); canvas.height = Math.round(h * dpr);
+      g.setTransform(dpr, 0, 0, dpr, 0, 0);
+      if (!raf) hold();
+    }).observe(canvas);
+    // Each drawing starts over when it comes back into view, so the fruit is
+    // whole again and the stain is fresh again for whoever scrolls back up.
+    new IntersectionObserver(([e]) => {
+      seen = e.isIntersecting;
+      if (usesMoon) watchMoon(id, seen);
+      if (!seen || HELD !== null) return;
+      since = performance.now() / 1000;
+      if (!raf) raf = requestAnimationFrame(tick);
+    }, { threshold: 0.01 }).observe(canvas);
+    redraws.push(() => { if (!raf) hold(); });
+    return canvas;
+  }
+  moon.addEventListener("loadeddata", () => redraws.forEach((f) => f()));
+
+  function starfield(seed, n) {
+    const r = rng(seed);
+    return Array.from({ length: n }, () => ({
+      x: r(), y: r(), s: 0.4 + r() * r() * 1.2, a: 0.25 + r() * 0.65, p: r() * TAU, f: 0.3 + r() * 1.2
+    }));
+  }
+  function stars(g, list, w, h, t) {
+    g.fillStyle = "#e8ecf4";
+    for (const s of list) {
+      g.globalAlpha = s.a * (0.72 + 0.28 * Math.sin(s.p + t * s.f));
+      g.beginPath(); g.arc(s.x * w, s.y * h, s.s, 0, TAU); g.fill();
+    }
+    g.globalAlpha = 1;
+  }
+
+  // ---- eye: The trees change around it. Leaves, then branches; the white band holds its place.
+  const CYCLE = 24;   // seconds from one opening to the next
+  const eyeStars = starfield(11, 260);
+  // Two trees, grown once. Everything is in units of the moon's radius, from
+  // its centre, with y downward. A leaf has a threshold: it is on the tree
+  // while the season is above it, and falls as the season passes.
+  const TREES = (() => {
+    const r = rng(41);
+    const segs = [], leaves = [];
+    const grow = (x, y, a, len, wid, depth) => {
+      const x2 = x + Math.sin(a) * len, y2 = y - Math.cos(a) * len;
+      segs.push([x, y, x2, y2, wid]);
+      if (depth <= 3) {
+        for (let k = 0; k < 3; k++) {
+          leaves.push({ x: x2 + (r() - 0.5) * len, y: y2 + (r() - 0.5) * len,
+            s: 0.016 + r() * 0.02, a: r() * TAU, thr: r(), sway: r() * TAU });
+        }
+      }
+      if (depth === 0) return;
+      const n = depth < 5 && r() < 0.25 ? 3 : 2;
+      for (let i = 0; i < n; i++) {
+        grow(x2, y2, a + (i - (n - 1) / 2) * (0.5 + r() * 0.35) + (r() - 0.5) * 0.25,
+          len * (0.68 + r() * 0.14), wid * 0.66, depth - 1);
+      }
+    };
+    grow(-0.6, 0.66, 0.06, 0.3, 0.07, 6);
+    grow(0.64, 0.66, -0.1, 0.34, 0.08, 6);
+    return { segs, leaves };
+  })();
+  const ROOFS = (() => {
+    const r = rng(9);
+    const pts = [[-1.1, 0.6]];
+    for (let x = -1.1; x < 1.1;) {
+      const wide = 0.05 + r() * 0.12, y = 0.56 + r() * 0.05;
+      pts.push([x, y], [x + wide, y]);
+      if (r() < 0.4) pts.push([x + wide * 0.4, y], [x + wide * 0.4, y - 0.035], [x + wide * 0.55, y - 0.035], [x + wide * 0.55, y]);
+      x += wide;
+    }
+    pts.push([1.1, 0.6], [1.1, 1.1], [-1.1, 1.1]);
+    return pts;
+  })();
+  const layer = document.createElement("canvas"), lg = layer.getContext("2d");
+  // Where the pointer is from the eye, -1 to 1 each way. A mouse only: a
+  // finger on glass is not somewhere to look. Left alone, the eye wanders.
+  let aim = null, aimAt = -1e9;
+  const look = { x: 0, y: 0 };
+  let eyeT = 0;
+  const eyeCanvas = stage("eye", { rest: 9, usesMoon: true }, (g, w, h, t, dpr) => {
+    const c = t % CYCLE;
+    const open = ease((c - 2) / 3) * (1 - ease((c - 18) / 3));
+    const season = 1 - ease((c - 6) / 9);
+    const cx = w / 2, cy = h * 0.5, R = Math.min(w, h) * 0.33;
+    const X = (x) => cx + x * R, Y = (y) => cy + y * R;
+
+    const dt = clamp(t - eyeT, 0, 0.1); eyeT = t;
+    if (HELD === null) {
+      const own = !aim || performance.now() - aimAt > 5000;
+      const to = own ? { x: 0.75 * Math.sin(t * 0.23), y: 0.6 * Math.sin(t * 0.31 + 1) } : aim;
+      look.x += (to.x - look.x) * Math.min(1, dt * 3);
+      look.y += (to.y - look.y) * Math.min(1, dt * 3);
+    }
+
+    const night = g.createLinearGradient(0, 0, 0, h);
+    night.addColorStop(0, "#04050a"); night.addColorStop(0.66, "#0d1122"); night.addColorStop(1, PAGE);
+    g.fillStyle = night; g.fillRect(0, 0, w, h);
+    stars(g, eyeStars, w, h * 0.92, t);
+
+    const rw = R * 0.78 * open;
+    const wx = cx + look.x * R * 0.12 * open, wy = cy + look.y * R * 0.1 * open;
+    if (rw > 0.5) {
+      g.save();
+      g.beginPath(); g.arc(wx, wy, rw, 0, TAU); g.clip();
+      const day = g.createLinearGradient(0, cy - R, 0, cy + R);
+      day.addColorStop(0, "#8f98bf"); day.addColorStop(0.6, "#b9bbd2"); day.addColorStop(1, "#cfcbd6");
+      g.fillStyle = day; g.fillRect(cx - R, cy - R, 2 * R, 2 * R);
+
+      // The tower, face on, as the film has it between its two trees.
+      g.fillStyle = "#252120"; g.fillRect(X(-0.105), Y(0.08), R * 0.24, R * 0.7);
+      g.fillStyle = "#6d7591";
+      for (const x of [-0.035, 0.03]) g.fillRect(X(x), Y(0.2), R * 0.035, R * 0.06);
+      g.fillStyle = "#08080b";
+      g.beginPath();
+      [[-0.15, 0.01], [-0.15, -0.33], [-0.125, -0.37], [0.155, -0.37], [0.18, -0.33], [0.18, 0.01]]
+        .forEach(([x, y], i) => (i ? g.lineTo(X(x), Y(y)) : g.moveTo(X(x), Y(y))));
+      g.closePath(); g.fill();
+      g.strokeStyle = "rgba(8,8,11,0.7)"; g.lineWidth = Math.max(0.6, R * 0.006);
+      g.beginPath(); g.moveTo(X(0.015), Y(-0.37)); g.lineTo(X(0.015), Y(-0.45)); g.stroke();
+      // The white band. Nothing in the drawing moves it.
+      g.fillStyle = "#eceae7"; g.fillRect(X(-0.158), Y(0), R * 0.346, R * 0.085);
+      g.fillStyle = "rgba(20,18,24,0.2)"; g.fillRect(X(-0.158), Y(0.062), R * 0.346, R * 0.023);
+
+      g.fillStyle = "#09090c";
+      g.beginPath();
+      ROOFS.forEach(([x, y], i) => (i ? g.lineTo(X(x), Y(y)) : g.moveTo(X(x), Y(y))));
+      g.closePath(); g.fill();
+
+      g.strokeStyle = "#09090c"; g.lineCap = "round";
+      for (const [x1, y1, x2, y2, wid] of TREES.segs) {
+        g.lineWidth = Math.max(0.5, wid * R);
+        g.beginPath(); g.moveTo(X(x1), Y(y1)); g.lineTo(X(x2), Y(y2)); g.stroke();
+      }
+      g.lineCap = "butt";
+      g.fillStyle = "#17231a";
+      for (const l of TREES.leaves) {
+        const on = clamp((season * 1.2 - l.thr) / 0.2);
+        if (on <= 0) continue;
+        const fall = (1 - on) * (1 - on);
+        g.globalAlpha = on;
+        g.beginPath();
+        g.ellipse(X(l.x + 0.05 * fall * Math.sin(l.sway + t * 2) + 0.004 * Math.sin(l.sway + t * 1.3)),
+          Y(l.y + 0.45 * fall), l.s * R * 1.5, l.s * R, l.a + fall * 3, 0, TAU);
+        g.fill();
+      }
+      g.globalAlpha = 1;
+
+      const rim = g.createRadialGradient(wx, wy, rw * 0.74, wx, wy, rw);
+      rim.addColorStop(0, "rgba(0,0,0,0)"); rim.addColorStop(1, "rgba(0,0,0,0.6)");
+      g.fillStyle = rim; g.fillRect(wx - rw, wy - rw, 2 * rw, 2 * rw);
+      g.restore();
+    }
+    // The moon on its own layer, so the window can be cut out of it softly.
+    const px = Math.ceil(R * 2 * dpr);
+    if (layer.width !== px) { layer.width = px; layer.height = px; }
+    lg.setTransform(dpr, 0, 0, dpr, 0, 0);
+    lg.globalCompositeOperation = "source-over";
+    lg.clearRect(0, 0, 2 * R, 2 * R);
+    drawMoon(lg, R, R, R);
+    if (rw > 0.5) {
+      lg.globalCompositeOperation = "destination-out";
+      const hx = wx - cx + R, hy = wy - cy + R;
+      const hole = lg.createRadialGradient(hx, hy, rw * 0.93, hx, hy, rw);
+      hole.addColorStop(0, "#000"); hole.addColorStop(1, "rgba(0,0,0,0)");
+      lg.fillStyle = hole;
+      lg.beginPath(); lg.arc(hx, hy, rw, 0, TAU); lg.fill();
+    }
+    g.drawImage(layer, cx - R, cy - R, 2 * R, 2 * R);
+    const foot = g.createLinearGradient(0, h * 0.86, 0, h);
+    foot.addColorStop(0, "rgba(13,12,11,0)"); foot.addColorStop(1, PAGE);
+    g.fillStyle = foot; g.fillRect(0, h * 0.86, w, h * 0.14);
+  });
+  addEventListener("pointermove", (e) => {
+    if (e.pointerType !== "mouse") return;
+    const r = eyeCanvas.getBoundingClientRect();
+    aim = { x: clamp((e.clientX - (r.left + r.width / 2)) / (innerWidth * 0.4), -1, 1),
+      y: clamp((e.clientY - (r.top + r.height / 2)) / (innerHeight * 0.5), -1, 1) };
+    aimAt = performance.now();
+  }, { passive: true });
+
+  // ---- halo: Take me, take me to the other side, though I was just keeping you out.
+  const LANES = [
+    { text: "TAKE ME, TAKE ME TO THE OTHER SIDE", a: 1.5, b: 0.26, speed: 0.2, at: 1.2, size: 0.17, glow: "rgba(240,184,224,0.55)", ink: "#f4efe4" },
+    { text: "THOUGH I WAS JUST KEEPING YOU OUT", a: 2.15, b: 0.37, speed: -0.13, at: 2.6, size: 0.15, glow: "rgba(229,141,163,0.5)", ink: "#e58da3" }
+  ];
+  // One tilt for both lanes: two rings round one centre, the outer clear of
+  // the inner all the way round, so the sentences never run into each other.
+  const LANE_TILT = -0.2;
+  const haloStars = starfield(23, 150);
+  stage("halo", { rest: 4, usesMoon: true }, (g, w, h, t) => {
+    const cx = w / 2, cy = h / 2, R = Math.min(w * 0.2, h * 0.3);
+    g.fillStyle = PAGE; g.fillRect(0, 0, w, h);
+    stars(g, haloStars, w, h, t);
+
+    g.textAlign = "center"; g.textBaseline = "middle";
+    const letters = (front) => {
+      for (const lane of LANES) {
+        const slots = lane.text.length + 8;
+        for (let i = 0; i < lane.text.length; i++) {
+          if (lane.text[i] === " ") continue;
+          // Counted backwards so the phrase reads left to right on the near side.
+          const th = lane.at + t * lane.speed - i * (TAU / slots);
+          const z = Math.sin(th);
+          if (z > 0 !== front) continue;
+          const lx = lane.a * R * Math.cos(th), ly = lane.a * R * lane.b * z;
+          const x = cx + lx * Math.cos(LANE_TILT) - ly * Math.sin(LANE_TILT);
+          const y = cy + lx * Math.sin(LANE_TILT) + ly * Math.cos(LANE_TILT);
+          g.font = `600 ${R * lane.size * (1 + 0.24 * z)}px ui-monospace, "SF Mono", Menlo, Consolas, monospace`;
+          g.globalAlpha = 0.26 + 0.7 * ease((z + 0.25) / 0.6);
+          g.shadowColor = lane.glow; g.shadowBlur = front ? R * 0.08 : 0;
+          g.fillStyle = lane.ink;
+          g.fillText(lane.text[i], x, y);
+        }
+      }
+      g.globalAlpha = 1; g.shadowBlur = 0;
+    };
+    letters(false);
+
+    drawMoon(g, cx, cy, R);
+    g.save();
+    g.beginPath(); g.arc(cx, cy, R + 0.5, 0, TAU); g.clip();
+    // The other side: all of it in shadow but a sliver of the left limb.
+    const sx = cx + R * 0.42, sy = cy - R * 0.05;
+    const dark = g.createRadialGradient(sx, sy, R * 0.86, sx, sy, R * 1.42);
+    dark.addColorStop(0, "rgba(5,6,9,0.94)"); dark.addColorStop(1, "rgba(5,6,9,0)");
+    g.fillStyle = dark; g.fillRect(cx - R, cy - R, 2 * R, 2 * R);
+    g.restore();
+
+    letters(true);
+  });
+
+  // ---- roofs: But on the roofs the books lie open to dry. A whole small city of pages, wind entering every house.
+  const BOOKS = (() => {
+    const r = rng(17);
+    const list = [];
+    const ROWS = 6;
+    for (let i = 0; i < ROWS; i++) {
+      const cols = 4 + i;
+      for (let j = 0; j < cols; j++) {
+        list.push({
+          u: ((j + 0.5) / cols * 2 - 1) * 1.08 + (r() - 0.5) * 0.14,
+          v: clamp((i + 0.5) / ROWS + (r() - 0.5) * 0.09),
+          th: (r() - 0.5) * 1.1, s: 0.8 + r() * 0.45, n: 1 + Math.floor(r() * 3), ph: r() * TAU
+        });
+      }
+    }
+    // The far ones first, so the near ones lie over them.
+    return list.sort((a, b) => b.v - a.v);
+  })();
+  const mix = (a, b, f) => `rgb(${a.map((v, i) => Math.round(v + (b[i] - v) * f)).join(",")})`;
+  stage("roofs", { rest: 3 }, (g, w, h, t) => {
+    g.fillStyle = PAGE; g.fillRect(0, 0, w, h);
+    // v is how far up the roof, 0 at the eaves. near is 1 there and 0 at the ridge.
+    const near = (v) => (1 / (1 + 1.7 * v) - 1 / 2.7) / (1 - 1 / 2.7);
+    const rowY = (v) => h * (0.08 + 0.8 * near(v));
+    const slate = g.createLinearGradient(0, 0, 0, h);
+    slate.addColorStop(0, PAGE); slate.addColorStop(0.3, "#15161a"); slate.addColorStop(1, "#1b1c21");
+    g.fillStyle = slate; g.fillRect(0, 0, w, h);
+    g.strokeStyle = "rgba(0,0,0,0.45)"; g.lineWidth = 1;
+    g.beginPath();
+    for (let k = 0; k <= 14; k++) {
+      const y = Math.round(rowY(k / 14 * 1.15 - 0.08)) + 0.5;
+      g.moveTo(0, y); g.lineTo(w, y);
+    }
+    g.stroke();
+
+    const base = Math.min(w / 13, h / 5.2);
+    for (const b of BOOKS) {
+      const k = near(b.v), S = base * b.s * (0.42 + 0.58 * k);
+      const X = w / 2 + b.u * w * 0.5 * (0.6 + 0.4 * k), Y0 = rowY(b.v);
+      const cs = Math.cos(b.th), sn = Math.sin(b.th);
+      // (a, b) on the page, a across it from the spine and b along the spine;
+      // the roof is seen at a slant, so depth is squeezed, and lift is straight up.
+      const P = (a, c, lift = 0) => [X + S * (a * cs - c * sn), Y0 + S * 0.55 * (a * sn + c * cs) - lift];
+      const quad = (pts, fill) => {
+        g.beginPath();
+        pts.forEach(([x, y], i) => (i ? g.lineTo(x, y) : g.moveTo(x, y)));
+        g.closePath(); g.fillStyle = fill; g.fill();
+      };
+      g.save(); g.translate(S * 0.07, S * 0.09);
+      quad([P(-1, -0.68), P(1, -0.68), P(1, 0.68), P(-1, 0.68)], "rgba(0,0,0,0.5)");
+      g.restore();
+      quad([P(-1, -0.68), P(0, -0.68), P(0, 0.68), P(-1, 0.68)], "#cfc7b4");
+      quad([P(0, -0.68), P(1, -0.68), P(1, 0.68), P(0, 0.68)], "#e2dbc9");
+      if (S > 16) {
+        g.strokeStyle = "rgba(60,50,40,0.3)"; g.lineWidth = Math.max(0.5, S * 0.02);
+        g.beginPath();
+        for (const side of [-1, 1]) {
+          for (let q = 0; q < 5; q++) {
+            const c = -0.48 + q * 0.24;
+            g.moveTo(...P(side * 0.14, c)); g.lineTo(...P(side * 0.86, c));
+          }
+        }
+        g.stroke();
+      }
+      // The gust crosses the roof from the left; a leaf stands and falls with it.
+      const gust = 0.3 + 0.7 * (0.5 + 0.5 * Math.sin(t * 0.37 - b.u * 1.3 + b.v * 2.1));
+      for (let m = 0; m < b.n; m++) {
+        const phi = clamp(Math.PI / 2 + 1.2 * gust * Math.sin(t * 1.6 + b.ph - b.u * 2.2 + b.v * 1.5 + m * 0.5)
+          + (m - (b.n - 1) / 2) * 0.28, 0.12, Math.PI - 0.12);
+        const a = Math.cos(phi), lift = Math.sin(phi) * S * 0.7;
+        quad([P(0, -0.68), P(0, 0.68), P(a, 0.68, lift), P(a, -0.68, lift)],
+          mix([176, 168, 150], [244, 239, 228], Math.sin(phi) * (0.6 + 0.4 * (m / Math.max(1, b.n - 1) || 0))));
+      }
+      g.strokeStyle = "rgba(30,24,18,0.7)"; g.lineWidth = Math.max(0.6, S * 0.03);
+      g.beginPath(); g.moveTo(...P(0, -0.68)); g.lineTo(...P(0, 0.68)); g.stroke();
+    }
+    for (const [a, b] of [[0, 0.08], [1, 0.92]]) {
+      const edge = g.createLinearGradient(a * w, 0, b * w, 0);
+      edge.addColorStop(0, PAGE); edge.addColorStop(1, "rgba(13,12,11,0)");
+      g.fillStyle = edge; g.fillRect(Math.min(a, b) * w, 0, 0.08 * w, h);
+    }
+  });
+
+  // ---- stain: Given time it might become evidence, ornament, a letter nobody can read
+  const SECRET = params.has("secret") ? String(params.get("secret")) : "looks back";
+  const SECRET_BIT = Math.max(0.05, num("secretbit", 0.2));
+  const SECRET_DEPTH = clamp(num("secretdepth", 0.25));
+  const secret = SECRET && SECRET !== "0" && SECRET_DEPTH > 0 && window.SecretShimmer
+    ? window.SecretShimmer.encoder(SECRET, SECRET_BIT) : null;
+  const RED = [205, 22, 44];
+  const RED_MEAN = (RED[0] + RED[1] + RED[2]) / 3;
+  // The red at a given saturation: 1 is the red itself, less is nearer the grey
+  // of the same brightness. This is the one place the message is applied.
+  const red = (gain, alpha) =>
+    `rgba(${RED.map((v) => Math.round(RED_MEAN + (v - RED_MEAN) * gain)).join(",")},${alpha})`;
+  const STAIN = (() => {
+    const r = rng(29);
+    return {
+      waves: Array.from({ length: 7 }, (_, i) => ({ n: i + 2, a: (0.2 / (i + 1.5)) * (0.5 + r()), p: r() * TAU, v: (r() - 0.5) * 0.05 })),
+      drops: Array.from({ length: 9 }, () => ({ a: r() * TAU, d: 1.2 + r() * 0.75, s: 0.035 + r() * 0.075 })),
+      specks: Array.from({ length: 260 }, () => ({ x: r(), y: r(), a: 0.02 + r() * 0.05, s: 0.5 + r() * 1.2 })),
+      joints: [[0.15, 0], [0.6, 0], [0.29, 1], [0.66, 1], [0.1, 2], [0.52, 2]]
+    };
+  })();
+  const FADE_IN = 0.6;   // the red comes up, and then the message clock starts
+  stage("stain", { rest: 30 }, (g, w, h, t) => {
+    const up = ease(t / FADE_IN);
+    const gain = secret ? 1 - SECRET_DEPTH * secret.dip(t - FADE_IN) : 1;
+    const cx = w * 0.43, cy = h * 0.5, Rb = Math.min(h * 0.34, w * 0.17), WIDE = 1.5;
+    const rows = [h * 0.34, h * 0.68];
+
+    // Stone, in three courses, with a cross cut into the right of it.
+    g.fillStyle = "#1b1a18"; g.fillRect(0, 0, w, h);
+    g.fillStyle = "#f4efe4";
+    for (const s of STAIN.specks) { g.globalAlpha = s.a; g.fillRect(s.x * w, s.y * h, s.s, s.s); }
+    g.globalAlpha = 1;
+    // The slab the cross is cut in stands at the right, the height of all three.
+    const slab = Math.round(w * 0.73) + 0.5, course = [0, rows[0], rows[1], h];
+    const joints = () => {
+      g.beginPath();
+      for (const y of rows) { g.moveTo(0, Math.round(y) + 0.5); g.lineTo(slab, Math.round(y) + 0.5); }
+      g.moveTo(slab, 0); g.lineTo(slab, h);
+      for (const [x, i] of STAIN.joints) {
+        g.moveTo(Math.round(x * w) + 0.5, course[i]); g.lineTo(Math.round(x * w) + 0.5, course[i + 1]);
+      }
+    };
+    joints(); g.strokeStyle = "#070706"; g.lineWidth = 2.4; g.stroke();
+    g.save(); g.translate(0, 1.6);
+    joints(); g.strokeStyle = "rgba(244,239,228,0.05)"; g.lineWidth = 1; g.stroke();
+    g.restore();
+    const kx = w * 0.84, ky = h * 0.5, ks = Math.min(h * 0.3, w * 0.09);
+    const cross = () => {
+      g.beginPath();
+      [[-0.14, -1], [0.14, -1], [0.1, -0.36], [0.62, -0.42], [0.62, -0.12], [0.1, -0.18], [0.16, 1], [-0.16, 1],
+        [-0.1, -0.18], [-0.62, -0.12], [-0.62, -0.42], [-0.1, -0.36]]
+        .forEach(([x, y], i) => (i ? g.lineTo(kx + x * ks, ky + y * ks) : g.moveTo(kx + x * ks, ky + y * ks)));
+      g.closePath();
+    };
+    cross(); g.fillStyle = "rgba(0,0,0,0.3)"; g.fill();
+    g.strokeStyle = "rgba(0,0,0,0.55)"; g.lineWidth = 1.5; g.stroke();
+    g.save(); g.translate(0.8, 1.2);
+    cross(); g.strokeStyle = "rgba(244,239,228,0.06)"; g.lineWidth = 1; g.stroke();
+    g.restore();
+
+    // Given water it travels: along the joints, a little further all the time.
+    const reach = w * (0.1 + 0.26 * ease(t / 50));
+    for (const y of rows) {
+      for (const dir of [-1, 1]) {
+        const from = cx + dir * Rb * WIDE * 0.7;
+        const run = g.createLinearGradient(from, 0, from + dir * reach, 0);
+        run.addColorStop(0, red(gain, 0.85 * up)); run.addColorStop(0.6, "rgba(60,8,16,0.6)"); run.addColorStop(1, "rgba(60,8,16,0)");
+        g.strokeStyle = run; g.lineWidth = 2.4;
+        g.beginPath(); g.moveTo(from, Math.round(y) + 0.5); g.lineTo(from + dir * reach, Math.round(y) + 0.5); g.stroke();
+      }
+    }
+
+    // The stain itself. Its edge is a circle with seven slow waves on it. The
+    // middle is red and the rim has gone to ink, and the ink is coming in.
+    const core = 0.8 - 0.22 * ease(t / 120);
+    g.save();
+    g.translate(cx, cy); g.scale(WIDE, 1);
+    const blot = (x, y, radius, wobble) => {
+      g.beginPath();
+      for (let i = 0; i <= 96; i++) {
+        const th = i / 96 * TAU;
+        let rho = 1;
+        if (wobble) for (const k of STAIN.waves) rho += k.a * Math.sin(k.n * th + k.p + k.v * t);
+        const px = x + radius * rho * Math.cos(th), py = y + radius * rho * Math.sin(th);
+        i ? g.lineTo(px, py) : g.moveTo(px, py);
+      }
+      g.closePath();
+      const f = g.createRadialGradient(x, y, 0, x, y, radius * 1.25);
+      f.addColorStop(0, red(gain, 0.96 * up));
+      f.addColorStop(core * 0.8, red(gain, 0.92 * up));
+      f.addColorStop(Math.min(0.97, core * 0.8 + 0.14), `rgba(46,7,14,${0.95 * up})`);
+      f.addColorStop(1, `rgba(20,4,8,${0.95 * up})`);
+      g.fillStyle = f; g.fill();
+      g.strokeStyle = `rgba(8,2,4,${0.9 * up})`; g.lineWidth = Math.max(1, radius * 0.03); g.stroke();
+    };
+    for (const d of STAIN.drops) blot(Math.cos(d.a) * d.d * Rb, Math.sin(d.a) * d.d * Rb * 0.9, d.s * Rb, false);
+    blot(0, 0, Rb, true);
+    g.restore();
+
+    for (const [a, b] of [[0, 0.1], [1, 0.9]]) {
+      const edge = g.createLinearGradient(a * w, 0, b * w, 0);
+      edge.addColorStop(0, PAGE); edge.addColorStop(1, "rgba(13,12,11,0)");
+      g.fillStyle = edge; g.fillRect(Math.min(a, b) * w, 0, 0.1 * w, h);
+    }
+  });
+
+  // ---- fruit: Who has called it still, who is waiting for the split?
+  const GOLDEN = Math.PI * (3 - Math.sqrt(5));
+  const SEEDS = 300;
+  const ARILS = ["#8e0f24", "#b3142f", "#c81e3c", "#d93452", "#a01029", "#e25572"];
+  const CRACK = (() => {
+    const r = rng(3);
+    return Array.from({ length: 11 }, (_, i) => [i === 0 || i === 10 ? 0 : (i % 2 ? 1 : -1) * (0.03 + r() * 0.05), -1.3 + i * 0.26]);
+  })();
+  const ORBITS = [
+    { a: 1.3, tilt: -0.3, speed: 0.5, at: [0.4, 3.6] },
+    { a: 1.48, tilt: 0.25, speed: -0.37, at: [1.9, 5.1] },
+    { a: 1.64, tilt: 0.62, speed: 0.29, at: [2.8] }
+  ];
+  function aril(g, x, y, size, angle, colour) {
+    g.fillStyle = colour;
+    g.beginPath(); g.ellipse(x, y, size * 1.25, size, angle, 0, TAU); g.fill();
+    g.fillStyle = "rgba(255,226,232,0.5)";
+    g.beginPath(); g.ellipse(x - size * 0.3, y - size * 0.36, size * 0.3, size * 0.17, -0.6, 0, TAU); g.fill();
+  }
+  // It is whole for as long as it takes to read the paragraph above it, while
+  // a crack comes down from the crown. Then it does what was being waited for.
+  const CRACK_AT = 2.5, SPLIT_AT = 9;
+  stage("fruit", { rest: 8.5 }, (g, w, h, t) => {
+    const R = Math.min(w, h) * 0.3, cx = w / 2, cy = h / 2 + R * 0.06;
+    const split = ease((t - SPLIT_AT) / 3.4);
+    g.fillStyle = PAGE; g.fillRect(0, 0, w, h);
+
+    // Loose seeds on tilted lanes, the way things go round the moon in the show.
+    const loose = (front) => {
+      if (split <= 0) return;
+      g.globalAlpha = split;
+      ORBITS.forEach((lane, li) => lane.at.forEach((p, k) => {
+        const th = p + t * lane.speed, z = Math.sin(th);
+        if (z > 0 !== front) return;
+        const lx = lane.a * R * Math.cos(th), ly = lane.a * R * 0.3 * z;
+        aril(g, cx + lx * Math.cos(lane.tilt) - ly * Math.sin(lane.tilt),
+          cy + lx * Math.sin(lane.tilt) + ly * Math.cos(lane.tilt),
+          R * 0.045 * (1 + 0.28 * z), th, ARILS[(li * 2 + k + 2) % ARILS.length]);
+      }));
+      g.globalAlpha = 1;
+    };
+    loose(false);
+
+    if (split > 0) {
+      g.fillStyle = "#23050b";
+      g.beginPath(); g.arc(cx, cy, R * 0.97, 0, TAU); g.fill();
+      // Seed k sits at the golden angle times k, at the root of how far it is
+      // from being swallowed. Taking the same amount off every seed's count
+      // moves them all inward together, and new ones arrive at the rind.
+      const Rs = R * 0.93, c = Rs / Math.sqrt(SEEDS);
+      const flow = (t - SPLIT_AT) * 5, k0 = Math.ceil(flow);
+      for (let k = k0 + SEEDS; k >= k0; k--) {
+        const u = k - flow;
+        if (u < 0.05) continue;
+        const r = c * Math.sqrt(u), a = k * GOLDEN + t * 0.05;
+        const size = c * (0.3 + 0.34 * clamp(r / (Rs * 0.4))) * ease((SEEDS - u) / 12);
+        aril(g, cx + r * Math.cos(a), cy + r * Math.sin(a), size, a, ARILS[(Math.imul(k, 2654435761) >>> 0) % ARILS.length]);
+      }
+      const abyss = g.createRadialGradient(cx, cy, Rs * 0.05, cx, cy, Rs * 0.66);
+      abyss.addColorStop(0, "#000"); abyss.addColorStop(0.32, "rgba(0,0,0,0.9)"); abyss.addColorStop(1, "rgba(0,0,0,0)");
+      g.fillStyle = abyss;
+      g.beginPath(); g.arc(cx, cy, Rs, 0, TAU); g.fill();
+      g.strokeStyle = "#6f1a1d"; g.lineWidth = R * 0.07;
+      g.beginPath(); g.arc(cx, cy, R * 0.965, 0, TAU); g.stroke();
+    }
+
+    // The rind, in two halves along the crack. Whole until it is not. The
+    // halves part sideways and tip a little, and are gone before they have gone far.
+    const gone = ease((split - 0.35) / 0.65);
+    if (gone < 1) {
+      for (const side of [-1, 1]) {
+        g.save();
+        g.globalAlpha = 1 - gone;
+        g.translate(cx + side * split * R * 0.62, cy + R);
+        g.rotate(side * split * 0.16);
+        g.translate(0, -R);
+        g.beginPath();
+        CRACK.forEach(([x, y], i) => (i ? g.lineTo(x * R, y * R) : g.moveTo(x * R, y * R)));
+        g.lineTo(side * 2 * R, 1.3 * R); g.lineTo(side * 2 * R, -1.3 * R);
+        g.closePath(); g.clip();
+        const skin = g.createRadialGradient(-0.35 * R, -0.4 * R, R * 0.05, 0, 0, R * 1.25);
+        skin.addColorStop(0, "#d8514a"); skin.addColorStop(0.45, "#a3272c"); skin.addColorStop(1, "#4f0f15");
+        g.fillStyle = skin;
+        g.beginPath(); g.arc(0, 0, R, 0, TAU); g.fill();
+        g.fillStyle = "#7a1c1e";
+        g.beginPath();
+        [[-0.13, -0.97], [-0.17, -1.2], [-0.07, -1.08], [0, -1.22], [0.07, -1.08], [0.17, -1.2], [0.13, -0.97]]
+          .forEach(([x, y], i) => (i ? g.lineTo(x * R, y * R) : g.moveTo(x * R, y * R)));
+        g.closePath(); g.fill();
+        g.restore();
+      }
+    }
+    // The crack, coming down the skin from the crown while the fruit is whole.
+    const cracked = ease((t - CRACK_AT) / (SPLIT_AT - CRACK_AT));
+    if (cracked > 0 && split < 0.03) {
+      g.save();
+      g.beginPath(); g.arc(cx, cy, R, 0, TAU); g.clip();
+      const upTo = cracked * (CRACK.length - 1);
+      g.beginPath();
+      for (let i = 0; i <= Math.floor(upTo) && i < CRACK.length; i++) {
+        const [x, y] = CRACK[i];
+        i ? g.lineTo(cx + x * R, cy + y * R) : g.moveTo(cx + x * R, cy + y * R);
+      }
+      const i = Math.floor(upTo), f = upTo - i;
+      if (i < CRACK.length - 1) {
+        g.lineTo(cx + (CRACK[i][0] + (CRACK[i + 1][0] - CRACK[i][0]) * f) * R, cy + (CRACK[i][1] + (CRACK[i + 1][1] - CRACK[i][1]) * f) * R);
+      }
+      g.strokeStyle = "#2c050a"; g.lineWidth = Math.max(1, R * (0.008 + 0.012 * cracked)); g.lineJoin = "round";
+      g.stroke();
+      g.restore();
+    }
+    loose(true);
+  });
+})();
+</script>
+</body>
+</html>

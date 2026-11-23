@@ -1,0 +1,616 @@
+<!DOCTYPE html>
+<!--
+  essays/tower/: a note of Joel's, set as a page. The words and the seven
+  pictures are his, in the order he put them. The four drawings are ours, each
+  made from a line of the text and from the show's own parts:
+
+    sky     the moon of hypermoon.html, which opens a window the way the show
+            does. Behind it is the day sky of the film and the black tower.
+            When the window shuts, a second tower stands somewhere in the
+            night, seen only by the stars it covers. It moves each time.
+    heart   floorboards, with a red light under them and a beat that quickens.
+            The red carries a message (js/secret-shimmer.js), read by
+            pages/metavillan-scan.html. The beat is added as white light,
+            which has no colour, so it does not disturb the message.
+    halo    the words "take me, take me to the other side" on a tilted lane
+            round the dark side of the moon, passing behind it.
+    fruit   a pomegranate that splits. The seeds are laid out by the golden
+            angle and sink toward a black centre.
+
+  ?secret=       the heart's message (default "tower tower"); ?secret=0 for none
+  ?secretbit=    seconds a bit (0.2, which is what the reader expects)
+  ?secretdepth=  how far the red is pulled toward grey for half of each bit (0.25)
+  ?still=        hold every drawing at this many seconds, for taking pictures
+
+  Check the message decodes: npm run essay:tower:secret (needs npm start).
+-->
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>I am still thinking about that tower &middot; Hypermuse</title>
+<meta name="description" content="I am still thinking about that tower, dark like Poe, deep in my thoughts buried, emerging just at those most inopportune times like some telltale heart."/>
+<link rel="canonical" href="https://fractastical.github.io/hypermuse/essays/tower/"/>
+<meta property="og:type" content="article"/>
+<meta property="og:title" content="I am still thinking about that tower"/>
+<meta property="og:description" content="Dark like Poe, deep in my thoughts buried. A black tower, a telltale heart, and pomegranates."/>
+<meta property="og:image" content="https://fractastical.github.io/hypermuse/essays/tower/img/card.jpg"/>
+<meta property="og:url" content="https://fractastical.github.io/hypermuse/essays/tower/"/>
+<meta name="twitter:card" content="summary_large_image"/>
+<style>
+  :root { color-scheme: dark; }
+  html { background: #0d0c0b; }
+  body { margin: 0; background: #0d0c0b; color: #f4efe4;
+    font: 21px/1.6 Georgia, "Iowan Old Style", Palatino, serif; }
+  .badge, figcaption, footer {
+    font: 12px/1.6 ui-monospace, "SF Mono", Menlo, Consolas, "Liberation Mono", monospace; }
+  /* The sky is the whole first screen, as the clip is on the front page. */
+  .sky { position: relative; height: min(78vh, 720px); min-height: 380px; }
+  .sky canvas { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
+  .badge { position: absolute; top: 26px; left: 0; right: 0; max-width: 680px; margin: 0 auto;
+    padding: 0 28px; letter-spacing: 0.16em; text-transform: uppercase; color: #8f8574; }
+  .badge a { color: inherit; text-decoration: none; }
+  .badge b { color: #c9bfae; letter-spacing: 0.2em; font-weight: 600; }
+  main { max-width: 680px; margin: 0 auto; padding: 4px 28px 96px; }
+  h1 { font-weight: normal; font-size: clamp(32px, 6vw, 44px); line-height: 1.15;
+    margin: 0 0 18px; text-wrap: balance; }
+  p { margin: 0 0 1.2em; }
+  figure { margin: 44px 0; }
+  figure img, figure canvas { display: block; width: 100%; height: auto; }
+  /* The tower still is 538 pixels wide and sat small in the note. */
+  figure.small img { width: auto; max-width: min(100%, 400px); }
+  figcaption { margin-top: 8px; color: #8f8574; }
+  #heart { aspect-ratio: 16 / 6; min-height: 170px; }
+  #halo { aspect-ratio: 16 / 10; }
+  #fruit { aspect-ratio: 5 / 4; }
+  @media (min-width: 900px) {
+    figure.wide { margin-left: -90px; margin-right: -90px; }
+  }
+  /* On a phone the lane is as wide as the column, so the moon is sized by the
+     width and needs the height to match or the letters are too small to read. */
+  @media (max-width: 600px) {
+    #halo { aspect-ratio: 4 / 3; }
+  }
+  footer { margin-top: 72px; padding-top: 18px; border-top: 1px solid #2c2820; color: #8f8574; }
+  footer p { margin: 0 0 10px; }
+  footer a { color: #c9bfae; }
+</style>
+</head>
+<body>
+<div class="sky">
+  <canvas id="sky" role="img" aria-label="The moon turning among stars. A round window opens in it. Inside is a pale day sky and a black tower."></canvas>
+  <div class="badge"><a href="../../works/"><b>Hypermuse</b> &nbsp;&middot;&nbsp; land and works</a></div>
+</div>
+<main>
+  <h1>I am still thinking about that tower,</h1>
+  <p>dark like Poe, deep in my thoughts buried, emerging just at those most inopportune
+    times like some telltale heart, except instead of tearing up the floorboards to show
+    one wants to show the most iconic visage of the sky itself and behind it, tower tower.</p>
+
+  <figure class="small">
+    <img src="img/black-tower.jpg" width="538" height="466" alt="A black box of a tower on a white cornice and a brick shaft, against a grey sky"/>
+    <figcaption>John Smith, <i>The Black Tower</i>, 1985&ndash;87</figcaption>
+  </figure>
+
+  <p>Who is this John Smith who creates and then disappears and leaving us to mourn and
+    reimagine this sky in its blackness and would it drive us insane to know? To be the
+    same? To feel this tower.</p>
+
+  <figure class="wide">
+    <img src="img/tell-tale-heart.jpg" width="1400" height="970" loading="lazy" alt="A dark painted room: a figure asleep under a patchwork quilt, beams slanting overhead"/>
+    <figcaption><i>The Tell-Tale Heart</i>, UPA, 1953</figcaption>
+  </figure>
+
+  <p>The darkness washes over me, cat, raven, something dark in the corner, buried alive,
+    that strange laughter by the chains.</p>
+
+  <figure>
+    <canvas id="heart" role="img" aria-label="Floorboards with a red light beating beneath them"></canvas>
+    <figcaption>Under the boards. The red is telling something.</figcaption>
+  </figure>
+
+  <figure class="wide">
+    <img src="img/love-witch-kitchen.jpg" width="1300" height="698" loading="lazy" alt="A woman with long dark hair at a kitchen counter among yellow crockery, filling a jar"/>
+    <figcaption>Anna Biller, <i>The Love Witch</i>, 2016</figcaption>
+  </figure>
+
+  <p>I now look to the window, and somehow this bottle of urine is a symbol of female
+    power. We should have more sex more openly. Or it should remain in the forests. The
+    fairies are our friends or, are they wild people wishing to consume and confuse.</p>
+
+  <figure>
+    <img src="img/love-witch-circle.jpg" width="738" height="415" loading="lazy" alt="A woman in black lying with arms spread on a round red, yellow and black rug marked with a pentagram, a green candle beside her"/>
+    <figcaption>Anna Biller, <i>The Love Witch</i>, 2016</figcaption>
+  </figure>
+
+  <p>Ah this price of civilization, keeping the Wiccans at bay, the would be wise hag who
+    has known many things and yet &hellip; take me, take me to the other side.</p>
+
+  <figure class="wide">
+    <canvas id="halo" role="img" aria-label="The words take me, take me to the other side, circling the dark side of the moon and passing behind it"></canvas>
+  </figure>
+
+  <figure>
+    <img src="img/dali-pomegranate.jpg" width="848" height="658" loading="lazy" alt="Two tigers leaping out of a fish that leaps out of a pomegranate, over a calm sea"/>
+    <figcaption>Salvador Dal&iacute;, <i>Dream Caused by the Flight of a Bee Around a Pomegranate a Second Before Awakening</i>, 1944 (detail)</figcaption>
+  </figure>
+
+  <p>Oh what a witch, I knew that vampires were real, and they are all around us, making
+    our eroticisms tickle and looping us somewhere, somehow&hellip;</p>
+
+  <figure>
+    <img src="img/unsplit-pomegranate.jpg" width="1100" height="1090" loading="lazy" alt="A film still of a smiling girl, subtitled: A still unsplit pomegranate."/>
+    <figcaption>Jaromil Jire&scaron;, <i>Valerie and Her Week of Wonders</i>, 1970</figcaption>
+  </figure>
+
+  <p>Along with pomegranates which we cannot defend against&hellip;</p>
+
+  <figure class="wide">
+    <img src="img/color-of-pomegranates.jpg" width="1400" height="930" loading="lazy" alt="Monks in black sitting in rows against a stone wall, each biting into a pomegranate"/>
+    <figcaption>Sergei Parajanov, <i>The Color of Pomegranates</i>, 1969</figcaption>
+  </figure>
+
+  <p>Somehow it is lurking behind the mind, this great fruity abyss. Shall we survive it?
+    Ourselves lusty? Or is there another way?</p>
+
+  <figure>
+    <canvas id="fruit" role="img" aria-label="A pomegranate splitting open. Its seeds spiral in toward a black centre."></canvas>
+  </figure>
+
+  <footer>
+    <p>Joel Dietz &middot; November 2026</p>
+    <p>The seven pictures are their makers'. The four drawings are made from the moon and
+      the lanes of <a href="../../hypermoon.html">the show</a>.</p>
+    <p>The red under the floorboards carries a phrase in its colour. Open
+      <a href="../../pages/metavillan-scan.html">the reader</a> on a phone, hold it on the
+      boards for up to a minute, and it will say it.</p>
+  </footer>
+</main>
+
+<script src="../../js/secret-shimmer.js"></script>
+<script>
+(() => {
+  const params = new URLSearchParams(location.search);
+  const num = (key, fallback) => {
+    const v = Number.parseFloat(params.get(key));
+    return Number.isFinite(v) ? v : fallback;
+  };
+  const TAU = Math.PI * 2;
+  const PAGE = "#0d0c0b";
+  const clamp = (v, lo = 0, hi = 1) => Math.max(lo, Math.min(hi, v));
+  const ease = (x) => { x = clamp(x); return x * x * (3 - 2 * x); };
+  function rng(seed) {
+    return () => {
+      seed = (seed + 0x6d2b79f5) | 0;
+      let t = Math.imul(seed ^ (seed >>> 15), 1 | seed);
+      t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
+      return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+    };
+  }
+
+  // null: running. A number: every drawing held at that second. NaN: each held
+  // at its own resting frame, for anyone who has asked their system for less motion.
+  const HELD = params.has("still") ? num("still", NaN)
+    : matchMedia("(prefers-reduced-motion: reduce)").matches ? NaN : null;
+
+  // The show's moon. Its alpha is not decoded everywhere, so the disc is cut
+  // out by its measured place in the frame instead: centre (960, 540), radius 379.
+  const moon = document.createElement("video");
+  moon.muted = true; moon.loop = true; moon.playsInline = true; moon.preload = "auto";
+  moon.setAttribute("muted", ""); moon.setAttribute("playsinline", ""); moon.setAttribute("aria-hidden", "true");
+  moon.style.cssText = "position:absolute;top:0;left:0;width:1px;height:1px;opacity:0;pointer-events:none";
+  moon.src = "../../loops/3d%20moon/web/moon-rotating-6s-alpha.webm";
+  document.body.appendChild(moon);
+  const moonWatchers = new Set();
+  function watchMoon(id, on) {
+    on ? moonWatchers.add(id) : moonWatchers.delete(id);
+    if (HELD !== null) return;
+    if (moonWatchers.size) moon.play().catch(() => {});
+    else moon.pause();
+  }
+  function drawMoon(g, x, y, R) {
+    g.save();
+    g.beginPath(); g.arc(x, y, R, 0, TAU); g.clip();
+    if (moon.readyState >= 2) {
+      g.drawImage(moon, 960 - 377, 540 - 377, 754, 754, x - R, y - R, 2 * R, 2 * R);
+    } else {
+      const f = g.createRadialGradient(x - R * 0.3, y - R * 0.2, R * 0.1, x, y, R);
+      f.addColorStop(0, "#b9b9bb"); f.addColorStop(0.7, "#7c7c80"); f.addColorStop(1, "#2a2a2e");
+      g.fillStyle = f; g.fillRect(x - R, y - R, 2 * R, 2 * R);
+    }
+    g.restore();
+  }
+
+  const redraws = [];
+  function stage(id, { rest = 0, usesMoon = false }, draw) {
+    const canvas = document.getElementById(id), g = canvas.getContext("2d");
+    let w = 0, h = 0, dpr = 1, seen = false, since = 0, raf = 0;
+    const paint = (t) => { if (w && h) draw(g, w, h, t, dpr); };
+    const hold = () => paint(HELD === null ? 0 : Number.isNaN(HELD) ? rest : HELD);
+    const tick = (now) => {
+      raf = 0;
+      if (!seen) return;
+      paint(Math.max(0, now / 1000 - since));
+      raf = requestAnimationFrame(tick);
+    };
+    new ResizeObserver(() => {
+      const r = canvas.getBoundingClientRect();
+      dpr = Math.min(2, window.devicePixelRatio || 1);
+      w = r.width; h = r.height;
+      canvas.width = Math.round(w * dpr); canvas.height = Math.round(h * dpr);
+      g.setTransform(dpr, 0, 0, dpr, 0, 0);
+      if (!raf) hold();
+    }).observe(canvas);
+    // Each drawing starts over when it comes back into view, so the fruit is
+    // whole again and the heart is slow again for whoever scrolls back up.
+    new IntersectionObserver(([e]) => {
+      seen = e.isIntersecting;
+      if (usesMoon) watchMoon(id, seen);
+      if (!seen || HELD !== null) return;
+      since = performance.now() / 1000;
+      if (!raf) raf = requestAnimationFrame(tick);
+    }, { threshold: 0.01 }).observe(canvas);
+    redraws.push(() => { if (!raf) hold(); });
+  }
+  moon.addEventListener("loadeddata", () => redraws.forEach((f) => f()));
+
+  function starfield(seed, n) {
+    const r = rng(seed);
+    return Array.from({ length: n }, () => ({
+      x: r(), y: r(), s: 0.4 + r() * r() * 1.2, a: 0.25 + r() * 0.65, p: r() * TAU, f: 0.3 + r() * 1.2
+    }));
+  }
+  function stars(g, list, w, h, t) {
+    g.fillStyle = "#e8ecf4";
+    for (const s of list) {
+      g.globalAlpha = s.a * (0.72 + 0.28 * Math.sin(s.p + t * s.f));
+      g.beginPath(); g.arc(s.x * w, s.y * h, s.s, 0, TAU); g.fill();
+    }
+    g.globalAlpha = 1;
+  }
+
+  // The black tower as the film has it, seen from below at one corner: a black
+  // box under a shallow roof, a white cornice, a brick shaft. (x, y) is the
+  // foot of the cornice at the corner, W the width of the box, and everything
+  // else is in units of W. Unlit, it is one black shape with the cornice just
+  // short of black, which is how it stands against the night.
+  const TOWER = [
+    ["shaftL", [[-0.463, -0.05], [0, -0.1], [0, 9], [-0.463, 9]], "#5f574f"],
+    ["shaftR", [[0, -0.1], [0.463, -0.05], [0.463, 9], [0, 9]], "#2e2a28"],
+    // One black for both faces: in the film the corner cannot be seen in the
+    // box at all, only in the cornice and the brick under it.
+    ["boxL", [[-0.5, -0.63], [-0.265, -0.82], [0, -0.756], [0, -0.21], [-0.5, -0.11]], "#08080b"],
+    ["boxR", [[0, -0.756], [0.5, -0.635], [0.5, -0.11], [0, -0.21]], "#08080b"],
+    ["corniceL", [[-0.505, -0.11], [0, -0.21], [0, 0], [-0.505, 0.012]], "#eceae7"],
+    ["corniceR", [[0, -0.21], [0.505, -0.11], [0.505, 0.012], [0, 0]], "#c6c5c9"]
+  ];
+  function tower(g, x, y, W, lit) {
+    g.lineJoin = "round";
+    g.lineWidth = 0.8;
+    for (const [name, pts, colour] of TOWER) {
+      g.beginPath();
+      pts.forEach(([px, py], i) => (i ? g.lineTo(x + px * W, y + py * W) : g.moveTo(x + px * W, y + py * W)));
+      g.closePath();
+      const c = lit ? colour : name.startsWith("cornice") ? "#08080a" : "#000";
+      g.fillStyle = c; g.strokeStyle = c;
+      g.fill(); g.stroke();
+    }
+    if (!lit) return;
+    // The step in the cornice, a third of the way down it.
+    g.strokeStyle = "rgba(20,18,24,0.16)"; g.lineWidth = Math.max(0.6, W * 0.006);
+    g.beginPath();
+    g.moveTo(x - 0.505 * W, y - 0.07 * W); g.lineTo(x, y - 0.14 * W); g.lineTo(x + 0.505 * W, y - 0.07 * W);
+    g.stroke();
+  }
+
+  // ---- sky: the most iconic visage of the sky itself and behind it, tower tower
+  const CYCLE = 26;   // seconds from one opening to the next
+  const LEAD = 4;     // the first opening comes three seconds in rather than seven
+  const skyStars = starfield(11, 260);
+  const clouds = (() => {
+    const r = rng(5);
+    return Array.from({ length: 8 }, () => ({ x: r(), y: 0.1 + r() * 0.8, r: 0.5 + r() * 0.6, a: 0.16 + r() * 0.2, v: 0.012 + r() * 0.02 }));
+  })();
+  const layer = document.createElement("canvas"), lg = layer.getContext("2d");
+  stage("sky", { rest: 13, usesMoon: true }, (g, w, h, t, dpr) => {
+    const u = t + LEAD, n = Math.floor(u / CYCLE), c = u - n * CYCLE;
+    const open = ease((c - 7) / 3) * (1 - ease((c - 19) / 3));
+    const cx = w / 2, cy = h * 0.5, R = Math.min(w, h) * 0.33;
+
+    const night = g.createLinearGradient(0, 0, 0, h);
+    night.addColorStop(0, "#04050a"); night.addColorStop(0.66, "#0d1122"); night.addColorStop(1, PAGE);
+    g.fillStyle = night; g.fillRect(0, 0, w, h);
+    stars(g, skyStars, w, h * 0.92, t);
+
+    // The second tower. It comes up as the window shuts, and goes down while
+    // the window is open and nobody is looking at the rest of the sky, so each
+    // time the moon closes over the first one this one is somewhere else.
+    const out = c >= 19.5 ? { n, up: ease((c - 19.5) / 5) } : { n: n - 1, up: 1 - ease((c - 10.5) / 2.5) };
+    if (out.n >= 0 && out.up > 0) {
+      const W = R * (0.6 + 0.1 * (out.n % 3));
+      tower(g, w * [0.17, 0.84, 0.1, 0.9][out.n % 4], h + W * 0.25 - out.up * W * 1.05, W, false);
+    }
+    const foot = g.createLinearGradient(0, h * 0.86, 0, h);
+    foot.addColorStop(0, "rgba(13,12,11,0)"); foot.addColorStop(1, PAGE);
+    g.fillStyle = foot; g.fillRect(0, h * 0.86, w, h * 0.14);
+
+    const rw = R * 0.8 * open;
+    if (rw > 0.5) {
+      g.save();
+      g.beginPath(); g.arc(cx, cy, rw, 0, TAU); g.clip();
+      const day = g.createLinearGradient(0, cy - R, 0, cy + R);
+      day.addColorStop(0, "#8d8ea8"); day.addColorStop(0.55, "#b7b3c2"); day.addColorStop(1, "#cdc5c6");
+      g.fillStyle = day; g.fillRect(cx - R, cy - R, 2 * R, 2 * R);
+      for (const k of clouds) {
+        const px = cx - R * 1.6 + ((k.x * 3.2 * R + t * k.v * R) % (3.2 * R));
+        const py = cy - R + k.y * 2 * R, pr = k.r * R;
+        const puff = g.createRadialGradient(px, py, 0, px, py, pr);
+        puff.addColorStop(0, `rgba(238,236,242,${k.a})`); puff.addColorStop(1, "rgba(238,236,242,0)");
+        g.fillStyle = puff; g.fillRect(px - pr, py - pr, 2 * pr, 2 * pr);
+      }
+      // It rises as the window opens and goes on coming, a little, while it is held.
+      const W = R * 0.7 * (1 + 0.06 * clamp((c - 7) / 12));
+      tower(g, cx + R * 0.03, cy + R * 0.44 + (1 - ease((c - 7) / 4.5)) * R * 0.75, W, true);
+      const rim = g.createRadialGradient(cx, cy, rw * 0.74, cx, cy, rw);
+      rim.addColorStop(0, "rgba(0,0,0,0)"); rim.addColorStop(1, "rgba(0,0,0,0.6)");
+      g.fillStyle = rim; g.fillRect(cx - rw, cy - rw, 2 * rw, 2 * rw);
+      g.restore();
+    }
+    // The moon on its own layer, so the window can be cut out of it softly.
+    const px = Math.ceil(R * 2 * dpr);
+    if (layer.width !== px) { layer.width = px; layer.height = px; }
+    lg.setTransform(dpr, 0, 0, dpr, 0, 0);
+    lg.globalCompositeOperation = "source-over";
+    lg.clearRect(0, 0, 2 * R, 2 * R);
+    drawMoon(lg, R, R, R);
+    if (rw > 0.5) {
+      lg.globalCompositeOperation = "destination-out";
+      const hole = lg.createRadialGradient(R, R, rw * 0.93, R, R, rw);
+      hole.addColorStop(0, "#000"); hole.addColorStop(1, "rgba(0,0,0,0)");
+      lg.fillStyle = hole;
+      lg.beginPath(); lg.arc(R, R, rw, 0, TAU); lg.fill();
+    }
+    g.drawImage(layer, cx - R, cy - R, 2 * R, 2 * R);
+  });
+
+  // ---- heart: like some telltale heart, except instead of tearing up the floorboards
+  const SECRET = params.has("secret") ? String(params.get("secret")) : "tower tower";
+  const SECRET_BIT = Math.max(0.05, num("secretbit", 0.2));
+  const SECRET_DEPTH = clamp(num("secretdepth", 0.25));
+  const secret = SECRET && SECRET !== "0" && SECRET_DEPTH > 0 && window.SecretShimmer
+    ? window.SecretShimmer.encoder(SECRET, SECRET_BIT) : null;
+  const RED = [205, 22, 44];
+  const RED_MEAN = (RED[0] + RED[1] + RED[2]) / 3;
+  // The red at a given saturation: 1 is the red itself, less is nearer the grey
+  // of the same brightness. This is the one place the message is applied.
+  const red = (gain, alpha) =>
+    `rgba(${RED.map((v) => Math.round(RED_MEAN + (v - RED_MEAN) * gain)).join(",")},${alpha})`;
+  const boards = (() => {
+    const r = rng(7);
+    return Array.from({ length: 16 }, () => ({
+      joints: [0.1 + r() * 0.32, 0.56 + r() * 0.32],
+      grain: Array.from({ length: 3 }, () => ({ y: 0.18 + r() * 0.64, x: r() * 0.75, l: 0.12 + r() * 0.25 }))
+    }));
+  })();
+  const FADE_IN = 0.6;   // the red comes up, and then the message clock starts
+  let beat = 0, beatAt = 0;
+  // Fast up and slower down. The sound of it, drawn.
+  const thump = (x) => (x < 0 ? Math.exp(-((x / 0.02) ** 2)) : Math.exp(-x / 0.085));
+  stage("heart", {}, (g, w, h, t) => {
+    if (t < beatAt) beat = 0;
+    // It quickens the longer it is watched, as it does in the story.
+    beat += Math.min(0.1, Math.max(0, t - beatAt)) / (1.25 - 0.6 * ease(t / 50));
+    beatAt = t;
+    const ph = beat % 1;
+    const env = Math.min(1, thump(ph) + 0.65 * thump(ph - 0.27) + thump(ph - 1));
+    const rows = Math.max(4, Math.round(h / 40)), bh = h / rows;
+    const cx = w / 2, cy = h / 2, far = Math.max(w * 0.46, h);
+    const up = ease(t / FADE_IN);
+    const gain = secret ? 1 - SECRET_DEPTH * secret.dip(t - FADE_IN) : 1;
+    const lift = (i) => -1.4 * env * Math.max(0, 1 - Math.abs(i * bh - cy) / (h * 0.5));
+    const gaps = () => {
+      g.beginPath();
+      for (let i = 0; i < rows; i++) {
+        if (i > 0) { const y = Math.round(i * bh) + 0.5 + lift(i); g.moveTo(0, y); g.lineTo(w, y); }
+        for (const j of boards[i].joints) {
+          const x = Math.round(j * w) + 0.5;
+          g.moveTo(x, i * bh + lift(i)); g.lineTo(x, (i + 1) * bh + lift(i + 1));
+        }
+      }
+    };
+    const from = (colourAt) => {
+      const f = g.createRadialGradient(cx, cy, 0, cx, cy, far);
+      f.addColorStop(0, colourAt(1)); f.addColorStop(0.5, colourAt(0.42)); f.addColorStop(1, colourAt(0));
+      return f;
+    };
+
+    g.globalCompositeOperation = "source-over";
+    g.fillStyle = PAGE; g.fillRect(0, 0, w, h);
+    g.fillStyle = "rgba(244,239,228,0.035)"; g.fillRect(0, 0, w, h);
+    g.fillStyle = from((k) => red(gain, 0.42 * up * k)); g.fillRect(0, 0, w, h);
+    g.strokeStyle = "rgba(244,239,228,0.05)"; g.lineWidth = 1;
+    g.beginPath();
+    for (let i = 0; i < rows; i++) {
+      for (const s of boards[i].grain) {
+        const y = Math.round((i + s.y) * bh) + 0.5;
+        g.moveTo(s.x * w, y); g.lineTo((s.x + s.l) * w, y);
+      }
+    }
+    g.stroke();
+    gaps(); g.strokeStyle = "#000"; g.lineWidth = 3; g.stroke();
+    gaps(); g.strokeStyle = from((k) => red(gain, 0.75 * up * k)); g.lineWidth = 2.2; g.stroke();
+    g.fillStyle = "rgba(244,239,228,0.22)";
+    for (let i = 0; i < rows; i++) {
+      for (const j of boards[i].joints) {
+        for (const d of [-7, 7]) {
+          g.beginPath(); g.arc(j * w + d, (i + 0.5) * bh, 1, 0, TAU); g.fill();
+        }
+      }
+    }
+    // The beat is white light added on top. Adding the same amount to red,
+    // green and blue leaves a colour exactly as far from grey as it was, so
+    // the reader, which measures that distance, does not hear the beat at all.
+    // The amounts are kept low enough that nothing reaches 255 and clips.
+    g.globalCompositeOperation = "lighter";
+    g.fillStyle = from((k) => `rgba(255,255,255,${0.06 * env * up * k})`); g.fillRect(0, 0, w, h);
+    gaps(); g.strokeStyle = from((k) => `rgba(255,255,255,${0.25 * env * up * k})`); g.lineWidth = 2.2; g.stroke();
+    g.globalCompositeOperation = "source-over";
+    for (const [a, b] of [[0, 0.1], [1, 0.9]]) {
+      const edge = g.createLinearGradient(a * w, 0, b * w, 0);
+      edge.addColorStop(0, PAGE); edge.addColorStop(1, "rgba(13,12,11,0)");
+      g.fillStyle = edge; g.fillRect(Math.min(a, b) * w, 0, 0.1 * w, h);
+    }
+  });
+
+  // ---- halo: take me, take me to the other side
+  const PHRASE = "TAKE ME, TAKE ME TO THE OTHER SIDE";
+  const SLOTS = PHRASE.length + 8;
+  const haloStars = starfield(23, 150);
+  stage("halo", { rest: 4, usesMoon: true }, (g, w, h, t) => {
+    const cx = w / 2, cy = h / 2, R = Math.min(w * 0.235, h * 0.3);
+    const A = R * 1.75, B = A * 0.3, tilt = -0.2;
+    g.fillStyle = PAGE; g.fillRect(0, 0, w, h);
+    stars(g, haloStars, w, h, t);
+    tower(g, w * 0.93, h - R * 0.22, R * 0.5, false);
+
+    g.textAlign = "center"; g.textBaseline = "middle";
+    const letters = (front) => {
+      for (let i = 0; i < PHRASE.length; i++) {
+        if (PHRASE[i] === " ") continue;
+        // Counted backwards so the phrase reads left to right on the near side.
+        const th = 1.2 + t * 0.2 - i * (TAU / SLOTS);
+        const z = Math.sin(th);
+        if (z > 0 !== front) continue;
+        const lx = A * Math.cos(th), ly = B * z;
+        const x = cx + lx * Math.cos(tilt) - ly * Math.sin(tilt);
+        const y = cy + lx * Math.sin(tilt) + ly * Math.cos(tilt);
+        g.font = `600 ${R * 0.17 * (1 + 0.24 * z)}px ui-monospace, "SF Mono", Menlo, Consolas, monospace`;
+        g.globalAlpha = 0.26 + 0.7 * ease((z + 0.25) / 0.6);
+        g.shadowColor = "rgba(240,184,224,0.55)"; g.shadowBlur = front ? R * 0.08 : 0;
+        g.fillStyle = "#f4efe4";
+        g.fillText(PHRASE[i], x, y);
+      }
+      g.globalAlpha = 1; g.shadowBlur = 0;
+    };
+    letters(false);
+
+    drawMoon(g, cx, cy, R);
+    g.save();
+    g.beginPath(); g.arc(cx, cy, R + 0.5, 0, TAU); g.clip();
+    // The dark side: all of it in shadow but a sliver of the left limb.
+    const sx = cx + R * 0.42, sy = cy - R * 0.05;
+    const dark = g.createRadialGradient(sx, sy, R * 0.86, sx, sy, R * 1.42);
+    dark.addColorStop(0, "rgba(5,6,9,0.94)"); dark.addColorStop(1, "rgba(5,6,9,0)");
+    g.fillStyle = dark; g.fillRect(cx - R, cy - R, 2 * R, 2 * R);
+    // The circle she lies in, two pictures up.
+    g.strokeStyle = "rgba(205,22,44,0.45)"; g.lineWidth = Math.max(1, R * 0.008);
+    for (const rr of [0.8, 0.74]) { g.beginPath(); g.arc(cx, cy, R * rr, 0, TAU); g.stroke(); }
+    g.beginPath();
+    for (let k = 0; k <= 5; k++) {
+      const a = -Math.PI / 2 - t * 0.04 + ((k * 2) % 5) * (TAU / 5);
+      const x = cx + R * 0.74 * Math.cos(a), y = cy + R * 0.74 * Math.sin(a);
+      k ? g.lineTo(x, y) : g.moveTo(x, y);
+    }
+    g.stroke();
+    g.restore();
+
+    letters(true);
+  });
+
+  // ---- fruit: a still unsplit pomegranate; this great fruity abyss
+  const GOLDEN = Math.PI * (3 - Math.sqrt(5));
+  const SEEDS = 300;
+  const ARILS = ["#8e0f24", "#b3142f", "#c81e3c", "#d93452", "#a01029", "#e25572"];
+  const CRACK = (() => {
+    const r = rng(3);
+    return Array.from({ length: 11 }, (_, i) => [i === 0 || i === 10 ? 0 : (i % 2 ? 1 : -1) * (0.03 + r() * 0.05), -1.3 + i * 0.26]);
+  })();
+  const LANES = [
+    { a: 1.3, tilt: -0.3, speed: 0.5, at: [0.4, 3.6] },
+    { a: 1.48, tilt: 0.25, speed: -0.37, at: [1.9, 5.1] },
+    { a: 1.64, tilt: 0.62, speed: 0.29, at: [2.8] }
+  ];
+  function aril(g, x, y, size, angle, colour) {
+    g.fillStyle = colour;
+    g.beginPath(); g.ellipse(x, y, size * 1.25, size, angle, 0, TAU); g.fill();
+    g.fillStyle = "rgba(255,226,232,0.5)";
+    g.beginPath(); g.ellipse(x - size * 0.3, y - size * 0.36, size * 0.3, size * 0.17, -0.6, 0, TAU); g.fill();
+  }
+  const SPLIT_AT = 1.4;
+  stage("fruit", { rest: 30 }, (g, w, h, t) => {
+    const R = Math.min(w, h) * 0.3, cx = w / 2, cy = h / 2 + R * 0.06;
+    const split = ease((t - SPLIT_AT) / 3.4);
+    g.fillStyle = PAGE; g.fillRect(0, 0, w, h);
+
+    // Loose seeds on tilted lanes, the way things go round the moon in the show.
+    const loose = (front) => {
+      if (split <= 0) return;
+      g.globalAlpha = split;
+      LANES.forEach((lane, li) => lane.at.forEach((p, k) => {
+        const th = p + t * lane.speed, z = Math.sin(th);
+        if (z > 0 !== front) return;
+        const lx = lane.a * R * Math.cos(th), ly = lane.a * R * 0.3 * z;
+        aril(g, cx + lx * Math.cos(lane.tilt) - ly * Math.sin(lane.tilt),
+          cy + lx * Math.sin(lane.tilt) + ly * Math.cos(lane.tilt),
+          R * 0.045 * (1 + 0.28 * z), th, ARILS[(li * 2 + k + 2) % ARILS.length]);
+      }));
+      g.globalAlpha = 1;
+    };
+    loose(false);
+
+    if (split > 0) {
+      g.fillStyle = "#23050b";
+      g.beginPath(); g.arc(cx, cy, R * 0.97, 0, TAU); g.fill();
+      // Seed k sits at the golden angle times k, at the root of how far it is
+      // from being swallowed. Taking the same amount off every seed's count
+      // moves them all inward together, and new ones arrive at the rind.
+      const Rs = R * 0.93, c = Rs / Math.sqrt(SEEDS);
+      const flow = (t - SPLIT_AT) * 5, k0 = Math.ceil(flow);
+      for (let k = k0 + SEEDS; k >= k0; k--) {
+        const u = k - flow;
+        if (u < 0.05) continue;
+        const r = c * Math.sqrt(u), a = k * GOLDEN + t * 0.05;
+        const size = c * (0.3 + 0.34 * clamp(r / (Rs * 0.4))) * ease((SEEDS - u) / 12);
+        aril(g, cx + r * Math.cos(a), cy + r * Math.sin(a), size, a, ARILS[(Math.imul(k, 2654435761) >>> 0) % ARILS.length]);
+      }
+      const abyss = g.createRadialGradient(cx, cy, Rs * 0.05, cx, cy, Rs * 0.66);
+      abyss.addColorStop(0, "#000"); abyss.addColorStop(0.32, "rgba(0,0,0,0.9)"); abyss.addColorStop(1, "rgba(0,0,0,0)");
+      g.fillStyle = abyss;
+      g.beginPath(); g.arc(cx, cy, Rs, 0, TAU); g.fill();
+      g.strokeStyle = "#6f1a1d"; g.lineWidth = R * 0.07;
+      g.beginPath(); g.arc(cx, cy, R * 0.965, 0, TAU); g.stroke();
+    }
+
+    // The rind, in two halves along the crack. Whole until it is not. The
+    // halves part sideways and tip a little, and are gone before they have
+    // gone far: hinged at the foot they opened like two more fruit.
+    const gone = ease((split - 0.35) / 0.65);
+    if (gone < 1) {
+      for (const side of [-1, 1]) {
+        g.save();
+        g.globalAlpha = 1 - gone;
+        g.translate(cx + side * split * R * 0.62, cy + R);
+        g.rotate(side * split * 0.16);
+        g.translate(0, -R);
+        g.beginPath();
+        CRACK.forEach(([x, y], i) => (i ? g.lineTo(x * R, y * R) : g.moveTo(x * R, y * R)));
+        g.lineTo(side * 2 * R, 1.3 * R); g.lineTo(side * 2 * R, -1.3 * R);
+        g.closePath(); g.clip();
+        const skin = g.createRadialGradient(-0.35 * R, -0.4 * R, R * 0.05, 0, 0, R * 1.25);
+        skin.addColorStop(0, "#d8514a"); skin.addColorStop(0.45, "#a3272c"); skin.addColorStop(1, "#4f0f15");
+        g.fillStyle = skin;
+        g.beginPath(); g.arc(0, 0, R, 0, TAU); g.fill();
+        g.fillStyle = "#7a1c1e";
+        g.beginPath();
+        [[-0.13, -0.97], [-0.17, -1.2], [-0.07, -1.08], [0, -1.22], [0.07, -1.08], [0.17, -1.2], [0.13, -0.97]]
+          .forEach(([x, y], i) => (i ? g.lineTo(x * R, y * R) : g.moveTo(x * R, y * R)));
+        g.closePath(); g.fill();
+        g.restore();
+      }
+    }
+    loose(true);
+  });
+})();
+</script>
+</body>
+</html>

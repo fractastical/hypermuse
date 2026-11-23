@@ -53,6 +53,8 @@
     "metavillan:check": "node scripts/check-mandala.mjs",
     "metavillan:secret": "node scripts/check-mandala-secret.mjs",
     "metavillan:secret:video": "node scripts/check-mandala-secret-video.mjs",
+    "essay:tower:secret": "node scripts/check-essay-secret.mjs tower",
+    "essay:lookback:secret": "node scripts/check-essay-secret.mjs lookback",
     "clips": "node scripts/fetch-xfeeefeee.mjs",
     "clips:web": "node scripts/fetch-clip.mjs",
     "tracks": "node scripts/extract-xfeeefeee-audio.mjs",
